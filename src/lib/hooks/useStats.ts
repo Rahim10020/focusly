@@ -20,20 +20,20 @@ export function useStats() {
         setSessions([...sessions, session]);
 
         if (session.completed && session.type === 'work') {
-            setStats({
-                ...stats,
-                totalFocusTime: stats.totalFocusTime + Math.floor(session.duration / 60),
-                totalSessions: stats.totalSessions + 1,
-            });
+            setStats(prevStats => ({
+                ...prevStats,
+                totalFocusTime: prevStats.totalFocusTime + Math.floor(session.duration / 60),
+                totalSessions: prevStats.totalSessions + 1,
+            }));
         }
     };
 
     const updateTaskStats = (totalTasks: number, completedTasks: number) => {
-        setStats({
-            ...stats,
+        setStats(prevStats => ({
+            ...prevStats,
             totalTasks,
             completedTasks,
-        });
+        }));
     };
 
     const getTodaySessions = () => {

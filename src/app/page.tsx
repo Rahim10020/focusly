@@ -55,7 +55,9 @@ export default function Home() {
   useEffect(() => {
     const completedTasks = tasks.filter(task => task.completed).length;
     updateTaskStats(tasks.length, completedTasks);
+  }, [tasks, updateTaskStats]);
 
+  useEffect(() => {
     const todayFocusMinutes = Math.floor(getTodayFocusTime() / 60);
     checkAchievements({
       totalSessions: stats.totalSessions,
@@ -63,7 +65,7 @@ export default function Home() {
       streak: stats.streak,
       todayFocusMinutes,
     });
-  }, [tasks, stats, updateTaskStats, getTodayFocusTime, checkAchievements]);
+  }, [stats, getTodayFocusTime, checkAchievements]);
 
   const handlePomodoroComplete = (taskId: string) => {
     incrementPomodoro(taskId);
