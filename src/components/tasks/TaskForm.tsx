@@ -94,7 +94,7 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                                 type="button"
                                 onClick={() => setPriority(priority === 'high' ? undefined : 'high')}
                                 className={`flex-1 p-2 rounded-lg border-2 transition-all ${priority === 'high'
-                                    ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                                    ? 'border-black bg-gray-100 dark:bg-gray-800'
                                     : 'border-border hover:bg-accent'
                                     }`}
                             >
@@ -104,7 +104,7 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                                 type="button"
                                 onClick={() => setPriority(priority === 'medium' ? undefined : 'medium')}
                                 className={`flex-1 p-2 rounded-lg border-2 transition-all ${priority === 'medium'
-                                    ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20'
+                                    ? 'border-gray-500 bg-gray-200 dark:bg-gray-700'
                                     : 'border-border hover:bg-accent'
                                     }`}
                             >
@@ -114,7 +114,7 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                                 type="button"
                                 onClick={() => setPriority(priority === 'low' ? undefined : 'low')}
                                 className={`flex-1 p-2 rounded-lg border-2 transition-all ${priority === 'low'
-                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                    ? 'border-gray-300 bg-gray-50 dark:bg-gray-900'
                                     : 'border-border hover:bg-accent'
                                     }`}
                             >

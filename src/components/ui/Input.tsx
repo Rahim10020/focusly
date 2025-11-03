@@ -24,7 +24,7 @@ export default function Input({
           placeholder:text-muted-foreground smooth-transition ${className}`}
                 {...props}
             />
-            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+            {error && <p className="mt-1 text-sm text-black dark:text-white">{error}</p>}
         </div>
     );
 }

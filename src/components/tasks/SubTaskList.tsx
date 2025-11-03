@@ -91,7 +91,7 @@ export default function SubTaskList({
 
                             <button
                                 onClick={() => onDelete(subTask.id)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-black dark:hover:text-white"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"

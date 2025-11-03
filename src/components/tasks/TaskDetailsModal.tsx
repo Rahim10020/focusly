@@ -100,12 +100,12 @@ export default function TaskDetailsModal({
                             onChange={(e) => setDueDate(e.target.value)}
                         />
                         {isOverdue && (
-                            <p className="text-xs text-red-500">
+                            <p className="text-xs text-black dark:text-white">
                                 ⚠️ This task is overdue!
                             </p>
                         )}
                         {isDueToday && !isOverdue && (
-                            <p className="text-xs text-yellow-600">
+                            <p className="text-xs text-gray-600 dark:text-gray-300">
                                 📅 Due today
                             </p>
                         )}
