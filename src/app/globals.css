@@ -10,7 +10,7 @@
   --muted: #F5F5F5;
   --muted-foreground: #555555;
   --accent: #edecec;
-  --border: #CCCCCC;
+  --border: #e5e2e2;
   --radius: 0.75rem;
 }
 
@@ -23,8 +23,8 @@
   --primary-foreground: #000000;
   --muted: #333333;
   --muted-foreground: #CCCCCC;
-  --accent: #FFFFFF;
-  --border: #666666;
+  --accent: #141414;
+  --border: #232323;
 }
 
 @theme {
