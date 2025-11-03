@@ -1,180 +1,278 @@
-# Focusly
+# 🎯 Focusly - Améliorations v2.0
 
-Une application de gestion de productivité combinant une to-do list et un timer Pomodoro, construite avec Next.js, React et Tailwind CSS.
+## 📋 Résumé des Nouvelles Fonctionnalités
 
-## Description
+Voici les **3 fonctionnalités majeures** qui ont été ajoutées à ton app Focusly :
 
-Focusly vous aide à gérer votre temps et votre productivité grâce à un système de tâches intégré à la technique Pomodoro. Suivez vos sessions de travail, complétez vos tâches et visualisez vos statistiques de productivité.
+### 1. 🔔 **Notifications + Sons**
+- ✅ Sons personnalisés à la fin de chaque session
+- ✅ Notifications browser natives
+- ✅ Toggle pour activer/désactiver dans les settings
+- ✅ Sons générés avec Web Audio API (pas de fichiers audio)
 
-## Fonctionnalités
+### 2. 🔗 **Lier Tâches aux Pomodoros**
+- ✅ Sélectionner une tâche active avant le timer
+- ✅ Auto-incrémentation du compteur pomodoro
+- ✅ Affichage de la tâche en cours dans le timer
+- ✅ Badge "Active" sur la tâche sélectionnée
+- ✅ Boutons "Set Active" / "Unset" dans la liste
 
-### 1. Gestion des Tâches
-- Ajouter une nouvelle tâche
-- Marquer une tâche comme complétée/non complétée
-- Supprimer une tâche
-- Affichage séparé : tâches actives vs tâches complétées
-- Compteur de pomodoros par tâche
-- Sauvegarde automatique dans LocalStorage
+### 3. ⚙️ **Paramètres Timer Personnalisables**
+- ✅ Nouvelle page Settings
+- ✅ Durées personnalisables (work, short break, long break)
+- ✅ Nombre de cycles avant long break configurable
+- ✅ Auto-start breaks et pomodoros
+- ✅ Reset to default
+- ✅ Persistance des settings dans localStorage
 
-### 2. Timer Pomodoro
-- Timer de 25 minutes pour le travail
-- Pause courte de 5 minutes
-- Pause longue de 15 minutes (après 4 cycles)
-- Contrôles : Start / Pause / Resume / Reset / Skip
-- Affichage visuel avec cercle de progression animé
-- Indicateur de cycles complétés
-- Passage automatique travail → pause → travail
-- Tracking automatique des sessions complétées
 
-### 3. Statistiques
-- **Today's Focus** : temps de focus aujourd'hui
-- **Total Focus Time** : temps total accumulé
-- **Tasks Completed** : nombre de tâches terminées
-- **Completion Rate** : pourcentage de tâches complétées
-- Historique des 10 dernières sessions avec date et heure
-- Page dédiée /stats pour consulter les détails
+## 🚀 Installation Rapide
 
-### 4. Thème Clair/Sombre
-- Switch entre mode clair et mode sombre
-- Sauvegarde automatique de la préférence
-- Détection du thème système
-- Palette beige/warm pour le mode clair
-- Palette sombre moderne pour le mode dark
+### Option 1: Installation Manuelle
 
-### 5. Interface & UX
-- Design minimaliste inspiré de Notion
-- Responsive (mobile et desktop)
-- Navigation avec header sticky
-- Animations et transitions fluides
-- Composants UI réutilisables
-
-### 6. Persistance des Données
-Toutes les données sont sauvegardées localement :
-- Tâches
-- Sessions Pomodoro
-- Statistiques
-- Préférence de thème
-
-## Technologies Utilisées
-
-- **Next.js 16** - Framework React
-- **React 19** - Bibliothèque UI
-- **TypeScript** - Typage statique
-- **Tailwind CSS 4** - Styling
-- **LocalStorage** - Persistance des données
-
-## Installation
-
-1. Cloner le repository
 ```bash
-git clone <your-repo-url>
-cd focusly
-```
+# 1. Créer les dossiers
+mkdir -p src/components/settings
+mkdir -p src/app/settings
 
-2. Installer les dépendances
-## Installation
+# 2. Copier les nouveaux hooks
+cp useNotifications.ts src/lib/hooks/
+cp useSound.ts src/lib/hooks/
+cp useSettings.ts src/lib/hooks/
 
-1. Cloner le repository
-```bash
-git clone <your-repo-url>
-cd focusly
-```
+# 3. Remplacer les hooks
+cp usePomodoro-updated.ts src/lib/hooks/usePomodoro.ts
+cp useTasks-updated.ts src/lib/hooks/useTasks.ts
 
-2. Installer les dépendances
-```bash
-npm install
-```
+# 4. Copier les nouveaux composants
+cp Settings.tsx src/components/settings/
+cp TaskSelector.tsx src/components/tasks/
 
-3. Lancer le serveur de développement
-```bash
+# 5. Remplacer les composants
+cp PomodoroTimer-updated.tsx src/components/pomodoro/PomodoroTimer.tsx
+cp SessionIndicator-updated.tsx src/components/pomodoro/SessionIndicator.tsx
+cp TaskList-updated.tsx src/components/tasks/TaskList.tsx
+cp TaskItem-updated.tsx src/components/tasks/TaskItem.tsx
+cp Header-updated.tsx src/components/layout/Header.tsx
+
+# 6. Remplacer/Créer les pages
+cp page-updated.tsx src/app/page.tsx
+cp settings-page.tsx src/app/settings/page.tsx
+
+# 7. Redémarrer
 npm run dev
 ```
 
-4. Ouvrir [http://localhost:3000](http://localhost:3000) dans votre navigateur
+### Option 2: Script d'Installation
 
-## Commandes Disponibles
+Crée un fichier `install.sh` :
 
 ```bash
-npm run dev      # Lancer le serveur de développement
-npm run build    # Créer le build de production
-npm run start    # Lancer le serveur de production
-npm run lint     # Vérifier le code avec ESLint
+#!/bin/bash
+
+echo "🚀 Installation des nouvelles fonctionnalités Focusly..."
+
+# Créer les dossiers
+mkdir -p src/components/settings
+mkdir -p src/app/settings
+
+# Hooks
+cp useNotifications.ts src/lib/hooks/
+cp useSound.ts src/lib/hooks/
+cp useSettings.ts src/lib/hooks/
+cp usePomodoro-updated.ts src/lib/hooks/usePomodoro.ts
+cp useTasks-updated.ts src/lib/hooks/useTasks.ts
+
+# Composants
+cp Settings.tsx src/components/settings/
+cp TaskSelector.tsx src/components/tasks/
+cp PomodoroTimer-updated.tsx src/components/pomodoro/PomodoroTimer.tsx
+cp SessionIndicator-updated.tsx src/components/pomodoro/SessionIndicator.tsx
+cp TaskList-updated.tsx src/components/tasks/TaskList.tsx
+cp TaskItem-updated.tsx src/components/tasks/TaskItem.tsx
+cp Header-updated.tsx src/components/layout/Header.tsx
+
+# Pages
+cp page-updated.tsx src/app/page.tsx
+cp settings-page.tsx src/app/settings/page.tsx
+
+echo "✅ Installation terminée !"
+echo "📝 Redémarre le serveur avec: npm run dev"
 ```
 
-## Configuration Pomodoro
+Puis exécute :
+```bash
+chmod +x install.sh
+./install.sh
+```
 
-Les durées par défaut peuvent être modifiées dans `src/lib/constants.ts` :
+---
+
+## 🎮 Guide d'Utilisation
+
+### Première Utilisation
+
+1. **Lance l'app** : `npm run dev`
+2. **Va sur Settings** (lien dans le header)
+3. **Configure tes préférences** :
+   - Durées du timer
+   - Auto-start
+   - Sons
+4. **Retourne sur la page principale**
+5. **Crée des tâches**
+6. **Clique "Set Active"** sur une tâche
+7. **Démarre le timer** → Autorise les notifications
+8. **Focus!** 🎯
+
+
+## 🔧 Configuration Avancée
+
+### Personnaliser les Sons
+
+Édite `src/lib/hooks/useSound.ts` :
 
 ```typescript
-export const POMODORO_DURATION = 25 * 60;  // 25 minutes
-export const SHORT_BREAK = 5 * 60;          // 5 minutes
-export const LONG_BREAK = 15 * 60;          // 15 minutes
-export const POMODORO_CYCLES_FOR_LONG_BREAK = 4;  // 4 cycles
+// Changer les fréquences
+createBeepSound(440, 150);  // La (A)
+createBeepSound(554, 150);  // Do# (C#)
+createBeepSound(659, 300);  // Mi (E)
 ```
 
-## Palette de Couleurs
+### Ajouter des Settings
 
-
-```bash
-npm install
-```
-
-3. Lancer le serveur de développement
-```bash
-npm run dev
-```
-
-4. Ouvrir [http://localhost:3000](http://localhost:3000) dans votre navigateur
-
-## Commandes Disponibles
-
-```bash
-npm run dev      # Lancer le serveur de développement
-npm run build    # Créer le build de production
-npm run start    # Lancer le serveur de production
-npm run lint     # Vérifier le code avec ESLint
-```
-
-## Configuration Pomodoro
-
-Les durées par défaut peuvent être modifiées dans `src/lib/constants.ts` :
+Édite `src/lib/hooks/useSettings.ts` :
 
 ```typescript
-export const POMODORO_DURATION = 25 * 60;  // 25 minutes
-export const SHORT_BREAK = 5 * 60;          // 5 minutes
-export const LONG_BREAK = 15 * 60;          // 15 minutes
-export const POMODORO_CYCLES_FOR_LONG_BREAK = 4;  // 4 cycles
+interface TimerSettings {
+    // ... existants
+    showProgressBar: boolean;
+    enableKeyboardShortcuts: boolean;
+}
 ```
 
-## Palette de Couleurs
+### Modifier les Notifications
 
-### Mode Clair (Warm/Beige)
-- Background: `#F8F4E3`
-- Primary: `#7D6E5C`
-- Accent: `#A6937C`
-- Card: `#FFFFFF`
+Édite `src/components/pomodoro/PomodoroTimer.tsx` :
 
-### Mode Sombre
-- Background: `#1A1A1A`
-- Primary: `#A6937C`
-- Card: `#252525`
+```typescript
+showNotification('✅ Session terminée !', {
+    body: 'Tu as mérité une pause !',
+    icon: '/tomato-icon.png',
+})
+```
 
-## Fonctionnalités Futures (Optionnelles)
+---
 
-- Authentification utilisateur
-- Notifications sonores de fin de session
-- Sélectionner une tâche spécifique pour le Pomodoro
-- Édition de tâches existantes
-- Filtres avancés de tâches
-- Export des données (CSV, JSON)
-- Graphiques de productivité avancés
-- Synchronisation cloud
-- Application mobile native
+## 📊 Statistiques
 
-## License
+### Avant les Améliorations
+- ❌ Pas de sons/notifications
+- ❌ Pas de lien entre tâches et pomodoros
+- ❌ Durées fixes non modifiables
+- ❌ Pas d'auto-start
+- ❌ Pas de page settings
 
-MIT
+### Après les Améliorations ✨
+- ✅ Sons + Notifications
+- ✅ Tâches liées aux pomodoros
+- ✅ Durées personnalisables
+- ✅ Auto-start configurable
+- ✅ Page settings complète
+- ✅ Toggle sons
+- ✅ Badge "Active" sur tâches
+- ✅ Compteur pomodoro par tâche
 
-## Auteur
+---
 
-Développé avec Next.js et Tailwind CSS
+## 🎯 Roadmap Future
+
+### Phase suivante suggérée :
+
+1. **📊 Graphiques & Visualisations**
+   - Charts de productivité
+   - Heatmap calendrier
+   - Trends hebdomadaires
+
+2. **🏷️ Tags & Catégories**
+   - Organiser les tâches
+   - Filtrer par catégorie
+   - Statistiques par tag
+
+3. **📱 PWA**
+   - Installer comme app
+   - Mode offline
+   - Icon sur écran d'accueil
+
+4. **⌨️ Keyboard Shortcuts**
+   - Space = Start/Pause
+   - R = Reset
+   - S = Skip
+   - N = New task
+
+5. **🎨 Mode Focus**
+   - Plein écran
+   - Distractions minimales
+   - Animations zen
+
+---
+
+## 🐛 Bugs Connus & Fixes
+
+### Bug: Notifications ne s'affichent pas
+**Fix:** Vérifie les permissions du navigateur
+
+### Bug: Sons ne jouent pas
+**Fix:** Clique sur Start une première fois (interaction requise)
+
+### Bug: Settings ne se sauvegardent pas
+**Fix:** Vérifie que localStorage est autorisé
+
+---
+
+## 🤝 Contribution
+
+Si tu veux améliorer le projet :
+
+1. Fork le repo
+2. Crée une branche feature
+3. Commit tes changements
+4. Push et crée une Pull Request
+
+---
+
+## 📝 Notes de Version
+
+### v2.0.0 - Améliorations Majeures
+
+**Nouvelles Features:**
+- ✨ Notifications + Sons
+- ✨ Tâches actives liées aux pomodoros
+- ✨ Settings personnalisables
+- ✨ Page Settings
+- ✨ Auto-start configurable
+
+**Améliorations:**
+- 🔧 Hooks refactorisés
+- 🎨 UI améliorée pour les tâches
+- 📱 Meilleure expérience mobile
+
+**Fixes:**
+- 🐛 Fix timer reset
+- 🐛 Fix localStorage
+- 🐛 Fix dark mode
+
+---
+
+## 📞 Support
+
+Questions ? Problèmes ?
+
+- 📖 Lis le [GUIDE_INSTALLATION.md]
+- 🐛 Ouvre une issue
+- 💬 Contacte-moi
+
+---
+
+**🎉 Bon focus avec Focusly v2.0 ! 🍅**
+
+Made with ❤️ and lots of ☕
