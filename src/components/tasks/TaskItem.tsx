@@ -1,0 +1,76 @@
+'use client';
+
+import { Task } from '@/types';
+import Button from '@/components/ui/Button';
+
+interface TaskItemProps {
+    task: Task;
+    onToggle: (id: string) => void;
+    onDelete: (id: string) => void;
+}
+
+export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+    return (
+        <div className="flex items-center gap-3 p-3 bg-muted rounded-xl hover:bg-accent transition-colors group">
+            <button
+                onClick={() => onToggle(task.id)}
+                className="flex-shrink-0 w-5 h-5 rounded-full border-2 border-primary flex items-center justify-center hover:bg-primary transition-colors"
+            >
+                {task.completed && (
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-primary-foreground"
+                    >
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                )}
+            </button>
+
+            <div className="flex-1 min-w-0">
+                <p
+                    className={`text-sm ${task.completed
+                        ? 'line-through text-muted-foreground'
+                        : 'text-foreground'
+                        }`}
+                >
+                    {task.title}
+                </p>
+                {task.pomodoroCount > 0 && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                        {task.pomodoroCount} pomodoro{task.pomodoroCount > 1 ? 's' : ''}
+                    </p>
+                )}
+            </div>
+
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDelete(task.id)}
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                >
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </Button>
+        </div>
+    );
+}
