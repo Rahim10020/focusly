@@ -4,6 +4,7 @@ import { STORAGE_KEYS } from '@/lib/constants';
 
 export function useTasks() {
     const [tasks, setTasks] = useLocalStorage<Task[]>(STORAGE_KEYS.TASKS, []);
+    const [activeTaskId, setActiveTaskId] = useLocalStorage<string | null>('focusly_active_task', null);
 
     const addTask = (title: string) => {
         const newTask: Task = {
@@ -24,6 +25,10 @@ export function useTasks() {
 
     const deleteTask = (id: string) => {
         setTasks(tasks.filter(task => task.id !== id));
+        // Si la tâche supprimée était active, on désactive
+        if (activeTaskId === id) {
+            setActiveTaskId(null);
+        }
     };
 
     const toggleTask = (id: string) => {
@@ -36,6 +41,11 @@ export function useTasks() {
                 }
                 : task
         ));
+        // Si la tâche complétée était active, on désactive
+        const task = tasks.find(t => t.id === id);
+        if (task && !task.completed && activeTaskId === id) {
+            setActiveTaskId(null);
+        }
     };
 
     const incrementPomodoro = (id: string) => {
@@ -46,16 +56,36 @@ export function useTasks() {
         ));
     };
 
+    const setActiveTask = (id: string | null) => {
+        // Ne peut pas sélectionner une tâche complétée
+        if (id) {
+            const task = tasks.find(t => t.id === id);
+            if (task && !task.completed) {
+                setActiveTaskId(id);
+            }
+        } else {
+            setActiveTaskId(null);
+        }
+    };
+
+    const getActiveTask = () => {
+        if (!activeTaskId) return null;
+        return tasks.find(task => task.id === activeTaskId) || null;
+    };
+
     const getActiveTasks = () => tasks.filter(task => !task.completed);
     const getCompletedTasks = () => tasks.filter(task => task.completed);
 
     return {
         tasks,
+        activeTaskId,
         addTask,
         updateTask,
         deleteTask,
         toggleTask,
         incrementPomodoro,
+        setActiveTask,
+        getActiveTask,
         getActiveTasks,
         getCompletedTasks,
     };
