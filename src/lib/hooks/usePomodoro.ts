@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { TimerStatus, PomodoroSession } from '@/types';
 import { TimerSettings } from './useSettings';
 
@@ -58,7 +58,7 @@ export function usePomodoro(options: UsePomodoroOptions) {
         }
     }, [status, currentSessionStart]);
 
-    const handleSessionComplete = () => {
+    const handleSessionComplete = useCallback(() => {
         const completed = timeLeft === 0;
         const session: PomodoroSession = {
             id: `session-${Date.now()}`,
@@ -106,20 +106,20 @@ export function usePomodoro(options: UsePomodoroOptions) {
                 setTimeout(() => setStatus('running'), 1000);
             }
         }
-    };
+    }, [timeLeft, sessionType, initialTimeLeft, currentSessionStart, activeTaskId, onSessionComplete, onWorkComplete, onBreakComplete, settings, completedCycles]);
 
-    const start = () => {
+    const start = useCallback(() => {
         setStatus('running');
-    };
+    }, []);
 
-    const pause = () => {
+    const pause = useCallback(() => {
         setStatus('paused');
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
         }
-    };
+    }, []);
 
-    const reset = () => {
+    const reset = useCallback(() => {
         setStatus('idle');
         setSessionType('work');
         setTimeLeft(settings.workDuration);
@@ -128,12 +128,11 @@ export function usePomodoro(options: UsePomodoroOptions) {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
         }
-    };
+    }, [settings.workDuration]);
 
-    const skip = () => {
+    const skip = useCallback(() => {
         setTimeLeft(0);
-        handleSessionComplete();
-    };
+    }, []);
 
     return {
         timeLeft,
