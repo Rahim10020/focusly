@@ -93,9 +93,9 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                             <button
                                 type="button"
                                 onClick={() => setPriority(priority === 'high' ? undefined : 'high')}
-                                className={`flex-1 p-2 rounded-lg border-2 transition-all ${priority === 'high'
-                                    ? 'border-black bg-gray-100 dark:bg-gray-800'
-                                    : 'border-border hover:bg-accent'
+                                className={`flex-1 p-2 cursor-pointer shadow-lg rounded-lg transition-all ${priority === 'high'
+                                    ? 'bg-gray-100 dark:bg-gray-800'
+                                    : 'hover:bg-accent'
                                     }`}
                             >
                                 <PriorityBadge priority="high" />
@@ -103,9 +103,9 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                             <button
                                 type="button"
                                 onClick={() => setPriority(priority === 'medium' ? undefined : 'medium')}
-                                className={`flex-1 p-2 rounded-lg border-2 transition-all ${priority === 'medium'
-                                    ? 'border-gray-500 bg-gray-200 dark:bg-gray-700'
-                                    : 'border-border hover:bg-accent'
+                                className={`flex-1 p-2 cursor-pointer shadow-lg rounded-lg transition-all ${priority === 'medium'
+                                    ? 'bg-gray-200 dark:bg-gray-700'
+                                    : 'hover:bg-accent'
                                     }`}
                             >
                                 <PriorityBadge priority="medium" />
@@ -113,9 +113,9 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                             <button
                                 type="button"
                                 onClick={() => setPriority(priority === 'low' ? undefined : 'low')}
-                                className={`flex-1 p-2 rounded-lg border-2 transition-all ${priority === 'low'
-                                    ? 'border-gray-300 bg-gray-50 dark:bg-gray-900'
-                                    : 'border-border hover:bg-accent'
+                                className={`flex-1 p-2 cursor-pointer shadow-lg rounded-lg transition-all ${priority === 'low'
+                                    ? 'bg-gray-50 dark:bg-gray-900'
+                                    : 'hover:bg-accent'
                                     }`}
                             >
                                 <PriorityBadge priority="low" />

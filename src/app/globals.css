@@ -8,8 +8,8 @@
   --primary: #000000;
   --primary-foreground: #FFFFFF;
   --muted: #F5F5F5;
-  --muted-foreground: #333333;
-  --accent: #000000;
+  --muted-foreground: #555555;
+  --accent: #edecec;
   --border: #CCCCCC;
   --radius: 0.75rem;
 }

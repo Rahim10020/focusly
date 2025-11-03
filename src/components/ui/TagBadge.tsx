@@ -11,7 +11,7 @@ export default function TagBadge({ tag, size = 'sm', onRemove }: TagBadgeProps) 
 
     return (
         <span
-            className={`inline-flex items-center gap-1.5 rounded-full border font-medium ${sizeClasses}`}
+            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border font-medium ${sizeClasses}`}
             style={{
                 backgroundColor: `${tag.color}15`,
                 borderColor: `${tag.color}40`,
