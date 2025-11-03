@@ -4,22 +4,43 @@ import { useEffect, useState } from 'react';
 
 export default function ThemeToggle() {
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         const savedTheme = localStorage.getItem('focusly_theme') as 'light' | 'dark' | null;
         const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         const initialTheme = savedTheme || systemTheme;
 
         setTheme(initialTheme);
-        document.documentElement.classList.toggle('dark', initialTheme === 'dark');
+
+        // Appliquer le thème sur l'élément html
+        if (initialTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     }, []);
 
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
         localStorage.setItem('focusly_theme', newTheme);
-        document.documentElement.classList.toggle('dark', newTheme === 'dark');
+
+        // Toggle la classe dark sur l'élément html
+        if (newTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     };
+
+    // Éviter le flash pendant l'hydratation
+    if (!mounted) {
+        return (
+            <div className="p-2 rounded-full bg-muted w-9 h-9" />
+        );
+    }
 
     return (
         <button
