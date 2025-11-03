@@ -32,7 +32,7 @@ export default function PriorityBadge({ priority, size = 'sm' }: PriorityBadgePr
 
     return (
         <span
-            className={`inline-flex items-center gap-1 rounded-full border font-medium ${config.color} ${config.darkColor} ${sizeClasses}`}
+            className={`inline-flex items-center gap-1 cursor-pointer rounded-full border font-medium ${config.color} ${config.darkColor} ${sizeClasses}`}
         >
             <span className="text-xs">{config.icon}</span>
             {config.label}

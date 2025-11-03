@@ -13,7 +13,7 @@ export default function Button({
     children,
     ...props
 }: ButtonProps) {
-    const baseStyles = 'rounded-full font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseStyles = 'rounded-full cursor-pointer font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
 
     const variants = {
         primary: 'bg-primary text-primary-foreground hover:opacity-90',
