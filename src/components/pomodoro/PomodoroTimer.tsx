@@ -1,6 +1,7 @@
 'use client';
 
 import { usePomodoro } from '@/lib/hooks/usePomodoro';
+import { useStats } from '@/lib/hooks/useStats';
 import { getProgress } from '@/lib/utils/time';
 import { POMODORO_DURATION, SHORT_BREAK, LONG_BREAK, POMODORO_CYCLES_FOR_LONG_BREAK } from '@/lib/constants';
 import TimerDisplay from './TimerDisplay';
@@ -9,6 +10,8 @@ import ProgressRing from './ProgressRing';
 import SessionIndicator from './SessionIndicator';
 
 export default function PomodoroTimer() {
+    const { addSession } = useStats();
+
     const {
         timeLeft,
         status,
@@ -18,7 +21,11 @@ export default function PomodoroTimer() {
         pause,
         reset,
         skip,
-    } = usePomodoro();
+    } = usePomodoro({
+        onSessionComplete: (session) => {
+            addSession(session);
+        },
+    });
 
     const getTotalTime = () => {
         if (sessionType === 'work') return POMODORO_DURATION;
