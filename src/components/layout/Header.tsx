@@ -19,6 +19,12 @@ export default function Header() {
                     >
                         Statistics
                     </Link>
+                    <Link
+                        href="/settings"
+                        className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                        Settings
+                    </Link>
                     <ThemeToggle />
                 </nav>
             </div>
