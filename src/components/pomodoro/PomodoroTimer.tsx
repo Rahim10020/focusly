@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { usePomodoro } from '@/lib/hooks/usePomodoro';
 import { useSettings } from '@/lib/hooks/useSettings';
 import { useSound } from '@/lib/hooks/useSound';
@@ -18,6 +19,7 @@ interface PomodoroTimerProps {
     onSelectTask: (taskId: string | null) => void;
     onSessionComplete: (session: any) => void;
     onPomodoroComplete: (taskId: string) => void;
+    onTimerRefReady: (ref: { start: () => void; pause: () => void; reset: () => void; skip: () => void; status: 'idle' | 'running' | 'paused'; }) => void;
 }
 
 export default function PomodoroTimer({
@@ -26,6 +28,7 @@ export default function PomodoroTimer({
     onSelectTask,
     onSessionComplete,
     onPomodoroComplete,
+    onTimerRefReady,
 }: PomodoroTimerProps) {
     const { settings } = useSettings();
     const { playWorkComplete, playBreakComplete } = useSound();
@@ -62,6 +65,17 @@ export default function PomodoroTimer({
             });
         },
     });
+
+    // Expose timer controls to parent via ref
+    useEffect(() => {
+        onTimerRefReady({
+            start,
+            pause,
+            reset,
+            skip,
+            status,
+        });
+    }, [start, pause, reset, skip, status, onTimerRefReady]);
 
     const getTotalTime = () => {
         if (sessionType === 'work') return settings.workDuration;
