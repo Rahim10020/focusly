@@ -11,13 +11,26 @@ import { useTasks } from '@/lib/hooks/useTasks';
 import { useStats } from '@/lib/hooks/useStats';
 
 export default function Home() {
-  const { tasks, addTask, toggleTask, deleteTask } = useTasks();
-  const { updateTaskStats } = useStats();
+  const {
+    tasks,
+    activeTaskId,
+    addTask,
+    toggleTask,
+    deleteTask,
+    setActiveTask,
+    incrementPomodoro,
+  } = useTasks();
+
+  const { updateTaskStats, addSession } = useStats();
 
   useEffect(() => {
     const completedTasks = tasks.filter(task => task.completed).length;
     updateTaskStats(tasks.length, completedTasks);
-  }, [tasks]);
+  }, [tasks, updateTaskStats]);
+
+  const handlePomodoroComplete = (taskId: string) => {
+    incrementPomodoro(taskId);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,8 +49,10 @@ export default function Home() {
                 <TaskForm onAddTask={addTask} />
                 <TaskList
                   tasks={tasks}
+                  activeTaskId={activeTaskId}
                   onToggle={toggleTask}
                   onDelete={deleteTask}
+                  onSelectTask={setActiveTask}
                 />
               </div>
             </CardContent>
@@ -48,7 +63,13 @@ export default function Home() {
               <CardTitle>Pomodoro Timer</CardTitle>
             </CardHeader>
             <CardContent>
-              <PomodoroTimer />
+              <PomodoroTimer
+                activeTaskId={activeTaskId}
+                tasks={tasks}
+                onSelectTask={setActiveTask}
+                onSessionComplete={addSession}
+                onPomodoroComplete={handlePomodoroComplete}
+              />
             </CardContent>
           </Card>
         </div>
