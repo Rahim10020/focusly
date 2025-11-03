@@ -5,11 +5,19 @@ import TaskItem from './TaskItem';
 
 interface TaskListProps {
     tasks: Task[];
+    activeTaskId: string | null;
     onToggle: (id: string) => void;
     onDelete: (id: string) => void;
+    onSelectTask: (id: string | null) => void;
 }
 
-export default function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
+export default function TaskList({
+    tasks,
+    activeTaskId,
+    onToggle,
+    onDelete,
+    onSelectTask,
+}: TaskListProps) {
     const activeTasks = tasks.filter(task => !task.completed);
     const completedTasks = tasks.filter(task => task.completed);
 
@@ -33,8 +41,10 @@ export default function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
                             <TaskItem
                                 key={task.id}
                                 task={task}
+                                isActive={activeTaskId === task.id}
                                 onToggle={onToggle}
                                 onDelete={onDelete}
+                                onSelect={onSelectTask}
                             />
                         ))}
                     </div>
@@ -51,8 +61,10 @@ export default function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
                             <TaskItem
                                 key={task.id}
                                 task={task}
+                                isActive={false}
                                 onToggle={onToggle}
                                 onDelete={onDelete}
+                                onSelect={onSelectTask}
                             />
                         ))}
                     </div>

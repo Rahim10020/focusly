@@ -5,13 +5,26 @@ import Button from '@/components/ui/Button';
 
 interface TaskItemProps {
     task: Task;
+    isActive: boolean;
     onToggle: (id: string) => void;
     onDelete: (id: string) => void;
+    onSelect: (id: string | null) => void;
 }
 
-export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+export default function TaskItem({
+    task,
+    isActive,
+    onToggle,
+    onDelete,
+    onSelect,
+}: TaskItemProps) {
     return (
-        <div className="flex items-center gap-3 p-3 bg-muted rounded-xl hover:bg-accent transition-colors group">
+        <div
+            className={`flex items-center gap-3 p-3 rounded-xl transition-all group ${isActive
+                ? 'bg-primary/10 border-2 border-primary'
+                : 'bg-muted hover:bg-accent border-2 border-transparent'
+                }`}
+        >
             <button
                 onClick={() => onToggle(task.id)}
                 className="flex-shrink-0 w-5 h-5 rounded-full border-2 border-primary flex items-center justify-center hover:bg-primary transition-colors"
@@ -35,20 +48,49 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
             </button>
 
             <div className="flex-1 min-w-0">
-                <p
-                    className={`text-sm ${task.completed
-                        ? 'line-through text-muted-foreground'
-                        : 'text-foreground'
-                        }`}
-                >
-                    {task.title}
-                </p>
+                <div className="flex items-center gap-2">
+                    <p
+                        className={`text-sm ${task.completed
+                            ? 'line-through text-muted-foreground'
+                            : 'text-foreground'
+                            }`}
+                    >
+                        {task.title}
+                    </p>
+                    {isActive && (
+                        <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                            Active
+                        </span>
+                    )}
+                </div>
                 {task.pomodoroCount > 0 && (
                     <p className="text-xs text-muted-foreground mt-1">
-                        {task.pomodoroCount} pomodoro{task.pomodoroCount > 1 ? 's' : ''}
+                        🍅 {task.pomodoroCount} pomodoro{task.pomodoroCount > 1 ? 's' : ''}
                     </p>
                 )}
             </div>
+
+            {!task.completed && !isActive && (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onSelect(task.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                >
+                    Set Active
+                </Button>
+            )}
+
+            {isActive && (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onSelect(null)}
+                    className="text-xs"
+                >
+                    Unset
+                </Button>
+            )}
 
             <Button
                 variant="ghost"
