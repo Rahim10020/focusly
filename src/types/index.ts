@@ -5,6 +5,10 @@ export interface Task {
     createdAt: number;
     completedAt?: number;
     pomodoroCount: number;
+    priority?: 'low' | 'medium' | 'high';
+    tags?: string[];
+    dueDate?: number;
+    notes?: string;
 }
 
 export interface PomodoroSession {
@@ -23,8 +27,29 @@ export interface Stats {
     completedTasks: number;
     totalSessions: number;
     streak: number;
+    longestStreak?: number;
+    tasksCompletedToday?: number;
+}
+
+export interface Achievement {
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+    unlockedAt?: number;
+    progress?: number;
+    target?: number;
+}
+
+export interface Tag {
+    id: string;
+    name: string;
+    color: string;
+    createdAt: number;
 }
 
 export type TimerStatus = 'idle' | 'running' | 'paused';
 
 export type Theme = 'light' | 'dark';
+
+export type Priority = 'low' | 'medium' | 'high';

@@ -1,18 +1,20 @@
 import { useLocalStorage } from './useLocalStorage';
-import { Task } from '@/types';
+import { Task, Priority } from '@/types';
 import { STORAGE_KEYS } from '@/lib/constants';
 
 export function useTasks() {
     const [tasks, setTasks] = useLocalStorage<Task[]>(STORAGE_KEYS.TASKS, []);
     const [activeTaskId, setActiveTaskId] = useLocalStorage<string | null>('focusly_active_task', null);
 
-    const addTask = (title: string) => {
+    const addTask = (title: string, priority?: Priority, tags?: string[]) => {
         const newTask: Task = {
             id: Date.now().toString(),
             title,
             completed: false,
             createdAt: Date.now(),
             pomodoroCount: 0,
+            priority,
+            tags: tags || [],
         };
         setTasks([...tasks, newTask]);
     };
@@ -25,7 +27,6 @@ export function useTasks() {
 
     const deleteTask = (id: string) => {
         setTasks(tasks.filter(task => task.id !== id));
-        // Si la tâche supprimée était active, on désactive
         if (activeTaskId === id) {
             setActiveTaskId(null);
         }
@@ -41,7 +42,6 @@ export function useTasks() {
                 }
                 : task
         ));
-        // Si la tâche complétée était active, on désactive
         const task = tasks.find(t => t.id === id);
         if (task && !task.completed && activeTaskId === id) {
             setActiveTaskId(null);
@@ -57,7 +57,6 @@ export function useTasks() {
     };
 
     const setActiveTask = (id: string | null) => {
-        // Ne peut pas sélectionner une tâche complétée
         if (id) {
             const task = tasks.find(t => t.id === id);
             if (task && !task.completed) {
@@ -76,6 +75,23 @@ export function useTasks() {
     const getActiveTasks = () => tasks.filter(task => !task.completed);
     const getCompletedTasks = () => tasks.filter(task => task.completed);
 
+    const getTasksByPriority = (priority: Priority) => {
+        return tasks.filter(task => task.priority === priority && !task.completed);
+    };
+
+    const getTasksByTag = (tagId: string) => {
+        return tasks.filter(task => task.tags?.includes(tagId) && !task.completed);
+    };
+
+    const sortTasksByPriority = (tasksToSort: Task[]) => {
+        const priorityOrder = { high: 0, medium: 1, low: 2, undefined: 3 };
+        return [...tasksToSort].sort((a, b) => {
+            const aPriority = a.priority || 'undefined';
+            const bPriority = b.priority || 'undefined';
+            return priorityOrder[aPriority] - priorityOrder[bPriority];
+        });
+    };
+
     return {
         tasks,
         activeTaskId,
@@ -88,5 +104,8 @@ export function useTasks() {
         getActiveTask,
         getActiveTasks,
         getCompletedTasks,
+        getTasksByPriority,
+        getTasksByTag,
+        sortTasksByPriority,
     };
 }
