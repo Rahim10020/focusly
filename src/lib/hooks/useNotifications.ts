@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 
 export function useNotifications() {
     const [permission, setPermission] = useState<NotificationPermission>('default');
+    const [isSupported, setIsSupported] = useState(false);
 
     useEffect(() => {
         if ('Notification' in window) {
             setPermission(Notification.permission);
+            setIsSupported(true);
         }
     }, []);
 
@@ -32,6 +34,6 @@ export function useNotifications() {
         permission,
         requestPermission,
         showNotification,
-        isSupported: 'Notification' in window,
+        isSupported,
     };
 }
