@@ -1,11 +1,12 @@
 'use client';
 
-import { Task } from '@/types';
+import { Task, Tag } from '@/types';
 import TaskItem from './TaskItem';
 
 interface TaskListProps {
     tasks: Task[];
     activeTaskId: string | null;
+    tags: Tag[];
     onToggle: (id: string) => void;
     onDelete: (id: string) => void;
     onSelectTask: (id: string | null) => void;
@@ -14,6 +15,7 @@ interface TaskListProps {
 export default function TaskList({
     tasks,
     activeTaskId,
+    tags,
     onToggle,
     onDelete,
     onSelectTask,
@@ -42,6 +44,7 @@ export default function TaskList({
                                 key={task.id}
                                 task={task}
                                 isActive={activeTaskId === task.id}
+                                tags={tags}
                                 onToggle={onToggle}
                                 onDelete={onDelete}
                                 onSelect={onSelectTask}
@@ -62,6 +65,7 @@ export default function TaskList({
                                 key={task.id}
                                 task={task}
                                 isActive={false}
+                                tags={tags}
                                 onToggle={onToggle}
                                 onDelete={onDelete}
                                 onSelect={onSelectTask}
