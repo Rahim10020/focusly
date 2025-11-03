@@ -1,3 +1,11 @@
+export interface SubTask {
+    id: string;
+    title: string;
+    completed: boolean;
+    createdAt: number;
+    completedAt?: number;
+}
+
 export interface Task {
     id: string;
     title: string;
@@ -9,6 +17,8 @@ export interface Task {
     tags?: string[];
     dueDate?: number;
     notes?: string;
+    subTasks?: SubTask[];
+    order?: number; // For drag & drop
 }
 
 export interface PomodoroSession {
@@ -46,6 +56,16 @@ export interface Tag {
     name: string;
     color: string;
     createdAt: number;
+}
+
+export interface KeyboardShortcut {
+    key: string;
+    ctrlKey?: boolean;
+    shiftKey?: boolean;
+    altKey?: boolean;
+    metaKey?: boolean;
+    description: string;
+    action: () => void;
 }
 
 export type TimerStatus = 'idle' | 'running' | 'paused';

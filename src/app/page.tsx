@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import TaskForm from '@/components/tasks/TaskForm';
@@ -8,20 +9,38 @@ import TaskList from '@/components/tasks/TaskList';
 import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
 import StatsOverview from '@/components/stats/StatsOverview';
 import AchievementNotification from '@/components/achievements/AchievementNotification';
+import KeyboardShortcutsModal from '@/components/ui/KeyboardShortcutsModal';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useStats } from '@/lib/hooks/useStats';
 import { useAchievements } from '@/lib/hooks/useAchievements';
 import { useTags } from '@/lib/hooks/useTags';
+import { useKeyboardShortcuts, GLOBAL_SHORTCUTS } from '@/lib/hooks/useKeyboardShortcuts';
 
 export default function Home() {
+  const router = useRouter();
+  const taskInputRef = useRef<HTMLInputElement>(null);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [timerRef, setTimerRef] = useState<{
+    start: () => void;
+    pause: () => void;
+    reset: () => void;
+    skip: () => void;
+    status: 'idle' | 'running' | 'paused';
+  } | null>(null);
+
   const {
     tasks,
     activeTaskId,
     addTask,
+    updateTask,
     toggleTask,
     deleteTask,
     setActiveTask,
     incrementPomodoro,
+    addSubTask,
+    toggleSubTask,
+    deleteSubTask,
+    reorderTasks,
   } = useTasks();
 
   const { updateTaskStats, addSession, getTodayFocusTime, stats } = useStats();
@@ -30,14 +49,13 @@ export default function Home() {
     newlyUnlocked,
     clearNewlyUnlocked,
     checkAchievements,
-    checkTimeBasedAchievements
+    checkTimeBasedAchievements,
   } = useAchievements();
 
   useEffect(() => {
     const completedTasks = tasks.filter(task => task.completed).length;
     updateTaskStats(tasks.length, completedTasks);
 
-    // Check achievements
     const todayFocusMinutes = Math.floor(getTodayFocusTime() / 60);
     checkAchievements({
       totalSessions: stats.totalSessions,
@@ -49,16 +67,12 @@ export default function Home() {
 
   const handlePomodoroComplete = (taskId: string) => {
     incrementPomodoro(taskId);
-
-    // Check time-based achievements
     const hour = new Date().getHours();
     checkTimeBasedAchievements(hour);
   };
 
   const handleSessionComplete = (session: any) => {
     addSession(session);
-
-    // Re-check achievements after session
     const todayFocusMinutes = Math.floor(getTodayFocusTime() / 60);
     checkAchievements({
       totalSessions: stats.totalSessions + 1,
@@ -67,6 +81,77 @@ export default function Home() {
       todayFocusMinutes,
     });
   };
+
+  // Toggle theme function
+  const toggleTheme = () => {
+    const html = document.documentElement;
+    const isDark = html.classList.contains('dark');
+    if (isDark) {
+      html.classList.remove('dark');
+      localStorage.setItem('focusly_theme', 'light');
+    } else {
+      html.classList.add('dark');
+      localStorage.setItem('focusly_theme', 'dark');
+    }
+  };
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      ...GLOBAL_SHORTCUTS.START_PAUSE_TIMER,
+      action: () => {
+        if (timerRef) {
+          if (timerRef.status === 'running') {
+            timerRef.pause();
+          } else {
+            timerRef.start();
+          }
+        }
+      },
+    },
+    {
+      ...GLOBAL_SHORTCUTS.RESET_TIMER,
+      action: () => {
+        if (timerRef) {
+          timerRef.reset();
+        }
+      },
+    },
+    {
+      ...GLOBAL_SHORTCUTS.SKIP_SESSION,
+      action: () => {
+        if (timerRef) {
+          timerRef.skip();
+        }
+      },
+    },
+    {
+      ...GLOBAL_SHORTCUTS.NEW_TASK,
+      action: () => {
+        taskInputRef.current?.focus();
+      },
+    },
+    {
+      ...GLOBAL_SHORTCUTS.TOGGLE_THEME,
+      action: toggleTheme,
+    },
+    {
+      ...GLOBAL_SHORTCUTS.SHOW_SHORTCUTS,
+      action: () => setShowShortcuts(true),
+    },
+    {
+      ...GLOBAL_SHORTCUTS.GO_TO_HOME,
+      action: () => router.push('/'),
+    },
+    {
+      ...GLOBAL_SHORTCUTS.GO_TO_STATS,
+      action: () => router.push('/stats'),
+    },
+    {
+      ...GLOBAL_SHORTCUTS.GO_TO_SETTINGS,
+      action: () => router.push('/settings'),
+    },
+  ]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,6 +178,11 @@ export default function Home() {
                   onToggle={toggleTask}
                   onDelete={deleteTask}
                   onSelectTask={setActiveTask}
+                  onUpdate={updateTask}
+                  onAddSubTask={addSubTask}
+                  onToggleSubTask={toggleSubTask}
+                  onDeleteSubTask={deleteSubTask}
+                  onReorder={reorderTasks}
                 />
               </div>
             </CardContent>
@@ -109,6 +199,7 @@ export default function Home() {
                 onSelectTask={setActiveTask}
                 onSessionComplete={handleSessionComplete}
                 onPomodoroComplete={handlePomodoroComplete}
+                onTimerRefReady={setTimerRef}
               />
             </CardContent>
           </Card>
@@ -127,6 +218,41 @@ export default function Home() {
           }}
         />
       ))}
+
+      {/* Keyboard Shortcuts Modal */}
+      {showShortcuts && (
+        <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
+      )}
+
+      {/* Keyboard shortcut hint */}
+      <button
+        onClick={() => setShowShortcuts(true)}
+        className="fixed bottom-6 right-6 p-3 bg-card border-2 border-border rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
+        title="Keyboard shortcuts (Shift + ?)"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-foreground"
+        >
+          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+          <path d="M6 8h.001"></path>
+          <path d="M10 8h.001"></path>
+          <path d="M14 8h.001"></path>
+          <path d="M18 8h.001"></path>
+          <path d="M8 12h.001"></path>
+          <path d="M12 12h.001"></path>
+          <path d="M16 12h.001"></path>
+          <path d="M7 16h10"></path>
+        </svg>
+      </button>
     </div>
   );
 }

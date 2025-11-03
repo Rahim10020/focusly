@@ -8,7 +8,7 @@ import TagBadge from '@/components/ui/TagBadge';
 import PriorityBadge from '@/components/ui/PriorityBadge';
 
 interface TaskFormProps {
-    onAddTask: (title: string, priority?: Priority, tags?: string[]) => void;
+    onAddTask: (title: string, priority?: Priority, tags?: string[], dueDate?: number, notes?: string) => void;
     availableTags: Tag[];
 }
 
@@ -16,15 +16,25 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
     const [title, setTitle] = useState('');
     const [priority, setPriority] = useState<Priority | undefined>(undefined);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [dueDate, setDueDate] = useState('');
+    const [notes, setNotes] = useState('');
     const [showOptions, setShowOptions] = useState(false);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (title.trim()) {
-            onAddTask(title.trim(), priority, selectedTags.length > 0 ? selectedTags : undefined);
+            onAddTask(
+                title.trim(),
+                priority,
+                selectedTags.length > 0 ? selectedTags : undefined,
+                dueDate ? new Date(dueDate).getTime() : undefined,
+                notes.trim() || undefined
+            );
             setTitle('');
             setPriority(undefined);
             setSelectedTags([]);
+            setDueDate('');
+            setNotes('');
             setShowOptions(false);
         }
     };
@@ -50,6 +60,7 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                     variant="ghost"
                     onClick={() => setShowOptions(!showOptions)}
                     className="px-3"
+                    title="More options"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +83,7 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
             </div>
 
             {showOptions && (
-                <div className="space-y-3 p-4 bg-muted rounded-xl">
+                <div className="space-y-4 p-4 bg-muted rounded-xl">
                     {/* Priority Selection */}
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -133,6 +144,33 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                             </div>
                         </div>
                     )}
+
+                    {/* Due Date */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            Due Date
+                        </label>
+                        <Input
+                            type="date"
+                            value={dueDate}
+                            onChange={(e) => setDueDate(e.target.value)}
+                            min={new Date().toISOString().split('T')[0]}
+                        />
+                    </div>
+
+                    {/* Notes */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            Notes (Optional)
+                        </label>
+                        <textarea
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            placeholder="Add any notes about this task..."
+                            className="w-full px-4 py-2.5 bg-card text-foreground border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-muted-foreground resize-none"
+                            rows={3}
+                        />
+                    </div>
                 </div>
             )}
         </form>
