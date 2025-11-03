@@ -4,6 +4,7 @@ import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import TaskForm from '@/components/tasks/TaskForm';
 import TaskList from '@/components/tasks/TaskList';
+import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
 import { useTasks } from '@/lib/hooks/useTasks';
 
 export default function Home() {
@@ -36,9 +37,7 @@ export default function Home() {
               <CardTitle>Pomodoro Timer</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <p>Timer coming soon...</p>
-              </div>
+              <PomodoroTimer />
             </CardContent>
           </Card>
         </div>
