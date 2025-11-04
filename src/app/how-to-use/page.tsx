@@ -9,6 +9,10 @@ export default function HowToUsePage() {
     return (
         <div className="min-h-screen bg-background">
             <div className="max-w-7xl mx-auto px-6 py-8">
+                <div className='sticky top-8 float-right z-50 bg-background/80 backdrop-blur-sm'>
+                    <ThemeToggle />
+                </div>
+
                 <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-foreground mb-4">How to Use Focusly</h1>
@@ -16,7 +20,6 @@ export default function HowToUsePage() {
                             Your complete guide to mastering productivity with the Pomodoro Technique
                         </p>
                     </div>
-                    <ThemeToggle />
                 </div>
 
                 <div className="flex gap-8">
