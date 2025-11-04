@@ -302,14 +302,14 @@ export default function HowToUsePage() {
                             <Card className="p-4">
                                 <h3 className="font-semibold mb-3">Table of Contents</h3>
                                 <nav className="space-y-2">
-                                    <a href="#introduction" className="block text-sm text-primary hover:underline">🚀 Introduction</a>
-                                    <a href="#getting-started" className="block text-sm text-primary hover:underline">🎯 Getting Started</a>
-                                    <a href="#tasks-management" className="block text-sm text-primary hover:underline">📋 Tasks Management</a>
-                                    <a href="#timer-controls" className="block text-sm text-primary hover:underline">⏱️ Timer Controls</a>
-                                    <a href="#productivity-tracking" className="block text-sm text-primary hover:underline">📊 Productivity Tracking</a>
-                                    <a href="#customization" className="block text-sm text-primary hover:underline">🎨 Customization</a>
-                                    <a href="#tips" className="block text-sm text-primary hover:underline">💡 Tips & Best Practices</a>
-                                    <a href="#shortcuts" className="block text-sm text-primary hover:underline">⌨️ Keyboard Shortcuts</a>
+                                    <a href="#introduction" className="block text-sm text-primary hover:underline transition-all duration-200 hover:text-primary/80">🚀 Introduction</a>
+                                    <a href="#getting-started" className="block text-sm text-primary hover:underline transition-all duration-200 hover:text-primary/80">🎯 Getting Started</a>
+                                    <a href="#tasks-management" className="block text-sm text-primary hover:underline transition-all duration-200 hover:text-primary/80">📋 Tasks Management</a>
+                                    <a href="#timer-controls" className="block text-sm text-primary hover:underline transition-all duration-200 hover:text-primary/80">⏱️ Timer Controls</a>
+                                    <a href="#productivity-tracking" className="block text-sm text-primary hover:underline transition-all duration-200 hover:text-primary/80">📊 Productivity Tracking</a>
+                                    <a href="#customization" className="block text-sm text-primary hover:underline transition-all duration-200 hover:text-primary/80">🎨 Customization</a>
+                                    <a href="#tips" className="block text-sm text-primary hover:underline transition-all duration-200 hover:text-primary/80">💡 Tips & Best Practices</a>
+                                    <a href="#shortcuts" className="block text-sm text-primary hover:underline transition-all duration-200 hover:text-primary/80">⌨️ Keyboard Shortcuts</a>
                                 </nav>
                             </Card>
                         </div>

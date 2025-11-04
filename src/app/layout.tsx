@@ -15,7 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Focusly - Pomodoro Timer & Productivity Tracker",
+  title: "Focusly – Focus & Productivity",
   description: "A beautiful Pomodoro timer app with task management, achievements, and productivity tracking",
   manifest: "/manifest.json",
   appleWebApp: {
