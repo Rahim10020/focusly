@@ -21,6 +21,7 @@ export default function Home() {
   const router = useRouter();
   const taskInputRef = useRef<HTMLInputElement>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [timerRef, setTimerRef] = useState<{
     start: () => void;
     pause: () => void;
@@ -52,6 +53,10 @@ export default function Home() {
     checkAchievements,
     checkTimeBasedAchievements,
   } = useAchievements();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const completedTasks = tasks.filter(task => task.completed).length;
@@ -161,7 +166,7 @@ export default function Home() {
       <Header />
 
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
-        <StatsOverview />
+        {mounted && <StatsOverview />}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
