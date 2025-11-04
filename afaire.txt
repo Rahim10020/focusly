@@ -1,0 +1,1 @@
+- rendre le theme toggle sticky (desktop comme mobile)

@@ -79,7 +79,7 @@ export default function Settings({
                             max={10}
                         />
 
-                        <div className="flex gap-3">
+                        <div className="flex-column space-y-3 md:space-y-0 md:flex items-center gap-3">
                             <Button onClick={handleSave}>Save Settings</Button>
                             <Button onClick={onReset} variant="secondary">
                                 Reset to Default
