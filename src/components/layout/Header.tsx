@@ -16,6 +16,12 @@ export default function Header() {
 
                 <nav className="flex items-center gap-6">
                     <Link
+                        href="/how-to-use"
+                        className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                        How to Use
+                    </Link>
+                    <Link
                         href="/stats"
                         className="text-sm font-medium text-foreground hover:text-primary transition-colors"
                     >
