@@ -47,8 +47,8 @@ export default function TaskItem({
         <>
             <div
                 className={`flex items-start gap-3 p-3 rounded-xl transition-all group ${isActive
-                    ? 'bg-primary/10 border-2 border-primary'
-                    : 'bg-muted hover:bg-accent border-2 border-transparent'
+                    ? 'bg-primary/10 border-2 border-border'
+                    : 'bg-accent hover:bg-muted border-2 border-transparent'
                     } ${isDragging ? 'opacity-50 scale-95' : ''}`}
             >
                 {/* Drag Handle */}
@@ -79,7 +79,7 @@ export default function TaskItem({
                 {/* Checkbox */}
                 <button
                     onClick={() => onToggle(task.id)}
-                    className="flex-shrink-0 w-5 h-5 rounded-full border-2 border-primary flex items-center justify-center hover:bg-primary transition-colors mt-0.5"
+                    className="flex-shrink-0 w-5 h-5 rounded-full cursor-pointer border-2 border-primary flex items-center justify-center hover:bg-primary transition-colors mt-0.5"
                 >
                     {task.completed && (
                         <svg

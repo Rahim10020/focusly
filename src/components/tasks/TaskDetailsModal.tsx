@@ -68,7 +68,7 @@ export default function TaskDetailsModal({
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-muted-foreground hover:text-foreground transition-colors"
+                        className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

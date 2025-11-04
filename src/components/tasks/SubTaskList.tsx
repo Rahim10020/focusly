@@ -148,7 +148,7 @@ export default function SubTaskList({
             ) : (
                 <button
                     onClick={() => setShowInput(true)}
-                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="flex items-center cursor-pointer gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
