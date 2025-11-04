@@ -1,6 +1,7 @@
 import { useLocalStorage } from './useLocalStorage';
 import { Stats, PomodoroSession } from '@/types';
 import { STORAGE_KEYS } from '@/lib/constants';
+import { useCallback } from 'react';
 
 export function useStats() {
     const [stats, setStats] = useLocalStorage<Stats>(STORAGE_KEYS.STATS, {
@@ -28,13 +29,13 @@ export function useStats() {
         }
     };
 
-    const updateTaskStats = (totalTasks: number, completedTasks: number) => {
+    const updateTaskStats = useCallback((totalTasks: number, completedTasks: number) => {
         setStats(prevStats => ({
             ...prevStats,
             totalTasks,
             completedTasks,
         }));
-    };
+    }, [setStats]);
 
     const getTodaySessions = () => {
         const today = new Date();

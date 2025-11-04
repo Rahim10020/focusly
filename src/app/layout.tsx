@@ -18,7 +18,6 @@ export const metadata: Metadata = {
   title: "Focusly - Pomodoro Timer & Productivity Tracker",
   description: "A beautiful Pomodoro timer app with task management, achievements, and productivity tracking",
   manifest: "/manifest.json",
-  themeColor: "#7D6E5C",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
