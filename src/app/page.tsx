@@ -65,7 +65,7 @@ export default function Home() {
       streak: stats.streak,
       todayFocusMinutes,
     });
-  }, [stats, getTodayFocusTime, checkAchievements]);
+  }, [stats.totalSessions, stats.completedTasks, stats.streak, getTodayFocusTime, checkAchievements]);
 
   const handlePomodoroComplete = (taskId: string) => {
     incrementPomodoro(taskId);
@@ -75,7 +75,7 @@ export default function Home() {
 
   const handleSessionComplete = (session: any) => {
     addSession(session);
-    const todayFocusMinutes = Math.floor(getTodayFocusTime() / 60);
+    const todayFocusMinutes = Math.floor((getTodayFocusTime() + session.duration) / 60);
     checkAchievements({
       totalSessions: stats.totalSessions + 1,
       completedTasks: stats.completedTasks,

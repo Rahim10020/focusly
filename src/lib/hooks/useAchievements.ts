@@ -1,6 +1,6 @@
 import { useLocalStorage } from './useLocalStorage';
 import { Achievement } from '@/types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const ACHIEVEMENTS_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress'>[] = [
     {
@@ -112,7 +112,7 @@ export function useAchievements() {
     const [newlyUnlocked, setNewlyUnlocked] = useState<Achievement[]>([]);
 
     // Check and unlock achievements
-    const checkAchievements = (stats: {
+    const checkAchievements = useCallback((stats: {
         totalSessions: number;
         completedTasks: number;
         streak: number;
@@ -192,9 +192,9 @@ export function useAchievements() {
         });
 
         setAchievements(updated);
-    };
+    }, [achievements]);
 
-    const checkTimeBasedAchievements = (hour: number) => {
+    const checkTimeBasedAchievements = useCallback((hour: number) => {
         const updated = achievements.map(achievement => {
             if (achievement.unlockedAt) return achievement;
 
@@ -222,7 +222,7 @@ export function useAchievements() {
         });
 
         setAchievements(updated);
-    };
+    }, [achievements]);
 
     const clearNewlyUnlocked = () => {
         setNewlyUnlocked([]);
