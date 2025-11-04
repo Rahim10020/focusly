@@ -36,7 +36,7 @@ export default function StatsPage() {
                 <div className="flex gap-2 border-b border-border">
                     <button
                         onClick={() => setActiveTab('overview')}
-                        className={`px-4 py-2 font-medium transition-colors relative ${activeTab === 'overview'
+                        className={`px-4 py-2 cursor-pointer font-medium transition-colors relative ${activeTab === 'overview'
                             ? 'text-primary'
                             : 'text-muted-foreground hover:text-foreground'
                             }`}
@@ -48,7 +48,7 @@ export default function StatsPage() {
                     </button>
                     <button
                         onClick={() => setActiveTab('achievements')}
-                        className={`px-4 py-2 font-medium transition-colors relative ${activeTab === 'achievements'
+                        className={`px-4 py-2 cursor-pointer font-medium transition-colors relative ${activeTab === 'achievements'
                             ? 'text-primary'
                             : 'text-muted-foreground hover:text-foreground'
                             }`}
