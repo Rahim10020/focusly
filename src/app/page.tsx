@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import TaskForm from '@/components/tasks/TaskForm';
 import TaskList from '@/components/tasks/TaskList';
 import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
-import StatsOverview from '@/components/stats/StatsOverview';
+const StatsOverview = dynamic(() => import('@/components/stats/StatsOverview'), { ssr: false });
 import AchievementNotification from '@/components/achievements/AchievementNotification';
 import KeyboardShortcutsModal from '@/components/ui/KeyboardShortcutsModal';
 import { useTasks } from '@/lib/hooks/useTasks';
