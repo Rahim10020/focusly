@@ -1,6 +1,6 @@
 import { useLocalStorage } from './useLocalStorage';
 import { Achievement } from '@/types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 const ACHIEVEMENTS_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress'>[] = [
     {
@@ -118,115 +118,146 @@ export function useAchievements() {
         streak: number;
         todayFocusMinutes: number;
     }) => {
-        const updated = achievements.map(achievement => {
-            if (achievement.unlockedAt) return achievement;
+        setAchievements(prevAchievements => {
+            let hasChanges = false;
+            const newlyUnlockedAchievements: Achievement[] = [];
 
-            let shouldUnlock = false;
-            let currentProgress = 0;
+            const updated = prevAchievements.map(achievement => {
+                if (achievement.unlockedAt) return achievement;
 
-            switch (achievement.id) {
-                case 'first_task':
-                    currentProgress = stats.completedTasks;
-                    shouldUnlock = stats.completedTasks >= 1;
-                    break;
-                case 'first_pomodoro':
-                    currentProgress = stats.totalSessions;
-                    shouldUnlock = stats.totalSessions >= 1;
-                    break;
-                case 'pomodoro_10':
-                    currentProgress = stats.totalSessions;
-                    shouldUnlock = stats.totalSessions >= 10;
-                    break;
-                case 'pomodoro_50':
-                    currentProgress = stats.totalSessions;
-                    shouldUnlock = stats.totalSessions >= 50;
-                    break;
-                case 'pomodoro_100':
-                    currentProgress = stats.totalSessions;
-                    shouldUnlock = stats.totalSessions >= 100;
-                    break;
-                case 'tasks_10':
-                    currentProgress = stats.completedTasks;
-                    shouldUnlock = stats.completedTasks >= 10;
-                    break;
-                case 'tasks_50':
-                    currentProgress = stats.completedTasks;
-                    shouldUnlock = stats.completedTasks >= 50;
-                    break;
-                case 'streak_3':
-                    currentProgress = stats.streak;
-                    shouldUnlock = stats.streak >= 3;
-                    break;
-                case 'streak_7':
-                    currentProgress = stats.streak;
-                    shouldUnlock = stats.streak >= 7;
-                    break;
-                case 'streak_30':
-                    currentProgress = stats.streak;
-                    shouldUnlock = stats.streak >= 30;
-                    break;
-                case 'focus_time_60':
-                    currentProgress = stats.todayFocusMinutes;
-                    shouldUnlock = stats.todayFocusMinutes >= 60;
-                    break;
-                case 'focus_time_240':
-                    currentProgress = stats.todayFocusMinutes;
-                    shouldUnlock = stats.todayFocusMinutes >= 240;
-                    break;
-            }
+                let shouldUnlock = false;
+                let currentProgress = 0;
 
-            if (shouldUnlock && !achievement.unlockedAt) {
-                const unlockedAchievement = {
+                switch (achievement.id) {
+                    case 'first_task':
+                        currentProgress = stats.completedTasks;
+                        shouldUnlock = stats.completedTasks >= 1;
+                        break;
+                    case 'first_pomodoro':
+                        currentProgress = stats.totalSessions;
+                        shouldUnlock = stats.totalSessions >= 1;
+                        break;
+                    case 'pomodoro_10':
+                        currentProgress = stats.totalSessions;
+                        shouldUnlock = stats.totalSessions >= 10;
+                        break;
+                    case 'pomodoro_50':
+                        currentProgress = stats.totalSessions;
+                        shouldUnlock = stats.totalSessions >= 50;
+                        break;
+                    case 'pomodoro_100':
+                        currentProgress = stats.totalSessions;
+                        shouldUnlock = stats.totalSessions >= 100;
+                        break;
+                    case 'tasks_10':
+                        currentProgress = stats.completedTasks;
+                        shouldUnlock = stats.completedTasks >= 10;
+                        break;
+                    case 'tasks_50':
+                        currentProgress = stats.completedTasks;
+                        shouldUnlock = stats.completedTasks >= 50;
+                        break;
+                    case 'streak_3':
+                        currentProgress = stats.streak;
+                        shouldUnlock = stats.streak >= 3;
+                        break;
+                    case 'streak_7':
+                        currentProgress = stats.streak;
+                        shouldUnlock = stats.streak >= 7;
+                        break;
+                    case 'streak_30':
+                        currentProgress = stats.streak;
+                        shouldUnlock = stats.streak >= 30;
+                        break;
+                    case 'focus_time_60':
+                        currentProgress = stats.todayFocusMinutes;
+                        shouldUnlock = stats.todayFocusMinutes >= 60;
+                        break;
+                    case 'focus_time_240':
+                        currentProgress = stats.todayFocusMinutes;
+                        shouldUnlock = stats.todayFocusMinutes >= 240;
+                        break;
+                }
+
+                if (shouldUnlock && !achievement.unlockedAt) {
+                    hasChanges = true;
+                    const unlockedAchievement = {
+                        ...achievement,
+                        unlockedAt: Date.now(),
+                        progress: achievement.target,
+                    };
+                    newlyUnlockedAchievements.push(unlockedAchievement);
+                    return unlockedAchievement;
+                }
+
+                // Update progress même si pas débloqué
+                if (achievement.progress !== currentProgress) {
+                    hasChanges = true;
+                }
+
+                return {
                     ...achievement,
-                    unlockedAt: Date.now(),
-                    progress: achievement.target,
+                    progress: currentProgress,
                 };
-                setNewlyUnlocked(prev => [...prev, unlockedAchievement]);
-                return unlockedAchievement;
+            });
+
+            // Mettre à jour newlyUnlocked en dehors du setState pour éviter les boucles
+            if (newlyUnlockedAchievements.length > 0) {
+                setTimeout(() => {
+                    setNewlyUnlocked(prev => [...prev, ...newlyUnlockedAchievements]);
+                }, 0);
             }
 
-            return {
-                ...achievement,
-                progress: currentProgress,
-            };
+            return hasChanges ? updated : prevAchievements;
         });
-
-        setAchievements(updated);
-    }, [achievements]);
+    }, [setAchievements]);
 
     const checkTimeBasedAchievements = useCallback((hour: number) => {
-        const updated = achievements.map(achievement => {
-            if (achievement.unlockedAt) return achievement;
+        setAchievements(prevAchievements => {
+            let hasChanges = false;
+            const newlyUnlockedAchievements: Achievement[] = [];
 
-            if (achievement.id === 'early_bird' && hour < 9) {
-                const unlockedAchievement = {
-                    ...achievement,
-                    unlockedAt: Date.now(),
-                    progress: 1,
-                };
-                setNewlyUnlocked(prev => [...prev, unlockedAchievement]);
-                return unlockedAchievement;
+            const updated = prevAchievements.map(achievement => {
+                if (achievement.unlockedAt) return achievement;
+
+                if (achievement.id === 'early_bird' && hour < 9) {
+                    hasChanges = true;
+                    const unlockedAchievement = {
+                        ...achievement,
+                        unlockedAt: Date.now(),
+                        progress: 1,
+                    };
+                    newlyUnlockedAchievements.push(unlockedAchievement);
+                    return unlockedAchievement;
+                }
+
+                if (achievement.id === 'night_owl' && hour >= 22) {
+                    hasChanges = true;
+                    const unlockedAchievement = {
+                        ...achievement,
+                        unlockedAt: Date.now(),
+                        progress: 1,
+                    };
+                    newlyUnlockedAchievements.push(unlockedAchievement);
+                    return unlockedAchievement;
+                }
+
+                return achievement;
+            });
+
+            if (newlyUnlockedAchievements.length > 0) {
+                setTimeout(() => {
+                    setNewlyUnlocked(prev => [...prev, ...newlyUnlockedAchievements]);
+                }, 0);
             }
 
-            if (achievement.id === 'night_owl' && hour >= 22) {
-                const unlockedAchievement = {
-                    ...achievement,
-                    unlockedAt: Date.now(),
-                    progress: 1,
-                };
-                setNewlyUnlocked(prev => [...prev, unlockedAchievement]);
-                return unlockedAchievement;
-            }
-
-            return achievement;
+            return hasChanges ? updated : prevAchievements;
         });
+    }, [setAchievements]);
 
-        setAchievements(updated);
-    }, [achievements]);
-
-    const clearNewlyUnlocked = () => {
+    const clearNewlyUnlocked = useCallback(() => {
         setNewlyUnlocked([]);
-    };
+    }, []);
 
     const unlockedAchievements = achievements.filter(a => a.unlockedAt);
     const lockedAchievements = achievements.filter(a => !a.unlockedAt);

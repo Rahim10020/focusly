@@ -58,19 +58,40 @@ export default function Home() {
     setMounted(true);
   }, []);
 
+  // Mise à jour des stats de tâches
   useEffect(() => {
     const completedTasks = tasks.filter(task => task.completed).length;
     updateTaskStats(tasks.length, completedTasks);
   }, [tasks, updateTaskStats]);
 
+  // Vérification des achievements avec useRef pour éviter les appels répétés
+  const prevStatsRef = useRef({
+    totalSessions: 0,
+    completedTasks: 0,
+    streak: 0,
+    todayFocusMinutes: 0,
+  });
+
   useEffect(() => {
     const todayFocusMinutes = Math.floor(getTodayFocusTime() / 60);
-    checkAchievements({
+    const currentStats = {
       totalSessions: stats.totalSessions,
       completedTasks: stats.completedTasks,
       streak: stats.streak,
       todayFocusMinutes,
-    });
+    };
+
+    // Ne vérifie que si les stats ont réellement changé
+    const hasChanged =
+      prevStatsRef.current.totalSessions !== currentStats.totalSessions ||
+      prevStatsRef.current.completedTasks !== currentStats.completedTasks ||
+      prevStatsRef.current.streak !== currentStats.streak ||
+      prevStatsRef.current.todayFocusMinutes !== currentStats.todayFocusMinutes;
+
+    if (hasChanged) {
+      checkAchievements(currentStats);
+      prevStatsRef.current = currentStats;
+    }
   }, [stats.totalSessions, stats.completedTasks, stats.streak, getTodayFocusTime, checkAchievements]);
 
   const handlePomodoroComplete = (taskId: string) => {
@@ -81,13 +102,6 @@ export default function Home() {
 
   const handleSessionComplete = (session: any) => {
     addSession(session);
-    const todayFocusMinutes = Math.floor((getTodayFocusTime() + session.duration) / 60);
-    checkAchievements({
-      totalSessions: stats.totalSessions + 1,
-      completedTasks: stats.completedTasks,
-      streak: stats.streak,
-      todayFocusMinutes,
-    });
   };
 
   // Toggle theme function

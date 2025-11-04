@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
     const [storedValue, setStoredValue] = useState<T>(() => {
@@ -26,7 +26,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         } catch (error) {
             console.log(error);
         }
-    }, []);
+    }, [key]);
 
     return [storedValue, setValue] as const;
 }

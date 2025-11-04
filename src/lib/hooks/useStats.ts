@@ -1,7 +1,7 @@
 import { useLocalStorage } from './useLocalStorage';
 import { Stats, PomodoroSession } from '@/types';
 import { STORAGE_KEYS } from '@/lib/constants';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 export function useStats() {
     const [stats, setStats] = useLocalStorage<Stats>(STORAGE_KEYS.STATS, {
@@ -17,8 +17,8 @@ export function useStats() {
         []
     );
 
-    const addSession = (session: PomodoroSession) => {
-        setSessions([...sessions, session]);
+    const addSession = useCallback((session: PomodoroSession) => {
+        setSessions(prevSessions => [...prevSessions, session]);
 
         if (session.completed && session.type === 'work') {
             setStats(prevStats => ({
@@ -27,17 +27,23 @@ export function useStats() {
                 totalSessions: prevStats.totalSessions + 1,
             }));
         }
-    };
+    }, [setSessions, setStats]);
 
     const updateTaskStats = useCallback((totalTasks: number, completedTasks: number) => {
-        setStats(prevStats => ({
-            ...prevStats,
-            totalTasks,
-            completedTasks,
-        }));
+        setStats(prevStats => {
+            // Ne mettre à jour que si les valeurs ont changé
+            if (prevStats.totalTasks === totalTasks && prevStats.completedTasks === completedTasks) {
+                return prevStats;
+            }
+            return {
+                ...prevStats,
+                totalTasks,
+                completedTasks,
+            };
+        });
     }, [setStats]);
 
-    const getTodaySessions = () => {
+    const getTodaySessions = useCallback(() => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const todayTimestamp = today.getTime();
@@ -45,14 +51,22 @@ export function useStats() {
         return sessions.filter(
             session => session.startedAt >= todayTimestamp && session.completed
         );
-    };
+    }, [sessions]);
 
-    const getTodayFocusTime = () => {
-        const todaySessions = getTodaySessions();
-        return todaySessions
-            .filter(session => session.type === 'work')
+    const getTodayFocusTime = useCallback(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayTimestamp = today.getTime();
+
+        return sessions
+            .filter(
+                session =>
+                    session.completed &&
+                    session.type === 'work' &&
+                    session.startedAt >= todayTimestamp
+            )
             .reduce((total, session) => total + session.duration, 0);
-    };
+    }, [sessions]);
 
     return {
         stats,
