@@ -1,3 +1,4 @@
 - apres voir si on peut mettre des trucs d'amis dans le site.
 - diminuer les tailles de la police sur mobile.
-- revoir l'affichage de how to use sur mobile
+- revoir l'affichage de how to use sur mobile.
+- telecharger des sons (mp3) et y mettre.
