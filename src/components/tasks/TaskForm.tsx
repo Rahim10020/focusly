@@ -89,7 +89,7 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                             Priority
                         </label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col gap-2 sm:flex-row">
                             <button
                                 type="button"
                                 onClick={() => setPriority(priority === 'high' ? undefined : 'high')}
