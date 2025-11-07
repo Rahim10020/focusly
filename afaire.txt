@@ -1,5 +1,4 @@
-- apres voir si on peut mettre des trucs d'amis dans le site.
+- apres, voir si on peut mettre des trucs d'amis dans le site.
 - coder une version mobile (avec flutter) de cette application.
 - coder une affichage unique pour la version mobile web 
 (quand la personne y accede via le web avec un telehone mobile)
-- telecharger des sons (mp3) et y mettre.
