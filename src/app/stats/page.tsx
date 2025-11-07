@@ -55,9 +55,9 @@ export default function StatsPage() {
                     >
                         Achievements
                         {activeTab === 'achievements' && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                            <div className="absolute bottom-0 left-0 right-8 md:right-0 h-0.5 bg-primary" />
                         )}
-                        <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-primary text-primary-foreground">
+                        <span className="ml-1 px-1 md:ml-2 md:px-2 py-0.5 text-xs rounded-full bg-primary text-primary-foreground">
                             {unlockedAchievements.length}
                         </span>
                     </button>
@@ -123,7 +123,7 @@ export default function StatsPage() {
                 {activeTab === 'achievements' && (
                     <Card>
                         <CardHeader>
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center  space-x-8 justify-between">
                                 <CardTitle>Achievements</CardTitle>
                                 <div className="text-sm text-muted-foreground">
                                     {unlockedAchievements.length} / {unlockedAchievements.length + lockedAchievements.length} unlocked
