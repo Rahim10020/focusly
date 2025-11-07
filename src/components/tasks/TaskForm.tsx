@@ -47,7 +47,7 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
                 <Input
                     type="text"
                     value={title}
@@ -59,7 +59,7 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                     type="button"
                     variant="ghost"
                     onClick={() => setShowOptions(!showOptions)}
-                    className="px-3"
+                    className="px-3 sm:px-3"
                     title="More options"
                 >
                     <svg
@@ -77,7 +77,7 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                         <path d="M12 1v6m0 6v6m-5-7H1m6 0h6m6 0h6"></path>
                     </svg>
                 </Button>
-                <Button type="submit" disabled={!title.trim()}>
+                <Button type="submit" disabled={!title.trim()} className="w-full sm:w-auto">
                     Add
                 </Button>
             </div>
