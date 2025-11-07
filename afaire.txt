@@ -1,4 +1,5 @@
 - apres voir si on peut mettre des trucs d'amis dans le site.
-- diminuer les tailles de la police sur mobile.
-- revoir l'affichage de how to use sur mobile.
+- coder une version mobile (avec flutter) de cette application.
+- coder une affichage unique pour la version mobile web 
+(quand la personne y accede via le web avec un telehone mobile)
 - telecharger des sons (mp3) et y mettre.
