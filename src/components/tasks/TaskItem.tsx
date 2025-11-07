@@ -7,6 +7,7 @@ import PriorityBadge from '@/components/ui/PriorityBadge';
 import TagBadge from '@/components/ui/TagBadge';
 import DueDateBadge from '@/components/ui/DueDateBadge';
 import TaskDetailsModal from './TaskDetailsModal';
+import { useSound } from '@/lib/hooks/useSound';
 
 interface TaskItemProps {
     task: Task;
@@ -38,6 +39,7 @@ export default function TaskItem({
     dragHandleProps,
 }: TaskItemProps) {
     const [showDetails, setShowDetails] = useState(false);
+    const { playWorkComplete } = useSound();
     const taskTags = tags.filter(tag => task.tags?.includes(tag.id));
 
     const completedSubTasks = (task.subTasks || []).filter(st => st.completed).length;
@@ -78,7 +80,13 @@ export default function TaskItem({
 
                 {/* Checkbox */}
                 <button
-                    onClick={() => onToggle(task.id)}
+                    onClick={() => {
+                        // Jouer le son de fin de tâche si on la marque comme terminée
+                        if (!task.completed) {
+                            playWorkComplete();
+                        }
+                        onToggle(task.id);
+                    }}
                     className="flex-shrink-0 w-5 h-5 rounded-full cursor-pointer border-2 border-primary flex items-center justify-center hover:bg-primary transition-colors mt-0.5"
                 >
                     {task.completed && (

@@ -31,7 +31,7 @@ export default function PomodoroTimer({
     onTimerRefReady,
 }: PomodoroTimerProps) {
     const { settings } = useSettings();
-    const { playWorkComplete, playBreakComplete } = useSound();
+    const { playWorkStart, playWorkPause, playWorkComplete, playBreakComplete } = useSound();
     const { showNotification, permission, requestPermission } = useNotifications();
 
     const {
@@ -90,6 +90,7 @@ export default function PomodoroTimer({
         if (permission === 'default') {
             requestPermission();
         }
+        playWorkStart();
         start();
     };
 
@@ -120,7 +121,10 @@ export default function PomodoroTimer({
             <TimerControls
                 status={status}
                 onStart={handleStart}
-                onPause={pause}
+                onPause={() => {
+                    playWorkPause();
+                    pause();
+                }}
                 onReset={reset}
                 onSkip={skip}
             />
