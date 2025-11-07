@@ -24,7 +24,7 @@ export default function HowToUsePage() {
 
                 <div className="flex gap-8">
                     {/* Main Content */}
-                    <div className="flex-1">
+                    <div className="flex-1 w-full">
 
                         {/* Introduction */}
                         <section id="introduction" className="mb-12">
@@ -300,7 +300,7 @@ export default function HowToUsePage() {
                     </div>
 
                     {/* Table of Contents - Right Sidebar */}
-                    <div className="w-64 flex-shrink-0">
+                    <div className="hidden md:block w-64 flex-shrink-0">
                         <div className="sticky top-8">
                             <Card className="p-4">
                                 <h3 className="font-semibold mb-3">Table of Contents</h3>
