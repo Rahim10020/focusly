@@ -1,6 +1,8 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Achievement } from '@/types';
-import { useCallback, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 const ACHIEVEMENTS_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress'>[] = [
     {
@@ -104,25 +106,77 @@ const ACHIEVEMENTS_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress'>[] =
 ];
 
 export function useAchievements() {
-    const [achievements, setAchievements] = useLocalStorage<Achievement[]>(
+    const { data: session } = useSession();
+    const [localAchievements, setLocalAchievements] = useLocalStorage<Achievement[]>(
         'focusly_achievements',
         ACHIEVEMENTS_DEFINITIONS.map(def => ({ ...def, progress: 0 }))
     );
 
+    const [dbAchievements, setDbAchievements] = useState<Achievement[]>(
+        ACHIEVEMENTS_DEFINITIONS.map(def => ({ ...def, progress: 0 }))
+    );
+
     const [newlyUnlocked, setNewlyUnlocked] = useState<Achievement[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    const getUserId = () => (session?.user as any)?.id;
+
+    // Load achievements from database when user logs in
+    useEffect(() => {
+        if (getUserId()) {
+            loadAchievementsFromDB();
+        } else {
+            setDbAchievements(ACHIEVEMENTS_DEFINITIONS.map(def => ({ ...def, progress: 0 })));
+        }
+    }, [getUserId()]);
+
+    const loadAchievementsFromDB = async () => {
+        const userId = getUserId();
+        if (!userId) return;
+
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('achievements')
+                .select('*')
+                .eq('user_id', userId);
+
+            if (error) throw error;
+
+            // Merge with definitions
+            const achievementsWithData = ACHIEVEMENTS_DEFINITIONS.map(def => {
+                const dbAchievement = data.find(a => a.achievement_id === def.id);
+                return {
+                    ...def,
+                    progress: 0, // Progress is calculated dynamically
+                    unlockedAt: dbAchievement ? new Date(dbAchievement.unlocked_at).getTime() : undefined,
+                };
+            });
+
+            setDbAchievements(achievementsWithData);
+        } catch (error) {
+            console.error('Error loading achievements from DB:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const currentAchievements = getUserId() ? dbAchievements : localAchievements;
+    const setCurrentAchievements = getUserId() ? setDbAchievements : setLocalAchievements;
 
     // Check and unlock achievements
-    const checkAchievements = useCallback((stats: {
+    const checkAchievements = useCallback(async (stats: {
         totalSessions: number;
         completedTasks: number;
         streak: number;
         todayFocusMinutes: number;
     }) => {
-        setAchievements(prevAchievements => {
+        const userId = getUserId();
+        setCurrentAchievements((prevAchievements: Achievement[]) => {
             let hasChanges = false;
             const newlyUnlockedAchievements: Achievement[] = [];
 
-            const updated = prevAchievements.map(achievement => {
+            const updated = prevAchievements.map((achievement: Achievement) => {
                 if (achievement.unlockedAt) return achievement;
 
                 let shouldUnlock = false;
@@ -187,6 +241,21 @@ export function useAchievements() {
                         progress: achievement.target,
                     };
                     newlyUnlockedAchievements.push(unlockedAchievement);
+
+                    // Save to database if authenticated
+                    if (userId) {
+                        supabase
+                            .from('achievements')
+                            .insert({
+                                user_id: userId,
+                                achievement_id: achievement.id,
+                                unlocked_at: new Date().toISOString(),
+                            })
+                            .then(({ error }) => {
+                                if (error) console.error('Error saving achievement to DB:', error);
+                            });
+                    }
+
                     return unlockedAchievement;
                 }
 
@@ -210,14 +279,15 @@ export function useAchievements() {
 
             return hasChanges ? updated : prevAchievements;
         });
-    }, [setAchievements]);
+    }, [getUserId, setCurrentAchievements]);
 
-    const checkTimeBasedAchievements = useCallback((hour: number) => {
-        setAchievements(prevAchievements => {
+    const checkTimeBasedAchievements = useCallback(async (hour: number) => {
+        const userId = getUserId();
+        setCurrentAchievements((prevAchievements: Achievement[]) => {
             let hasChanges = false;
             const newlyUnlockedAchievements: Achievement[] = [];
 
-            const updated = prevAchievements.map(achievement => {
+            const updated = prevAchievements.map((achievement: Achievement) => {
                 if (achievement.unlockedAt) return achievement;
 
                 if (achievement.id === 'early_bird' && hour < 9) {
@@ -228,6 +298,21 @@ export function useAchievements() {
                         progress: 1,
                     };
                     newlyUnlockedAchievements.push(unlockedAchievement);
+
+                    // Save to database if authenticated
+                    if (userId) {
+                        supabase
+                            .from('achievements')
+                            .insert({
+                                user_id: userId,
+                                achievement_id: achievement.id,
+                                unlocked_at: new Date().toISOString(),
+                            })
+                            .then(({ error }) => {
+                                if (error) console.error('Error saving time-based achievement to DB:', error);
+                            });
+                    }
+
                     return unlockedAchievement;
                 }
 
@@ -239,6 +324,21 @@ export function useAchievements() {
                         progress: 1,
                     };
                     newlyUnlockedAchievements.push(unlockedAchievement);
+
+                    // Save to database if authenticated
+                    if (userId) {
+                        supabase
+                            .from('achievements')
+                            .insert({
+                                user_id: userId,
+                                achievement_id: achievement.id,
+                                unlocked_at: new Date().toISOString(),
+                            })
+                            .then(({ error }) => {
+                                if (error) console.error('Error saving time-based achievement to DB:', error);
+                            });
+                    }
+
                     return unlockedAchievement;
                 }
 
@@ -253,17 +353,17 @@ export function useAchievements() {
 
             return hasChanges ? updated : prevAchievements;
         });
-    }, [setAchievements]);
+    }, [getUserId, setCurrentAchievements]);
 
     const clearNewlyUnlocked = useCallback(() => {
         setNewlyUnlocked([]);
     }, []);
 
-    const unlockedAchievements = achievements.filter(a => a.unlockedAt);
-    const lockedAchievements = achievements.filter(a => !a.unlockedAt);
+    const unlockedAchievements = currentAchievements.filter((a: Achievement) => a.unlockedAt);
+    const lockedAchievements = currentAchievements.filter((a: Achievement) => !a.unlockedAt);
 
     return {
-        achievements,
+        achievements: currentAchievements,
         unlockedAchievements,
         lockedAchievements,
         newlyUnlocked,

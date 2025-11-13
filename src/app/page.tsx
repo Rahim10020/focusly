@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
@@ -11,6 +12,7 @@ import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
 const StatsOverview = dynamic(() => import('@/components/stats/StatsOverview'), { ssr: false });
 import AchievementNotification from '@/components/achievements/AchievementNotification';
 import KeyboardShortcutsModal from '@/components/ui/KeyboardShortcutsModal';
+import Button from '@/components/ui/Button';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useStats } from '@/lib/hooks/useStats';
 import { useAchievements } from '@/lib/hooks/useAchievements';
@@ -19,6 +21,7 @@ import { useKeyboardShortcuts, GLOBAL_SHORTCUTS } from '@/lib/hooks/useKeyboardS
 
 export default function Home() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const taskInputRef = useRef<HTMLInputElement>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -174,6 +177,80 @@ export default function Home() {
       action: () => router.push('/settings'),
     },
   ]);
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+
+        <main className="max-w-4xl mx-auto px-6 py-16 text-center">
+          <div className="space-y-8">
+            <div>
+              <h1 className="text-4xl font-bold mb-4">Welcome to Focusly</h1>
+              <p className="text-xl text-muted-foreground mb-8">
+                Boost your productivity with our Pomodoro timer and task management system.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-3xl mb-4">⏰</div>
+                  <h3 className="font-semibold mb-2">Pomodoro Timer</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Stay focused with timed work sessions and breaks.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-3xl mb-4">📋</div>
+                  <h3 className="font-semibold mb-2">Task Management</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Organize and track your tasks efficiently.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-3xl mb-4">🏆</div>
+                  <h3 className="font-semibold mb-2">Achievements</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Unlock achievements as you build productive habits.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-lg">Create an account to save your progress and sync across devices.</p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button onClick={() => router.push('/auth/signup')} size="lg">
+                  Create Account
+                </Button>
+                <Button onClick={() => router.push('/auth/signin')} variant="secondary" size="lg">
+                  Sign In
+                </Button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

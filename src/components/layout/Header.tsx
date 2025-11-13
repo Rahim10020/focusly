@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
 import ThemeToggle from '../ui/ThemeToggle';
+import Button from '../ui/Button';
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { data: session } = useSession();
 
     return (
         <header className="w-full bg-background/80 backdrop-blur-sm sticky top-0 z-50">
@@ -39,6 +42,20 @@ export default function Header() {
                     >
                         Settings
                     </Link>
+                    {session && (
+                        <div className="flex items-center gap-4">
+                            <span className="text-sm text-muted-foreground">
+                                Welcome, {session.user?.name || session.user?.email}
+                            </span>
+                            <Button
+                                onClick={() => signOut()}
+                                variant="ghost"
+                                size="sm"
+                            >
+                                Logout
+                            </Button>
+                        </div>
+                    )}
                     <ThemeToggle />
                 </nav>
 
@@ -82,6 +99,21 @@ export default function Header() {
                         >
                             Settings
                         </Link>
+                        {session && (
+                            <div className="flex flex-col items-center gap-2 pt-2 border-t border-border w-full">
+                                <span className="text-sm text-muted-foreground">
+                                    {session.user?.name || session.user?.email}
+                                </span>
+                                <Button
+                                    onClick={() => signOut()}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full max-w-xs"
+                                >
+                                    Logout
+                                </Button>
+                            </div>
+                        )}
                     </nav>
                 </div>
             )}

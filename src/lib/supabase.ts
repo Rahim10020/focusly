@@ -1,0 +1,197 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Database types
+export interface Database {
+    public: {
+        Tables: {
+            tasks: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    title: string;
+                    completed: boolean;
+                    created_at: string;
+                    updated_at: string;
+                    pomodoro_count: number;
+                    priority: 'high' | 'medium' | 'low' | null;
+                    tags: string[] | null;
+                    due_date: string | null;
+                    notes: string | null;
+                    order: number;
+                    completed_at: string | null;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    title: string;
+                    completed?: boolean;
+                    created_at?: string;
+                    updated_at?: string;
+                    pomodoro_count?: number;
+                    priority?: 'high' | 'medium' | 'low' | null;
+                    tags?: string[] | null;
+                    due_date?: string | null;
+                    notes?: string | null;
+                    order?: number;
+                    completed_at?: string | null;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    title?: string;
+                    completed?: boolean;
+                    created_at?: string;
+                    updated_at?: string;
+                    pomodoro_count?: number;
+                    priority?: 'high' | 'medium' | 'low' | null;
+                    tags?: string[] | null;
+                    due_date?: string | null;
+                    notes?: string | null;
+                    order?: number;
+                    completed_at?: string | null;
+                };
+            };
+            subtasks: {
+                Row: {
+                    id: string;
+                    task_id: string;
+                    title: string;
+                    completed: boolean;
+                    created_at: string;
+                    updated_at: string;
+                    completed_at: string | null;
+                };
+                Insert: {
+                    id?: string;
+                    task_id: string;
+                    title: string;
+                    completed?: boolean;
+                    created_at?: string;
+                    updated_at?: string;
+                    completed_at?: string | null;
+                };
+                Update: {
+                    id?: string;
+                    task_id?: string;
+                    title?: string;
+                    completed?: boolean;
+                    created_at?: string;
+                    updated_at?: string;
+                    completed_at?: string | null;
+                };
+            };
+            stats: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    total_sessions: number;
+                    completed_tasks: number;
+                    total_tasks: number;
+                    streak: number;
+                    total_focus_time: number;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    total_sessions?: number;
+                    completed_tasks?: number;
+                    total_tasks?: number;
+                    streak?: number;
+                    total_focus_time?: number;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    total_sessions?: number;
+                    completed_tasks?: number;
+                    total_tasks?: number;
+                    streak?: number;
+                    total_focus_time?: number;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+            };
+            sessions: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    task_id: string | null;
+                    duration: number;
+                    type: 'work' | 'break';
+                    completed: boolean;
+                    created_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    task_id?: string | null;
+                    duration: number;
+                    type: 'work' | 'break';
+                    completed?: boolean;
+                    created_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    task_id?: string | null;
+                    duration?: number;
+                    type?: 'work' | 'break';
+                    completed?: boolean;
+                    created_at?: string;
+                };
+            };
+            tags: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    name: string;
+                    color: string;
+                    created_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    name: string;
+                    color: string;
+                    created_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    name?: string;
+                    color?: string;
+                    created_at?: string;
+                };
+            };
+            achievements: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    achievement_id: string;
+                    unlocked_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    achievement_id: string;
+                    unlocked_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    achievement_id?: string;
+                    unlocked_at?: string;
+                };
+            };
+        };
+    };
+}

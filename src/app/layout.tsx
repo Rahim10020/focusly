@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -45,7 +46,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Focusly" />
       </head>
       <body className="antialiased font-sans">
-        {children}
+        <SessionProvider>
+          {children}
+        </SessionProvider>
         <Analytics />
       </body>
     </html>
