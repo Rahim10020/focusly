@@ -16,6 +16,3 @@ L'admin c'est a dire moi, peut creer des challenges speciales (voir avec claude 
 
 concernant la partie des challenges actuellement disponible, on va categoriser ca: niveau debutant et expert.
 
-Permettre aux utilisateur d'avoir des comptes (creation de compte) et de sauvegarder 
-    pour eux les anciennes taches qu'ils ont accompli et ceux qu'ils ont rate.
-

@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import ThemeToggle from '../ui/ThemeToggle';
-import Button from '../ui/Button';
+import UserMenu from '../ui/UserMenu';
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -42,21 +42,8 @@ export default function Header() {
                     >
                         Settings
                     </Link>
-                    {session && (
-                        <div className="flex items-center gap-4">
-                            <span className="text-sm text-muted-foreground">
-                                Welcome, {session.user?.name || session.user?.email}
-                            </span>
-                            <Button
-                                onClick={() => signOut()}
-                                variant="ghost"
-                                size="sm"
-                            >
-                                Logout
-                            </Button>
-                        </div>
-                    )}
                     <ThemeToggle />
+                    <UserMenu />
                 </nav>
 
                 {/* Mobile Navigation */}
@@ -99,21 +86,9 @@ export default function Header() {
                         >
                             Settings
                         </Link>
-                        {session && (
-                            <div className="flex flex-col items-center gap-2 pt-2 border-t border-border w-full">
-                                <span className="text-sm text-muted-foreground">
-                                    {session.user?.name || session.user?.email}
-                                </span>
-                                <Button
-                                    onClick={() => signOut()}
-                                    variant="ghost"
-                                    size="sm"
-                                    className="w-full max-w-xs"
-                                >
-                                    Logout
-                                </Button>
-                            </div>
-                        )}
+                        <div className="pt-2 border-t border-border w-full">
+                            <UserMenu />
+                        </div>
                     </nav>
                 </div>
             )}
