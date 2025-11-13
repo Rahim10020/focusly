@@ -192,9 +192,7 @@ export default function Home() {
   if (!session) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
-
-        <main className="max-w-4xl mx-auto px-6 py-16 text-center">
+        <main className="max-w-4xl mx-auto px-6 py-25 text-center">
           <div className="space-y-8">
             <div>
               <h1 className="text-4xl font-bold mb-4">Welcome to Focusly</h1>
