@@ -2,10 +2,10 @@
 
 :root {
   --background: #FFFFFF;
-  --foreground: #000000;
+  --foreground: #222831;
   --card: #FFFFFF;
-  --card-foreground: #000000;
-  --primary: #000000;
+  --card-foreground: #222831;
+  --primary: #222831;
   --primary-foreground: #FFFFFF;
   --muted: #F5F5F5;
   --muted-foreground: #555555;
@@ -15,16 +15,16 @@
 }
 
 .dark {
-  --background: #000000;
+  --background: #222831;
   --foreground: #FFFFFF;
-  --card: #000000;
+  --card: #222831;
   --card-foreground: #FFFFFF;
   --primary: #FFFFFF;
-  --primary-foreground: #000000;
-  --muted: #1f1f1f;
+  --primary-foreground: #222831;
+  --muted: #393E46;
   --muted-foreground: #CCCCCC;
   --accent: #141414;
-  --border: #232323;
+  --border: #4d4943;
 }
 
 @theme {
