@@ -1,9 +1,29 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+let supabaseInstance: any = null;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const getSupabaseInstance = () => {
+    if (!supabaseInstance) {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        if (!supabaseUrl || !supabaseAnonKey) {
+            throw new Error('NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set');
+        }
+        supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
+    }
+    return supabaseInstance;
+};
+
+export const supabase: any = new Proxy({}, {
+    get(target, prop) {
+        const instance = getSupabaseInstance();
+        const value = instance[prop];
+        if (typeof value === 'function') {
+            return value.bind(instance);
+        }
+        return value;
+    }
+});
 
 // Database types
 export interface Database {
