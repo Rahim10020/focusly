@@ -89,13 +89,20 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 CREATE TABLE IF NOT EXISTS public.friends (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    sender_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-    receiver_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    sender_id UUID NOT NULL,
+    receiver_id UUID NOT NULL,
     status TEXT CHECK (status IN ('pending', 'accepted', 'rejected')) DEFAULT 'pending',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     UNIQUE(sender_id, receiver_id)
 );
+
+-- Add foreign key constraints to profiles
+ALTER TABLE public.friends DROP CONSTRAINT IF EXISTS friends_sender_id_fkey;
+ALTER TABLE public.friends ADD CONSTRAINT friends_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.profiles(id) ON DELETE CASCADE;
+
+ALTER TABLE public.friends DROP CONSTRAINT IF EXISTS friends_receiver_id_fkey;
+ALTER TABLE public.friends ADD CONSTRAINT friends_receiver_id_fkey FOREIGN KEY (receiver_id) REFERENCES public.profiles(id) ON DELETE CASCADE;
 
 CREATE TABLE IF NOT EXISTS public.stat_visibility (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
