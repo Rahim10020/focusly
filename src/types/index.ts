@@ -9,7 +9,8 @@ export interface SubTask {
 export interface Task {
     id: string;
     title: string;
-    completed: boolean;
+    completed: boolean; // Keep for backward compatibility
+    status?: 'todo' | 'in-progress' | 'done'; // New status field
     createdAt: number;
     completedAt?: number;
     pomodoroCount: number;
@@ -21,6 +22,8 @@ export interface Task {
     order?: number; // For drag & drop
     subDomain?: SubDomain;
 }
+
+export type TaskStatus = 'todo' | 'in-progress' | 'done';
 
 export interface PomodoroSession {
     id: string;
