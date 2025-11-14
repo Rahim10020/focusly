@@ -5,11 +5,13 @@ import { Achievement } from '@/types';
 import { supabase } from '@/lib/supabase';
 
 const ACHIEVEMENTS_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress'>[] = [
+    // Beginner Level Achievements
     {
         id: 'first_task',
         title: 'Getting Started',
         description: 'Complete your first task',
         icon: '🎯',
+        level: 'beginner',
         target: 1,
     },
     {
@@ -17,6 +19,7 @@ const ACHIEVEMENTS_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress'>[] =
         title: 'First Focus',
         description: 'Complete your first pomodoro session',
         icon: '🍅',
+        level: 'beginner',
         target: 1,
     },
     {
@@ -24,76 +27,39 @@ const ACHIEVEMENTS_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress'>[] =
         title: 'Focused Warrior',
         description: 'Complete 10 pomodoro sessions',
         icon: '⚔️',
+        level: 'beginner',
         target: 10,
-    },
-    {
-        id: 'pomodoro_50',
-        title: 'Focus Master',
-        description: 'Complete 50 pomodoro sessions',
-        icon: '👑',
-        target: 50,
-    },
-    {
-        id: 'pomodoro_100',
-        title: 'Centurion',
-        description: 'Complete 100 pomodoro sessions',
-        icon: '🏆',
-        target: 100,
     },
     {
         id: 'tasks_10',
         title: 'Task Crusher',
         description: 'Complete 10 tasks',
         icon: '💪',
+        level: 'beginner',
         target: 10,
-    },
-    {
-        id: 'tasks_50',
-        title: 'Productivity Pro',
-        description: 'Complete 50 tasks',
-        icon: '🌟',
-        target: 50,
     },
     {
         id: 'streak_3',
         title: '3-Day Streak',
         description: 'Work 3 days in a row',
         icon: '🔥',
+        level: 'beginner',
         target: 3,
-    },
-    {
-        id: 'streak_7',
-        title: 'Week Warrior',
-        description: 'Work 7 days in a row',
-        icon: '⚡',
-        target: 7,
-    },
-    {
-        id: 'streak_30',
-        title: 'Monthly Master',
-        description: 'Work 30 days in a row',
-        icon: '💎',
-        target: 30,
     },
     {
         id: 'focus_time_60',
         title: 'Hour of Power',
         description: 'Focus for 60 minutes in a day',
         icon: '⏰',
+        level: 'beginner',
         target: 60,
-    },
-    {
-        id: 'focus_time_240',
-        title: 'Deep Work Champion',
-        description: 'Focus for 4 hours in a day',
-        icon: '🧠',
-        target: 240,
     },
     {
         id: 'early_bird',
         title: 'Early Bird',
         description: 'Complete a pomodoro before 9 AM',
         icon: '🌅',
+        level: 'beginner',
         target: 1,
     },
     {
@@ -101,7 +67,106 @@ const ACHIEVEMENTS_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress'>[] =
         title: 'Night Owl',
         description: 'Complete a pomodoro after 10 PM',
         icon: '🦉',
+        level: 'beginner',
         target: 1,
+    },
+
+    // Expert Level Achievements
+    {
+        id: 'pomodoro_50',
+        title: 'Focus Master',
+        description: 'Complete 50 pomodoro sessions',
+        icon: '👑',
+        level: 'expert',
+        target: 50,
+    },
+    {
+        id: 'pomodoro_100',
+        title: 'Centurion',
+        description: 'Complete 100 pomodoro sessions',
+        icon: '🏆',
+        level: 'expert',
+        target: 100,
+    },
+    {
+        id: 'pomodoro_500',
+        title: 'Focus Legend',
+        description: 'Complete 500 pomodoro sessions',
+        icon: '🌟',
+        level: 'expert',
+        target: 500,
+    },
+    {
+        id: 'tasks_50',
+        title: 'Productivity Pro',
+        description: 'Complete 50 tasks',
+        icon: '💼',
+        level: 'expert',
+        target: 50,
+    },
+    {
+        id: 'tasks_200',
+        title: 'Task Master',
+        description: 'Complete 200 tasks',
+        icon: '🎖️',
+        level: 'expert',
+        target: 200,
+    },
+    {
+        id: 'streak_7',
+        title: 'Week Warrior',
+        description: 'Work 7 days in a row',
+        icon: '⚡',
+        level: 'expert',
+        target: 7,
+    },
+    {
+        id: 'streak_30',
+        title: 'Monthly Master',
+        description: 'Work 30 days in a row',
+        icon: '💎',
+        level: 'expert',
+        target: 30,
+    },
+    {
+        id: 'streak_100',
+        title: 'Century Streak',
+        description: 'Work 100 days in a row',
+        icon: '🔥',
+        level: 'expert',
+        target: 100,
+    },
+    {
+        id: 'focus_time_240',
+        title: 'Deep Work Champion',
+        description: 'Focus for 4 hours in a day',
+        icon: '🧠',
+        level: 'expert',
+        target: 240,
+    },
+    {
+        id: 'focus_time_480',
+        title: 'Ultra Focus',
+        description: 'Focus for 8 hours in a day',
+        icon: '🎯',
+        level: 'expert',
+        target: 480,
+    },
+    {
+        id: 'daily_tasks_20',
+        title: 'Daily Dynamo',
+        description: 'Complete 20 tasks in a single day',
+        icon: '⚡',
+        level: 'expert',
+        target: 20,
+    },
+    {
+        id: 'monthly_sessions_100',
+        title: 'Monthly Momentum',
+        description: 'Complete 100 pomodoro sessions in one month',
+        icon: '📅',
+        level: 'expert',
+        target: 100,
     },
 ];
 
@@ -203,6 +268,10 @@ export function useAchievements() {
                         currentProgress = stats.totalSessions;
                         shouldUnlock = stats.totalSessions >= 100;
                         break;
+                    case 'pomodoro_500':
+                        currentProgress = stats.totalSessions;
+                        shouldUnlock = stats.totalSessions >= 500;
+                        break;
                     case 'tasks_10':
                         currentProgress = stats.completedTasks;
                         shouldUnlock = stats.completedTasks >= 10;
@@ -210,6 +279,10 @@ export function useAchievements() {
                     case 'tasks_50':
                         currentProgress = stats.completedTasks;
                         shouldUnlock = stats.completedTasks >= 50;
+                        break;
+                    case 'tasks_200':
+                        currentProgress = stats.completedTasks;
+                        shouldUnlock = stats.completedTasks >= 200;
                         break;
                     case 'streak_3':
                         currentProgress = stats.streak;
@@ -223,6 +296,10 @@ export function useAchievements() {
                         currentProgress = stats.streak;
                         shouldUnlock = stats.streak >= 30;
                         break;
+                    case 'streak_100':
+                        currentProgress = stats.streak;
+                        shouldUnlock = stats.streak >= 100;
+                        break;
                     case 'focus_time_60':
                         currentProgress = stats.todayFocusMinutes;
                         shouldUnlock = stats.todayFocusMinutes >= 60;
@@ -231,6 +308,12 @@ export function useAchievements() {
                         currentProgress = stats.todayFocusMinutes;
                         shouldUnlock = stats.todayFocusMinutes >= 240;
                         break;
+                    case 'focus_time_480':
+                        currentProgress = stats.todayFocusMinutes;
+                        shouldUnlock = stats.todayFocusMinutes >= 480;
+                        break;
+                    // Note: daily_tasks_20 and monthly_sessions_100 require additional tracking
+                    // that would need to be implemented separately
                 }
 
                 if (shouldUnlock && !achievement.unlockedAt) {

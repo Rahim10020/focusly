@@ -28,7 +28,7 @@ export default function UserMenu() {
         <div className="relative" ref={menuRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                className="flex items-center gap-2 hover:opacity-80 cursor-pointer transition-opacity"
             >
                 <img
                     src={session.user?.image || '/default-avatar.svg'}

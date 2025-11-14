@@ -62,33 +62,80 @@ export default function AchievementsList({
         );
     };
 
-    return (
-        <div className="space-y-6">
-            {unlockedAchievements.length > 0 && (
-                <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                        Unlocked ({unlockedAchievements.length})
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {unlockedAchievements.map(achievement =>
-                            renderAchievement(achievement, false)
-                        )}
-                    </div>
-                </div>
-            )}
+    const unlockedBeginner = unlockedAchievements.filter(a => a.level === 'beginner');
+    const unlockedExpert = unlockedAchievements.filter(a => a.level === 'expert');
+    const lockedBeginner = lockedAchievements.filter(a => a.level === 'beginner');
+    const lockedExpert = lockedAchievements.filter(a => a.level === 'expert');
 
-            {lockedAchievements.length > 0 && (
-                <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                        Locked ({lockedAchievements.length})
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {lockedAchievements.map(achievement =>
-                            renderAchievement(achievement, true)
-                        )}
-                    </div>
+    return (
+        <div className="space-y-8">
+            {/* Beginner Level */}
+            <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <h2 className="text-lg font-semibold text-foreground">Beginner Challenges</h2>
                 </div>
-            )}
+
+                {unlockedBeginner.length > 0 && (
+                    <div className="space-y-3">
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                            Unlocked ({unlockedBeginner.length})
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {unlockedBeginner.map(achievement =>
+                                renderAchievement(achievement, false)
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {lockedBeginner.length > 0 && (
+                    <div className="space-y-3">
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                            Locked ({lockedBeginner.length})
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {lockedBeginner.map(achievement =>
+                                renderAchievement(achievement, true)
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Expert Level */}
+            <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                    <h2 className="text-lg font-semibold text-foreground">Expert Challenges</h2>
+                </div>
+
+                {unlockedExpert.length > 0 && (
+                    <div className="space-y-3">
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                            Unlocked ({unlockedExpert.length})
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {unlockedExpert.map(achievement =>
+                                renderAchievement(achievement, false)
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {lockedExpert.length > 0 && (
+                    <div className="space-y-3">
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                            Locked ({lockedExpert.length})
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {lockedExpert.map(achievement =>
+                                renderAchievement(achievement, true)
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
