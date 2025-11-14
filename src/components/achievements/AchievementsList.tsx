@@ -81,7 +81,7 @@ export default function AchievementsList({
                 >
                     <div className="flex items-center justify-center gap-2">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        Débutant
+                        Beginner
                     </div>
                 </button>
                 <button
@@ -103,7 +103,7 @@ export default function AchievementsList({
                 {unlockedFiltered.length > 0 && (
                     <div className="space-y-3">
                         <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                            Débloqués ({unlockedFiltered.length})
+                            Unlocked ({unlockedFiltered.length})
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {unlockedFiltered.map(achievement =>
@@ -116,7 +116,7 @@ export default function AchievementsList({
                 {lockedFiltered.length > 0 && (
                     <div className="space-y-3">
                         <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                            Verrouillés ({lockedFiltered.length})
+                            Locked ({lockedFiltered.length})
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {lockedFiltered.map(achievement =>
@@ -128,7 +128,7 @@ export default function AchievementsList({
 
                 {unlockedFiltered.length === 0 && lockedFiltered.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground">
-                        Aucun challenge disponible pour ce niveau.
+                        No challenges available for this level.
                     </div>
                 )}
             </div>
