@@ -348,7 +348,7 @@ export function useAchievements() {
                                     refresh_token: (currentSession as any).refreshToken,
                                 });
                             }
-                            return Promise.resolve({ data: { session: supabaseSession }, error: null });
+                            return Promise.resolve({ data: { user: null, session: supabaseSession }, error: null } as any);
                         }).then(() => {
                             return supabase
                                 .from('achievements')
@@ -427,7 +427,7 @@ export function useAchievements() {
                                     refresh_token: (currentSession as any).refreshToken,
                                 });
                             }
-                            return Promise.resolve({ data: { session: supabaseSession }, error: null });
+                            return Promise.resolve({ data: { user: null, session: supabaseSession }, error: null } as any);
                         }).then(() => {
                             return supabase
                                 .from('achievements')
@@ -474,7 +474,7 @@ export function useAchievements() {
                                     refresh_token: (currentSession as any).refreshToken,
                                 });
                             }
-                            return Promise.resolve({ data: { session: supabaseSession }, error: null });
+                            return Promise.resolve({ data: { user: null, session: supabaseSession }, error: null } as any);
                         }).then(() => {
                             return supabase
                                 .from('achievements')
