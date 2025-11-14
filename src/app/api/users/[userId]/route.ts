@@ -10,7 +10,7 @@ export async function GET(
     try {
         const { userId } = await params;
         const session = await getServerSession(authOptions);
-        const viewerId = (session?.user as any)?.id;
+        const viewerId = session?.user?.id;
 
         // If viewing own profile, show all stats
         if (viewerId === userId) {
@@ -88,16 +88,15 @@ export async function GET(
 
         // Filter stats based on visibility
         if (data.stats && !isFriend) {
-            const filteredStats: any = {};
+            const filteredStats: Record<string, any> = {};
             for (const [key, value] of Object.entries(data.stats)) {
                 const visible = visibilityMap.get(key) ?? true; // Default to visible
                 if (visible) {
                     filteredStats[key] = value;
-                } else {
-                    filteredStats[key] = null; // Hide the stat
                 }
+                // Don't add the key if not visible (better security - doesn't reveal which fields exist)
             }
-            data.stats = filteredStats;
+            data.stats = filteredStats as any;
         }
 
         return NextResponse.json(data);

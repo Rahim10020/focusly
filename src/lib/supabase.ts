@@ -265,6 +265,32 @@ export interface Database {
                     updated_at?: string;
                 };
             };
+            stat_visibility: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    stat_field: string;
+                    visible_to_friends: boolean;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    stat_field: string;
+                    visible_to_friends?: boolean;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    stat_field?: string;
+                    visible_to_friends?: boolean;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+            };
         };
     };
 }
