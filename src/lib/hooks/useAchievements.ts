@@ -186,6 +186,16 @@ export function useAchievements() {
 
     const getUserId = () => (session?.user as any)?.id;
 
+    // Set Supabase auth session when user logs in
+    useEffect(() => {
+        if ((session as any)?.accessToken && (session as any)?.refreshToken) {
+            supabase.auth.setSession({
+                access_token: (session as any).accessToken,
+                refresh_token: (session as any).refreshToken,
+            });
+        }
+    }, [session]);
+
     // Load achievements from database when user logs in
     useEffect(() => {
         if (getUserId()) {
@@ -329,11 +339,11 @@ export function useAchievements() {
                     if (userId) {
                         supabase
                             .from('achievements')
-                            .insert({
+                            .upsert({
                                 user_id: userId,
                                 achievement_id: achievement.id,
                                 unlocked_at: new Date().toISOString(),
-                            })
+                            }, { onConflict: 'user_id,achievement_id' })
                             .then(({ error }) => {
                                 if (error) {
                                     console.error('Error saving achievement to DB:', {
@@ -395,11 +405,11 @@ export function useAchievements() {
                     if (userId) {
                         supabase
                             .from('achievements')
-                            .insert({
+                            .upsert({
                                 user_id: userId,
                                 achievement_id: achievement.id,
                                 unlocked_at: new Date().toISOString(),
-                            })
+                            }, { onConflict: 'user_id,achievement_id' })
                             .then(({ error }) => {
                                 if (error) console.error('Error saving time-based achievement to DB:', error);
                             });
@@ -421,11 +431,11 @@ export function useAchievements() {
                     if (userId) {
                         supabase
                             .from('achievements')
-                            .insert({
+                            .upsert({
                                 user_id: userId,
                                 achievement_id: achievement.id,
                                 unlocked_at: new Date().toISOString(),
-                            })
+                            }, { onConflict: 'user_id,achievement_id' })
                             .then(({ error }) => {
                                 if (error) console.error('Error saving time-based achievement to DB:', error);
                             });
