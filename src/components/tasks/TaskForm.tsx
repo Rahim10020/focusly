@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { Tag, Priority } from '@/types';
+import { Tag, Priority, SubDomain, DOMAINS, getDomainFromSubDomain } from '@/types';
 import TagBadge from '@/components/ui/TagBadge';
 import PriorityBadge from '@/components/ui/PriorityBadge';
 
 interface TaskFormProps {
-    onAddTask: (title: string, priority?: Priority, tags?: string[], dueDate?: number, notes?: string) => void;
+    onAddTask: (title: string, priority?: Priority, tags?: string[], dueDate?: number, notes?: string, subDomain?: SubDomain) => void;
     availableTags: Tag[];
 }
 
@@ -19,6 +19,7 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
     const [dueDate, setDueDate] = useState('');
     const [notes, setNotes] = useState('');
     const [showOptions, setShowOptions] = useState(false);
+    const [selectedSubDomain, setSelectedSubDomain] = useState<SubDomain | undefined>(undefined);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,7 +29,8 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
                 priority,
                 selectedTags.length > 0 ? selectedTags : undefined,
                 dueDate ? new Date(dueDate).getTime() : undefined,
-                notes.trim() || undefined
+                notes.trim() || undefined,
+                selectedSubDomain
             );
             setTitle('');
             setPriority(undefined);
@@ -36,6 +38,7 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
             setDueDate('');
             setNotes('');
             setShowOptions(false);
+            setSelectedSubDomain(undefined);
         }
     };
 
@@ -84,6 +87,40 @@ export default function TaskForm({ onAddTask, availableTags }: TaskFormProps) {
 
             {showOptions && (
                 <div className="space-y-4 p-4 bg-muted rounded-xl">
+                    {/* Category Selection */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            Category
+                        </label>
+                        <div className="space-y-3">
+                            {Object.entries(DOMAINS).map(([domainKey, domainInfo]) => (
+                                <div key={domainKey} className="space-y-2">
+                                    <div className="text-sm font-medium text-foreground">
+                                        {domainInfo.name}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                        {domainInfo.description}
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        {Object.entries(domainInfo.subDomains).map(([subDomainKey, subDomainName]) => (
+                                            <button
+                                                key={subDomainKey}
+                                                type="button"
+                                                onClick={() => setSelectedSubDomain(selectedSubDomain === subDomainKey ? undefined : subDomainKey as SubDomain)}
+                                                className={`p-2 text-left text-sm rounded-lg transition-all ${selectedSubDomain === subDomainKey
+                                                        ? 'bg-primary text-primary-foreground'
+                                                        : 'bg-card hover:bg-accent text-card-foreground'
+                                                    }`}
+                                            >
+                                                {subDomainName}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Priority Selection */}
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">

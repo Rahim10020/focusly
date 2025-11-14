@@ -6,6 +6,7 @@ import StatsOverview from '@/components/stats/StatsOverview';
 import ProductivityChart from '@/components/stats/ProductivityChart';
 import AchievementsList from '@/components/achievements/AchievementsList';
 import TaskHistoryList from '@/components/tasks/TaskHistoryList';
+import DomainStats from '@/components/stats/DomainStats';
 import { useStats } from '@/lib/hooks/useStats';
 import { useAchievements } from '@/lib/hooks/useAchievements';
 import { useTasks } from '@/lib/hooks/useTasks';
@@ -18,7 +19,7 @@ export default function StatsPage() {
     const { unlockedAchievements, lockedAchievements } = useAchievements();
     const { tasks } = useTasks();
     const { tags } = useTags();
-    const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'tasks'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'tasks' | 'domains'>('overview');
 
     const recentSessions = sessions
         .filter(session => session.completed)
@@ -83,6 +84,18 @@ export default function StatsPage() {
                         <span className="ml-1 px-1 md:ml-2 md:px-2 py-0.5 text-xs rounded-full bg-primary text-primary-foreground">
                             {completedTasks.length + failedTasks.length}
                         </span>
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('domains')}
+                        className={`px-4 py-2 cursor-pointer font-medium transition-colors relative ${activeTab === 'domains'
+                            ? 'text-primary'
+                            : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                    >
+                        Domains
+                        {activeTab === 'domains' && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                        )}
                     </button>
                 </div>
 
@@ -180,6 +193,10 @@ export default function StatsPage() {
                             />
                         </CardContent>
                     </Card>
+                )}
+
+                {activeTab === 'domains' && (
+                    <DomainStats tasks={tasks} />
                 )}
             </main>
         </div>

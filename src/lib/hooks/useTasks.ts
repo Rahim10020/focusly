@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
-import { Task, SubTask, Priority } from '@/types';
+import { Task, SubTask, Priority, SubDomain } from '@/types';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 
@@ -59,6 +59,7 @@ export function useTasks() {
                     completedAt: st.completed_at ? new Date(st.completed_at).getTime() : undefined,
                 })) || [],
                 order: dbTask.order,
+                subDomain: dbTask.sub_domain as SubDomain,
             }));
 
             setDbTasks(formattedTasks);
@@ -77,7 +78,8 @@ export function useTasks() {
         priority?: Priority,
         tags?: string[],
         dueDate?: number,
-        notes?: string
+        notes?: string,
+        subDomain?: SubDomain
     ) => {
         const maxOrder = currentTasks.length > 0 ? Math.max(...currentTasks.map(t => t.order || 0)) : 0;
         const newTask: Task = {
@@ -92,6 +94,7 @@ export function useTasks() {
             notes,
             subTasks: [],
             order: maxOrder + 1,
+            subDomain,
         };
 
         const userId = getUserId();
@@ -112,6 +115,7 @@ export function useTasks() {
                         due_date: newTask.dueDate ? new Date(newTask.dueDate).toISOString() : null,
                         notes: newTask.notes,
                         order: newTask.order,
+                        sub_domain: newTask.subDomain,
                     })
                     .select()
                     .single();
@@ -145,6 +149,7 @@ export function useTasks() {
                 if (updates.dueDate !== undefined) updateData.due_date = updates.dueDate ? new Date(updates.dueDate).toISOString() : null;
                 if (updates.notes !== undefined) updateData.notes = updates.notes;
                 if (updates.order !== undefined) updateData.order = updates.order;
+                if (updates.subDomain !== undefined) updateData.sub_domain = updates.subDomain;
 
                 const { error } = await supabase
                     .from('tasks')

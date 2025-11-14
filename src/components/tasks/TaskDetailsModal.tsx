@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Task, Tag } from '@/types';
+import { Task, Tag, DOMAINS, getDomainFromSubDomain } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import PriorityBadge from '@/components/ui/PriorityBadge';
@@ -59,6 +59,11 @@ export default function TaskDetailsModal({
                             {taskTags.map(tag => (
                                 <TagBadge key={tag.id} tag={tag} />
                             ))}
+                            {task.subDomain && (
+                                <span className="text-xs px-2 py-1 rounded-full bg-accent text-accent-foreground">
+                                    {DOMAINS[getDomainFromSubDomain(task.subDomain)].subDomains[task.subDomain]}
+                                </span>
+                            )}
                             {task.pomodoroCount > 0 && (
                                 <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
                                     🍅 {task.pomodoroCount} pomodoros

@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS public.tasks (
     due_date TIMESTAMP WITH TIME ZONE,
     notes TEXT,
     "order" INTEGER DEFAULT 0,
-    completed_at TIMESTAMP WITH TIME ZONE
+    completed_at TIMESTAMP WITH TIME ZONE,
+    sub_domain TEXT
 );
 
 CREATE TABLE IF NOT EXISTS public.subtasks (

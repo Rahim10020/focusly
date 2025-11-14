@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Task, Tag } from '@/types';
+import { Task, Tag, DOMAINS, getDomainFromSubDomain } from '@/types';
 import Button from '@/components/ui/Button';
 import PriorityBadge from '@/components/ui/PriorityBadge';
 import TagBadge from '@/components/ui/TagBadge';
@@ -126,7 +126,7 @@ export default function TaskItem({
                         )}
                     </div>
 
-                    {/* Priority, Tags, Due Date */}
+                    {/* Priority, Tags, Due Date, Subdomain */}
                     <div className="flex items-center gap-2 flex-wrap">
                         {task.priority && <PriorityBadge priority={task.priority} />}
                         {taskTags.map(tag => (
@@ -134,6 +134,11 @@ export default function TaskItem({
                         ))}
                         {task.dueDate && (
                             <DueDateBadge dueDate={task.dueDate} completed={task.completed} />
+                        )}
+                        {task.subDomain && (
+                            <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full">
+                                {DOMAINS[getDomainFromSubDomain(task.subDomain)].subDomains[task.subDomain]}
+                            </span>
                         )}
                     </div>
 
