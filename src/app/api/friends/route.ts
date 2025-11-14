@@ -20,11 +20,11 @@ export async function GET(request: NextRequest) {
         receiver_id,
         status,
         created_at,
-        sender:profiles (
+        sender:profiles!friends_sender_id_fkey (
           username,
           avatar_url
         ),
-        receiver:profiles (
+        receiver:profiles!friends_receiver_id_fkey (
           username,
           avatar_url
         )
