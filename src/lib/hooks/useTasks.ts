@@ -63,7 +63,7 @@ export function useTasks() {
             }));
 
             setDbTasks(formattedTasks);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error loading tasks from DB:', error);
         } finally {
             setLoading(false);
@@ -104,7 +104,6 @@ export function useTasks() {
                 const { data, error } = await supabase
                     .from('tasks')
                     .insert({
-                        id: newTask.id,
                         user_id: userId,
                         title: newTask.title,
                         completed: newTask.completed,
@@ -122,9 +121,16 @@ export function useTasks() {
 
                 if (error) throw error;
 
+                newTask.id = data.id;
                 setCurrentTasks([...currentTasks, newTask]);
-            } catch (error) {
-                console.error('Error adding task to DB:', error);
+            } catch (error: any) {
+                console.error('Error adding task to DB:', {
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint,
+                    code: error.code,
+                    task: newTask
+                });
             }
         } else {
             // Save to localStorage
@@ -162,7 +168,7 @@ export function useTasks() {
                 setCurrentTasks(currentTasks.map(task =>
                     task.id === id ? { ...task, ...updates } : task
                 ));
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error updating task in DB:', error);
             }
         } else {
@@ -187,7 +193,7 @@ export function useTasks() {
                 if (error) throw error;
 
                 setCurrentTasks(currentTasks.filter(task => task.id !== id));
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error deleting task from DB:', error);
             }
         } else {
@@ -230,7 +236,7 @@ export function useTasks() {
                         }
                         : t
                 ));
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error toggling task in DB:', error);
             }
         } else {
@@ -274,7 +280,7 @@ export function useTasks() {
                         ? { ...t, pomodoroCount: newCount }
                         : t
                 ));
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error incrementing pomodoro in DB:', error);
             }
         } else {
@@ -300,24 +306,26 @@ export function useTasks() {
         if (userId) {
             // Add to database
             try {
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('subtasks')
                     .insert({
-                        id: newSubTask.id,
                         task_id: taskId,
                         title: newSubTask.title,
                         completed: newSubTask.completed,
                         created_at: new Date(newSubTask.createdAt).toISOString(),
-                    });
+                    })
+                    .select()
+                    .single();
 
                 if (error) throw error;
 
+                newSubTask.id = data.id;
                 setCurrentTasks(currentTasks.map(task =>
                     task.id === taskId
                         ? { ...task, subTasks: [...(task.subTasks || []), newSubTask] }
                         : task
                 ));
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error adding subtask to DB:', error);
             }
         } else {
@@ -362,7 +370,7 @@ export function useTasks() {
                         }
                         : task
                 ));
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error toggling subtask in DB:', error);
             }
         } else {
@@ -399,7 +407,7 @@ export function useTasks() {
                         ? { ...task, subTasks: (task.subTasks || []).filter(st => st.id !== subTaskId) }
                         : task
                 ));
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error deleting subtask from DB:', error);
             }
         } else {
@@ -443,7 +451,7 @@ export function useTasks() {
                 }
 
                 setCurrentTasks(reorderedTasks);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error reordering tasks in DB:', error);
             }
         } else {
@@ -454,7 +462,7 @@ export function useTasks() {
 
     const setActiveTask = (id: string | null) => {
         if (id) {
-            const task = tasks.find(t => t.id === id);
+            const task = currentTasks.find(t => t.id === id);
             if (task && !task.completed) {
                 setActiveTaskId(id);
             }

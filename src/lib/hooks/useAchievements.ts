@@ -335,7 +335,16 @@ export function useAchievements() {
                                 unlocked_at: new Date().toISOString(),
                             })
                             .then(({ error }) => {
-                                if (error) console.error('Error saving achievement to DB:', error);
+                                if (error) {
+                                    console.error('Error saving achievement to DB:', {
+                                        message: error.message,
+                                        details: error.details,
+                                        hint: error.hint,
+                                        code: error.code,
+                                        achievementId: achievement.id,
+                                        userId: userId
+                                    });
+                                }
                             });
                     }
 

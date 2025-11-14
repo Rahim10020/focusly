@@ -24,6 +24,7 @@ export interface Database {
                     notes: string | null;
                     order: number;
                     completed_at: string | null;
+                    sub_domain: string | null;
                 };
                 Insert: {
                     id?: string;
@@ -39,6 +40,7 @@ export interface Database {
                     notes?: string | null;
                     order?: number;
                     completed_at?: string | null;
+                    sub_domain?: string | null;
                 };
                 Update: {
                     id?: string;
@@ -54,6 +56,7 @@ export interface Database {
                     notes?: string | null;
                     order?: number;
                     completed_at?: string | null;
+                    sub_domain?: string | null;
                 };
             };
             subtasks: {
@@ -94,6 +97,8 @@ export interface Database {
                     total_tasks: number;
                     streak: number;
                     total_focus_time: number;
+                    longest_streak: number;
+                    tasks_completed_today: number;
                     created_at: string;
                     updated_at: string;
                 };
@@ -105,6 +110,8 @@ export interface Database {
                     total_tasks?: number;
                     streak?: number;
                     total_focus_time?: number;
+                    longest_streak?: number;
+                    tasks_completed_today?: number;
                     created_at?: string;
                     updated_at?: string;
                 };
@@ -116,6 +123,8 @@ export interface Database {
                     total_tasks?: number;
                     streak?: number;
                     total_focus_time?: number;
+                    longest_streak?: number;
+                    tasks_completed_today?: number;
                     created_at?: string;
                     updated_at?: string;
                 };
@@ -128,7 +137,10 @@ export interface Database {
                     duration: number;
                     type: 'work' | 'break';
                     completed: boolean;
+                    started_at: string | null;
+                    completed_at: string | null;
                     created_at: string;
+                    updated_at: string;
                 };
                 Insert: {
                     id?: string;
@@ -137,7 +149,10 @@ export interface Database {
                     duration: number;
                     type: 'work' | 'break';
                     completed?: boolean;
+                    started_at?: string | null;
+                    completed_at?: string | null;
                     created_at?: string;
+                    updated_at?: string;
                 };
                 Update: {
                     id?: string;
@@ -146,7 +161,10 @@ export interface Database {
                     duration?: number;
                     type?: 'work' | 'break';
                     completed?: boolean;
+                    started_at?: string | null;
+                    completed_at?: string | null;
                     created_at?: string;
+                    updated_at?: string;
                 };
             };
             tags: {
@@ -156,6 +174,7 @@ export interface Database {
                     name: string;
                     color: string;
                     created_at: string;
+                    updated_at: string;
                 };
                 Insert: {
                     id?: string;
@@ -163,6 +182,7 @@ export interface Database {
                     name: string;
                     color: string;
                     created_at?: string;
+                    updated_at?: string;
                 };
                 Update: {
                     id?: string;
@@ -170,6 +190,7 @@ export interface Database {
                     name?: string;
                     color?: string;
                     created_at?: string;
+                    updated_at?: string;
                 };
             };
             achievements: {
@@ -178,18 +199,21 @@ export interface Database {
                     user_id: string;
                     achievement_id: string;
                     unlocked_at: string;
+                    updated_at: string;
                 };
                 Insert: {
                     id?: string;
                     user_id: string;
                     achievement_id: string;
                     unlocked_at?: string;
+                    updated_at?: string;
                 };
                 Update: {
                     id?: string;
                     user_id?: string;
                     achievement_id?: string;
                     unlocked_at?: string;
+                    updated_at?: string;
                 };
             };
         };

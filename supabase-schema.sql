@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS public.stats (
     total_tasks INTEGER DEFAULT 0,
     streak INTEGER DEFAULT 0,
     total_focus_time INTEGER DEFAULT 0,
+    longest_streak INTEGER DEFAULT 0,
+    tasks_completed_today INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     UNIQUE(user_id)
@@ -48,7 +50,10 @@ CREATE TABLE IF NOT EXISTS public.sessions (
     duration INTEGER NOT NULL,
     type TEXT CHECK (type IN ('work', 'break')) NOT NULL,
     completed BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    started_at TIMESTAMP WITH TIME ZONE,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.tags (
@@ -57,6 +62,7 @@ CREATE TABLE IF NOT EXISTS public.tags (
     name TEXT NOT NULL,
     color TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     UNIQUE(user_id, name)
 );
 
@@ -65,6 +71,7 @@ CREATE TABLE IF NOT EXISTS public.achievements (
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     achievement_id TEXT NOT NULL,
     unlocked_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     UNIQUE(user_id, achievement_id)
 );
 
@@ -184,4 +191,36 @@ CREATE TRIGGER update_subtasks_updated_at BEFORE UPDATE ON public.subtasks
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_stats_updated_at BEFORE UPDATE ON public.stats
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_sessions_updated_at BEFORE UPDATE ON public.sessions
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_tags_updated_at BEFORE UPDATE ON public.tags
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_achievements_updated_at BEFORE UPDATE ON public.achievements
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+
+-- Add new columns to existing tables (for schema updates)
+ALTER TABLE public.stats ADD COLUMN IF NOT EXISTS longest_streak INTEGER DEFAULT 0;
+ALTER TABLE public.stats ADD COLUMN IF NOT EXISTS tasks_completed_today INTEGER DEFAULT 0;
+
+ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL;
+
+ALTER TABLE public.tags ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL;
+
+ALTER TABLE public.achievements ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL;
+
+-- Add triggers for new updated_at columns (they are idempotent)
+CREATE TRIGGER update_sessions_updated_at BEFORE UPDATE ON public.sessions
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_tags_updated_at BEFORE UPDATE ON public.tags
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_achievements_updated_at BEFORE UPDATE ON public.achievements
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
