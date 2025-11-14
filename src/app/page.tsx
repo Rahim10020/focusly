@@ -199,57 +199,109 @@ export default function Home() {
   if (!session) {
     return (
       <div className="min-h-screen bg-background">
-        <main className="max-w-4xl mx-auto px-6 py-25 text-center">
-          <div className="space-y-8">
-            <div>
-              <h1 className="text-4xl font-bold mb-4">Welcome to Focusly</h1>
-              <p className="text-xl text-muted-foreground mb-8">
-                Boost your productivity with our Pomodoro timer and task management system.
+        {/* Hero Section */}
+        <main className="relative overflow-hidden">
+          {/* Background Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-brand-accent/5 pointer-events-none"></div>
+
+          <div className="max-w-6xl mx-auto px-6 py-20 relative">
+            {/* Hero Content */}
+            <div className="text-center space-y-8 mb-16">
+              <div className="inline-block">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-6 animate-fade-in">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  The productive way to focus
+                </span>
+              </div>
+
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight animate-slide-up">
+                Master Your Focus,
+                <br />
+                <span className="bg-gradient-to-r from-primary via-brand-secondary to-brand-accent bg-clip-text text-transparent">
+                  Achieve Your Goals
+                </span>
+              </h1>
+
+              <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                Focusly combines the power of the Pomodoro Technique with smart task management
+                to help you stay productive and build lasting habits.
               </p>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-3xl mb-4">⏰</div>
-                  <h3 className="font-semibold mb-2">Pomodoro Timer</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Stay focused with timed work sessions and breaks.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-3xl mb-4">📋</div>
-                  <h3 className="font-semibold mb-2">Task Management</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Organize and track your tasks efficiently.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-3xl mb-4">🏆</div>
-                  <h3 className="font-semibold mb-2">Achievements</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Unlock achievements as you build productive habits.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="space-y-4">
-              <p className="text-lg">Create an account to save your progress and sync across devices.</p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={() => router.push('/auth/signup')} size="lg">
-                  Create Account
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                <Button onClick={() => router.push('/auth/signup')} size="lg" className="min-w-[200px]">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                  Get Started Free
                 </Button>
-                <Button onClick={() => router.push('/auth/signin')} variant="secondary" size="lg">
+                <Button onClick={() => router.push('/auth/signin')} variant="outline" size="lg" className="min-w-[200px]">
                   Sign In
                 </Button>
               </div>
+
+              {/* Social Proof */}
+              <div className="flex items-center justify-center gap-8 text-sm text-muted-foreground pt-8 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-brand-accent" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                  </svg>
+                  <span className="font-medium">Join productive teams</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-brand-accent" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-medium">Free forever</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Features Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
+              <Card variant="elevated" className="group">
+                <CardContent className="p-8 text-center">
+                  <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">Pomodoro Timer</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Stay focused with customizable 25-minute work sessions followed by refreshing breaks.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card variant="elevated" className="group">
+                <CardContent className="p-8 text-center">
+                  <div className="w-14 h-14 mx-auto mb-4 bg-brand-secondary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg className="w-8 h-8 text-brand-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">Smart Task Management</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Organize tasks by priority, add sub-tasks, and track your progress with detailed insights.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card variant="elevated" className="group">
+                <CardContent className="p-8 text-center">
+                  <div className="w-14 h-14 mx-auto mb-4 bg-brand-accent/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg className="w-8 h-8 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">Achievements & Stats</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Build streaks, unlock achievements, and compete with friends on the leaderboard.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </main>
