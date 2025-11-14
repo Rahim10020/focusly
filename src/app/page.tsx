@@ -6,7 +6,9 @@ import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import TaskList from '@/components/tasks/TaskList';
+import TasksView from '@/components/tasks/TasksView';
+import QuickAddTask from '@/components/tasks/QuickAddTask';
+import TaskModal, { TaskFormData } from '@/components/tasks/TaskModal';
 import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
 const StatsOverview = dynamic(() => import('@/components/stats/StatsOverview'), { ssr: false });
 import AchievementNotification from '@/components/achievements/AchievementNotification';
@@ -17,6 +19,7 @@ import { useStats } from '@/lib/hooks/useStats';
 import { useAchievements } from '@/lib/hooks/useAchievements';
 import { useTags } from '@/lib/hooks/useTags';
 import { useKeyboardShortcuts, GLOBAL_SHORTCUTS } from '@/lib/hooks/useKeyboardShortcuts';
+import { Task } from '@/types';
 
 export default function Home() {
   const router = useRouter();
@@ -24,6 +27,8 @@ export default function Home() {
   const taskInputRef = useRef<HTMLInputElement>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [timerRef, setTimerRef] = useState<{
     start: () => void;
     pause: () => void;
@@ -95,6 +100,40 @@ export default function Home() {
       prevStatsRef.current = currentStats;
     }
   }, [stats.totalSessions, stats.completedTasks, stats.streak, getTodayFocusTime, checkAchievements]);
+
+  // Task Modal handlers
+  const handleQuickAddTask = (title: string) => {
+    addTask(title);
+  };
+
+  const handleCreateTask = () => {
+    setEditingTask(null);
+    setShowTaskModal(true);
+  };
+
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+    setShowTaskModal(true);
+  };
+
+  const handleSaveTask = (taskData: TaskFormData) => {
+    if (editingTask) {
+      // Update existing task
+      updateTask(editingTask.id, taskData);
+    } else {
+      // Create new task
+      addTask(
+        taskData.title,
+        taskData.priority,
+        taskData.tags,
+        taskData.dueDate,
+        taskData.notes,
+        taskData.subDomain
+      );
+    }
+    setShowTaskModal(false);
+    setEditingTask(null);
+  };
 
   const handlePomodoroComplete = (taskId: string) => {
     incrementPomodoro(taskId);
@@ -316,65 +355,57 @@ export default function Home() {
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
         {mounted && <StatsOverview />}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
+        {/* Tasks Section - Full Width */}
+        <Card variant="elevated">
+          <CardHeader>
+            <div className="flex items-center justify-between">
               <CardTitle>Tasks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Your Tasks</h3>
-                  <Button onClick={() => router.push('/create-task')} className="flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M12 5v14M5 12h14" />
-                    </svg>
-                    Create New Task
-                  </Button>
-                </div>
-                <TaskList
-                  tasks={tasks}
-                  activeTaskId={activeTaskId}
-                  tags={tags}
-                  onToggle={toggleTask}
-                  onDelete={deleteTask}
-                  onSelectTask={setActiveTask}
-                  onUpdate={updateTask}
-                  onAddSubTask={addSubTask}
-                  onToggleSubTask={toggleSubTask}
-                  onDeleteSubTask={deleteSubTask}
-                  onReorder={reorderTasks}
-                />
-              </div>
-            </CardContent>
-          </Card>
+              <Button onClick={handleCreateTask} size="sm" className="flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                New Task
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <QuickAddTask onAdd={handleQuickAddTask} />
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Pomodoro Timer</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PomodoroTimer
-                activeTaskId={activeTaskId}
+              <TasksView
                 tasks={tasks}
+                activeTaskId={activeTaskId}
+                tags={tags}
+                onToggle={toggleTask}
+                onDelete={deleteTask}
                 onSelectTask={setActiveTask}
-                onSessionComplete={handleSessionComplete}
-                onPomodoroComplete={handlePomodoroComplete}
-                onTimerRefReady={setTimerRef}
+                onUpdate={updateTask}
+                onAddSubTask={addSubTask}
+                onToggleSubTask={toggleSubTask}
+                onDeleteSubTask={deleteSubTask}
+                onReorder={reorderTasks}
+                onEditTask={handleEditTask}
               />
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pomodoro Timer */}
+        <Card variant="elevated">
+          <CardHeader>
+            <CardTitle>Pomodoro Timer</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PomodoroTimer
+              activeTaskId={activeTaskId}
+              tasks={tasks}
+              onSelectTask={setActiveTask}
+              onSessionComplete={handleSessionComplete}
+              onPomodoroComplete={handlePomodoroComplete}
+              onTimerRefReady={setTimerRef}
+            />
+          </CardContent>
+        </Card>
       </main>
 
       {/* Achievement Notifications */}
@@ -394,6 +425,25 @@ export default function Home() {
       {showShortcuts && (
         <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
       )}
+
+      {/* Task Modal */}
+      <TaskModal
+        isOpen={showTaskModal}
+        onClose={() => {
+          setShowTaskModal(false);
+          setEditingTask(null);
+        }}
+        onSave={handleSaveTask}
+        initialData={editingTask ? {
+          title: editingTask.title,
+          priority: editingTask.priority,
+          tags: editingTask.tags,
+          dueDate: editingTask.dueDate,
+          notes: editingTask.notes,
+          subDomain: editingTask.subDomain,
+        } : undefined}
+        tags={tags}
+      />
 
       {/* Keyboard shortcut hint */}
       <button
