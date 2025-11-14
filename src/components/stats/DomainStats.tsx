@@ -47,29 +47,12 @@ export default function DomainStats({ tasks }: DomainStatsProps) {
         return stats;
     }, [tasks]);
 
-    const totalTasksWithDomain = Object.values(domainStats).reduce((sum, domain) => sum + domain.total, 0);
-
-    if (totalTasksWithDomain === 0) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Domain Progress</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-center py-12 text-muted-foreground">
-                        <p>No tasks with domains yet. Start categorizing your tasks to see progress here!</p>
-                    </div>
-                </CardContent>
-            </Card>
-        );
-    }
+    // Always show all domains, even with 0% completion
 
     return (
         <div className="space-y-6">
             {Object.entries(DOMAINS).map(([domainKey, domainInfo]) => {
                 const stats = domainStats[domainKey as Domain];
-                if (stats.total === 0) return null;
-
                 const completionRate = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0;
 
                 return (
@@ -101,9 +84,7 @@ export default function DomainStats({ tasks }: DomainStatsProps) {
                             {/* Subdomains */}
                             <div className="space-y-3">
                                 {Object.entries(domainInfo.subDomains).map(([subDomainKey, subDomainName]) => {
-                                    const subStats = stats.subDomains[subDomainKey as SubDomain];
-                                    if (!subStats) return null;
-
+                                    const subStats = stats.subDomains[subDomainKey as SubDomain] || { total: 0, completed: 0 };
                                     const subCompletionRate = subStats.total > 0 ? (subStats.completed / subStats.total) * 100 : 0;
 
                                     return (
