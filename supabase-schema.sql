@@ -201,26 +201,3 @@ CREATE TRIGGER update_tags_updated_at BEFORE UPDATE ON public.tags
 
 CREATE TRIGGER update_achievements_updated_at BEFORE UPDATE ON public.achievements
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-
--- Add new columns to existing tables (for schema updates)
-ALTER TABLE public.stats ADD COLUMN IF NOT EXISTS longest_streak INTEGER DEFAULT 0;
-ALTER TABLE public.stats ADD COLUMN IF NOT EXISTS tasks_completed_today INTEGER DEFAULT 0;
-
-ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE;
-ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP WITH TIME ZONE;
-ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL;
-
-ALTER TABLE public.tags ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL;
-
-ALTER TABLE public.achievements ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL;
-
--- Add triggers for new updated_at columns (they are idempotent)
-CREATE TRIGGER update_sessions_updated_at BEFORE UPDATE ON public.sessions
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_tags_updated_at BEFORE UPDATE ON public.tags
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_achievements_updated_at BEFORE UPDATE ON public.achievements
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
