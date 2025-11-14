@@ -35,6 +35,8 @@ export const authOptions: NextAuthOptions = {
                         id: data.user.id,
                         email: data.user.email,
                         name: data.user.user_metadata?.name || data.user.email,
+                        accessToken: data.session?.access_token,
+                        refreshToken: data.session?.refresh_token,
                     };
                 } catch (error) {
                     console.error('Auth error:', error);
@@ -50,12 +52,16 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
+                token.accessToken = (user as any).accessToken;
+                token.refreshToken = (user as any).refreshToken;
             }
             return token;
         },
         async session({ session, token }) {
             if (token && session.user) {
                 (session.user as any).id = token.id as string;
+                (session as any).accessToken = token.accessToken;
+                (session as any).refreshToken = token.refreshToken;
             }
             return session;
         },

@@ -33,7 +33,17 @@ export function useStats() {
 
     const getUserId = () => (session?.user as any)?.id;
 
-    // Load stats and sessions from database when user logs in
+    // Set Supabase auth session when user logs in
+    useEffect(() => {
+        if ((session as any)?.accessToken && (session as any)?.refreshToken) {
+            supabase.auth.setSession({
+                access_token: (session as any).accessToken,
+                refresh_token: (session as any).refreshToken,
+            });
+        }
+    }, [session]);
+
+    // Load stats and sessions from database when user logs in  
     useEffect(() => {
         if (getUserId()) {
             loadStatsFromDB();

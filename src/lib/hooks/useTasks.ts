@@ -14,6 +14,16 @@ export function useTasks() {
 
     const getUserId = () => (session?.user as any)?.id;
 
+    // Set Supabase auth session when user logs in
+    useEffect(() => {
+        if ((session as any)?.accessToken && (session as any)?.refreshToken) {
+            supabase.auth.setSession({
+                access_token: (session as any).accessToken,
+                refresh_token: (session as any).refreshToken,
+            });
+        }
+    }, [session]);
+
     // Load tasks from database when user logs in
     useEffect(() => {
         if (getUserId()) {
@@ -100,22 +110,25 @@ export function useTasks() {
         const userId = getUserId();
         if (userId) {
             // Save to database
+            console.log('Adding task to DB, userId:', userId);
             try {
+                const insertData = {
+                    user_id: userId,
+                    title: newTask.title,
+                    completed: newTask.completed,
+                    created_at: new Date(newTask.createdAt).toISOString(),
+                    pomodoro_count: newTask.pomodoroCount,
+                    priority: newTask.priority,
+                    tags: newTask.tags,
+                    due_date: newTask.dueDate ? new Date(newTask.dueDate).toISOString() : null,
+                    notes: newTask.notes,
+                    order: newTask.order,
+                    sub_domain: newTask.subDomain,
+                };
+                console.log('Insert data:', insertData);
                 const { data, error } = await supabase
                     .from('tasks')
-                    .insert({
-                        user_id: userId,
-                        title: newTask.title,
-                        completed: newTask.completed,
-                        created_at: new Date(newTask.createdAt).toISOString(),
-                        pomodoro_count: newTask.pomodoroCount,
-                        priority: newTask.priority,
-                        tags: newTask.tags,
-                        due_date: newTask.dueDate ? new Date(newTask.dueDate).toISOString() : null,
-                        notes: newTask.notes,
-                        order: newTask.order,
-                        sub_domain: newTask.subDomain,
-                    })
+                    .insert(insertData)
                     .select()
                     .single();
 
@@ -124,13 +137,8 @@ export function useTasks() {
                 newTask.id = data.id;
                 setCurrentTasks([...currentTasks, newTask]);
             } catch (error: any) {
-                console.error('Error adding task to DB:', {
-                    message: error.message,
-                    details: error.details,
-                    hint: error.hint,
-                    code: error.code,
-                    task: newTask
-                });
+                console.error('Error adding task to DB:', error);
+                console.error('Task data:', newTask);
             }
         } else {
             // Save to localStorage
