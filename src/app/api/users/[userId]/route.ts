@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { Database } from '@/lib/supabase';
 
 export async function GET(
     request: NextRequest,
@@ -57,8 +58,10 @@ export async function GET(
             .select('stat_field, visible_to_friends')
             .eq('user_id', userId);
 
+        const typedVisibilitySettings = (visibilitySettings || []) as Database['public']['Tables']['stat_visibility']['Row'][];
+
         const visibilityMap = new Map(
-            visibilitySettings?.map(setting => [setting.stat_field, setting.visible_to_friends]) || []
+            typedVisibilitySettings.map(setting => [setting.stat_field, setting.visible_to_friends])
         );
 
         // Get profile and stats

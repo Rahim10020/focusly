@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { Database } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
     try {
@@ -19,8 +20,10 @@ export async function GET(request: NextRequest) {
             return NextResponse.json([]);
         }
 
+        const typedStatsData = statsData as Database['public']['Tables']['stats']['Row'][];
+
         // Get all user IDs from stats
-        const userIds = statsData.map(stat => stat.user_id);
+        const userIds = typedStatsData.map(stat => stat.user_id);
 
         // Fetch profiles for these users
         const { data: profilesData, error: profilesError } = await supabase
@@ -33,13 +36,15 @@ export async function GET(request: NextRequest) {
             // Continue even if profiles fetch fails, we'll use defaults
         }
 
+        const typedProfilesData = (profilesData || []) as Database['public']['Tables']['profiles']['Row'][];
+
         // Create a map of user_id -> profile for quick lookup
         const profilesMap = new Map(
-            (profilesData || []).map(profile => [profile.id, profile])
+            typedProfilesData.map(profile => [profile.id, profile])
         );
 
         // Transform data to match expected structure
-        const transformedData = statsData.map(stat => {
+        const transformedData = typedStatsData.map(stat => {
             const profile = profilesMap.get(stat.user_id);
             return {
                 id: profile?.id || stat.user_id,
