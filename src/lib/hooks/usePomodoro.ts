@@ -58,6 +58,18 @@ export function usePomodoro(options: UsePomodoroOptions) {
         }
     }, [status, currentSessionStart]);
 
+    // Auto-start breaks and pomodoros
+    useEffect(() => {
+        if (status === 'idle' && sessionType === 'break' && settings.autoStartBreaks) {
+            const timeoutId = setTimeout(() => setStatus('running'), 1000);
+            return () => clearTimeout(timeoutId);
+        }
+        if (status === 'idle' && sessionType === 'work' && settings.autoStartPomodoros && completedCycles > 0) {
+            const timeoutId = setTimeout(() => setStatus('running'), 1000);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [status, sessionType, settings.autoStartBreaks, settings.autoStartPomodoros, completedCycles]);
+
     const handleSessionComplete = useCallback(() => {
         const completed = timeLeft === 0;
         const session: PomodoroSession = {
@@ -91,20 +103,10 @@ export function usePomodoro(options: UsePomodoroOptions) {
             const breakDuration = isLongBreak ? settings.longBreakDuration : settings.shortBreakDuration;
             setTimeLeft(breakDuration);
             setInitialTimeLeft(breakDuration);
-
-            // Auto-start breaks if enabled
-            if (settings.autoStartBreaks) {
-                setTimeout(() => setStatus('running'), 1000);
-            }
         } else {
             setSessionType('work');
             setTimeLeft(settings.workDuration);
             setInitialTimeLeft(settings.workDuration);
-
-            // Auto-start pomodoros if enabled
-            if (settings.autoStartPomodoros) {
-                setTimeout(() => setStatus('running'), 1000);
-            }
         }
     }, [timeLeft, sessionType, initialTimeLeft, currentSessionStart, activeTaskId, onSessionComplete, onWorkComplete, onBreakComplete, settings, completedCycles]);
 

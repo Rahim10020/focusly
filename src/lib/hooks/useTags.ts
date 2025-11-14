@@ -16,26 +16,27 @@ export function useTags() {
     const [localTags, setLocalTags] = useLocalStorage<Tag[]>('focusly_tags', DEFAULT_TAGS);
     const [dbTags, setDbTags] = useState<Tag[]>(DEFAULT_TAGS);
 
-    const getUserId = () => (session?.user as any)?.id;
+    const getUserId = () => session?.user?.id;
 
     // Set Supabase auth session when user logs in
     useEffect(() => {
-        if ((session as any)?.accessToken && (session as any)?.refreshToken) {
+        if (session?.accessToken && session?.refreshToken) {
             supabase.auth.setSession({
-                access_token: (session as any).accessToken,
-                refresh_token: (session as any).refreshToken,
+                access_token: session.accessToken,
+                refresh_token: session.refreshToken,
             });
         }
     }, [session]);
 
     // Load tags from database when user logs in
     useEffect(() => {
-        if (getUserId()) {
+        const userId = getUserId();
+        if (userId) {
             loadTagsFromDB();
         } else {
             setDbTags(DEFAULT_TAGS);
         }
-    }, [getUserId()]);
+    }, [session?.user?.id]);
 
     const loadTagsFromDB = async () => {
         const userId = getUserId();

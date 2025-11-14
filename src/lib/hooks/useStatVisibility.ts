@@ -23,7 +23,7 @@ export function useStatVisibility() {
     ];
 
     useEffect(() => {
-        if ((session?.user as any)?.id) {
+        if (session?.user?.id) {
             fetchVisibilitySettings();
         }
     }, [session]);
@@ -33,7 +33,7 @@ export function useStatVisibility() {
             const { data, error } = await supabase
                 .from('stat_visibility')
                 .select('stat_field, visible_to_friends')
-                .eq('user_id', (session?.user as any)?.id);
+                .eq('user_id', session?.user?.id);
 
             if (error) throw error;
 
@@ -57,7 +57,7 @@ export function useStatVisibility() {
             const { error } = await supabase
                 .from('stat_visibility')
                 .upsert({
-                    user_id: (session?.user as any)?.id,
+                    user_id: session?.user?.id,
                     stat_field: statField,
                     visible_to_friends: visible
                 });

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const userId = (session.user as any).id;
+        const userId = session.user.id;
 
         const { data, error } = await supabase
             .from('friends')
@@ -50,11 +50,17 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const userId = (session.user as any).id;
+        const userId = session.user.id;
         const { receiver_id } = await request.json();
 
         if (!receiver_id) {
             return NextResponse.json({ error: 'Receiver ID is required' }, { status: 400 });
+        }
+
+        // Validate that receiver_id is a valid UUID
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(receiver_id)) {
+            return NextResponse.json({ error: 'Invalid receiver ID format' }, { status: 400 });
         }
 
         if (receiver_id === userId) {

@@ -45,7 +45,7 @@ export default function ProfilePage() {
 
             if (imageFile) {
                 const fileExt = imageFile.name.split('.').pop();
-                const fileName = `${(session.user as any)?.id}_${Date.now()}.${fileExt}`;
+                const fileName = `${session.user?.id}_${Date.now()}.${fileExt}`;
                 const { data, error } = await supabase.storage
                     .from('avatars')
                     .upload(fileName, imageFile);

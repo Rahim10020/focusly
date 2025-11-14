@@ -130,7 +130,7 @@ export default function UserProfilePage() {
 
     if (!userStats) return null;
 
-    const isOwnProfile = (session?.user as any)?.id === userStats?.id;
+    const isOwnProfile = session?.user?.id === userStats?.id;
 
     return (
         <div className="min-h-screen bg-background">

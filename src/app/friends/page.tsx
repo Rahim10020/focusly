@@ -66,7 +66,7 @@ export default function FriendsPage() {
                 throw new Error('Failed to fetch friend requests');
             }
             const data: Friend[] = await response.json();
-            const userId = (session?.user as any)?.id;
+            const userId = session?.user?.id;
             const pending = data.filter(friend =>
                 friend.status === 'pending' && friend.receiver_id === userId
             );
@@ -79,7 +79,11 @@ export default function FriendsPage() {
     };
 
     const handleAcceptRequest = async (requestId: string) => {
-        setProcessingRequests(prev => new Set(prev).add(requestId));
+        setProcessingRequests(prev => {
+            const newSet = new Set(prev);
+            newSet.add(requestId);
+            return newSet;
+        });
         try {
             const response = await fetch(`/api/friends/${requestId}`, {
                 method: 'PUT',
@@ -95,8 +99,7 @@ export default function FriendsPage() {
             }
 
             // Refresh data
-            await fetchFriends();
-            await fetchPendingRequests();
+            await Promise.all([fetchFriends(), fetchPendingRequests()]);
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to accept friend request');
         } finally {
@@ -109,7 +112,11 @@ export default function FriendsPage() {
     };
 
     const handleRejectRequest = async (requestId: string) => {
-        setProcessingRequests(prev => new Set(prev).add(requestId));
+        setProcessingRequests(prev => {
+            const newSet = new Set(prev);
+            newSet.add(requestId);
+            return newSet;
+        });
         try {
             const response = await fetch(`/api/friends/${requestId}`, {
                 method: 'PUT',
@@ -125,8 +132,7 @@ export default function FriendsPage() {
             }
 
             // Refresh data
-            await fetchFriends();
-            await fetchPendingRequests();
+            await Promise.all([fetchFriends(), fetchPendingRequests()]);
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to reject friend request');
         } finally {
@@ -237,10 +243,10 @@ export default function FriendsPage() {
                             ) : (
                                 <div className="space-y-4">
                                     {friends.map((friend) => {
-                                        const friendUser = friend.sender_id === (session?.user as any)?.id
+                                        const friendUser = friend.sender_id === session?.user?.id
                                             ? friend.receiver
                                             : friend.sender;
-                                        const friendId = friend.sender_id === (session?.user as any)?.id
+                                        const friendId = friend.sender_id === session?.user?.id
                                             ? friend.receiver_id
                                             : friend.sender_id;
 

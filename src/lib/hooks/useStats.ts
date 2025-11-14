@@ -31,21 +31,22 @@ export function useStats() {
     const [dbSessions, setDbSessions] = useState<PomodoroSession[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const getUserId = () => (session?.user as any)?.id;
+    const getUserId = () => session?.user?.id;
 
     // Set Supabase auth session when user logs in
     useEffect(() => {
-        if ((session as any)?.accessToken && (session as any)?.refreshToken) {
+        if (session?.accessToken && session?.refreshToken) {
             supabase.auth.setSession({
-                access_token: (session as any).accessToken,
-                refresh_token: (session as any).refreshToken,
+                access_token: session.accessToken,
+                refresh_token: session.refreshToken,
             });
         }
     }, [session]);
 
-    // Load stats and sessions from database when user logs in  
+    // Load stats and sessions from database when user logs in
     useEffect(() => {
-        if (getUserId()) {
+        const userId = getUserId();
+        if (userId) {
             loadStatsFromDB();
             loadSessionsFromDB();
         } else {
@@ -58,7 +59,7 @@ export function useStats() {
             });
             setDbSessions([]);
         }
-    }, [getUserId()]);
+    }, [session?.user?.id]);
 
     const loadStatsFromDB = async () => {
         const userId = getUserId();
