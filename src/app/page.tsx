@@ -6,7 +6,6 @@ import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import TaskForm from '@/components/tasks/TaskForm';
 import TaskList from '@/components/tasks/TaskList';
 import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
 const StatsOverview = dynamic(() => import('@/components/stats/StatsOverview'), { ssr: false });
@@ -264,10 +263,25 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                <TaskForm
-                  onAddTask={addTask}
-                  availableTags={tags}
-                />
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Your Tasks</h3>
+                  <Button onClick={() => router.push('/create-task')} className="flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    Create New Task
+                  </Button>
+                </div>
                 <TaskList
                   tasks={tasks}
                   activeTaskId={activeTaskId}
