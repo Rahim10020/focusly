@@ -77,26 +77,23 @@ export type Theme = 'light' | 'dark';
 export type Priority = 'low' | 'medium' | 'high';
 
 export type SubDomain =
-    // Santé & Performance Physique
-    | 'activité_physique' | 'nutrition' | 'sommeil' | 'hygiène' | 'santé_médicale'
-    // Mental, Émotions & Discipline
-    | 'clarté_mentale' | 'gestion_émotions' | 'mindset_motivation' | 'habitudes_quotidiennes' | 'auto_éducation_mentale'
-    // Compétences, Carrière & Finance
-    | 'compétences_professionnelles' | 'projets_missions' | 'carrière' | 'business_entrepreneuriat' | 'finances_personnelles'
-    // Relations & Communication
-    | 'famille' | 'amis_vie_sociale' | 'relations_amoureuses' | 'réseautage_opportunités' | 'compétences_sociales'
-    // Identité, Valeurs & Spiritualité
-    | 'valeurs_personnelles' | 'spiritualité_réflexion' | 'gratitude_sens' | 'vision_vie' | 'intégrité_personnelle'
-    // Style de vie, Créativité & Expérience
-    | 'loisirs' | 'créativité' | 'voyages_découvertes' | 'organisation_environnement' | 'repos_équilibre';
+    // Health (Physical & Mental)
+    | 'sport_activity' | 'nutrition' | 'hydration' | 'sleep' | 'hygiene' | 'stress_management' | 'emotion_management' | 'meditation_breathing'
+    // Career & Skills
+    | 'work_productivity' | 'technical_skills' | 'general_skills' | 'online_training' | 'reading_learning' | 'professional_projects' | 'professional_networking'
+    // Finance & Business
+    | 'budget' | 'savings' | 'investments' | 'controlled_expenses' | 'income_side_hustle' | 'marketing' | 'business_management'
+    // Relationships & Social Life
+    | 'family' | 'friends' | 'romantic_relationship' | 'networking' | 'communication' | 'conflicts_resolution' | 'social_moments'
+    // Personal Development & Lifestyle
+    | 'goals' | 'habits' | 'discipline' | 'morning_evening_routine' | 'self_confidence' | 'home_organization' | 'creativity_leisure' | 'life_vision';
 
 export type Domain =
-    | 'santé_performance_physique'
-    | 'mental_émotions_discipline'
-    | 'compétences_carrière_finance'
-    | 'relations_communication'
-    | 'identité_valeurs_spiritualité'
-    | 'style_vie_créativité_expérience';
+    | 'health_physical_mental'
+    | 'career_skills'
+    | 'finance_business'
+    | 'relationships_social_life'
+    | 'personal_development_lifestyle';
 
 export interface DomainInfo {
     name: string;
@@ -105,70 +102,71 @@ export interface DomainInfo {
 }
 
 export const DOMAINS: Record<Domain, DomainInfo> = {
-    santé_performance_physique: {
-        name: 'Health & Physical Performance',
-        description: 'Body energy domain',
+    health_physical_mental: {
+        name: 'Health (Physical & Mental)',
+        description: 'Physical and mental well-being',
         subDomains: {
-            activité_physique: 'Physical activity (weight training, cardio, mobility, walking)',
-            nutrition: 'Nutrition (meal quality, regularity, hydration)',
-            sommeil: 'Sleep (duration, regularity, recovery)',
-            hygiène: 'Hygiene (care, personal appearance)',
-            santé_médicale: 'Medical health (check-ups, treatments, prevention)',
+            sport_activity: 'Sport / activity',
+            nutrition: 'Nutrition',
+            hydration: 'Hydration',
+            sleep: 'Sleep',
+            hygiene: 'Hygiene',
+            stress_management: 'Stress management',
+            emotion_management: 'Emotion management',
+            meditation_breathing: 'Meditation / breathing',
         },
     },
-    mental_émotions_discipline: {
-        name: 'Mental, Emotions & Discipline',
-        description: 'Inner mastery domain',
+    career_skills: {
+        name: 'Career & Skills',
+        description: 'Professional growth and development',
         subDomains: {
-            clarté_mentale: 'Mental clarity (journaling, planning, focus)',
-            gestion_émotions: 'Emotion management (stress, anger, anxiety)',
-            mindset_motivation: 'Mindset & motivation (confidence, attitude, resilience)',
-            habitudes_quotidiennes: 'Daily habits (routine, consistency)',
-            auto_éducation_mentale: 'Mental self-education (reflection, meditation)',
+            work_productivity: 'Work productivity',
+            technical_skills: 'Technical skills (coding, design, etc.)',
+            general_skills: 'General skills (communication, leadership...)',
+            online_training: 'Online courses / training',
+            reading_learning: 'Reading / learning',
+            professional_projects: 'Professional projects',
+            professional_networking: 'Professional networking',
         },
     },
-    compétences_carrière_finance: {
-        name: 'Skills, Career & Finance',
-        description: 'Material growth domain',
+    finance_business: {
+        name: 'Finance & Business',
+        description: 'Financial management and entrepreneurship',
         subDomains: {
-            compétences_professionnelles: 'Professional skills (tech, soft skills)',
-            projets_missions: 'Projects / missions (concrete advancement)',
-            carrière: 'Career (networking, visibility, goals)',
-            business_entrepreneuriat: 'Business / Entrepreneurship (creation, management)',
-            finances_personnelles: 'Personal finances (management, savings, investments)',
+            budget: 'Budget',
+            savings: 'Savings',
+            investments: 'Investments',
+            controlled_expenses: 'Controlled expenses',
+            income_side_hustle: 'Income / side hustle',
+            marketing: 'Marketing (if entrepreneur)',
+            business_management: 'Business management / organization',
         },
     },
-    relations_communication: {
-        name: 'Relationships & Communication',
-        description: 'Human connection domain',
+    relationships_social_life: {
+        name: 'Relationships & Social Life',
+        description: 'Social connections and relationships',
         subDomains: {
-            famille: 'Family (time, support, contact)',
-            amis_vie_sociale: 'Friends / social life (interactions, quality)',
-            relations_amoureuses: 'Romantic relationships (communication, attention)',
-            réseautage_opportunités: 'Networking & opportunities (contacts, collaborations)',
-            compétences_sociales: 'Social skills (confidence, listening, empathy)',
+            family: 'Family',
+            friends: 'Friends',
+            romantic_relationship: 'Romantic relationship',
+            networking: 'Networking',
+            communication: 'Communication',
+            conflicts_resolution: 'Conflicts / resolution',
+            social_moments: 'Social moments',
         },
     },
-    identité_valeurs_spiritualité: {
-        name: 'Identity, Values & Spirituality',
-        description: 'Inner alignment domain',
+    personal_development_lifestyle: {
+        name: 'Personal Development & Lifestyle',
+        description: 'Self-improvement and life balance',
         subDomains: {
-            valeurs_personnelles: 'Personal values (alignment, decisions)',
-            spiritualité_réflexion: 'Spirituality or inner reflection (prayer, meditation)',
-            gratitude_sens: 'Gratitude & meaning (attitude)',
-            vision_vie: 'Life vision (long-term goals)',
-            intégrité_personnelle: 'Personal integrity (consistency between words and actions)',
-        },
-    },
-    style_vie_créativité_expérience: {
-        name: 'Lifestyle, Creativity & Experience',
-        description: 'Quality of life domain',
-        subDomains: {
-            loisirs: 'Leisure (fun, relaxation)',
-            créativité: 'Creativity (writing, music, design...)',
-            voyages_découvertes: 'Travel / discoveries (culture, experiences)',
-            organisation_environnement: 'Environment organization (home, office)',
-            repos_équilibre: 'Rest & balance (personal time)',
+            goals: 'Goals',
+            habits: 'Habits',
+            discipline: 'Discipline',
+            morning_evening_routine: 'Morning / evening routine',
+            self_confidence: 'Self-confidence',
+            home_organization: 'Home / organization',
+            creativity_leisure: 'Creativity / leisure',
+            life_vision: 'Life vision / introspection',
         },
     },
 };
