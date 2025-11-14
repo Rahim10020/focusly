@@ -13,6 +13,3 @@ L'admin c'est a dire moi, peut creer des challenges speciales (voir avec claude 
     que chacun a bien respecte les regles du challenge) qui seront disponibles a tous les utilisateurs. 
     il recevront une notification lorsque chaque nouvelle challenge special sera disponible. 
     les vainqueurs auront des badges selon le nombre de challenges reussis.
-
-concernant la partie des challenges actuellement disponible, 
-on va categoriser ca: niveau debutant et expert.propose de bon challenges pour le niveau expert.

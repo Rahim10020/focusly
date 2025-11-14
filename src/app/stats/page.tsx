@@ -5,20 +5,28 @@ import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import StatsOverview from '@/components/stats/StatsOverview';
 import ProductivityChart from '@/components/stats/ProductivityChart';
 import AchievementsList from '@/components/achievements/AchievementsList';
+import TaskHistoryList from '@/components/tasks/TaskHistoryList';
 import { useStats } from '@/lib/hooks/useStats';
 import { useAchievements } from '@/lib/hooks/useAchievements';
+import { useTasks } from '@/lib/hooks/useTasks';
+import { useTags } from '@/lib/hooks/useTags';
 import { formatTime } from '@/lib/utils/time';
 import { useState } from 'react';
 
 export default function StatsPage() {
     const { sessions } = useStats();
     const { unlockedAchievements, lockedAchievements } = useAchievements();
-    const [activeTab, setActiveTab] = useState<'overview' | 'achievements'>('overview');
+    const { tasks } = useTasks();
+    const { tags } = useTags();
+    const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'tasks'>('overview');
 
     const recentSessions = sessions
         .filter(session => session.completed)
         .slice(-10)
         .reverse();
+
+    const completedTasks = tasks.filter(task => task.completed);
+    const failedTasks = tasks.filter(task => !task.completed && task.dueDate && task.dueDate < Date.now());
 
     return (
         <div className="min-h-screen bg-background">
@@ -59,6 +67,21 @@ export default function StatsPage() {
                         )}
                         <span className="ml-1 px-1 md:ml-2 md:px-2 py-0.5 text-xs rounded-full bg-primary text-primary-foreground">
                             {unlockedAchievements.length}
+                        </span>
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('tasks')}
+                        className={`px-4 py-2 cursor-pointer font-medium transition-colors relative ${activeTab === 'tasks'
+                            ? 'text-primary'
+                            : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                    >
+                        Tasks
+                        {activeTab === 'tasks' && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                        )}
+                        <span className="ml-1 px-1 md:ml-2 md:px-2 py-0.5 text-xs rounded-full bg-primary text-primary-foreground">
+                            {completedTasks.length + failedTasks.length}
                         </span>
                     </button>
                 </div>
@@ -134,6 +157,26 @@ export default function StatsPage() {
                             <AchievementsList
                                 unlockedAchievements={unlockedAchievements}
                                 lockedAchievements={lockedAchievements}
+                            />
+                        </CardContent>
+                    </Card>
+                )}
+
+                {activeTab === 'tasks' && (
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center space-x-8 justify-between">
+                                <CardTitle>Task History</CardTitle>
+                                <div className="text-sm text-muted-foreground">
+                                    {completedTasks.length} completed, {failedTasks.length} failed
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <TaskHistoryList
+                                completedTasks={completedTasks}
+                                failedTasks={failedTasks}
+                                tags={tags}
                             />
                         </CardContent>
                     </Card>
