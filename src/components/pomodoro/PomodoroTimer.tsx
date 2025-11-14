@@ -99,7 +99,12 @@ export default function PomodoroTimer({
     return (
         <div className="flex flex-col items-center space-y-8">
             <div className="relative flex items-center justify-center">
-                <ProgressRing progress={progress} size={240} strokeWidth={10} />
+                <ProgressRing
+                    progress={progress}
+                    size={260}
+                    strokeWidth={12}
+                    isActive={status === 'running'}
+                />
                 <div className="absolute inset-0 flex items-center justify-center">
                     <TimerDisplay timeLeft={timeLeft} sessionType={sessionType} />
                 </div>

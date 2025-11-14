@@ -48,15 +48,15 @@ export default function TaskItem({
     return (
         <>
             <div
-                className={`flex items-start gap-3 p-3 rounded-xl transition-all group ${isActive
-                    ? 'bg-primary/10 border-2 border-border'
-                    : 'bg-accent hover:bg-muted border-2 border-transparent'
-                    } ${isDragging ? 'opacity-50 scale-95' : ''}`}
+                className={`flex items-start gap-4 p-4 rounded-xl transition-all duration-300 group ${isActive
+                    ? 'bg-primary/10 border-2 border-primary/30 shadow-md'
+                    : 'bg-card hover:bg-accent/50 border-2 border-border hover:border-primary/20 hover:shadow-sm'
+                    } ${isDragging ? 'opacity-50 scale-95 rotate-1' : ''}`}
             >
                 {/* Drag Handle */}
                 <div
                     {...dragHandleProps}
-                    className="flex-shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors mt-1"
+                    className="flex-shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/60 hover:text-primary transition-all mt-1"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -87,20 +87,24 @@ export default function TaskItem({
                         }
                         onToggle(task.id);
                     }}
-                    className="flex-shrink-0 w-5 h-5 rounded-full cursor-pointer border-2 border-primary flex items-center justify-center hover:bg-primary transition-colors mt-0.5"
+                    className={`flex-shrink-0 w-6 h-6 rounded-full cursor-pointer border-2 flex items-center justify-center transition-all duration-300 mt-0.5 ${
+                        task.completed
+                            ? 'bg-success border-success scale-110'
+                            : 'border-primary hover:bg-primary/10 hover:scale-110'
+                    }`}
                 >
                     {task.completed && (
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            width="12"
-                            height="12"
+                            width="14"
+                            height="14"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="3"
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            className="text-primary-foreground"
+                            className="text-white animate-scale-in"
                         >
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
@@ -108,11 +112,11 @@ export default function TaskItem({
                 </button>
 
                 {/* Content */}
-                <div className="flex-1 min-w-0 space-y-2">
+                <div className="flex-1 min-w-0 space-y-3">
                     {/* Title and Active badge */}
                     <div className="flex items-center gap-2 flex-wrap">
                         <p
-                            className={`text-sm ${task.completed
+                            className={`text-base font-medium ${task.completed
                                 ? 'line-through text-muted-foreground'
                                 : 'text-foreground'
                                 }`}
@@ -120,7 +124,10 @@ export default function TaskItem({
                             {task.title}
                         </p>
                         {isActive && (
-                            <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-medium">
+                            <span className="inline-flex items-center gap-1 text-xs bg-primary text-primary-foreground px-2.5 py-1 rounded-full font-semibold animate-pulse-soft">
+                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <circle cx="10" cy="10" r="5"/>
+                                </svg>
                                 Active
                             </span>
                         )}
@@ -172,13 +179,13 @@ export default function TaskItem({
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                     {/* View Details */}
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowDetails(true)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-accent"
                         title="View details"
                     >
                         <svg
@@ -200,10 +207,10 @@ export default function TaskItem({
                     {/* Set Active / Unset */}
                     {!task.completed && !isActive && (
                         <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             onClick={() => onSelect(task.id)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                            className="md:opacity-0 md:group-hover:opacity-100 transition-all"
                         >
                             Set Active
                         </Button>
@@ -211,10 +218,9 @@ export default function TaskItem({
 
                     {isActive && (
                         <Button
-                            variant="ghost"
+                            variant="secondary"
                             size="sm"
                             onClick={() => onSelect(null)}
-                            className="text-xs"
                         >
                             Unset
                         </Button>
@@ -225,7 +231,7 @@ export default function TaskItem({
                         variant="ghost"
                         size="sm"
                         onClick={() => onDelete(task.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-error/10 hover:text-error"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
