@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth';
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -14,7 +14,7 @@ export async function PUT(
         }
 
         const userId = (session.user as any).id;
-        const friendId = params.id;
+        const { id: friendId } = await params;
         const { action } = await request.json(); // 'accept' or 'reject'
 
         if (!['accept', 'reject'].includes(action)) {
