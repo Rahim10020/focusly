@@ -20,13 +20,13 @@ export async function GET(request: NextRequest) {
         receiver_id,
         status,
         created_at,
-        sender:profiles (
-          username,
-          avatar_url
+        sender:profiles!friends_sender_id_fkey (
+            username,
+            avatar_url
         ),
-        receiver:profiles (
-          username,
-          avatar_url
+        receiver:profiles!friends_receiver_id_fkey (
+            username,
+            avatar_url
         )
       `)
             .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
