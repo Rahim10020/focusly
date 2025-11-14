@@ -97,6 +97,16 @@ CREATE TABLE IF NOT EXISTS public.friends (
     UNIQUE(sender_id, receiver_id)
 );
 
+CREATE TABLE IF NOT EXISTS public.stat_visibility (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    stat_field TEXT NOT NULL CHECK (stat_field IN ('total_sessions', 'completed_tasks', 'total_tasks', 'streak', 'total_focus_time', 'longest_streak', 'tasks_completed_today')),
+    visible_to_friends BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    UNIQUE(user_id, stat_field)
+);
+
 
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subtasks ENABLE ROW LEVEL SECURITY;
@@ -106,6 +116,7 @@ ALTER TABLE public.tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.friends ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.stat_visibility ENABLE ROW LEVEL SECURITY;
 
 
 -- Row Level Security Policies
@@ -251,6 +262,23 @@ DROP POLICY IF EXISTS "Users can delete their own friend requests" ON public.fri
 CREATE POLICY "Users can delete their own friend requests" ON public.friends
     FOR DELETE USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
 
+-- Stat visibility policies
+DROP POLICY IF EXISTS "Users can view their own stat visibility" ON public.stat_visibility;
+CREATE POLICY "Users can view their own stat visibility" ON public.stat_visibility
+    FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert their own stat visibility" ON public.stat_visibility;
+CREATE POLICY "Users can insert their own stat visibility" ON public.stat_visibility
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own stat visibility" ON public.stat_visibility;
+CREATE POLICY "Users can update their own stat visibility" ON public.stat_visibility
+    FOR UPDATE USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their own stat visibility" ON public.stat_visibility;
+CREATE POLICY "Users can delete their own stat visibility" ON public.stat_visibility
+    FOR DELETE USING (auth.uid() = user_id);
+
 -- Stats policies (updated for public viewing)
 CREATE POLICY "Users can view all stats" ON public.stats
     FOR SELECT USING (true);
@@ -305,4 +333,8 @@ CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles
 
 DROP TRIGGER IF EXISTS update_friends_updated_at ON public.friends;
 CREATE TRIGGER update_friends_updated_at BEFORE UPDATE ON public.friends
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_stat_visibility_updated_at ON public.stat_visibility;
+CREATE TRIGGER update_stat_visibility_updated_at BEFORE UPDATE ON public.stat_visibility
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

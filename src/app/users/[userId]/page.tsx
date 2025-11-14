@@ -12,13 +12,13 @@ interface UserStats {
     username: string | null;
     avatar_url: string | null;
     stats: {
-        total_sessions: number;
-        completed_tasks: number;
-        total_tasks: number;
-        streak: number;
-        total_focus_time: number;
-        longest_streak: number;
-        tasks_completed_today: number;
+        total_sessions: number | null;
+        completed_tasks: number | null;
+        total_tasks: number | null;
+        streak: number | null;
+        total_focus_time: number | null;
+        longest_streak: number | null;
+        tasks_completed_today: number | null;
     } | null;
 }
 
@@ -183,79 +183,89 @@ export default function UserProfilePage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Total Focus Time</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-3xl font-bold text-primary">
-                                {formatTime(userStats.stats?.total_focus_time || 0)}
-                            </p>
-                        </CardContent>
-                    </Card>
+                {userStats.stats ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Total Focus Time</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold text-primary">
+                                    {userStats.stats.total_focus_time !== null ? formatTime(userStats.stats.total_focus_time) : 'Hidden'}
+                                </p>
+                            </CardContent>
+                        </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Total Sessions</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-3xl font-bold text-primary">
-                                {userStats.stats?.total_sessions || 0}
-                            </p>
-                        </CardContent>
-                    </Card>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Total Sessions</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold text-primary">
+                                    {userStats.stats.total_sessions !== null ? userStats.stats.total_sessions : 'Hidden'}
+                                </p>
+                            </CardContent>
+                        </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Tasks Completed</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-3xl font-bold text-primary">
-                                {userStats.stats?.completed_tasks || 0}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                of {userStats.stats?.total_tasks || 0} total
-                            </p>
-                        </CardContent>
-                    </Card>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Tasks Completed</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold text-primary">
+                                    {userStats.stats.completed_tasks !== null ? userStats.stats.completed_tasks : 'Hidden'}
+                                </p>
+                                {userStats.stats.total_tasks !== null && (
+                                    <p className="text-sm text-muted-foreground">
+                                        of {userStats.stats.total_tasks} total
+                                    </p>
+                                )}
+                            </CardContent>
+                        </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Current Streak</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-3xl font-bold text-primary">
-                                {userStats.stats?.streak || 0} days
-                            </p>
-                        </CardContent>
-                    </Card>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Current Streak</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold text-primary">
+                                    {userStats.stats.streak !== null ? `${userStats.stats.streak} days` : 'Hidden'}
+                                </p>
+                            </CardContent>
+                        </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Longest Streak</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-3xl font-bold text-primary">
-                                {userStats.stats?.longest_streak || 0} days
-                            </p>
-                        </CardContent>
-                    </Card>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Longest Streak</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold text-primary">
+                                    {userStats.stats.longest_streak !== null ? `${userStats.stats.longest_streak} days` : 'Hidden'}
+                                </p>
+                            </CardContent>
+                        </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Today's Tasks</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-3xl font-bold text-primary">
-                                {userStats.stats?.tasks_completed_today || 0}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                completed today
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Today's Tasks</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold text-primary">
+                                    {userStats.stats.tasks_completed_today !== null ? userStats.stats.tasks_completed_today : 'Hidden'}
+                                </p>
+                                {userStats.stats.tasks_completed_today !== null && (
+                                    <p className="text-sm text-muted-foreground">
+                                        completed today
+                                    </p>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                ) : (
+                    <div className="text-center py-8">
+                        <p className="text-muted-foreground">No stats available</p>
+                    </div>
+                )}
             </main>
         </div>
     );

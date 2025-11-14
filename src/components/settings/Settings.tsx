@@ -5,6 +5,7 @@ import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { TimerSettings } from '@/lib/hooks/useSettings';
+import { useStatVisibility } from '@/lib/hooks/useStatVisibility';
 
 interface SettingsProps {
     settings: TimerSettings;
@@ -25,6 +26,20 @@ export default function Settings({
     const [shortBreakMinutes, setShortBreakMinutes] = useState(Math.floor(settings.shortBreakDuration / 60));
     const [longBreakMinutes, setLongBreakMinutes] = useState(Math.floor(settings.longBreakDuration / 60));
     const [cycles, setCycles] = useState(settings.cyclesBeforeLongBreak);
+    const { visibilitySettings, loading: visibilityLoading, updateVisibility } = useStatVisibility();
+
+    const getStatLabel = (field: string) => {
+        const labels: Record<string, string> = {
+            total_sessions: 'Total Sessions',
+            completed_tasks: 'Completed Tasks',
+            total_tasks: 'Total Tasks',
+            streak: 'Current Streak',
+            total_focus_time: 'Total Focus Time',
+            longest_streak: 'Longest Streak',
+            tasks_completed_today: 'Today\'s Tasks'
+        };
+        return labels[field] || field;
+    };
 
     const handleSave = () => {
         onUpdateSettings({
@@ -138,6 +153,38 @@ export default function Settings({
                             className="w-5 h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary cursor-pointer"
                         />
                     </label>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Stat Visibility</CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                        Choose which stats are visible to your friends
+                    </p>
+                </CardHeader>
+                <CardContent>
+                    {visibilityLoading ? (
+                        <div className="text-center py-4">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {visibilitySettings.map((setting) => (
+                                <label key={setting.stat_field} className="flex items-center justify-between cursor-pointer">
+                                    <span className="text-sm text-foreground">
+                                        {getStatLabel(setting.stat_field)}
+                                    </span>
+                                    <input
+                                        type="checkbox"
+                                        checked={setting.visible_to_friends}
+                                        onChange={(e) => updateVisibility(setting.stat_field, e.target.checked)}
+                                        className="w-5 h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary cursor-pointer"
+                                    />
+                                </label>
+                            ))}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
