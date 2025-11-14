@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Task, Tag } from '@/types';
+import { isToday, isTomorrow } from '@/lib/utils/time';
+import Button from '@/components/ui/Button';
 import TaskItem from './TaskItem';
 
 interface TaskListProps {
@@ -18,6 +20,8 @@ interface TaskListProps {
     onReorder: (startIndex: number, endIndex: number) => void;
 }
 
+type TabType = 'today' | 'tomorrow' | 'others' | 'completed';
+
 export default function TaskList({
     tasks,
     activeTaskId,
@@ -31,11 +35,22 @@ export default function TaskList({
     onDeleteSubTask,
     onReorder,
 }: TaskListProps) {
+    const [activeTab, setActiveTab] = useState<TabType>('today');
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
-    const activeTasks = tasks
-        .filter(task => !task.completed)
+    const activeTasks = tasks.filter(task => !task.completed);
+
+    const todayTasks = activeTasks
+        .filter(task => task.dueDate && isToday(task.dueDate))
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    const tomorrowTasks = activeTasks
+        .filter(task => task.dueDate && isTomorrow(task.dueDate))
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    const otherTasks = activeTasks
+        .filter(task => !task.dueDate || (!isToday(task.dueDate) && !isTomorrow(task.dueDate)))
         .sort((a, b) => (a.order || 0) - (b.order || 0));
 
     const completedTasks = tasks
@@ -74,60 +89,66 @@ export default function TaskList({
         );
     }
 
+    const getCurrentTasks = () => {
+        switch (activeTab) {
+            case 'today':
+                return todayTasks;
+            case 'tomorrow':
+                return tomorrowTasks;
+            case 'others':
+                return otherTasks;
+            case 'completed':
+                return completedTasks;
+            default:
+                return [];
+        }
+    };
+
+    const currentTasks = getCurrentTasks();
+
+    const tabs = [
+        { id: 'today' as TabType, label: 'Today', count: todayTasks.length },
+        { id: 'tomorrow' as TabType, label: 'Tomorrow', count: tomorrowTasks.length },
+        { id: 'others' as TabType, label: 'Others', count: otherTasks.length },
+        { id: 'completed' as TabType, label: 'Completed', count: completedTasks.length },
+    ];
+
     return (
         <div className="space-y-6">
-            {activeTasks.length > 0 && (
-                <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                        Active Tasks ({activeTasks.length})
-                    </h3>
-                    <div className="space-y-2">
-                        {activeTasks.map((task, index) => (
-                            <div
-                                key={task.id}
-                                draggable
-                                onDragStart={() => handleDragStart(index)}
-                                onDragOver={(e) => handleDragOver(e, index)}
-                                onDragEnd={handleDragEnd}
-                                onDrop={handleDrop}
-                                className={`transition-all ${dragOverIndex === index && draggedIndex !== index
-                                    ? 'border-t-2 border-primary pt-2'
-                                    : ''
-                                    }`}
-                            >
-                                <TaskItem
-                                    task={task}
-                                    isActive={activeTaskId === task.id}
-                                    tags={tags}
-                                    onToggle={onToggle}
-                                    onDelete={onDelete}
-                                    onSelect={onSelectTask}
-                                    onUpdate={onUpdate}
-                                    onAddSubTask={onAddSubTask}
-                                    onToggleSubTask={onToggleSubTask}
-                                    onDeleteSubTask={onDeleteSubTask}
-                                    isDragging={draggedIndex === index}
-                                    dragHandleProps={{
-                                        draggable: true,
-                                    }}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            {/* Tabs */}
+            <div className="flex flex-wrap gap-2 border-b border-border pb-2">
+                {tabs.map((tab) => (
+                    <Button
+                        key={tab.id}
+                        variant={activeTab === tab.id ? 'primary' : 'ghost'}
+                        size="sm"
+                        onClick={() => setActiveTab(tab.id)}
+                        className="text-xs"
+                    >
+                        {tab.label} ({tab.count})
+                    </Button>
+                ))}
+            </div>
 
-            {completedTasks.length > 0 && (
+            {/* Task List */}
+            {currentTasks.length > 0 ? (
                 <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                        Completed ({completedTasks.length})
-                    </h3>
-                    <div className="space-y-2">
-                        {completedTasks.map(task => (
+                    {currentTasks.map((task, index) => (
+                        <div
+                            key={task.id}
+                            draggable={activeTab !== 'completed'}
+                            onDragStart={() => handleDragStart(index)}
+                            onDragOver={(e) => handleDragOver(e, index)}
+                            onDragEnd={handleDragEnd}
+                            onDrop={handleDrop}
+                            className={`transition-all ${dragOverIndex === index && draggedIndex !== index && activeTab !== 'completed'
+                                ? 'border-t-2 border-primary pt-2'
+                                : ''
+                                }`}
+                        >
                             <TaskItem
-                                key={task.id}
                                 task={task}
-                                isActive={false}
+                                isActive={activeTaskId === task.id}
                                 tags={tags}
                                 onToggle={onToggle}
                                 onDelete={onDelete}
@@ -136,9 +157,17 @@ export default function TaskList({
                                 onAddSubTask={onAddSubTask}
                                 onToggleSubTask={onToggleSubTask}
                                 onDeleteSubTask={onDeleteSubTask}
+                                isDragging={draggedIndex === index}
+                                dragHandleProps={{
+                                    draggable: activeTab !== 'completed',
+                                }}
                             />
-                        ))}
-                    </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                    <p>No tasks in this category.</p>
                 </div>
             )}
         </div>
