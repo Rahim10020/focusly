@@ -81,4 +81,14 @@ export const GLOBAL_SHORTCUTS = {
         ctrlKey: true,
         description: 'Go to Home',
     },
+    GO_TO_LEADERBOARD: {
+        key: '3',
+        ctrlKey: true,
+        description: 'Go to Leaderboard',
+    },
+    GO_TO_FRIENDS: {
+        key: '4',
+        ctrlKey: true,
+        description: 'Go to Friends',
+    },
 };

@@ -43,6 +43,10 @@ CREATE TABLE IF NOT EXISTS public.stats (
     UNIQUE(user_id)
 );
 
+-- Note: We don't add a direct foreign key between stats and profiles
+-- because users might have stats before creating a profile.
+-- Instead, we use manual joins in queries where both tables reference auth.users(id)
+
 CREATE TABLE IF NOT EXISTS public.sessions (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
@@ -75,6 +79,24 @@ CREATE TABLE IF NOT EXISTS public.achievements (
     UNIQUE(user_id, achievement_id)
 );
 
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+    username TEXT UNIQUE,
+    avatar_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.friends (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    sender_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    receiver_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    status TEXT CHECK (status IN ('pending', 'accepted', 'rejected')) DEFAULT 'pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    UNIQUE(sender_id, receiver_id)
+);
+
 
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subtasks ENABLE ROW LEVEL SECURITY;
@@ -82,24 +104,31 @@ ALTER TABLE public.stats ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.friends ENABLE ROW LEVEL SECURITY;
 
 
 -- Row Level Security Policies
 
 -- Tasks policies
+DROP POLICY IF EXISTS "Users can view their own tasks" ON public.tasks;
 CREATE POLICY "Users can view their own tasks" ON public.tasks
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own tasks" ON public.tasks;
 CREATE POLICY "Users can insert their own tasks" ON public.tasks
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own tasks" ON public.tasks;
 CREATE POLICY "Users can update their own tasks" ON public.tasks
     FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own tasks" ON public.tasks;
 CREATE POLICY "Users can delete their own tasks" ON public.tasks
     FOR DELETE USING (auth.uid() = user_id);
 
 -- Subtasks policies
+DROP POLICY IF EXISTS "Users can view their own subtasks" ON public.subtasks;
 CREATE POLICY "Users can view their own subtasks" ON public.subtasks
     FOR SELECT USING (
         EXISTS (
@@ -109,6 +138,7 @@ CREATE POLICY "Users can view their own subtasks" ON public.subtasks
         )
     );
 
+DROP POLICY IF EXISTS "Users can insert their own subtasks" ON public.subtasks;
 CREATE POLICY "Users can insert their own subtasks" ON public.subtasks
     FOR INSERT WITH CHECK (
         EXISTS (
@@ -118,6 +148,7 @@ CREATE POLICY "Users can insert their own subtasks" ON public.subtasks
         )
     );
 
+DROP POLICY IF EXISTS "Users can update their own subtasks" ON public.subtasks;
 CREATE POLICY "Users can update their own subtasks" ON public.subtasks
     FOR UPDATE USING (
         EXISTS (
@@ -127,6 +158,7 @@ CREATE POLICY "Users can update their own subtasks" ON public.subtasks
         )
     );
 
+DROP POLICY IF EXISTS "Users can delete their own subtasks" ON public.subtasks;
 CREATE POLICY "Users can delete their own subtasks" ON public.subtasks
     FOR DELETE USING (
         EXISTS (
@@ -137,41 +169,99 @@ CREATE POLICY "Users can delete their own subtasks" ON public.subtasks
     );
 
 -- Stats policies
-CREATE POLICY "Users can view their own stats" ON public.stats
-    FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert their own stats" ON public.stats
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own stats" ON public.stats
-    FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can view their own stats" ON public.stats;
+DROP POLICY IF EXISTS "Users can insert their own stats" ON public.stats;
+DROP POLICY IF EXISTS "Users can update their own stats" ON public.stats;
+DROP POLICY IF EXISTS "Users can view all stats" ON public.stats;
 
 -- Sessions policies
+DROP POLICY IF EXISTS "Users can view their own sessions" ON public.sessions;
 CREATE POLICY "Users can view their own sessions" ON public.sessions
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own sessions" ON public.sessions;
 CREATE POLICY "Users can insert their own sessions" ON public.sessions
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own sessions" ON public.sessions;
+CREATE POLICY "Users can update their own sessions" ON public.sessions
+    FOR UPDATE USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their own sessions" ON public.sessions;
+CREATE POLICY "Users can delete their own sessions" ON public.sessions
+    FOR DELETE USING (auth.uid() = user_id);
+
 -- Tags policies
+DROP POLICY IF EXISTS "Users can view their own tags" ON public.tags;
 CREATE POLICY "Users can view their own tags" ON public.tags
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own tags" ON public.tags;
 CREATE POLICY "Users can insert their own tags" ON public.tags
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own tags" ON public.tags;
 CREATE POLICY "Users can update their own tags" ON public.tags
     FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own tags" ON public.tags;
 CREATE POLICY "Users can delete their own tags" ON public.tags
     FOR DELETE USING (auth.uid() = user_id);
 
 -- Achievements policies
+DROP POLICY IF EXISTS "Users can view their own achievements" ON public.achievements;
 CREATE POLICY "Users can view their own achievements" ON public.achievements
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own achievements" ON public.achievements;
 CREATE POLICY "Users can insert their own achievements" ON public.achievements
     FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own achievements" ON public.achievements;
+CREATE POLICY "Users can update their own achievements" ON public.achievements
+    FOR UPDATE USING (auth.uid() = user_id);
+
+-- Profiles policies
+DROP POLICY IF EXISTS "Users can view all profiles" ON public.profiles;
+CREATE POLICY "Users can view all profiles" ON public.profiles
+    FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
+CREATE POLICY "Users can insert their own profile" ON public.profiles
+    FOR INSERT WITH CHECK (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
+CREATE POLICY "Users can update their own profile" ON public.profiles
+    FOR UPDATE USING (auth.uid() = id);
+
+-- Friends policies
+DROP POLICY IF EXISTS "Users can view their friendships" ON public.friends;
+CREATE POLICY "Users can view their friendships" ON public.friends
+    FOR SELECT USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
+
+DROP POLICY IF EXISTS "Users can send friend requests" ON public.friends;
+CREATE POLICY "Users can send friend requests" ON public.friends
+    FOR INSERT WITH CHECK (auth.uid() = sender_id);
+
+DROP POLICY IF EXISTS "Users can update friend requests they received" ON public.friends;
+CREATE POLICY "Users can update friend requests they received" ON public.friends
+    FOR UPDATE USING (auth.uid() = receiver_id);
+
+DROP POLICY IF EXISTS "Users can delete their own friend requests" ON public.friends;
+CREATE POLICY "Users can delete their own friend requests" ON public.friends
+    FOR DELETE USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
+
+-- Stats policies (updated for public viewing)
+CREATE POLICY "Users can view all stats" ON public.stats
+    FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can insert their own stats" ON public.stats;
+CREATE POLICY "Users can insert their own stats" ON public.stats
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own stats" ON public.stats;
+CREATE POLICY "Users can update their own stats" ON public.stats
+    FOR UPDATE USING (auth.uid() = user_id);
 
 
 
@@ -184,20 +274,35 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Triggers for updating updated_at timestamps
+DROP TRIGGER IF EXISTS update_tasks_updated_at ON public.tasks;
 CREATE TRIGGER update_tasks_updated_at BEFORE UPDATE ON public.tasks
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_subtasks_updated_at ON public.subtasks;
 CREATE TRIGGER update_subtasks_updated_at BEFORE UPDATE ON public.subtasks
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_stats_updated_at ON public.stats;
 CREATE TRIGGER update_stats_updated_at BEFORE UPDATE ON public.stats
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_sessions_updated_at ON public.sessions;
 CREATE TRIGGER update_sessions_updated_at BEFORE UPDATE ON public.sessions
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_tags_updated_at ON public.tags;
 CREATE TRIGGER update_tags_updated_at BEFORE UPDATE ON public.tags
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_achievements_updated_at ON public.achievements;
 CREATE TRIGGER update_achievements_updated_at BEFORE UPDATE ON public.achievements
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
+CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_friends_updated_at ON public.friends;
+CREATE TRIGGER update_friends_updated_at BEFORE UPDATE ON public.friends
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

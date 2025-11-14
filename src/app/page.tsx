@@ -175,6 +175,14 @@ export default function Home() {
       ...GLOBAL_SHORTCUTS.GO_TO_SETTINGS,
       action: () => router.push('/settings'),
     },
+    {
+      ...GLOBAL_SHORTCUTS.GO_TO_LEADERBOARD,
+      action: () => router.push('/leaderboard'),
+    },
+    {
+      ...GLOBAL_SHORTCUTS.GO_TO_FRIENDS,
+      action: () => router.push('/friends'),
+    },
   ]);
 
   if (status === 'loading') {

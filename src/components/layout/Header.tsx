@@ -25,6 +25,18 @@ export default function Header() {
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex items-center gap-6">
                     <Link
+                        href="/leaderboard"
+                        className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                        Leaderboard
+                    </Link>
+                    <Link
+                        href="/friends"
+                        className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                        Friends
+                    </Link>
+                    <Link
                         href="/how-to-use"
                         className="text-sm font-medium text-foreground hover:text-primary transition-colors"
                     >
@@ -59,6 +71,20 @@ export default function Header() {
             {isMenuOpen && (
                 <div className="md:hidden bg-background border-t border-border">
                     <nav className="flex flex-col items-center gap-4 py-4">
+                        <Link
+                            href="/leaderboard"
+                            className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            Leaderboard
+                        </Link>
+                        <Link
+                            href="/friends"
+                            className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            Friends
+                        </Link>
                         <Link
                             href="/how-to-use"
                             className="text-sm font-medium text-foreground hover:text-primary transition-colors"

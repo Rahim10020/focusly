@@ -216,6 +216,55 @@ export interface Database {
                     updated_at?: string;
                 };
             };
+            profiles: {
+                Row: {
+                    id: string;
+                    username: string | null;
+                    avatar_url: string | null;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id: string;
+                    username?: string | null;
+                    avatar_url?: string | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    username?: string | null;
+                    avatar_url?: string | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+            };
+            friends: {
+                Row: {
+                    id: string;
+                    sender_id: string;
+                    receiver_id: string;
+                    status: 'pending' | 'accepted' | 'rejected';
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    sender_id: string;
+                    receiver_id: string;
+                    status?: 'pending' | 'accepted' | 'rejected';
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    sender_id?: string;
+                    receiver_id?: string;
+                    status?: 'pending' | 'accepted' | 'rejected';
+                    created_at?: string;
+                    updated_at?: string;
+                };
+            };
         };
     };
 }

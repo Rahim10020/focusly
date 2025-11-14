@@ -192,6 +192,8 @@ export function useAchievements() {
             supabase.auth.setSession({
                 access_token: (session as any).accessToken,
                 refresh_token: (session as any).refreshToken,
+            }).catch((error) => {
+                console.error('Error setting Supabase session:', error);
             });
         }
     }, [session]);
@@ -247,6 +249,7 @@ export function useAchievements() {
         todayFocusMinutes: number;
     }) => {
         const userId = getUserId();
+        const currentSession = session;
         setCurrentAchievements((prevAchievements: Achievement[]) => {
             let hasChanges = false;
             const newlyUnlockedAchievements: Achievement[] = [];
@@ -337,25 +340,37 @@ export function useAchievements() {
 
                     // Save to database if authenticated
                     if (userId) {
-                        supabase
-                            .from('achievements')
-                            .upsert({
-                                user_id: userId,
-                                achievement_id: achievement.id,
-                                unlocked_at: new Date().toISOString(),
-                            }, { onConflict: 'user_id,achievement_id' })
-                            .then(({ error }) => {
-                                if (error) {
-                                    console.error('Error saving achievement to DB:', {
-                                        message: error.message,
-                                        details: error.details,
-                                        hint: error.hint,
-                                        code: error.code,
-                                        achievementId: achievement.id,
-                                        userId: userId
-                                    });
-                                }
-                            });
+                        // Ensure session is set before upsert
+                        supabase.auth.getSession().then(({ data: { session: supabaseSession } }) => {
+                            if (!supabaseSession && (currentSession as any)?.accessToken && (currentSession as any)?.refreshToken) {
+                                return supabase.auth.setSession({
+                                    access_token: (currentSession as any).accessToken,
+                                    refresh_token: (currentSession as any).refreshToken,
+                                });
+                            }
+                            return Promise.resolve({ data: { session: supabaseSession }, error: null });
+                        }).then(() => {
+                            return supabase
+                                .from('achievements')
+                                .upsert({
+                                    user_id: userId,
+                                    achievement_id: achievement.id,
+                                    unlocked_at: new Date().toISOString(),
+                                }, { onConflict: 'user_id,achievement_id' });
+                        }).then(({ error }) => {
+                            if (error) {
+                                console.error('Error saving achievement to DB:', {
+                                    message: error.message,
+                                    details: error.details,
+                                    hint: error.hint,
+                                    code: error.code,
+                                    achievementId: achievement.id,
+                                    userId: userId
+                                });
+                            }
+                        }).catch((error) => {
+                            console.error('Error in achievement save process:', error);
+                        });
                     }
 
                     return unlockedAchievement;
@@ -381,10 +396,11 @@ export function useAchievements() {
 
             return hasChanges ? updated : prevAchievements;
         });
-    }, [getUserId, setCurrentAchievements]);
+    }, [getUserId, setCurrentAchievements, session]);
 
     const checkTimeBasedAchievements = useCallback(async (hour: number) => {
         const userId = getUserId();
+        const currentSession = session;
         setCurrentAchievements((prevAchievements: Achievement[]) => {
             let hasChanges = false;
             const newlyUnlockedAchievements: Achievement[] = [];
@@ -403,16 +419,37 @@ export function useAchievements() {
 
                     // Save to database if authenticated
                     if (userId) {
-                        supabase
-                            .from('achievements')
-                            .upsert({
-                                user_id: userId,
-                                achievement_id: achievement.id,
-                                unlocked_at: new Date().toISOString(),
-                            }, { onConflict: 'user_id,achievement_id' })
-                            .then(({ error }) => {
-                                if (error) console.error('Error saving time-based achievement to DB:', error);
-                            });
+                        // Ensure session is set before upsert
+                        supabase.auth.getSession().then(({ data: { session: supabaseSession } }) => {
+                            if (!supabaseSession && (currentSession as any)?.accessToken && (currentSession as any)?.refreshToken) {
+                                return supabase.auth.setSession({
+                                    access_token: (currentSession as any).accessToken,
+                                    refresh_token: (currentSession as any).refreshToken,
+                                });
+                            }
+                            return Promise.resolve({ data: { session: supabaseSession }, error: null });
+                        }).then(() => {
+                            return supabase
+                                .from('achievements')
+                                .upsert({
+                                    user_id: userId,
+                                    achievement_id: achievement.id,
+                                    unlocked_at: new Date().toISOString(),
+                                }, { onConflict: 'user_id,achievement_id' });
+                        }).then(({ error }) => {
+                            if (error) {
+                                console.error('Error saving time-based achievement to DB:', {
+                                    message: error.message,
+                                    details: error.details,
+                                    hint: error.hint,
+                                    code: error.code,
+                                    achievementId: achievement.id,
+                                    userId: userId
+                                });
+                            }
+                        }).catch((error) => {
+                            console.error('Error in time-based achievement save process:', error);
+                        });
                     }
 
                     return unlockedAchievement;
@@ -429,16 +466,37 @@ export function useAchievements() {
 
                     // Save to database if authenticated
                     if (userId) {
-                        supabase
-                            .from('achievements')
-                            .upsert({
-                                user_id: userId,
-                                achievement_id: achievement.id,
-                                unlocked_at: new Date().toISOString(),
-                            }, { onConflict: 'user_id,achievement_id' })
-                            .then(({ error }) => {
-                                if (error) console.error('Error saving time-based achievement to DB:', error);
-                            });
+                        // Ensure session is set before upsert
+                        supabase.auth.getSession().then(({ data: { session: supabaseSession } }) => {
+                            if (!supabaseSession && (currentSession as any)?.accessToken && (currentSession as any)?.refreshToken) {
+                                return supabase.auth.setSession({
+                                    access_token: (currentSession as any).accessToken,
+                                    refresh_token: (currentSession as any).refreshToken,
+                                });
+                            }
+                            return Promise.resolve({ data: { session: supabaseSession }, error: null });
+                        }).then(() => {
+                            return supabase
+                                .from('achievements')
+                                .upsert({
+                                    user_id: userId,
+                                    achievement_id: achievement.id,
+                                    unlocked_at: new Date().toISOString(),
+                                }, { onConflict: 'user_id,achievement_id' });
+                        }).then(({ error }) => {
+                            if (error) {
+                                console.error('Error saving time-based achievement to DB:', {
+                                    message: error.message,
+                                    details: error.details,
+                                    hint: error.hint,
+                                    code: error.code,
+                                    achievementId: achievement.id,
+                                    userId: userId
+                                });
+                            }
+                        }).catch((error) => {
+                            console.error('Error in time-based achievement save process:', error);
+                        });
                     }
 
                     return unlockedAchievement;
@@ -455,7 +513,7 @@ export function useAchievements() {
 
             return hasChanges ? updated : prevAchievements;
         });
-    }, [getUserId, setCurrentAchievements]);
+    }, [getUserId, setCurrentAchievements, session]);
 
     const clearNewlyUnlocked = useCallback(() => {
         setNewlyUnlocked([]);
