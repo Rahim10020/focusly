@@ -35,7 +35,7 @@ export default function UserMenu() {
                     alt="Profile"
                     className="w-8 h-8 rounded-full"
                 />
-                <span className="text-foreground">▼</span>
+                <span className={`text-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
             </button>
 
             {isOpen && (

@@ -15,4 +15,3 @@ L'admin c'est a dire moi, peut creer des challenges speciales (voir avec claude 
     les vainqueurs auront des badges selon le nombre de challenges reussis.
 
 concernant la partie des challenges actuellement disponible, on va categoriser ca: niveau debutant et expert.
-

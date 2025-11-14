@@ -31,12 +31,6 @@ export default function Header() {
                         How to Use
                     </Link>
                     <Link
-                        href="/stats"
-                        className="text-sm font-medium text-foreground hover:text-primary transition-colors"
-                    >
-                        Statistics
-                    </Link>
-                    <Link
                         href="/settings"
                         className="text-sm font-medium text-foreground hover:text-primary transition-colors"
                     >
