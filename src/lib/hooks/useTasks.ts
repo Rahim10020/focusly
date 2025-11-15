@@ -61,6 +61,10 @@ export function useTasks() {
                 priority: dbTask.priority as Priority,
                 tags: dbTask.tags || [],
                 dueDate: dbTask.due_date ? new Date(dbTask.due_date).getTime() : undefined,
+                startDate: dbTask.start_date ? new Date(dbTask.start_date).getTime() : undefined,
+                startTime: dbTask.start_time,
+                endTime: dbTask.end_time,
+                estimatedDuration: dbTask.estimated_duration,
                 notes: dbTask.notes,
                 subTasks: dbTask.subtasks?.map((st: any) => ({
                     id: st.id,
@@ -90,7 +94,11 @@ export function useTasks() {
         tags?: string[],
         dueDate?: number,
         notes?: string,
-        subDomain?: SubDomain
+        subDomain?: SubDomain,
+        startDate?: number,
+        startTime?: string,
+        endTime?: string,
+        estimatedDuration?: number
     ) => {
         const maxOrder = currentTasks.length > 0 ? Math.max(...currentTasks.map(t => t.order || 0)) : 0;
         const newTask: Task = {
@@ -102,6 +110,10 @@ export function useTasks() {
             priority,
             tags: tags || [],
             dueDate,
+            startDate,
+            startTime,
+            endTime,
+            estimatedDuration,
             notes,
             subTasks: [],
             order: maxOrder + 1,
@@ -122,6 +134,10 @@ export function useTasks() {
                     priority: newTask.priority,
                     tags: newTask.tags,
                     due_date: newTask.dueDate ? new Date(newTask.dueDate).toISOString() : null,
+                    start_date: newTask.startDate ? new Date(newTask.startDate).toISOString() : null,
+                    start_time: newTask.startTime,
+                    end_time: newTask.endTime,
+                    estimated_duration: newTask.estimatedDuration,
                     notes: newTask.notes,
                     order: newTask.order,
                     sub_domain: newTask.subDomain,
@@ -162,6 +178,10 @@ export function useTasks() {
                 if (updates.priority !== undefined) updateData.priority = updates.priority;
                 if (updates.tags !== undefined) updateData.tags = updates.tags;
                 if (updates.dueDate !== undefined) updateData.due_date = updates.dueDate ? new Date(updates.dueDate).toISOString() : null;
+                if (updates.startDate !== undefined) updateData.start_date = updates.startDate ? new Date(updates.startDate).toISOString() : null;
+                if (updates.startTime !== undefined) updateData.start_time = updates.startTime;
+                if (updates.endTime !== undefined) updateData.end_time = updates.endTime;
+                if (updates.estimatedDuration !== undefined) updateData.estimated_duration = updates.estimatedDuration;
                 if (updates.notes !== undefined) updateData.notes = updates.notes;
                 if (updates.order !== undefined) updateData.order = updates.order;
                 if (updates.subDomain !== undefined) updateData.sub_domain = updates.subDomain;

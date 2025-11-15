@@ -27,6 +27,7 @@ export default function LeaderboardPage() {
     const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedTab, setSelectedTab] = useState<'tasks' | 'time' | 'streak'>('tasks');
 
     useEffect(() => {
         if (status === 'loading') return;
@@ -69,18 +70,51 @@ export default function LeaderboardPage() {
             case 2:
                 return '🥉';
             default:
-                return `#${index + 1}`;
+                return null;
         }
     };
+
+    const getRankColor = (index: number) => {
+        switch (index) {
+            case 0:
+                return 'from-yellow-400 to-yellow-600';
+            case 1:
+                return 'from-gray-300 to-gray-500';
+            case 2:
+                return 'from-amber-600 to-amber-800';
+            default:
+                return 'from-primary/20 to-primary/10';
+        }
+    };
+
+    const getSortedLeaderboard = () => {
+        return [...leaderboard].sort((a, b) => {
+            const aStats = a.stats || { completed_tasks: 0, total_focus_time: 0, streak: 0 };
+            const bStats = b.stats || { completed_tasks: 0, total_focus_time: 0, streak: 0 };
+
+            switch (selectedTab) {
+                case 'tasks':
+                    return bStats.completed_tasks - aStats.completed_tasks;
+                case 'time':
+                    return bStats.total_focus_time - aStats.total_focus_time;
+                case 'streak':
+                    return bStats.streak - aStats.streak;
+                default:
+                    return 0;
+            }
+        });
+    };
+
+    const currentUserRank = leaderboard.findIndex(user => user.id === session?.user?.id);
 
     if (status === 'loading' || loading) {
         return (
             <div className="min-h-screen bg-background">
                 <Header />
-                <div className="max-w-4xl mx-auto px-6 py-8">
+                <div className="max-w-6xl mx-auto px-6 py-8">
                     <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                        <p>Loading leaderboard...</p>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                        <p className="text-lg">Loading leaderboard...</p>
                     </div>
                 </div>
             </div>
@@ -91,10 +125,17 @@ export default function LeaderboardPage() {
         return (
             <div className="min-h-screen bg-background">
                 <Header />
-                <div className="max-w-4xl mx-auto px-6 py-8">
+                <div className="max-w-6xl mx-auto px-6 py-8">
                     <Card>
-                        <CardContent className="p-6 text-center">
-                            <p className="text-red-500 mb-4">Error: {error}</p>
+                        <CardContent className="p-8 text-center">
+                            <div className="w-16 h-16 rounded-full bg-red-500/10 mx-auto mb-4 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                            </div>
+                            <p className="text-red-500 mb-4 text-lg">Error: {error}</p>
                             <Button onClick={fetchLeaderboard}>Try Again</Button>
                         </CardContent>
                     </Card>
@@ -103,66 +144,250 @@ export default function LeaderboardPage() {
         );
     }
 
+    const sortedLeaderboard = getSortedLeaderboard();
+
     return (
         <div className="min-h-screen bg-background">
             <Header />
-            <main className="max-w-4xl mx-auto px-6 py-8">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold mb-2">Leaderboard</h1>
-                    <p className="text-muted-foreground">
-                        See how you rank against other Focusly users
+            <main className="max-w-6xl mx-auto px-6 py-8">
+                {/* Header */}
+                <div className="mb-8 text-center">
+                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                        Leaderboard
+                    </h1>
+                    <p className="text-muted-foreground text-lg">
+                        Compete with other Focusly users and climb to the top!
                     </p>
                 </div>
 
+                {/* Your Rank Card */}
+                {currentUserRank >= 0 && (
+                    <Card variant="elevated" className="mb-8 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-50"></div>
+                        <CardContent className="relative py-6">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="text-3xl font-bold text-primary">
+                                        #{currentUserRank + 1}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-muted-foreground mb-1">Your Rank</p>
+                                        <p className="text-xl font-semibold">{session?.user?.name || 'You'}</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-sm text-muted-foreground mb-1">Keep going!</p>
+                                    <p className="text-lg font-semibold">
+                                        {leaderboard[currentUserRank]?.stats?.completed_tasks || 0} tasks completed
+                                    </p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Tabs */}
+                <div className="flex justify-center gap-2 mb-6 bg-muted p-1 rounded-lg max-w-md mx-auto">
+                    <button
+                        onClick={() => setSelectedTab('tasks')}
+                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${
+                            selectedTab === 'tasks'
+                                ? 'bg-primary text-primary-foreground shadow-lg'
+                                : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                    >
+                        Tasks
+                    </button>
+                    <button
+                        onClick={() => setSelectedTab('time')}
+                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${
+                            selectedTab === 'time'
+                                ? 'bg-primary text-primary-foreground shadow-lg'
+                                : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                    >
+                        Focus Time
+                    </button>
+                    <button
+                        onClick={() => setSelectedTab('streak')}
+                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${
+                            selectedTab === 'streak'
+                                ? 'bg-primary text-primary-foreground shadow-lg'
+                                : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                    >
+                        Streak
+                    </button>
+                </div>
+
+                {/* Podium - Top 3 */}
+                {sortedLeaderboard.length >= 3 && (
+                    <div className="grid grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
+                        {/* Second Place */}
+                        <div className="flex flex-col items-center order-1 mt-8">
+                            <Card variant="elevated" className="w-full overflow-hidden">
+                                <div className={`h-2 bg-gradient-to-r ${getRankColor(1)}`}></div>
+                                <CardContent className="pt-6 pb-4 text-center">
+                                    <div className="text-4xl mb-2">{getRankIcon(1)}</div>
+                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-r from-gray-300 to-gray-500 p-1">
+                                        <img
+                                            src={sortedLeaderboard[1].avatar_url || '/default-avatar.svg'}
+                                            alt={sortedLeaderboard[1].username || 'User'}
+                                            className="w-full h-full rounded-full object-cover"
+                                        />
+                                    </div>
+                                    <p className="font-bold text-sm mb-1">{sortedLeaderboard[1].username || 'Anonymous'}</p>
+                                    <p className="text-2xl font-bold text-primary mb-1">
+                                        {selectedTab === 'tasks' && (sortedLeaderboard[1].stats?.completed_tasks || 0)}
+                                        {selectedTab === 'time' && formatTime(sortedLeaderboard[1].stats?.total_focus_time || 0)}
+                                        {selectedTab === 'streak' && `${sortedLeaderboard[1].stats?.streak || 0}`}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {selectedTab === 'tasks' && 'tasks'}
+                                        {selectedTab === 'time' && 'focused'}
+                                        {selectedTab === 'streak' && 'day streak'}
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* First Place */}
+                        <div className="flex flex-col items-center order-0 col-span-1">
+                            <Card variant="elevated" className="w-full overflow-hidden transform scale-110">
+                                <div className={`h-2 bg-gradient-to-r ${getRankColor(0)}`}></div>
+                                <CardContent className="pt-6 pb-4 text-center">
+                                    <div className="text-5xl mb-2">{getRankIcon(0)}</div>
+                                    <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 p-1">
+                                        <img
+                                            src={sortedLeaderboard[0].avatar_url || '/default-avatar.svg'}
+                                            alt={sortedLeaderboard[0].username || 'User'}
+                                            className="w-full h-full rounded-full object-cover"
+                                        />
+                                    </div>
+                                    <p className="font-bold mb-1">{sortedLeaderboard[0].username || 'Anonymous'}</p>
+                                    <p className="text-3xl font-bold text-primary mb-1">
+                                        {selectedTab === 'tasks' && (sortedLeaderboard[0].stats?.completed_tasks || 0)}
+                                        {selectedTab === 'time' && formatTime(sortedLeaderboard[0].stats?.total_focus_time || 0)}
+                                        {selectedTab === 'streak' && `${sortedLeaderboard[0].stats?.streak || 0}`}
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {selectedTab === 'tasks' && 'tasks'}
+                                        {selectedTab === 'time' && 'focused'}
+                                        {selectedTab === 'streak' && 'day streak'}
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Third Place */}
+                        <div className="flex flex-col items-center order-2 mt-12">
+                            <Card variant="elevated" className="w-full overflow-hidden">
+                                <div className={`h-2 bg-gradient-to-r ${getRankColor(2)}`}></div>
+                                <CardContent className="pt-6 pb-4 text-center">
+                                    <div className="text-4xl mb-2">{getRankIcon(2)}</div>
+                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-r from-amber-600 to-amber-800 p-1">
+                                        <img
+                                            src={sortedLeaderboard[2].avatar_url || '/default-avatar.svg'}
+                                            alt={sortedLeaderboard[2].username || 'User'}
+                                            className="w-full h-full rounded-full object-cover"
+                                        />
+                                    </div>
+                                    <p className="font-bold text-sm mb-1">{sortedLeaderboard[2].username || 'Anonymous'}</p>
+                                    <p className="text-2xl font-bold text-primary mb-1">
+                                        {selectedTab === 'tasks' && (sortedLeaderboard[2].stats?.completed_tasks || 0)}
+                                        {selectedTab === 'time' && formatTime(sortedLeaderboard[2].stats?.total_focus_time || 0)}
+                                        {selectedTab === 'streak' && `${sortedLeaderboard[2].stats?.streak || 0}`}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {selectedTab === 'tasks' && 'tasks'}
+                                        {selectedTab === 'time' && 'focused'}
+                                        {selectedTab === 'streak' && 'day streak'}
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                )}
+
+                {/* Rest of Leaderboard */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Top Performers</CardTitle>
+                        <CardTitle>All Rankings</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {leaderboard.length === 0 ? (
-                            <p className="text-center text-muted-foreground py-8">
-                                No users found. Be the first to start focusing!
-                            </p>
+                        {sortedLeaderboard.length === 0 ? (
+                            <div className="text-center py-12">
+                                <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </div>
+                                <p className="text-muted-foreground text-lg">
+                                    No users found. Be the first to start focusing!
+                                </p>
+                            </div>
                         ) : (
-                            <div className="space-y-4">
-                                {leaderboard.map((user, index) => (
+                            <div className="space-y-2">
+                                {sortedLeaderboard.map((user, index) => (
                                     <div
                                         key={user.id}
-                                        className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
+                                        className={`flex items-center justify-between p-4 rounded-lg transition-all cursor-pointer ${
+                                            user.id === session?.user?.id
+                                                ? 'bg-primary/10 border-2 border-primary'
+                                                : 'border border-border hover:bg-muted/50 hover:scale-[1.02]'
+                                        }`}
                                         onClick={() => router.push(`/users/${user.id}`)}
+                                        style={{
+                                            animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`
+                                        }}
                                     >
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-2xl font-bold text-muted-foreground w-12 text-center">
-                                                {getRankIcon(index)}
+                                        <div className="flex items-center gap-4 flex-1">
+                                            <div className="w-12 text-center">
+                                                {getRankIcon(index) ? (
+                                                    <span className="text-3xl">{getRankIcon(index)}</span>
+                                                ) : (
+                                                    <span className="text-xl font-bold text-muted-foreground">#{index + 1}</span>
+                                                )}
                                             </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                                    {user.avatar_url ? (
-                                                        <img
-                                                            src={user.avatar_url}
-                                                            alt={user.username || 'User'}
-                                                            className="w-10 h-10 rounded-full"
-                                                        />
-                                                    ) : (
-                                                        <span className="text-lg">
-                                                            {(user.username || 'Anonymous').charAt(0).toUpperCase()}
+                                            <div className="w-12 h-12 rounded-full bg-primary/10 overflow-hidden flex-shrink-0">
+                                                {user.avatar_url ? (
+                                                    <img
+                                                        src={user.avatar_url}
+                                                        alt={user.username || 'User'}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-lg font-semibold">
+                                                        {(user.username || 'A').charAt(0).toUpperCase()}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-semibold truncate">
+                                                    {user.username || 'Anonymous User'}
+                                                    {user.id === session?.user?.id && (
+                                                        <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                                                            You
                                                         </span>
                                                     )}
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium">
-                                                        {user.username || 'Anonymous User'}
-                                                    </p>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        {user.stats?.total_sessions || 0} sessions • {formatTime(user.stats?.total_focus_time || 0)}
-                                                    </p>
-                                                </div>
+                                                </p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {user.stats?.total_sessions || 0} sessions
+                                                </p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-semibold">{user.stats?.completed_tasks || 0} tasks</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {user.stats?.streak || 0} day streak
+                                            <p className="text-xl font-bold">
+                                                {selectedTab === 'tasks' && (user.stats?.completed_tasks || 0)}
+                                                {selectedTab === 'time' && formatTime(user.stats?.total_focus_time || 0)}
+                                                {selectedTab === 'streak' && (user.stats?.streak || 0)}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {selectedTab === 'tasks' && 'tasks completed'}
+                                                {selectedTab === 'time' && 'total focus'}
+                                                {selectedTab === 'streak' && 'day streak'}
                                             </p>
                                         </div>
                                     </div>
@@ -172,6 +397,19 @@ export default function LeaderboardPage() {
                     </CardContent>
                 </Card>
             </main>
+
+            <style jsx>{`
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            `}</style>
         </div>
     );
 }
