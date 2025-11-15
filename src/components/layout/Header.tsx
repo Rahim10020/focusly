@@ -29,6 +29,18 @@ export default function Header() {
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex items-center gap-2">
                     <Link
+                        href="/dashboard"
+                        className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all"
+                    >
+                        Dashboard
+                    </Link>
+                    <Link
+                        href="/calendar"
+                        className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all"
+                    >
+                        Calendar
+                    </Link>
+                    <Link
                         href="/stats"
                         className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all"
                     >
@@ -83,6 +95,20 @@ export default function Header() {
             {isMenuOpen && (
                 <div className="md:hidden bg-background border-t border-border animate-slide-down">
                     <nav className="flex flex-col items-stretch gap-1 p-4">
+                        <Link
+                            href="/dashboard"
+                            className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all text-center"
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            Dashboard
+                        </Link>
+                        <Link
+                            href="/calendar"
+                            className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all text-center"
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            Calendar
+                        </Link>
                         <Link
                             href="/stats"
                             className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all text-center"

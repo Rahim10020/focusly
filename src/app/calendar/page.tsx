@@ -1,0 +1,61 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import Header from '@/components/layout/Header';
+import CalendarView from '@/components/calendar/CalendarView';
+import { useTasks } from '@/lib/hooks/useTasks';
+import { Task } from '@/types';
+import TaskDetailsModal from '@/components/tasks/TaskDetailsModal';
+
+export default function CalendarPage() {
+    const { data: session, status } = useSession();
+    const router = useRouter();
+    const { tasks } = useTasks();
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+    if (status === 'loading') {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!session) {
+        router.push('/auth/signin');
+        return null;
+    }
+
+    return (
+        <div className="min-h-screen bg-background">
+            <Header />
+
+            <main className="max-w-7xl mx-auto px-6 py-8">
+                {/* Page Header */}
+                <div className="mb-8">
+                    <h1 className="text-4xl font-bold mb-2">Calendar</h1>
+                    <p className="text-muted-foreground text-lg">
+                        Visualize your tasks and schedule across the month
+                    </p>
+                </div>
+
+                <CalendarView
+                    tasks={tasks}
+                    onTaskClick={(task) => setSelectedTask(task)}
+                />
+            </main>
+
+            {selectedTask && (
+                <TaskDetailsModal
+                    task={selectedTask}
+                    onClose={() => setSelectedTask(null)}
+                />
+            )}
+        </div>
+    );
+}
