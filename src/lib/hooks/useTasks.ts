@@ -51,7 +51,7 @@ export function useTasks() {
 
             if (tasksError) throw tasksError;
 
-            const formattedTasks: Task[] = tasksData.map(dbTask => ({
+            const formattedTasks: Task[] = tasksData.map((dbTask: any) => ({
                 id: dbTask.id,
                 title: dbTask.title,
                 completed: dbTask.completed,

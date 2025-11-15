@@ -38,10 +38,10 @@ export function useStatVisibility() {
             if (error) throw error;
 
             // Create default settings for missing fields
-            const existingSettings = new Map(data?.map(s => [s.stat_field, s.visible_to_friends]) || []);
+            const existingSettings = new Map(data?.map((s: any) => [s.stat_field, s.visible_to_friends as boolean]) || []);
             const allSettings = statFields.map(field => ({
                 stat_field: field,
-                visible_to_friends: existingSettings.get(field) ?? true
+                visible_to_friends: (existingSettings.get(field) ?? true) as boolean
             }));
 
             setVisibilitySettings(allSettings);
