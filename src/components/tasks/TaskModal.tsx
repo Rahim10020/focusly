@@ -19,6 +19,10 @@ export interface TaskFormData {
     priority?: Priority;
     tags?: string[];
     dueDate?: number;
+    startDate?: number;
+    startTime?: string;
+    endTime?: string;
+    estimatedDuration?: number;
     notes?: string;
     subDomain?: SubDomain;
 }
@@ -34,6 +38,10 @@ export default function TaskModal({
     const [priority, setPriority] = useState<Priority | undefined>(undefined);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [dueDate, setDueDate] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
+    const [estimatedDuration, setEstimatedDuration] = useState('');
     const [notes, setNotes] = useState('');
     const [selectedSubDomain, setSelectedSubDomain] = useState<SubDomain | undefined>(undefined);
     const [searchQuery, setSearchQuery] = useState('');
@@ -46,6 +54,10 @@ export default function TaskModal({
             setPriority(initialData.priority);
             setSelectedTags(initialData.tags || []);
             setDueDate(initialData.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : '');
+            setStartDate(initialData.startDate ? new Date(initialData.startDate).toISOString().split('T')[0] : '');
+            setStartTime(initialData.startTime || '');
+            setEndTime(initialData.endTime || '');
+            setEstimatedDuration(initialData.estimatedDuration?.toString() || '');
             setNotes(initialData.notes || '');
             setSelectedSubDomain(initialData.subDomain);
         } else {
@@ -54,6 +66,10 @@ export default function TaskModal({
             setPriority(undefined);
             setSelectedTags([]);
             setDueDate('');
+            setStartDate('');
+            setStartTime('');
+            setEndTime('');
+            setEstimatedDuration('');
             setNotes('');
             setSelectedSubDomain(undefined);
         }
@@ -67,6 +83,10 @@ export default function TaskModal({
             priority,
             tags: selectedTags.length > 0 ? selectedTags : undefined,
             dueDate: dueDate ? new Date(dueDate).getTime() : undefined,
+            startDate: startDate ? new Date(startDate).getTime() : undefined,
+            startTime: startTime || undefined,
+            endTime: endTime || undefined,
+            estimatedDuration: estimatedDuration ? parseInt(estimatedDuration) : undefined,
             notes: notes.trim() || undefined,
             subDomain: selectedSubDomain,
         });
@@ -225,6 +245,67 @@ export default function TaskModal({
                                 onChange={(e) => setDueDate(e.target.value)}
                                 min={new Date().toISOString().split('T')[0]}
                             />
+                        </div>
+
+                        {/* Scheduling Section */}
+                        <div className="p-4 bg-muted/50 rounded-xl space-y-4">
+                            <h3 className="text-sm font-semibold text-foreground">Task Scheduling (Optional)</h3>
+
+                            {/* Start Date */}
+                            <div>
+                                <label className="block text-sm font-medium text-foreground mb-2">
+                                    Start Date
+                                </label>
+                                <Input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    min={new Date().toISOString().split('T')[0]}
+                                />
+                            </div>
+
+                            {/* Time Range */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-sm font-medium text-foreground mb-2">
+                                        Start Time
+                                    </label>
+                                    <Input
+                                        type="time"
+                                        value={startTime}
+                                        onChange={(e) => setStartTime(e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-foreground mb-2">
+                                        End Time
+                                    </label>
+                                    <Input
+                                        type="time"
+                                        value={endTime}
+                                        onChange={(e) => setEndTime(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Estimated Duration */}
+                            <div>
+                                <label className="block text-sm font-medium text-foreground mb-2">
+                                    Estimated Duration (minutes)
+                                </label>
+                                <Input
+                                    type="number"
+                                    value={estimatedDuration}
+                                    onChange={(e) => setEstimatedDuration(e.target.value)}
+                                    min="0"
+                                    placeholder="e.g., 60"
+                                />
+                                {estimatedDuration && parseInt(estimatedDuration) > 0 && (
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        ≈ {Math.ceil(parseInt(estimatedDuration) / 25)} Pomodoro sessions
+                                    </p>
+                                )}
+                            </div>
                         </div>
 
                         {/* Notes */}

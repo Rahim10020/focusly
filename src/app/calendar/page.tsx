@@ -6,13 +6,15 @@ import { useSession } from 'next-auth/react';
 import Header from '@/components/layout/Header';
 import CalendarView from '@/components/calendar/CalendarView';
 import { useTasks } from '@/lib/hooks/useTasks';
+import { useTags } from '@/lib/hooks/useTags';
 import { Task } from '@/types';
 import TaskDetailsModal from '@/components/tasks/TaskDetailsModal';
 
 export default function CalendarPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const { tasks } = useTasks();
+    const { tasks, updateTask, addSubTask, toggleSubTask, deleteSubTask } = useTasks();
+    const { tags } = useTags();
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     if (status === 'loading') {
@@ -53,7 +55,12 @@ export default function CalendarPage() {
             {selectedTask && (
                 <TaskDetailsModal
                     task={selectedTask}
+                    tags={tags}
                     onClose={() => setSelectedTask(null)}
+                    onUpdate={(updates) => updateTask(selectedTask.id, updates)}
+                    onAddSubTask={(title) => addSubTask(selectedTask.id, title)}
+                    onToggleSubTask={(subTaskId) => toggleSubTask(selectedTask.id, subTaskId)}
+                    onDeleteSubTask={(subTaskId) => deleteSubTask(selectedTask.id, subTaskId)}
                 />
             )}
         </div>
