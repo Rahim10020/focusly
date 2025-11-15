@@ -51,7 +51,7 @@ export function useTags() {
 
             if (error) throw error;
 
-            const formattedTags: Tag[] = data.map(dbTag => ({
+            const formattedTags: Tag[] = data.map((dbTag: any) => ({
                 id: dbTag.id,
                 name: dbTag.name,
                 color: dbTag.color,

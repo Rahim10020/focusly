@@ -103,7 +103,7 @@ export function useStats() {
 
             if (error) throw error;
 
-            const formattedSessions: PomodoroSession[] = data.map(dbSession => ({
+            const formattedSessions: PomodoroSession[] = data.map((dbSession: any) => ({
                 id: dbSession.id,
                 type: dbSession.type,
                 duration: dbSession.duration,

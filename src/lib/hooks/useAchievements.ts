@@ -192,7 +192,7 @@ export function useAchievements() {
             supabase.auth.setSession({
                 access_token: session.accessToken,
                 refresh_token: session.refreshToken,
-            }).catch((error) => {
+            }).catch((error: unknown) => {
                 console.error('Error setting Supabase session:', error);
             });
         }
@@ -223,7 +223,7 @@ export function useAchievements() {
 
             // Merge with definitions
             const achievementsWithData = ACHIEVEMENTS_DEFINITIONS.map(def => {
-                const dbAchievement = data.find(a => a.achievement_id === def.id);
+                const dbAchievement = data.find((a: any) => a.achievement_id === def.id);
                 return {
                     ...def,
                     progress: 0, // Progress is calculated dynamically
