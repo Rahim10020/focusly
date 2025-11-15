@@ -19,6 +19,7 @@ import { useStats } from '@/lib/hooks/useStats';
 import { useAchievements } from '@/lib/hooks/useAchievements';
 import { useTags } from '@/lib/hooks/useTags';
 import { useKeyboardShortcuts, GLOBAL_SHORTCUTS } from '@/lib/hooks/useKeyboardShortcuts';
+import { useTaskNotifications } from '@/lib/hooks/useTaskNotifications';
 import { Task } from '@/types';
 
 export default function Home() {
@@ -60,6 +61,12 @@ export default function Home() {
     checkAchievements,
     checkTimeBasedAchievements,
   } = useAchievements();
+
+  // Enable task notifications (user can be notified about upcoming tasks)
+  const { requestPermission } = useTaskNotifications({
+    tasks,
+    enabled: typeof window !== 'undefined' && session !== null,
+  });
 
   useEffect(() => {
     setMounted(true);
