@@ -2,14 +2,7 @@
 - coder une version mobile (avec flutter) de cette application.
 - coder une affichage unique pour la version mobile web 
 (quand la personne y accede via le web avec un telehone mobile)
+- tester toutes les fonctionnalites
+- modifier certains parties (cotes ui) du code.
 
-sur focusly, faire en sorte que ca soit possible qu'un utilisateur puisse decider de lesquels de ses 
-    stats il souhaite rendre visible a ses amis. Mettre un classement general, des qu'une nouvelle personne 
-    viens sur le site, il peut voir le classement general de ceux qui sont sur le site et en cliquant sur 
-    chaque utilisateur, il peut voir ses statistiques un peu comme sur monkey type. Il peut decider avec 
-    qui il veut etre ami en envoyant une friend request; l'ami en question peut accepter ou refuter l'invitation.
-
-L'admin c'est a dire moi, peut creer des challenges speciales (voir avec claude comment s'assurer 
-    que chacun a bien respecte les regles du challenge) qui seront disponibles a tous les utilisateurs. 
-    il recevront une notification lorsque chaque nouvelle challenge special sera disponible. 
-    les vainqueurs auront des badges selon le nombre de challenges reussis.
+- reflechir pour voir dans la prochaine version comment ameliorer le ui.
