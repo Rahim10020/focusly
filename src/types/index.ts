@@ -16,7 +16,11 @@ export interface Task {
     pomodoroCount: number;
     priority?: 'low' | 'medium' | 'high';
     tags?: string[];
-    dueDate?: number;
+    dueDate?: number; // Due date timestamp
+    startDate?: number; // Start date timestamp
+    startTime?: string; // Start time (HH:mm format)
+    endTime?: string; // End time (HH:mm format)
+    estimatedDuration?: number; // Estimated duration in minutes
     notes?: string;
     subTasks?: SubTask[];
     order?: number; // For drag & drop
