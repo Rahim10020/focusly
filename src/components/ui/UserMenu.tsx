@@ -49,12 +49,20 @@ export default function UserMenu() {
                             Profile
                         </Link>
                         <Link
-                            href="/stats"
+                            href="/settings"
                             className="block px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                             onClick={() => setIsOpen(false)}
                         >
-                            Statistics
+                            Settings
                         </Link>
+                        <Link
+                            href="/how-to-use"
+                            className="block px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            How to Use
+                        </Link>
+                        <div className="my-1 border-t border-border"></div>
                         <button
                             onClick={() => {
                                 signOut();
