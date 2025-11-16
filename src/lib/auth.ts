@@ -49,12 +49,41 @@ export const authOptions: NextAuthOptions = {
         strategy: 'jwt',
     },
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger }) {
             if (user) {
                 token.id = user.id;
                 token.accessToken = user.accessToken;
                 token.refreshToken = user.refreshToken;
+                token.expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
             }
+
+            // Check if token needs refresh
+            const now = Date.now();
+            const expiresAt = (token.expiresAt as number) || 0;
+
+            // If token is about to expire in the next 5 minutes, refresh it
+            if (expiresAt - now < 5 * 60 * 1000 && token.refreshToken) {
+                try {
+                    const supabase = createClient(
+                        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                    );
+
+                    const { data, error } = await supabase.auth.refreshSession({
+                        refresh_token: token.refreshToken as string,
+                    });
+
+                    if (!error && data.session) {
+                        token.accessToken = data.session.access_token;
+                        token.refreshToken = data.session.refresh_token;
+                        token.expiresAt = Date.now() + 60 * 60 * 1000;
+                    }
+                } catch (error) {
+                    console.error('Token refresh error:', error);
+                    // Continue with existing token
+                }
+            }
+
             return token;
         },
         async session({ session, token }) {
