@@ -23,10 +23,17 @@ export default function NotificationsPage() {
     const { tasks, getOverdueTasks, getTasksDueToday } = useTasks();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [filter, setFilter] = useState<'all' | 'unread'>('all');
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (session) {
-            generateNotifications();
+        if (session && tasks) {
+            try {
+                generateNotifications();
+                setError(null);
+            } catch (err) {
+                console.error('Error generating notifications:', err);
+                setError('Failed to load notifications. Please refresh the page.');
+            }
         }
     }, [tasks, session]);
 
@@ -162,6 +169,22 @@ export default function NotificationsPage() {
                         </Button>
                     )}
                 </div>
+
+                {/* Error Message */}
+                {error && (
+                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                        <div className="flex items-center gap-2">
+                            <span className="text-red-500 text-lg">⚠️</span>
+                            <p className="text-red-500 text-sm">{error}</p>
+                            <button
+                                onClick={() => setError(null)}
+                                className="ml-auto text-red-500 hover:text-red-600"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 gap-4 mb-6">

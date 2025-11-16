@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Header from '@/components/layout/Header';
@@ -14,6 +14,34 @@ export default function TasksPage() {
     const { data: session, status } = useSession();
     const { tasks, toggleTask, deleteTask } = useTasks();
     const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Clear any previous errors when tasks load successfully
+        if (tasks && tasks.length >= 0) {
+            setError(null);
+        }
+    }, [tasks]);
+
+    const handleToggleTask = async (id: string) => {
+        try {
+            setError(null);
+            await toggleTask(id);
+        } catch (err) {
+            setError('Failed to update task. Please try again.');
+            console.error('Error toggling task:', err);
+        }
+    };
+
+    const handleDeleteTask = async (id: string) => {
+        try {
+            setError(null);
+            await deleteTask(id);
+        } catch (err) {
+            setError('Failed to delete task. Please try again.');
+            console.error('Error deleting task:', err);
+        }
+    };
 
     if (status === 'loading') {
         return (
@@ -65,6 +93,22 @@ export default function TasksPage() {
                         Manage and track all your tasks in one place
                     </p>
                 </div>
+
+                {/* Error Message */}
+                {error && (
+                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                        <div className="flex items-center gap-2">
+                            <span className="text-red-500 text-lg">⚠️</span>
+                            <p className="text-red-500 text-sm">{error}</p>
+                            <button
+                                onClick={() => setError(null)}
+                                className="ml-auto text-red-500 hover:text-red-600"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -141,7 +185,7 @@ export default function TasksPage() {
                                         <input
                                             type="checkbox"
                                             checked={task.completed}
-                                            onChange={() => toggleTask(task.id)}
+                                            onChange={() => handleToggleTask(task.id)}
                                             className="mt-1 w-5 h-5 rounded border-border text-primary focus:ring-primary cursor-pointer"
                                         />
 
@@ -198,7 +242,7 @@ export default function TasksPage() {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => deleteTask(task.id)}
+                                                    onClick={() => handleDeleteTask(task.id)}
                                                     className="text-red-500 hover:bg-red-500/10"
                                                 >
                                                     Delete
