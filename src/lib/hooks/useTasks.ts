@@ -53,6 +53,12 @@ export function useTasks() {
                 .eq('user_id', userId)
                 .order('order', { ascending: true });
 
+            // Get current versions for optimistic locking
+            const { data: versionsData, error: versionsError } = await supabase
+                .from('tasks')
+                .select('id, version')
+                .eq('user_id', userId);
+
             if (tasksError) throw tasksError;
 
             const formattedTasks: Task[] = tasksData.map((dbTask: any) => ({
@@ -79,6 +85,7 @@ export function useTasks() {
                 })) || [],
                 order: dbTask.order,
                 subDomain: dbTask.sub_domain as SubDomain,
+                version: dbTask.version,
             }));
 
             setDbTasks(formattedTasks);
@@ -175,8 +182,11 @@ export function useTasks() {
     const updateTask = async (id: string, updates: Partial<Task>) => {
         const userId = getUserId();
         if (userId) {
-            // Update in database
+            // Update in database with optimistic locking
             try {
+                const currentTask = currentTasks.find(t => t.id === id);
+                if (!currentTask) return;
+
                 const updateData: any = {};
                 if (updates.title !== undefined) updateData.title = updates.title;
                 if (updates.completed !== undefined) {
@@ -195,16 +205,29 @@ export function useTasks() {
                 if (updates.order !== undefined) updateData.order = updates.order;
                 if (updates.subDomain !== undefined) updateData.sub_domain = updates.subDomain;
 
-                const { error } = await supabase
+                // Use optimistic locking with version check
+                const { data, error } = await supabase
                     .from('tasks')
                     .update(updateData)
                     .eq('id', id)
-                    .eq('user_id', userId);
+                    .eq('user_id', userId)
+                    .eq('version', (currentTask as any).version || 1)
+                    .select('version')
+                    .single();
 
-                if (error) throw error;
+                if (error) {
+                    if (error.code === 'PGRST116') { // No rows updated - version conflict
+                        showErrorToast('Conflict Detected', 'Task was modified by another session. Please refresh and try again.');
+                        // Reload tasks to get latest data
+                        loadTasksFromDB();
+                        return;
+                    }
+                    throw error;
+                }
 
+                // Update local state with new version
                 setCurrentTasks(currentTasks.map(task =>
-                    task.id === id ? { ...task, ...updates } : task
+                    task.id === id ? { ...task, ...updates, version: data.version } : task
                 ));
             } catch (error: any) {
                 console.error('Error updating task in DB:', error);
@@ -262,25 +285,36 @@ export function useTasks() {
         const userId = getUserId();
 
         if (userId) {
-            // Update in database
+            // Update in database with optimistic locking
             try {
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('tasks')
                     .update({
                         completed: newCompleted,
                         completed_at: newCompleted ? new Date().toISOString() : null
                     })
                     .eq('id', id)
-                    .eq('user_id', userId);
+                    .eq('user_id', userId)
+                    .eq('version', task.version || 1)
+                    .select('version')
+                    .single();
 
-                if (error) throw error;
+                if (error) {
+                    if (error.code === 'PGRST116') { // No rows updated - version conflict
+                        showErrorToast('Conflict Detected', 'Task was modified by another session. Please refresh and try again.');
+                        loadTasksFromDB();
+                        return;
+                    }
+                    throw error;
+                }
 
                 setCurrentTasks(currentTasks.map(t =>
                     t.id === id
                         ? {
                             ...t,
                             completed: newCompleted,
-                            completedAt: newCompleted ? Date.now() : undefined
+                            completedAt: newCompleted ? Date.now() : undefined,
+                            version: data.version
                         }
                         : t
                 ));
@@ -325,19 +359,29 @@ export function useTasks() {
         const userId = getUserId();
 
         if (userId) {
-            // Update in database
+            // Update in database with optimistic locking
             try {
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('tasks')
                     .update({ pomodoro_count: newCount })
                     .eq('id', id)
-                    .eq('user_id', userId);
+                    .eq('user_id', userId)
+                    .eq('version', task.version || 1)
+                    .select('version')
+                    .single();
 
-                if (error) throw error;
+                if (error) {
+                    if (error.code === 'PGRST116') { // No rows updated - version conflict
+                        showErrorToast('Conflict Detected', 'Task was modified by another session. Please refresh and try again.');
+                        loadTasksFromDB();
+                        return;
+                    }
+                    throw error;
+                }
 
                 setCurrentTasks(currentTasks.map(t =>
                     t.id === id
-                        ? { ...t, pomodoroCount: newCount }
+                        ? { ...t, pomodoroCount: newCount, version: data.version }
                         : t
                 ));
             } catch (error: any) {

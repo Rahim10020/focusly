@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS public.tasks (
     notes TEXT,
     "order" INTEGER DEFAULT 0,
     completed_at TIMESTAMP WITH TIME ZONE,
-    sub_domain TEXT
+    sub_domain TEXT,
+    version INTEGER DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS public.subtasks (
@@ -38,6 +39,7 @@ CREATE TABLE IF NOT EXISTS public.stats (
     total_focus_time INTEGER DEFAULT 0,
     longest_streak INTEGER DEFAULT 0,
     tasks_completed_today INTEGER DEFAULT 0,
+    version INTEGER DEFAULT 1,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     UNIQUE(user_id)
@@ -114,6 +116,27 @@ CREATE TABLE IF NOT EXISTS public.stat_visibility (
     UNIQUE(user_id, stat_field)
 );
 
+-- Rate limiting table for distributed rate limiting
+CREATE TABLE IF NOT EXISTS public.rate_limits (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    identifier TEXT NOT NULL, -- IP address or user ID
+    count INTEGER DEFAULT 0,
+    reset_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    UNIQUE(identifier)
+);
+
+-- Cache table for frequently requested data
+CREATE TABLE IF NOT EXISTS public.cache (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    cache_key TEXT NOT NULL UNIQUE,
+    data JSONB NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subtasks ENABLE ROW LEVEL SECURITY;
@@ -124,6 +147,8 @@ ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.friends ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.stat_visibility ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rate_limits ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.cache ENABLE ROW LEVEL SECURITY;
 
 
 -- Row Level Security Policies
@@ -298,6 +323,14 @@ DROP POLICY IF EXISTS "Users can update their own stats" ON public.stats;
 CREATE POLICY "Users can update their own stats" ON public.stats
     FOR UPDATE USING (auth.uid() = user_id);
 
+-- Rate limits policies (allow all operations for rate limiting functionality)
+CREATE POLICY "Allow all operations on rate_limits" ON public.rate_limits
+    FOR ALL USING (true);
+
+-- Cache policies (allow all operations for caching functionality)
+CREATE POLICY "Allow all operations on cache" ON public.cache
+    FOR ALL USING (true);
+
 
 
 -- Functions for updating updated_at timestamps
@@ -309,10 +342,23 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Function for optimistic locking
+CREATE OR REPLACE FUNCTION increment_version()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.version = OLD.version + 1;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
 -- Triggers for updating updated_at timestamps
 DROP TRIGGER IF EXISTS update_tasks_updated_at ON public.tasks;
 CREATE TRIGGER update_tasks_updated_at BEFORE UPDATE ON public.tasks
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS increment_tasks_version ON public.tasks;
+CREATE TRIGGER increment_tasks_version BEFORE UPDATE ON public.tasks
+    FOR EACH ROW EXECUTE FUNCTION increment_version();
 
 DROP TRIGGER IF EXISTS update_subtasks_updated_at ON public.subtasks;
 CREATE TRIGGER update_subtasks_updated_at BEFORE UPDATE ON public.subtasks
@@ -321,6 +367,10 @@ CREATE TRIGGER update_subtasks_updated_at BEFORE UPDATE ON public.subtasks
 DROP TRIGGER IF EXISTS update_stats_updated_at ON public.stats;
 CREATE TRIGGER update_stats_updated_at BEFORE UPDATE ON public.stats
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS increment_stats_version ON public.stats;
+CREATE TRIGGER increment_stats_version BEFORE UPDATE ON public.stats
+    FOR EACH ROW EXECUTE FUNCTION increment_version();
 
 DROP TRIGGER IF EXISTS update_sessions_updated_at ON public.sessions;
 CREATE TRIGGER update_sessions_updated_at BEFORE UPDATE ON public.sessions
@@ -344,4 +394,12 @@ CREATE TRIGGER update_friends_updated_at BEFORE UPDATE ON public.friends
 
 DROP TRIGGER IF EXISTS update_stat_visibility_updated_at ON public.stat_visibility;
 CREATE TRIGGER update_stat_visibility_updated_at BEFORE UPDATE ON public.stat_visibility
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_rate_limits_updated_at ON public.rate_limits;
+CREATE TRIGGER update_rate_limits_updated_at BEFORE UPDATE ON public.rate_limits
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_cache_updated_at ON public.cache;
+CREATE TRIGGER update_cache_updated_at BEFORE UPDATE ON public.cache
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

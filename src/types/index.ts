@@ -25,6 +25,7 @@ export interface Task {
     subTasks?: SubTask[];
     order?: number; // For drag & drop
     subDomain?: SubDomain;
+    version?: number; // For optimistic locking
 }
 
 export type TaskStatus = 'todo' | 'in-progress' | 'done';
