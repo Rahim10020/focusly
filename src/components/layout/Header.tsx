@@ -66,7 +66,9 @@ export default function Header() {
                     >
                         Leaderboard
                     </Link>
-                    <div className="ml-2 flex items-center gap-2">
+
+
+                    <div className="ml-18 flex items-center gap-6">
                         <Link
                             href="/notifications"
                             className={`p-2 rounded-full transition-colors relative ${pathname === '/notifications' ? 'bg-accent' : 'hover:bg-accent'}`}
