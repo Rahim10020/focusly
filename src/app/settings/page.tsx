@@ -15,7 +15,7 @@ export default function SettingsPage() {
 
             <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground mb-2">Settings</h1>
+                    <h1 className="text-4xl font-bold text-foreground mb-2">Settings</h1>
                     <p className="text-muted-foreground">
                         Customize your Focusly experience
                     </p>

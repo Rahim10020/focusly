@@ -35,7 +35,7 @@ export default function StatsPage() {
 
             <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground mb-2">Statistics</h1>
+                    <h1 className="text-4xl font-bold text-foreground mb-2">Statistics</h1>
                     <p className="text-muted-foreground">Track your productivity and progress</p>
                 </div>
 
