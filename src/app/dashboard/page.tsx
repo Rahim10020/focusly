@@ -44,7 +44,7 @@ export default function DashboardPage() {
         <div className="min-h-screen bg-background">
             <Header />
 
-            <main className="max-w-7xl mx-auto px-6 py-8">
+            <main className="max-w-6xl mx-auto px-6 py-8">
                 {/* Page Header */}
                 <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>

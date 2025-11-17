@@ -92,7 +92,7 @@ export default function DomainEvolutionChart({ tasks }: DomainEvolutionChartProp
                         <PolarGrid className="stroke-muted" />
                         <PolarAngleAxis
                             dataKey="domain"
-                            tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+                            tick={{ fill: 'hsl(var(--foreground))', fontSize: 20 }}
                         />
                         <PolarRadiusAxis
                             angle={90}
@@ -178,10 +178,10 @@ export default function DomainEvolutionChart({ tasks }: DomainEvolutionChartProp
                                         entry.completionRate >= 75
                                             ? 'hsl(142, 76%, 36%)'
                                             : entry.completionRate >= 50
-                                            ? 'hsl(var(--primary))'
-                                            : entry.completionRate >= 25
-                                            ? 'hsl(45, 93%, 47%)'
-                                            : 'hsl(0, 72%, 51%)'
+                                                ? 'hsl(var(--primary))'
+                                                : entry.completionRate >= 25
+                                                    ? 'hsl(45, 93%, 47%)'
+                                                    : 'hsl(0, 72%, 51%)'
                                     }
                                 />
                             ))}
