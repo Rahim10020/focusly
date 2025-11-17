@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import ThemeToggle from '../ui/ThemeToggle';
 import UserMenu from '../ui/UserMenu';
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const pathname = usePathname();
     const { data: session } = useSession();
 
     return (
@@ -30,44 +32,44 @@ export default function Header() {
                 <nav className="hidden md:flex items-center gap-2">
                     <Link
                         href="/dashboard"
-                        className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all"
+                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === '/dashboard' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                     >
                         Dashboard
                     </Link>
                     <Link
                         href="/tasks"
-                        className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all"
+                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === '/tasks' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                     >
                         Tasks
                     </Link>
                     <Link
                         href="/calendar"
-                        className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all"
+                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === '/calendar' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                     >
                         Calendar
                     </Link>
                     <Link
                         href="/stats"
-                        className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all"
+                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === '/stats' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                     >
                         Statistics
                     </Link>
                     <Link
                         href="/friends"
-                        className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all"
+                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === '/friends' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                     >
                         Friends
                     </Link>
                     <Link
                         href="/leaderboard"
-                        className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all"
+                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === '/leaderboard' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                     >
                         Leaderboard
                     </Link>
                     <div className="ml-2 flex items-center gap-2">
                         <Link
                             href="/notifications"
-                            className="p-2 rounded-full hover:bg-accent transition-colors relative"
+                            className={`p-2 rounded-full transition-colors relative ${pathname === '/notifications' ? 'bg-accent' : 'hover:bg-accent'}`}
                             aria-label="Notifications"
                         >
                             <svg
@@ -111,49 +113,49 @@ export default function Header() {
                     <nav className="flex flex-col items-stretch gap-1 p-4">
                         <Link
                             href="/dashboard"
-                            className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all text-center"
+                            className={`px-4 py-3 text-sm font-medium rounded-lg transition-all text-center ${pathname === '/dashboard' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Dashboard
                         </Link>
                         <Link
                             href="/tasks"
-                            className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all text-center"
+                            className={`px-4 py-3 text-sm font-medium rounded-lg transition-all text-center ${pathname === '/tasks' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Tasks
                         </Link>
                         <Link
                             href="/calendar"
-                            className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all text-center"
+                            className={`px-4 py-3 text-sm font-medium rounded-lg transition-all text-center ${pathname === '/calendar' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Calendar
                         </Link>
                         <Link
                             href="/stats"
-                            className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all text-center"
+                            className={`px-4 py-3 text-sm font-medium rounded-lg transition-all text-center ${pathname === '/stats' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Statistics
                         </Link>
                         <Link
                             href="/friends"
-                            className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all text-center"
+                            className={`px-4 py-3 text-sm font-medium rounded-lg transition-all text-center ${pathname === '/friends' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Friends
                         </Link>
                         <Link
                             href="/leaderboard"
-                            className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all text-center"
+                            className={`px-4 py-3 text-sm font-medium rounded-lg transition-all text-center ${pathname === '/leaderboard' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Leaderboard
                         </Link>
                         <Link
                             href="/notifications"
-                            className="px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-all text-center"
+                            className={`px-4 py-3 text-sm font-medium rounded-lg transition-all text-center ${pathname === '/notifications' ? 'text-primary bg-accent' : 'text-foreground hover:text-primary hover:bg-accent'}`}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Notifications
