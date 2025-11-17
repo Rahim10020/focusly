@@ -4,6 +4,7 @@ export interface SubTask {
     completed: boolean;
     createdAt: number;
     completedAt?: number;
+    order?: number; // For drag & drop reordering
 }
 
 export interface Task {
@@ -26,9 +27,49 @@ export interface Task {
     order?: number; // For drag & drop
     subDomain?: SubDomain;
     version?: number; // For optimistic locking
+
+    // Hierarchical task support
+    parentId?: string; // Reference to parent task
+    children?: Task[]; // Child tasks (loaded recursively)
+
+    // Progress tracking
+    progress?: number; // 0-100, auto-calculated from subtasks
+
+    // Reminder/notification fields
+    reminderTime?: number; // Timestamp for reminder
+    reminderSent?: boolean; // Whether reminder has been sent
+
+    // Metadata for UI
+    hasChildren?: boolean; // Quick check if task has children
+    depth?: number; // Nesting level (0 = root task)
 }
 
 export type TaskStatus = 'todo' | 'in-progress' | 'done';
+
+export interface TaskDependency {
+    id: string;
+    taskId: string;
+    dependsOnTaskId: string;
+    createdAt: number;
+}
+
+export interface TimeSlot {
+    taskId: string;
+    taskTitle: string;
+    start: Date;
+    end: Date;
+    priority?: Priority;
+    completed: boolean;
+}
+
+export interface CalendarEvent {
+    id: string;
+    title: string;
+    start: Date;
+    end: Date;
+    allDay?: boolean;
+    resource?: Task;
+}
 
 export interface PomodoroSession {
     id: string;
