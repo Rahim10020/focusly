@@ -1,25 +1,25 @@
 import React from 'react';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'ref'> {
     label?: string;
     error?: string;
     success?: boolean;
     helperText?: string;
 }
 
-export default function Input({
+const Input = React.forwardRef<HTMLInputElement, InputProps>(({
     label,
     error,
     success,
     helperText,
     className = '',
     ...props
-}: InputProps) {
+}, ref) => {
     const borderColor = error
         ? 'border-[var(--error)] focus:ring-[var(--error)]'
         : success
-        ? 'border-[var(--success)] focus:ring-[var(--success)]'
-        : 'border-border focus:ring-primary';
+            ? 'border-[var(--success)] focus:ring-[var(--success)]'
+            : 'border-border focus:ring-primary';
 
     return (
         <div className="w-full">
@@ -30,6 +30,7 @@ export default function Input({
             )}
             <div className="relative">
                 <input
+                    ref={ref}
                     className={`w-full px-4 py-2.5 bg-card text-foreground border-2 rounded-xl
                         focus:outline-none focus:ring-2 focus:ring-offset-0
                         placeholder:text-muted-foreground
@@ -85,4 +86,8 @@ export default function Input({
             )}
         </div>
     );
-}
+});
+
+Input.displayName = 'Input';
+
+export default Input;

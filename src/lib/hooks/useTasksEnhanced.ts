@@ -348,11 +348,11 @@ export function useTasksEnhanced() {
                 .select('*')
                 .eq('task_id', taskId);
 
-            const existingIds = new Set(existingSubTasks?.map(st => st.id) || []);
+            const existingIds = new Set(existingSubTasks?.map((st: { id: string }) => st.id) || []);
             const newIds = new Set(subTasks.map(st => st.id));
 
             // Delete removed subtasks
-            const toDelete = existingSubTasks?.filter(st => !newIds.has(st.id)) || [];
+            const toDelete = existingSubTasks?.filter((st: { id: string }) => !newIds.has(st.id)) || [];
             for (const st of toDelete) {
                 await supabase.from('subtasks').delete().eq('id', st.id);
             }
