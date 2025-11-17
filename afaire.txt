@@ -6,3 +6,24 @@
 - modifier certains parties (cotes ui) du code.
 
 - reflechir pour voir dans la prochaine version comment ameliorer le ui.
+
+
+{/* Stats */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="text-center">
+                                <p className="text-sm text-muted-foreground mb-1">Total</p>
+                                <p className="text-3xl font-bold">{notifications.length}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="text-center">
+                                <p className="text-sm text-muted-foreground mb-1">Unread</p>
+                                <p className="text-3xl font-bold text-primary">{unreadCount}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>

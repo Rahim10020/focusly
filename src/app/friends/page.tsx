@@ -163,7 +163,7 @@ export default function FriendsPage() {
             <Header />
             <main className="max-w-4xl mx-auto px-6 py-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold mb-2">Friends</h1>
+                    <h1 className="text-4xl font-bold mb-2">Friends</h1>
                     <p className="text-muted-foreground">
                         Manage your friends and friend requests
                     </p>

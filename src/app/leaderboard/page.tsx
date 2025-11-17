@@ -151,7 +151,7 @@ export default function LeaderboardPage() {
             <Header />
             <main className="max-w-6xl mx-auto px-6 py-8">
                 {/* Header */}
-                <div className="mb-8 text-center">
+                <div className="mb-8">
                     <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                         Leaderboard
                     </h1>
@@ -190,31 +190,28 @@ export default function LeaderboardPage() {
                 <div className="flex justify-center gap-2 mb-6 bg-muted p-1 rounded-lg max-w-md mx-auto">
                     <button
                         onClick={() => setSelectedTab('tasks')}
-                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${
-                            selectedTab === 'tasks'
-                                ? 'bg-primary text-primary-foreground shadow-lg'
-                                : 'text-muted-foreground hover:text-foreground'
-                        }`}
+                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${selectedTab === 'tasks'
+                            ? 'bg-primary text-primary-foreground shadow-lg'
+                            : 'text-muted-foreground hover:text-foreground'
+                            }`}
                     >
                         Tasks
                     </button>
                     <button
                         onClick={() => setSelectedTab('time')}
-                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${
-                            selectedTab === 'time'
-                                ? 'bg-primary text-primary-foreground shadow-lg'
-                                : 'text-muted-foreground hover:text-foreground'
-                        }`}
+                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${selectedTab === 'time'
+                            ? 'bg-primary text-primary-foreground shadow-lg'
+                            : 'text-muted-foreground hover:text-foreground'
+                            }`}
                     >
                         Focus Time
                     </button>
                     <button
                         onClick={() => setSelectedTab('streak')}
-                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${
-                            selectedTab === 'streak'
-                                ? 'bg-primary text-primary-foreground shadow-lg'
-                                : 'text-muted-foreground hover:text-foreground'
-                        }`}
+                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${selectedTab === 'streak'
+                            ? 'bg-primary text-primary-foreground shadow-lg'
+                            : 'text-muted-foreground hover:text-foreground'
+                            }`}
                     >
                         Streak
                     </button>
@@ -333,11 +330,10 @@ export default function LeaderboardPage() {
                                 {sortedLeaderboard.map((user, index) => (
                                     <div
                                         key={user.id}
-                                        className={`flex items-center justify-between p-4 rounded-lg transition-all cursor-pointer ${
-                                            user.id === session?.user?.id
-                                                ? 'bg-primary/10 border-2 border-primary'
-                                                : 'border border-border hover:bg-muted/50 hover:scale-[1.02]'
-                                        }`}
+                                        className={`flex items-center justify-between p-4 rounded-lg transition-all cursor-pointer ${user.id === session?.user?.id
+                                            ? 'bg-primary/10 border-2 border-primary'
+                                            : 'border border-border hover:bg-muted/50 hover:scale-[1.02]'
+                                            }`}
                                         onClick={() => router.push(`/users/${user.id}`)}
                                         style={{
                                             animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`

@@ -186,26 +186,6 @@ export default function NotificationsPage() {
                     </div>
                 )}
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="text-center">
-                                <p className="text-sm text-muted-foreground mb-1">Total</p>
-                                <p className="text-3xl font-bold">{notifications.length}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="text-center">
-                                <p className="text-sm text-muted-foreground mb-1">Unread</p>
-                                <p className="text-3xl font-bold text-primary">{unreadCount}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
                 {/* Filter Tabs */}
                 <div className="flex gap-2 mb-6">
                     <Button
@@ -243,11 +223,10 @@ export default function NotificationsPage() {
                                 {filteredNotifications.map((notification) => (
                                     <div
                                         key={notification.id}
-                                        className={`p-4 rounded-lg border transition-all ${
-                                            notification.read
-                                                ? 'border-border bg-card opacity-60'
-                                                : `${getNotificationColor(notification.type)} border-2`
-                                        }`}
+                                        className={`p-4 rounded-lg border transition-all ${notification.read
+                                            ? 'border-border bg-card opacity-60'
+                                            : `${getNotificationColor(notification.type)} border-2`
+                                            }`}
                                     >
                                         <div className="flex items-start gap-4">
                                             <div className="text-2xl mt-1">
