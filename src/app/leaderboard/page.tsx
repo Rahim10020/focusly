@@ -162,7 +162,7 @@ export default function LeaderboardPage() {
 
                 {/* Your Rank Card */}
                 {currentUserRank >= 0 && (
-                    <Card variant="elevated" className="mb-8 overflow-hidden">
+                    <Card variant="default" className="mb-8 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-50"></div>
                         <CardContent className="relative py-6">
                             <div className="flex items-center justify-between">
@@ -187,10 +187,10 @@ export default function LeaderboardPage() {
                 )}
 
                 {/* Tabs */}
-                <div className="flex justify-center gap-2 mb-6 bg-muted p-1 rounded-lg max-w-md mx-auto">
+                <div className="flex gap-2 mb-6 bg-muted p-1 rounded-lg max-w-md mx-auto">
                     <button
                         onClick={() => setSelectedTab('tasks')}
-                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${selectedTab === 'tasks'
+                        className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${selectedTab === 'tasks'
                             ? 'bg-primary text-primary-foreground shadow-lg'
                             : 'text-muted-foreground hover:text-foreground'
                             }`}
@@ -199,7 +199,7 @@ export default function LeaderboardPage() {
                     </button>
                     <button
                         onClick={() => setSelectedTab('time')}
-                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${selectedTab === 'time'
+                        className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${selectedTab === 'time'
                             ? 'bg-primary text-primary-foreground shadow-lg'
                             : 'text-muted-foreground hover:text-foreground'
                             }`}
@@ -208,7 +208,7 @@ export default function LeaderboardPage() {
                     </button>
                     <button
                         onClick={() => setSelectedTab('streak')}
-                        className={`flex-1 py-2 px-4 rounded-md transition-all font-medium ${selectedTab === 'streak'
+                        className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${selectedTab === 'streak'
                             ? 'bg-primary text-primary-foreground shadow-lg'
                             : 'text-muted-foreground hover:text-foreground'
                             }`}

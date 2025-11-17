@@ -227,7 +227,7 @@ export default function ProfilePage() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <Card variant="elevated">
+                    <Card variant="default">
                         <CardContent className="pt-6">
                             <div className="text-center">
                                 <div className="w-12 h-12 rounded-full bg-primary/10 mx-auto mb-3 flex items-center justify-center">
@@ -241,7 +241,7 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
 
-                    <Card variant="elevated">
+                    <Card variant="default">
                         <CardContent className="pt-6">
                             <div className="text-center">
                                 <div className="w-12 h-12 rounded-full bg-green-500/10 mx-auto mb-3 flex items-center justify-center">
@@ -255,7 +255,7 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
 
-                    <Card variant="elevated">
+                    <Card variant="default">
                         <CardContent className="pt-6">
                             <div className="text-center">
                                 <div className="w-12 h-12 rounded-full bg-amber-500/10 mx-auto mb-3 flex items-center justify-center">
@@ -270,7 +270,7 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
 
-                    <Card variant="elevated">
+                    <Card variant="default">
                         <CardContent className="pt-6">
                             <div className="text-center">
                                 <div className="w-12 h-12 rounded-full bg-red-500/10 mx-auto mb-3 flex items-center justify-center">
