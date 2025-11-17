@@ -7,7 +7,6 @@ import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { useTasks } from '@/lib/hooks/useTasks';
-import { Task } from '@/types';
 
 export default function TasksPage() {
     const router = useRouter();
@@ -102,42 +101,13 @@ export default function TasksPage() {
                             <p className="text-red-500 text-sm">{error}</p>
                             <button
                                 onClick={() => setError(null)}
-                                className="ml-auto text-red-500 hover:text-red-600"
+                                className="ml-auto text-red-500 hover:text-red-600 cursor-pointer"
                             >
                                 ✕
                             </button>
                         </div>
                     </div>
                 )}
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="text-center">
-                                <p className="text-sm text-muted-foreground mb-1">Total Tasks</p>
-                                <p className="text-3xl font-bold">{tasks.length}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="text-center">
-                                <p className="text-sm text-muted-foreground mb-1">Active Tasks</p>
-                                <p className="text-3xl font-bold text-primary">{activeTasks.length}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="text-center">
-                                <p className="text-sm text-muted-foreground mb-1">Completed</p>
-                                <p className="text-3xl font-bold text-success">{completedTasks.length}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
                 {/* Filter Tabs */}
                 <div className="flex gap-2 mb-6">
                     <Button
@@ -193,11 +163,10 @@ export default function TasksPage() {
                                             <div className="flex items-start justify-between gap-4">
                                                 <div className="flex-1">
                                                     <h3
-                                                        className={`font-medium mb-1 ${
-                                                            task.completed
-                                                                ? 'line-through text-muted-foreground'
-                                                                : 'text-foreground'
-                                                        }`}
+                                                        className={`font-medium mb-1 ${task.completed
+                                                            ? 'line-through text-muted-foreground'
+                                                            : 'text-foreground'
+                                                            }`}
                                                     >
                                                         {task.title}
                                                     </h3>

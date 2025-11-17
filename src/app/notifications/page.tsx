@@ -178,7 +178,7 @@ export default function NotificationsPage() {
                             <p className="text-red-500 text-sm">{error}</p>
                             <button
                                 onClick={() => setError(null)}
-                                className="ml-auto text-red-500 hover:text-red-600"
+                                className="ml-auto text-red-500 hover:text-red-600 cursor-pointer"
                             >
                                 ✕
                             </button>

@@ -138,7 +138,7 @@ export default function CalendarView({ tasks, onTaskClick }: CalendarViewProps) 
                                         key={index}
                                         onClick={() => setSelectedDate(day)}
                                         className={`
-                                            min-h-[100px] p-2 rounded-lg border transition-all
+                                            min-h-[100px] p-2 rounded-lg border transition-all cursor-pointer
                                             ${isCurrentMonth ? 'bg-card' : 'bg-muted/30'}
                                             ${isSelected ? 'border-primary border-2 bg-primary/10' : 'border-border'}
                                             ${isDayToday ? 'ring-2 ring-primary/50' : ''}
@@ -193,7 +193,7 @@ export default function CalendarView({ tasks, onTaskClick }: CalendarViewProps) 
                                             <button
                                                 key={task.id}
                                                 onClick={() => onTaskClick?.(task)}
-                                                className="w-full text-left p-3 rounded-lg border border-border hover:bg-accent transition-colors"
+                                                className="w-full text-left p-3 rounded-lg border border-border hover:bg-accent transition-colors cursor-pointer"
                                             >
                                                 <div className="flex items-start gap-2">
                                                     <div className={`w-3 h-3 rounded-full mt-1 ${getPriorityColor(task.priority)}`}></div>

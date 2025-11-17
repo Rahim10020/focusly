@@ -97,7 +97,7 @@ export default function Header() {
                     <ThemeToggle />
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="flex flex-col justify-center items-center w-10 h-10 rounded-lg hover:bg-accent transition-all focus-ring"
+                        className="flex flex-col justify-center items-center w-10 h-10 rounded-lg hover:bg-accent transition-all focus-ring cursor-pointer"
                         aria-label="Toggle menu"
                     >
                         <span className={`w-5 h-0.5 bg-foreground transition-all ${isMenuOpen ? 'rotate-45 translate-y-1' : ''}`}></span>
