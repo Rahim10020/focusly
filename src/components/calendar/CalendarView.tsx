@@ -146,9 +146,8 @@ export default function CalendarView({ tasks, onTaskClick }: CalendarViewProps) 
                                         `}
                                     >
                                         <div className="text-left">
-                                            <div className={`text-sm font-semibold mb-1 ${
-                                                isDayToday ? 'text-primary' : isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'
-                                            }`}>
+                                            <div className={`text-sm font-semibold mb-1 ${isDayToday ? 'text-primary' : isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'
+                                                }`}>
                                                 {format(day, 'd')}
                                             </div>
                                             <div className="space-y-1">
