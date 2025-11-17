@@ -1,15 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/supabase';
+import { withRateLimit } from '@/lib/rateLimit';
 
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
     try {
-        // First, get all stats ordered by total_focus_time
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '20');
+        const offset = (page - 1) * limit;
+
+        // Get total count for pagination
+        const { count: totalCount, error: countError } = await supabase
+            .from('stats')
+            .select('*', { count: 'exact', head: true });
+
+        if (countError) {
+            console.error('Error fetching count:', countError);
+            return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 });
+        }
+
+        // First, get all stats ordered by total_focus_time with pagination
         const { data: statsData, error: statsError } = await supabase
             .from('stats')
             .select('user_id, total_sessions, completed_tasks, total_tasks, streak, total_focus_time, longest_streak')
             .order('total_focus_time', { ascending: false })
-            .limit(50);
+            .range(offset, offset + limit - 1);
 
         if (statsError) {
             console.error('Error fetching stats:', statsError);
@@ -17,7 +33,15 @@ export async function GET(request: NextRequest) {
         }
 
         if (!statsData || statsData.length === 0) {
-            return NextResponse.json([]);
+            return NextResponse.json({
+                data: [],
+                pagination: {
+                    page,
+                    limit,
+                    total: totalCount || 0,
+                    totalPages: Math.ceil((totalCount || 0) / limit)
+                }
+            });
         }
 
         const typedStatsData = statsData as Database['public']['Tables']['stats']['Row'][];
@@ -61,9 +85,19 @@ export async function GET(request: NextRequest) {
             };
         });
 
-        return NextResponse.json(transformedData);
+        return NextResponse.json({
+            data: transformedData,
+            pagination: {
+                page,
+                limit,
+                total: totalCount || 0,
+                totalPages: Math.ceil((totalCount || 0) / limit)
+            }
+        });
     } catch (error) {
         console.error('Error in leaderboard API:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+
+export const GET = withRateLimit(getHandler, { windowMs: 60 * 1000, maxRequests: 30 }); // 30 requests per minute

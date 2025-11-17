@@ -4,13 +4,16 @@ import { useLocalStorage } from './useLocalStorage';
 import { Task, SubTask, Priority, SubDomain } from '@/types';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
+import { useToastContext } from '@/components/providers/ToastProvider';
 
 export function useTasks() {
     const { data: session } = useSession();
+    const { error: showErrorToast } = useToastContext();
     const [tasks, setTasks] = useLocalStorage<Task[]>(STORAGE_KEYS.TASKS, []);
     const [activeTaskId, setActiveTaskId] = useLocalStorage<string | null>('focusly_active_task', null);
     const [dbTasks, setDbTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const getUserId = () => session?.user?.id;
 
@@ -39,6 +42,7 @@ export function useTasks() {
         if (!userId) return;
 
         setLoading(true);
+        setError(null);
         try {
             const { data: tasksData, error: tasksError } = await supabase
                 .from('tasks')
@@ -80,6 +84,9 @@ export function useTasks() {
             setDbTasks(formattedTasks);
         } catch (error: any) {
             console.error('Error loading tasks from DB:', error);
+            const errorMessage = error.message || 'Failed to load tasks from database';
+            setError(errorMessage);
+            showErrorToast('Failed to Load Tasks', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -123,7 +130,6 @@ export function useTasks() {
         const userId = getUserId();
         if (userId) {
             // Save to database
-            console.log('Adding task to DB, userId:', userId);
             try {
                 const insertData = {
                     user_id: userId,
@@ -142,7 +148,7 @@ export function useTasks() {
                     order: newTask.order,
                     sub_domain: newTask.subDomain,
                 };
-                console.log('Insert data:', insertData);
+
                 const { data, error } = await supabase
                     .from('tasks')
                     .insert(insertData)
@@ -155,7 +161,10 @@ export function useTasks() {
                 setCurrentTasks([...currentTasks, newTask]);
             } catch (error: any) {
                 console.error('Error adding task to DB:', error);
-                console.error('Task data:', newTask);
+                const errorMessage = error.message || 'Failed to save task to database';
+                showErrorToast('Failed to Add Task', errorMessage);
+                // Still add to local state for offline functionality
+                setCurrentTasks([...currentTasks, newTask]);
             }
         } else {
             // Save to localStorage
@@ -199,6 +208,12 @@ export function useTasks() {
                 ));
             } catch (error: any) {
                 console.error('Error updating task in DB:', error);
+                const errorMessage = error.message || 'Failed to update task in database';
+                showErrorToast('Failed to Update Task', errorMessage);
+                // Still update local state for offline functionality
+                setCurrentTasks(currentTasks.map(task =>
+                    task.id === id ? { ...task, ...updates } : task
+                ));
             }
         } else {
             // Update in localStorage
@@ -224,6 +239,10 @@ export function useTasks() {
                 setCurrentTasks(currentTasks.filter(task => task.id !== id));
             } catch (error: any) {
                 console.error('Error deleting task from DB:', error);
+                const errorMessage = error.message || 'Failed to delete task from database';
+                showErrorToast('Failed to Delete Task', errorMessage);
+                // Don't delete from local state if DB delete failed
+                return;
             }
         } else {
             // Delete from localStorage
@@ -267,6 +286,18 @@ export function useTasks() {
                 ));
             } catch (error: any) {
                 console.error('Error toggling task in DB:', error);
+                const errorMessage = error.message || 'Failed to update task status in database';
+                showErrorToast('Failed to Update Task', errorMessage);
+                // Still update local state for offline functionality
+                setCurrentTasks(currentTasks.map(t =>
+                    t.id === id
+                        ? {
+                            ...t,
+                            completed: newCompleted,
+                            completedAt: newCompleted ? Date.now() : undefined
+                        }
+                        : t
+                ));
             }
         } else {
             // Update in localStorage
@@ -311,6 +342,14 @@ export function useTasks() {
                 ));
             } catch (error: any) {
                 console.error('Error incrementing pomodoro in DB:', error);
+                const errorMessage = error.message || 'Failed to update pomodoro count in database';
+                showErrorToast('Failed to Update Pomodoro', errorMessage);
+                // Still update local state for offline functionality
+                setCurrentTasks(currentTasks.map(t =>
+                    t.id === id
+                        ? { ...t, pomodoroCount: newCount }
+                        : t
+                ));
             }
         } else {
             // Update in localStorage
@@ -356,6 +395,14 @@ export function useTasks() {
                 ));
             } catch (error: any) {
                 console.error('Error adding subtask to DB:', error);
+                const errorMessage = error.message || 'Failed to add subtask to database';
+                showErrorToast('Failed to Add Subtask', errorMessage);
+                // Still add to local state for offline functionality
+                setCurrentTasks(currentTasks.map(task =>
+                    task.id === taskId
+                        ? { ...task, subTasks: [...(task.subTasks || []), newSubTask] }
+                        : task
+                ));
             }
         } else {
             // Add to localStorage
@@ -551,6 +598,8 @@ export function useTasks() {
     return {
         tasks: currentTasks,
         activeTaskId,
+        loading,
+        error,
         addTask,
         updateTask,
         deleteTask,

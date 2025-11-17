@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Task, Tag, DOMAINS, getDomainFromSubDomain } from '@/types';
 import Button from '@/components/ui/Button';
+import Modal from '@/components/ui/Modal';
 import PriorityBadge from '@/components/ui/PriorityBadge';
 import TagBadge from '@/components/ui/TagBadge';
 import DueDateBadge from '@/components/ui/DueDateBadge';
@@ -39,6 +40,7 @@ export default function TaskItem({
     dragHandleProps,
 }: TaskItemProps) {
     const [showDetails, setShowDetails] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const { playWorkComplete } = useSound();
     const taskTags = tags.filter(tag => task.tags?.includes(tag.id));
 
@@ -87,11 +89,10 @@ export default function TaskItem({
                         }
                         onToggle(task.id);
                     }}
-                    className={`flex-shrink-0 w-6 h-6 rounded-full cursor-pointer border-2 flex items-center justify-center transition-all duration-300 mt-0.5 ${
-                        task.completed
-                            ? 'bg-success border-success scale-110'
-                            : 'border-primary hover:bg-primary/10 hover:scale-110'
-                    }`}
+                    className={`flex-shrink-0 w-6 h-6 rounded-full cursor-pointer border-2 flex items-center justify-center transition-all duration-300 mt-0.5 ${task.completed
+                        ? 'bg-success border-success scale-110'
+                        : 'border-primary hover:bg-primary/10 hover:scale-110'
+                        }`}
                 >
                     {task.completed && (
                         <svg
@@ -126,7 +127,7 @@ export default function TaskItem({
                         {isActive && (
                             <span className="inline-flex items-center gap-1 text-xs bg-primary text-primary-foreground px-2.5 py-1 rounded-full font-semibold animate-pulse-soft">
                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <circle cx="10" cy="10" r="5"/>
+                                    <circle cx="10" cy="10" r="5" />
                                 </svg>
                                 Active
                             </span>
@@ -230,7 +231,7 @@ export default function TaskItem({
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => onDelete(task.id)}
+                        onClick={() => setShowDeleteConfirm(true)}
                         className="md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-error/10 hover:text-error"
                     >
                         <svg
@@ -263,6 +264,44 @@ export default function TaskItem({
                     onDeleteSubTask={(subTaskId) => onDeleteSubTask(task.id, subTaskId)}
                 />
             )}
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+                isOpen={showDeleteConfirm}
+                onClose={() => setShowDeleteConfirm(false)}
+                title="Delete Task"
+                description={`Are you sure you want to delete "${task.title}"? This action cannot be undone.`}
+                footer={
+                    <div className="flex gap-3 justify-end">
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowDeleteConfirm(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="danger"
+                            onClick={() => {
+                                onDelete(task.id);
+                                setShowDeleteConfirm(false);
+                            }}
+                        >
+                            Delete Task
+                        </Button>
+                    </div>
+                }
+            >
+                <div className="py-4">
+                    <p className="text-sm text-muted-foreground">
+                        This will permanently remove the task and all its subtasks.
+                        {task.pomodoroCount > 0 && (
+                            <span className="block mt-2 font-medium text-foreground">
+                                Note: This task has {task.pomodoroCount} completed pomodoro{task.pomodoroCount > 1 ? 's' : ''}.
+                            </span>
+                        )}
+                    </p>
+                </div>
+            </Modal>
         </>
     );
 }

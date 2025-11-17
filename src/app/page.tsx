@@ -41,6 +41,8 @@ export default function Home() {
   const {
     tasks,
     activeTaskId,
+    loading,
+    error,
     addTask,
     updateTask,
     toggleTask,
@@ -394,6 +396,8 @@ export default function Home() {
                 tasks={tasks}
                 activeTaskId={activeTaskId}
                 tags={tags}
+                loading={loading}
+                error={error}
                 onToggle={toggleTask}
                 onDelete={deleteTask}
                 onSelectTask={setActiveTask}

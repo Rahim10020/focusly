@@ -21,13 +21,25 @@ interface LeaderboardUser {
     } | null;
 }
 
+interface LeaderboardResponse {
+    data: LeaderboardUser[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+    };
+}
+
 export default function LeaderboardPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
+    const [pagination, setPagination] = useState<LeaderboardResponse['pagination'] | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedTab, setSelectedTab] = useState<'tasks' | 'time' | 'streak'>('tasks');
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         if (status === 'loading') return;
@@ -37,17 +49,20 @@ export default function LeaderboardPage() {
             return;
         }
 
-        fetchLeaderboard();
-    }, [session, status, router]);
+        fetchLeaderboard(currentPage);
+    }, [session, status, router, currentPage]);
 
-    const fetchLeaderboard = async () => {
+    const fetchLeaderboard = async (page: number = 1) => {
         try {
-            const response = await fetch('/api/leaderboard');
+            setLoading(true);
+            setError(null);
+            const response = await fetch(`/api/leaderboard?page=${page}&limit=20`);
             if (!response.ok) {
                 throw new Error('Failed to fetch leaderboard');
             }
-            const data = await response.json();
-            setLeaderboard(data);
+            const data: LeaderboardResponse = await response.json();
+            setLeaderboard(data.data);
+            setPagination(data.pagination);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
@@ -136,7 +151,7 @@ export default function LeaderboardPage() {
                                 </svg>
                             </div>
                             <p className="text-red-500 mb-4 text-lg">Error: {error}</p>
-                            <Button onClick={fetchLeaderboard}>Try Again</Button>
+                            <Button onClick={() => fetchLeaderboard()}>Try Again</Button>
                         </CardContent>
                     </Card>
                 </div>
@@ -392,6 +407,60 @@ export default function LeaderboardPage() {
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Pagination */}
+                {pagination && pagination.totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-8">
+                        <Button
+                            variant="outline"
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1 || loading}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Previous
+                        </Button>
+
+                        <div className="flex items-center gap-1">
+                            {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                                const pageNum = Math.max(1, Math.min(pagination.totalPages - 4, currentPage - 2)) + i;
+                                if (pageNum > pagination.totalPages) return null;
+
+                                return (
+                                    <Button
+                                        key={pageNum}
+                                        variant={currentPage === pageNum ? "primary" : "outline"}
+                                        size="sm"
+                                        onClick={() => setCurrentPage(pageNum)}
+                                        disabled={loading}
+                                        className="w-10 h-10"
+                                    >
+                                        {pageNum}
+                                    </Button>
+                                );
+                            })}
+                        </div>
+
+                        <Button
+                            variant="outline"
+                            onClick={() => setCurrentPage(prev => Math.min(pagination.totalPages, prev + 1))}
+                            disabled={currentPage === pagination.totalPages || loading}
+                        >
+                            Next
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </Button>
+                    </div>
+                )}
+
+                {/* Pagination Info */}
+                {pagination && (
+                    <div className="text-center text-sm text-muted-foreground mt-4">
+                        Showing {((currentPage - 1) * pagination.limit) + 1} to {Math.min(currentPage * pagination.limit, pagination.total)} of {pagination.total} users
+                    </div>
+                )}
             </main>
 
             <style jsx>{`

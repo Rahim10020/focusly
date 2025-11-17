@@ -4,9 +4,11 @@ import { useLocalStorage } from './useLocalStorage';
 import { Stats, PomodoroSession } from '@/types';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
+import { useToastContext } from '@/components/providers/ToastProvider';
 
 export function useStats() {
     const { data: session } = useSession();
+    const { error: showErrorToast } = useToastContext();
     const [localStats, setLocalStats] = useLocalStorage<Stats>(STORAGE_KEYS.STATS, {
         totalFocusTime: 0,
         totalTasks: 0,
@@ -30,6 +32,7 @@ export function useStats() {
 
     const [dbSessions, setDbSessions] = useState<PomodoroSession[]>([]);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const getUserId = () => session?.user?.id;
 
@@ -65,6 +68,8 @@ export function useStats() {
         const userId = getUserId();
         if (!userId) return;
 
+        setLoading(true);
+        setError(null);
         try {
             const { data, error } = await supabase
                 .from('stats')
@@ -85,8 +90,13 @@ export function useStats() {
                     streak: data.streak,
                 });
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error loading stats from DB:', error);
+            const errorMessage = error.message || 'Failed to load statistics from database';
+            setError(errorMessage);
+            showErrorToast('Failed to Load Statistics', errorMessage);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -248,6 +258,8 @@ export function useStats() {
     return {
         stats: currentStats,
         sessions: currentSessions,
+        loading,
+        error,
         addSession,
         updateTaskStats,
         getTodaySessions,

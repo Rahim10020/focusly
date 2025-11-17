@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { withRateLimit } from '@/lib/rateLimit';
 
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST(request: NextRequest) {
+async function postHandler(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -99,3 +100,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+
+export const GET = withRateLimit(getHandler, { windowMs: 60 * 1000, maxRequests: 30 }); // 30 requests per minute
+export const POST = withRateLimit(postHandler, { windowMs: 60 * 1000, maxRequests: 10 }); // 10 requests per minute for friend requests

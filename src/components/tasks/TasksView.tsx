@@ -10,6 +10,8 @@ interface TasksViewProps {
     tasks: Task[];
     activeTaskId: string | null;
     tags: Tag[];
+    loading?: boolean;
+    error?: string | null;
     onToggle: (id: string) => void;
     onDelete: (id: string) => void;
     onSelectTask: (id: string | null) => void;
@@ -41,11 +43,10 @@ export default function TasksView(props: TasksViewProps) {
                 <div className="flex items-center gap-2 bg-muted p-1 rounded-lg">
                     <button
                         onClick={() => setView('list')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                            view === 'list'
-                                ? 'bg-background text-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground'
-                        }`}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${view === 'list'
+                            ? 'bg-background text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                            }`}
                     >
                         <div className="flex items-center gap-2">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,11 +57,10 @@ export default function TasksView(props: TasksViewProps) {
                     </button>
                     <button
                         onClick={() => setView('board')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                            view === 'board'
-                                ? 'bg-background text-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground'
-                        }`}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${view === 'board'
+                            ? 'bg-background text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                            }`}
                     >
                         <div className="flex items-center gap-2">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,14 +76,36 @@ export default function TasksView(props: TasksViewProps) {
                 </div>
             </div>
 
+            {/* Loading State */}
+            {props.loading && (
+                <div className="flex items-center justify-center py-12">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                        <p className="text-muted-foreground">Loading tasks...</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Error State */}
+            {props.error && (
+                <div className="bg-error/10 border border-error/20 rounded-lg p-4 text-center">
+                    <p className="text-error font-medium mb-2">Failed to load tasks</p>
+                    <p className="text-sm text-muted-foreground">{props.error}</p>
+                </div>
+            )}
+
             {/* View Content */}
-            {view === 'list' ? (
-                <TaskList {...props} />
-            ) : (
-                <TaskBoardView
-                    {...props}
-                    onStatusChange={handleStatusChange}
-                />
+            {!props.loading && !props.error && (
+                <>
+                    {view === 'list' ? (
+                        <TaskList {...props} />
+                    ) : (
+                        <TaskBoardView
+                            {...props}
+                            onStatusChange={handleStatusChange}
+                        />
+                    )}
+                </>
             )}
         </div>
     );
