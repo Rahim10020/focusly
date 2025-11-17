@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { PomodoroSession } from '@/types';
 import {
     LineChart,
@@ -25,6 +26,21 @@ export default function AdvancedProductivityChart({
     sessions,
     days = 7
 }: AdvancedProductivityChartProps) {
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+    useEffect(() => {
+        const updateTheme = () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(isDark ? 'dark' : 'light');
+        };
+
+        updateTheme();
+
+        const observer = new MutationObserver(updateTheme);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+        return () => observer.disconnect();
+    }, []);
     const getLast7Days = () => {
         const days = [];
         for (let i = 6; i >= 0; i--) {
@@ -149,11 +165,11 @@ export default function AdvancedProductivityChart({
                         <XAxis
                             dataKey="date"
                             className="text-xs"
-                            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                            tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280' }}
                         />
                         <YAxis
                             className="text-xs"
-                            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                            tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280' }}
                         />
                         <Tooltip content={<CustomTooltip />} />
                         <Area
@@ -176,16 +192,16 @@ export default function AdvancedProductivityChart({
                         <XAxis
                             dataKey="date"
                             className="text-xs"
-                            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                            tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280' }}
                         />
                         <YAxis
                             className="text-xs"
-                            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                            tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280' }}
                         />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar
                             dataKey="sessions"
-                            fill="hsl(var(--primary))"
+                            fill={theme === 'dark' ? '#F87171' : '#EF4444'}
                             radius={[8, 8, 0, 0]}
                         />
                     </BarChart>
@@ -201,12 +217,12 @@ export default function AdvancedProductivityChart({
                         <XAxis
                             dataKey="date"
                             className="text-xs"
-                            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                            tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280' }}
                         />
                         <YAxis
                             className="text-xs"
                             domain={[0, 100]}
-                            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                            tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280' }}
                         />
                         <Tooltip content={<CustomTooltip />} />
                         <Line

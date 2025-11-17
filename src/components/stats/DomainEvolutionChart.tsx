@@ -118,8 +118,8 @@ export default function DomainEvolutionChart({ tasks }: DomainEvolutionChartProp
                         <Radar
                             name="Score"
                             dataKey="score"
-                            stroke="hsl(var(--primary))"
-                            fill="hsl(var(--primary))"
+                            stroke={theme === 'dark' ? '#F87171' : '#EF4444'}
+                            fill={theme === 'dark' ? '#F87171' : '#EF4444'}
                             fillOpacity={0.3}
                             strokeWidth={2}
                         />
@@ -166,8 +166,8 @@ export default function DomainEvolutionChart({ tasks }: DomainEvolutionChartProp
                             tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280' }}
                         />
                         <Tooltip content={<CustomTooltip />} />
-                        <Bar dataKey="total" fill="hsl(var(--muted))" name="Total" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="completed" fill="hsl(var(--primary))" name="Completed" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="total" fill={theme === 'dark' ? '#334155' : '#F3F4F6'} name="Total" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="completed" fill={theme === 'dark' ? '#F87171' : '#EF4444'} name="Completed" radius={[4, 4, 0, 0]} />
                     </BarChart>
                 </ResponsiveContainer>
             </div>
@@ -194,7 +194,7 @@ export default function DomainEvolutionChart({ tasks }: DomainEvolutionChartProp
                                         entry.completionRate >= 75
                                             ? 'hsl(142, 76%, 36%)'
                                             : entry.completionRate >= 50
-                                                ? 'hsl(var(--primary))'
+                                                ? (theme === 'dark' ? '#F87171' : '#EF4444')
                                                 : entry.completionRate >= 25
                                                     ? 'hsl(45, 93%, 47%)'
                                                     : 'hsl(0, 72%, 51%)'
