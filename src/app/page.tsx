@@ -254,7 +254,7 @@ export default function Home() {
           <div className="absolute inset-0 max-w-7xl mx-auto px-6 pointer-events-none">
             <div className="relative h-full">
               {/* Left Card - Pomodoro Timer */}
-              <div className="absolute left-0 top-1/4 w-72 opacity-40 blur-[1px] scale-90">
+              <div className="absolute left-0 top-1/4 w-72 opacity-40 blur-[1px] scale-90 animate-float">
                 <Card variant="elevated" className="group">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-2xl flex items-center justify-center">
@@ -271,7 +271,7 @@ export default function Home() {
               </div>
 
               {/* Right Top Card - Smart Task Management */}
-              <div className="absolute right-0 top-1/4 w-72 opacity-40 blur-[1px] scale-90">
+              <div className="absolute right-0 top-1/4 w-72 opacity-40 blur-[1px] scale-90 animate-float-delayed">
                 <Card variant="elevated" className="group">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
@@ -288,7 +288,7 @@ export default function Home() {
               </div>
 
               {/* Right Bottom Card - Achievements */}
-              <div className="absolute right-8 bottom-1/4 w-72 opacity-40 blur-[1px] scale-90">
+              <div className="absolute right-8 bottom-1/4 w-72 opacity-40 blur-[1px] scale-90 animate-float-slow">
                 <Card variant="elevated" className="group">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-accent/10 rounded-2xl flex items-center justify-center">
