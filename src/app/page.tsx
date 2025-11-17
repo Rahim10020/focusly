@@ -8,7 +8,6 @@ import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import TasksView from '@/components/tasks/TasksView';
 import QuickAddTask from '@/components/tasks/QuickAddTask';
-import TaskModal, { TaskFormData } from '@/components/tasks/TaskModal';
 import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
 const StatsOverview = dynamic(() => import('@/components/stats/StatsOverview'), { ssr: false });
 import AchievementNotification from '@/components/achievements/AchievementNotification';
@@ -28,8 +27,6 @@ export default function Home() {
   const taskInputRef = useRef<HTMLInputElement>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [showTaskModal, setShowTaskModal] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [timerRef, setTimerRef] = useState<{
     start: () => void;
     pause: () => void;
@@ -110,38 +107,17 @@ export default function Home() {
     }
   }, [stats.totalSessions, stats.completedTasks, stats.streak, getTodayFocusTime, checkAchievements]);
 
-  // Task Modal handlers
+  // Task handlers - redirect to dedicated task page
   const handleQuickAddTask = (title: string) => {
     addTask(title);
   };
 
   const handleCreateTask = () => {
-    setEditingTask(null);
-    setShowTaskModal(true);
+    router.push('/task/new');
   };
 
   const handleEditTask = (task: Task) => {
-    setEditingTask(task);
-    setShowTaskModal(true);
-  };
-
-  const handleSaveTask = (taskData: TaskFormData) => {
-    if (editingTask) {
-      // Update existing task
-      updateTask(editingTask.id, taskData);
-    } else {
-      // Create new task
-      addTask(
-        taskData.title,
-        taskData.priority,
-        taskData.tags,
-        taskData.dueDate,
-        taskData.notes,
-        taskData.subDomain
-      );
-    }
-    setShowTaskModal(false);
-    setEditingTask(null);
+    router.push(`/task/${task.id}`);
   };
 
   const handlePomodoroComplete = (taskId: string) => {
@@ -447,25 +423,6 @@ export default function Home() {
       {showShortcuts && (
         <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
       )}
-
-      {/* Task Modal */}
-      <TaskModal
-        isOpen={showTaskModal}
-        onClose={() => {
-          setShowTaskModal(false);
-          setEditingTask(null);
-        }}
-        onSave={handleSaveTask}
-        initialData={editingTask ? {
-          title: editingTask.title,
-          priority: editingTask.priority,
-          tags: editingTask.tags,
-          dueDate: editingTask.dueDate,
-          notes: editingTask.notes,
-          subDomain: editingTask.subDomain,
-        } : undefined}
-        tags={tags}
-      />
 
       {/* Keyboard shortcut hint */}
       <button
