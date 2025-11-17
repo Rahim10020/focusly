@@ -2,11 +2,14 @@
 
 :root {
   /* Brand Colors - Pomodoro Theme */
-  --brand-primary: #EF4444; /* Rouge tomate */
+  --brand-primary: #EF4444;
+  /* Rouge tomate */
   --brand-primary-light: #F87171;
   --brand-primary-dark: #DC2626;
-  --brand-secondary: #F59E0B; /* Orange énergique */
-  --brand-accent: #10B981; /* Vert succès */
+  --brand-secondary: #F59E0B;
+  /* Orange énergique */
+  --brand-accent: #10B981;
+  /* Vert succès */
 
   /* Semantic Colors */
   --success: #10B981;
@@ -198,9 +201,12 @@ body {
 
 /* Animations */
 @keyframes pulse-soft {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.8;
   }
@@ -211,6 +217,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -222,6 +229,7 @@ body {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -232,6 +240,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -242,6 +251,7 @@ body {
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -249,9 +259,12 @@ body {
 }
 
 @keyframes glow {
-  0%, 100% {
+
+  0%,
+  100% {
     filter: drop-shadow(0 0 8px var(--primary));
   }
+
   50% {
     filter: drop-shadow(0 0 16px var(--primary));
   }
