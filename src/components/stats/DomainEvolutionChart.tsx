@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Task, DOMAINS, Domain, getDomainFromSubDomain } from '@/types';
 import {
     RadarChart,
@@ -22,6 +23,21 @@ interface DomainEvolutionChartProps {
 }
 
 export default function DomainEvolutionChart({ tasks }: DomainEvolutionChartProps) {
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+    useEffect(() => {
+        const updateTheme = () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(isDark ? 'dark' : 'light');
+        };
+
+        updateTheme();
+
+        const observer = new MutationObserver(updateTheme);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+        return () => observer.disconnect();
+    }, []);
     // Calculate domain statistics
     const domainStats = Object.keys(DOMAINS).map((domainKey) => {
         const domain = domainKey as Domain;
@@ -92,12 +108,12 @@ export default function DomainEvolutionChart({ tasks }: DomainEvolutionChartProp
                         <PolarGrid className="stroke-muted" />
                         <PolarAngleAxis
                             dataKey="domain"
-                            tick={{ fill: 'hsl(var(--foreground))', fontSize: 20 }}
+                            tick={{ fill: theme === 'dark' ? '#F1F5F9' : '#1F2937', fontSize: 20 }}
                         />
                         <PolarRadiusAxis
                             angle={90}
                             domain={[0, 100]}
-                            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                            tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280' }}
                         />
                         <Radar
                             name="Score"
@@ -140,14 +156,14 @@ export default function DomainEvolutionChart({ tasks }: DomainEvolutionChartProp
                         <XAxis
                             dataKey="domain"
                             className="text-xs"
-                            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                            tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280' }}
                             angle={-15}
                             textAnchor="end"
                             height={80}
                         />
                         <YAxis
                             className="text-xs"
-                            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                            tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280' }}
                         />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar dataKey="total" fill="hsl(var(--muted))" name="Total" radius={[4, 4, 0, 0]} />
@@ -162,12 +178,12 @@ export default function DomainEvolutionChart({ tasks }: DomainEvolutionChartProp
                 <ResponsiveContainer width="100%" height={250}>
                     <BarChart data={domainStats} layout="horizontal">
                         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis type="number" domain={[0, 100]} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+                        <XAxis type="number" domain={[0, 100]} tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280' }} />
                         <YAxis
                             type="category"
                             dataKey="domain"
                             width={120}
-                            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                            tick={{ fill: theme === 'dark' ? '#94A3B8' : '#6B7280', fontSize: 11 }}
                         />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar dataKey="completionRate" radius={[0, 8, 8, 0]}>
