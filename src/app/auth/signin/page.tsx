@@ -41,7 +41,7 @@ export default function SignIn() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background px-4">
-            <Card className="w-full max-w-md">
+            <Card className="w-full max-w-md" variant="none">
                 <CardHeader>
                     <CardTitle className="text-center">Sign In</CardTitle>
                 </CardHeader>

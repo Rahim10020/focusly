@@ -3,20 +3,21 @@ import React from 'react';
 interface CardProps {
     children: React.ReactNode;
     className?: string;
-    variant?: 'default' | 'elevated' | 'interactive' | 'outline';
+    variant?: 'default' | 'elevated' | 'interactive' | 'outline' | 'none';
 }
 
 export default function Card({ children, className = '', variant = 'default' }: CardProps) {
     const variants = {
-        default: 'shadow-sm',
-        elevated: 'shadow-lg hover:shadow-xl transition-shadow duration-300',
-        interactive: 'shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer',
-        outline: 'shadow-none border-2',
+        default: 'shadow-sm rounded-2xl border border-border bg-card',
+        elevated: 'shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl border border-border bg-card',
+        interactive: 'shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer rounded-2xl border border-border bg-card',
+        outline: 'shadow-none border-2 rounded-2xl border border-border bg-card',
+        none: 'bg-transparent',
     };
 
     return (
         <div
-            className={`bg-card text-card-foreground rounded-2xl border border-border p-6 smooth-transition ${variants[variant]} ${className}`}
+            className={`text-card-foreground  p-6 smooth-transition ${variants[variant]} ${className}`}
         >
             {children}
         </div>
