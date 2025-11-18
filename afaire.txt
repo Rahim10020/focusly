@@ -7,5 +7,7 @@
 
 - reflechir pour voir dans la prochaine version comment ameliorer le ui.
 - quand la personne ajoute les taches et qu'il selectionne les priorites, l'affichage 
-    dois etre triee par ordre de priorite.
-- permettre le partage des taches
+    dois etre triee par ordre de date, si certaines taches ont les memes 
+    dates, les filtrer par priorite.
+
+- permettre le partage des taches (via les reseaux sociaux)
