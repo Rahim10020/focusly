@@ -325,6 +325,77 @@ export default function Home() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Left Bottom Card - Calendar */}
+              <div className="absolute left-6 bottom-1/4 w-80 opacity-70 blur-[0.1px] scale-90 animate-float-delayed">
+                <Card variant="elevated" className="group">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
+                      <svg className="w-6 h-6 text-brand-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">Calendar Planning</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Plot tasks on a monthly calendar, see start times, and export your schedule to iCal.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Center Card - Analytics */}
+              <div className="absolute left-1/2 -translate-x-1/2 top-1/3 w-80 opacity-70 blur-[0.1px] scale-90 animate-float">
+                <Card variant="elevated" className="group">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-2xl flex items-center justify-center">
+                      <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3v18h18M7 14l3 3 7-10" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">Analytics & Export</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Unlock charts, streak insights, and one-click CSV/PDF exports from the dashboard.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right Middle Card - Social */}
+              <div className="absolute right-16 top-1/2 w-80 opacity-70 blur-[0.1px] scale-90 animate-float">
+                <Card variant="elevated" className="group">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 bg-brand-accent/10 rounded-2xl flex items-center justify-center">
+                      <svg className="w-6 h-6 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 12a4 4 0 10-4-4 4 4 0 004 4zm0 0c-3.314 0-6 2.239-6 5v1h6m5-9a4 4 0 114-4 4 4 0 01-4 4zm0 0c-1.48 0-2.805.804-3.5 2" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">Friends & Leaderboard</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Add friends, accept requests, and climb global rankings for tasks, focus time, or streaks.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Left Mid Card - Notifications */}
+              <div className="absolute left-16 top-1/2 w-80 opacity-70 blur-[0.1px] scale-90 animate-float-slow">
+                <Card variant="elevated" className="group">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
+                      <svg className="w-6 h-6 text-brand-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11c0-3.07-1.64-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.64 5.36 6 7.92 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">Smart Notifications</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Get alerted for overdue tasks, due-today reminders, and completed Pomodoros in real-time.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
 
