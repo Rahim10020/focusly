@@ -113,7 +113,7 @@ export default function Home() {
   };
 
   const handleCreateTask = () => {
-    router.push('/task/new');
+    router.push('/create-task');
   };
 
   const handleEditTask = (task: Task) => {

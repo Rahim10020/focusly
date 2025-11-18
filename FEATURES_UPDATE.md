@@ -97,17 +97,15 @@ This update introduces comprehensive **hierarchical task management**, **advance
 
 ---
 
-### 5. 📄 Dedicated Task Creation Page
+### 5. 📄 Enhanced Task Management
 
-**New Route: `/task/[id]`** (`/src/app/task/[id]/page.tsx`)
-
-**Unified Creation & Editing**
-- `/task/new` → Create new task
-- `/task/[id]` → Edit existing task
-- Old `/create-task` now redirects to `/task/new`
+**Routes**
+- `/create-task` → Create new task (using modal)
+- `/task/[id]` → View/Edit existing task
 
 **Features**
-- Full-width form layout
+- Modal-based task creation
+- Full-width form layout for editing
 - Real-time validation feedback
 - Inline subtask management
 - Time overlap warnings
