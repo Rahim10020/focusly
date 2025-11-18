@@ -4,14 +4,16 @@ interface TagBadgeProps {
     tag: Tag;
     size?: 'sm' | 'md';
     onRemove?: () => void;
+    onClick?: () => void;
 }
 
-export default function TagBadge({ tag, size = 'sm', onRemove }: TagBadgeProps) {
+export default function TagBadge({ tag, size = 'sm', onRemove, onClick }: TagBadgeProps) {
     const sizeClasses = size === 'sm' ? 'text-xs px-2 py-0.5' : 'text-sm px-3 py-1';
 
     return (
         <span
-            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border font-medium ${sizeClasses}`}
+            onClick={onClick}
+            className={`inline-flex items-center gap-1.5 rounded-full border font-medium ${sizeClasses} ${onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : 'cursor-pointer'}`}
             style={{
                 backgroundColor: `${tag.color}15`,
                 borderColor: `${tag.color}40`,

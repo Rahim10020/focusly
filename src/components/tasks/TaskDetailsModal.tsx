@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react';
 import { Task, Tag, DOMAINS, getDomainFromSubDomain, Priority, SubDomain } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import PriorityBadge from '@/components/ui/PriorityBadge';
 import TagBadge from '@/components/ui/TagBadge';
-import SubTaskList from './SubTaskList';
 
 interface TaskDetailsModalProps {
     task: Task;
@@ -167,26 +165,24 @@ export default function TaskDetailsModal({
                     </div>
 
                     {/* Tags */}
-                    {tags.length > 0 && (
-                        <div className="space-y-3">
-                            <div className="flex flex-wrap gap-2">
-                                {tags.map(tag => (
-                                    <button
-                                        key={tag.id}
-                                        type="button"
-                                        onClick={() => toggleTag(tag.id)}
-                                        className={`px-3 py-1 rounded-full text-sm font-medium transition-all cursor-pointer ${selectedTags.includes(tag.id)
-                                            ? 'bg-primary text-primary-foreground scale-105'
-                                            : 'bg-muted hover:bg-accent text-muted-foreground hover:text-foreground'
-                                            }`}
-                                    >
-                                        {tag.name}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
 
+                    <div className="flex flex-wrap gap-2">
+                        {tags.map(tag => (
+                            selectedTags.includes(tag.id) ? (
+                                <TagBadge
+                                    key={tag.id}
+                                    tag={tag}
+                                    onRemove={() => toggleTag(tag.id)}
+                                />
+                            ) : (
+                                <TagBadge
+                                    key={tag.id}
+                                    tag={tag}
+                                    onClick={() => toggleTag(tag.id)}
+                                />
+                            )
+                        ))}
+                    </div>
 
                     {/* Schedule & Duration */}
                     <div className="space-y-4">
@@ -408,34 +404,34 @@ export default function TaskDetailsModal({
                             <p>🍅 {task.pomodoroCount} pomodoros completed</p>
                         )}
                     </div>
-                </div>
 
-                {/* Footer */}
-                <div className="sticky bottom-0 bg-card border-t border-border p-6 flex gap-3 justify-between">
-                    <Button
-                        onClick={() => {
-                            onUpdate({ completed: !task.completed });
-                            onClose();
-                        }}
-                        variant="secondary"
-                    >
-                        {task.completed ? 'Mark as Incomplete' : 'Mark as Complete'}
-                    </Button>
-                    <div className="flex gap-3">
-                        <Button
-                            onClick={onClose}
-                            variant="outline"
-                        >
-                            Cancel
-                        </Button>
+                    {/* Footer */}
+                    <div className="sticky bottom-0 bg-card border-t border-border p-6 flex gap-3 justify-between">
                         <Button
                             onClick={() => {
-                                handleSave();
+                                onUpdate({ completed: !task.completed });
                                 onClose();
                             }}
+                            variant="secondary"
                         >
-                            Save Changes
+                            {task.completed ? 'Mark as Incomplete' : 'Mark as Complete'}
                         </Button>
+                        <div className="flex gap-3">
+                            <Button
+                                onClick={onClose}
+                                variant="outline"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    handleSave();
+                                    onClose();
+                                }}
+                            >
+                                Save Changes
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
