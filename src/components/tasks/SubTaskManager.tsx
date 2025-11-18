@@ -74,7 +74,7 @@ export default function SubTaskManager({
                 <button
                     type="button"
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors"
+                    className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors cursor-pointer"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -115,9 +115,8 @@ export default function SubTaskManager({
 
             {/* Content */}
             <div
-                className={`space-y-2 overflow-hidden transition-all duration-200 ${
-                    isExpanded ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
-                }`}
+                className={`space-y-2 overflow-hidden transition-all duration-200 ${isExpanded ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+                    }`}
             >
                 {/* Add Subtask Input */}
                 {!readonly && (
@@ -167,11 +166,10 @@ export default function SubTaskManager({
                                     onDragStart={() => handleDragStart(index)}
                                     onDragOver={(e) => handleDragOver(e, index)}
                                     onDragEnd={handleDragEnd}
-                                    className={`flex items-center gap-2 p-2 bg-muted rounded-lg group transition-all ${
-                                        draggedIndex === index
+                                    className={`flex items-center gap-2 p-2 bg-muted rounded-lg group transition-all ${draggedIndex === index
                                             ? 'opacity-50'
                                             : 'hover:bg-accent'
-                                    } ${!readonly && onReorder ? 'cursor-move' : ''}`}
+                                        } ${!readonly && onReorder ? 'cursor-move' : ''}`}
                                 >
                                     {/* Drag Handle */}
                                     {!readonly && onReorder && (
@@ -200,11 +198,10 @@ export default function SubTaskManager({
                                         type="button"
                                         onClick={() => onToggle(subTask.id)}
                                         disabled={readonly}
-                                        className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
-                                            subTask.completed
+                                        className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${subTask.completed
                                                 ? 'bg-primary border-primary'
                                                 : 'border-border hover:border-primary'
-                                        } ${readonly ? 'cursor-default' : 'cursor-pointer'}`}
+                                            } ${readonly ? 'cursor-default' : 'cursor-pointer'}`}
                                     >
                                         {subTask.completed && (
                                             <svg
@@ -225,11 +222,10 @@ export default function SubTaskManager({
 
                                     {/* Title */}
                                     <span
-                                        className={`flex-1 text-sm ${
-                                            subTask.completed
+                                        className={`flex-1 text-sm ${subTask.completed
                                                 ? 'line-through text-muted-foreground'
                                                 : 'text-foreground'
-                                        }`}
+                                            }`}
                                     >
                                         {subTask.title}
                                     </span>
@@ -239,7 +235,7 @@ export default function SubTaskManager({
                                         <button
                                             type="button"
                                             onClick={() => onDelete(subTask.id)}
-                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:bg-destructive/10 p-1 rounded"
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:bg-destructive/10 p-1 rounded cursor-pointer"
                                         >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"

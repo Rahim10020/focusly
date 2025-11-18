@@ -22,7 +22,7 @@ export default function TagBadge({ tag, size = 'sm', onRemove }: TagBadgeProps) 
             {onRemove && (
                 <button
                     onClick={onRemove}
-                    className="hover:opacity-70 transition-opacity"
+                    className="hover:opacity-70 transition-opacity cursor-pointer"
                     aria-label="Remove tag"
                 >
                     <svg

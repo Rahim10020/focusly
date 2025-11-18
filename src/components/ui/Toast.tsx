@@ -63,7 +63,7 @@ export default function Toast({ id, type, title, description, duration = 5000, o
             </div>
             <button
                 onClick={() => onClose(id)}
-                className="flex-shrink-0 hover:opacity-80 transition-opacity"
+                className="flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
                 aria-label="Close notification"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

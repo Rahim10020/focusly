@@ -43,7 +43,7 @@ export default function TasksView(props: TasksViewProps) {
                 <div className="flex items-center gap-2 bg-muted p-1 rounded-lg">
                     <button
                         onClick={() => setView('list')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${view === 'list'
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${view === 'list'
                             ? 'bg-background text-foreground shadow-sm'
                             : 'text-muted-foreground hover:text-foreground'
                             }`}
@@ -57,7 +57,7 @@ export default function TasksView(props: TasksViewProps) {
                     </button>
                     <button
                         onClick={() => setView('board')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${view === 'board'
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${view === 'board'
                             ? 'bg-background text-foreground shadow-sm'
                             : 'text-muted-foreground hover:text-foreground'
                             }`}

@@ -74,7 +74,7 @@ export default function AchievementsList({
             <div className="flex space-x-1 bg-muted p-1 rounded-lg">
                 <button
                     onClick={() => setActiveTab('beginner')}
-                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${activeTab === 'beginner'
+                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${activeTab === 'beginner'
                         ? 'bg-background text-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                         }`}
@@ -86,7 +86,7 @@ export default function AchievementsList({
                 </button>
                 <button
                     onClick={() => setActiveTab('expert')}
-                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${activeTab === 'expert'
+                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${activeTab === 'expert'
                         ? 'bg-background text-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                         }`}

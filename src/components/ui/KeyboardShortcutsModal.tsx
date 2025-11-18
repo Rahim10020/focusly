@@ -58,7 +58,7 @@ export default function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsMod
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-muted-foreground hover:text-foreground transition-colors"
+                        className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

@@ -165,7 +165,7 @@ export default function TaskModal({
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setIsFullScreen(!isFullScreen)}
-                            className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all"
+                            className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all cursor-pointer"
                             title={isFullScreen ? 'Switch to compact mode' : 'Switch to full screen mode'}
                         >
                             {isFullScreen ? (
@@ -180,7 +180,7 @@ export default function TaskModal({
                         </button>
                         <button
                             onClick={onClose}
-                            className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all"
+                            className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all cursor-pointer"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -211,9 +211,9 @@ export default function TaskModal({
                                     key={option.value}
                                     type="button"
                                     onClick={() => setPriority(priority === option.value ? undefined : option.value)}
-                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${priority === option.value
-                                            ? `${option.color} scale-105 shadow-md`
-                                            : 'bg-muted hover:bg-accent text-muted-foreground hover:text-foreground'
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${priority === option.value
+                                        ? `${option.color} scale-105 shadow-md`
+                                        : 'bg-muted hover:bg-accent text-muted-foreground hover:text-foreground'
                                         }`}
                                 >
                                     {option.label}
@@ -231,9 +231,9 @@ export default function TaskModal({
                                         key={tag.id}
                                         type="button"
                                         onClick={() => toggleTag(tag.id)}
-                                        className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${selectedTags.includes(tag.id)
-                                                ? 'bg-primary text-primary-foreground scale-105'
-                                                : 'bg-muted hover:bg-accent text-muted-foreground hover:text-foreground'
+                                        className={`px-3 py-1 rounded-full text-sm font-medium transition-all cursor-pointer ${selectedTags.includes(tag.id)
+                                            ? 'bg-primary text-primary-foreground scale-105'
+                                            : 'bg-muted hover:bg-accent text-muted-foreground hover:text-foreground'
                                             }`}
                                     >
                                         {tag.name}
@@ -310,7 +310,7 @@ export default function TaskModal({
                     <div className="space-y-4">
                         <button
                             onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                            className="w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted rounded-xl transition-all"
+                            className="w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted rounded-xl transition-all cursor-pointer"
                         >
                             <div className="flex items-center gap-3">
                                 <svg className={`w-5 h-5 text-muted-foreground transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -362,9 +362,9 @@ export default function TaskModal({
                                                         onClick={() => setSelectedSubDomain(
                                                             selectedSubDomain === subDomainKey ? undefined : subDomainKey as SubDomain
                                                         )}
-                                                        className={`p-3 text-left text-sm rounded-lg transition-all ${selectedSubDomain === subDomainKey
-                                                                ? 'bg-primary text-primary-foreground font-medium'
-                                                                : 'bg-card hover:bg-accent text-foreground border border-border'
+                                                        className={`p-3 text-left text-sm rounded-lg transition-all cursor-pointer ${selectedSubDomain === subDomainKey
+                                                            ? 'bg-primary text-primary-foreground font-medium'
+                                                            : 'bg-card hover:bg-accent text-foreground border border-border'
                                                             }`}
                                                     >
                                                         {subDomainName}
@@ -382,7 +382,7 @@ export default function TaskModal({
                     <div className="space-y-4">
                         <button
                             onClick={() => setIsSubTasksOpen(!isSubTasksOpen)}
-                            className="w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted rounded-xl transition-all"
+                            className="w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted rounded-xl transition-all cursor-pointer"
                         >
                             <div className="flex items-center gap-3">
                                 <svg className={`w-5 h-5 text-muted-foreground transition-transform ${isSubTasksOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -431,7 +431,7 @@ export default function TaskModal({
                                                 </span>
                                                 <button
                                                     onClick={() => removeSubTask(index)}
-                                                    className="text-muted-foreground hover:text-error transition-colors"
+                                                    className="text-muted-foreground hover:text-error transition-colors cursor-pointer"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

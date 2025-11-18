@@ -60,7 +60,7 @@ export default function SubTaskList({
                         >
                             <button
                                 onClick={() => onToggle(subTask.id)}
-                                className="flex-shrink-0 w-4 h-4 rounded border-2 border-muted-foreground flex items-center justify-center hover:border-primary transition-colors"
+                                className="flex-shrink-0 w-4 h-4 rounded border-2 border-muted-foreground flex items-center justify-center hover:border-primary transition-colors cursor-pointer"
                             >
                                 {subTask.completed && (
                                     <svg
@@ -91,7 +91,7 @@ export default function SubTaskList({
 
                             <button
                                 onClick={() => onDelete(subTask.id)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-black dark:hover:text-white"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-black dark:hover:text-white cursor-pointer"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"

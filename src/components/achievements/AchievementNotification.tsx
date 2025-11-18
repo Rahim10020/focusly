@@ -53,7 +53,7 @@ export default function AchievementNotification({
                             setIsVisible(false);
                             setTimeout(onClose, 300);
                         }}
-                        className="text-muted-foreground hover:text-foreground transition-colors"
+                        className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     >
                         <svg
                             width="20"

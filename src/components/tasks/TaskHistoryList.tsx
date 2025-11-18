@@ -74,7 +74,7 @@ export default function TaskHistoryList({
             <div className="flex space-x-1 bg-muted p-1 rounded-lg">
                 <button
                     onClick={() => setActiveTab('completed')}
-                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${activeTab === 'completed'
+                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${activeTab === 'completed'
                         ? 'bg-background text-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                         }`}
@@ -86,7 +86,7 @@ export default function TaskHistoryList({
                 </button>
                 <button
                     onClick={() => setActiveTab('failed')}
-                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${activeTab === 'failed'
+                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${activeTab === 'failed'
                         ? 'bg-background text-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                         }`}

@@ -42,7 +42,7 @@ export default function QuickAddTask({
         return (
             <button
                 onClick={() => setIsExpanded(true)}
-                className="w-full group flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/40 hover:bg-accent/50 transition-all text-left"
+                className="w-full group flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/40 hover:bg-accent/50 transition-all text-left cursor-pointer"
             >
                 <div className="flex-shrink-0 w-6 h-6 rounded-full border-2 border-muted-foreground/40 group-hover:border-primary/60 flex items-center justify-center transition-all">
                     <svg

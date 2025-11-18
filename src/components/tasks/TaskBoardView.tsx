@@ -103,11 +103,10 @@ export default function TaskBoardView({
                                                 key={task.id}
                                                 draggable
                                                 onDragStart={(e) => handleDragStart(e, task.id)}
-                                                className={`p-4 rounded-xl border-2 bg-card transition-all duration-300 cursor-grab active:cursor-grabbing hover:shadow-md group ${
-                                                    isActive
+                                                className={`p-4 rounded-xl border-2 bg-card transition-all duration-300 cursor-grab active:cursor-grabbing hover:shadow-md group ${isActive
                                                         ? 'border-primary/40 shadow-md ring-2 ring-primary/20'
                                                         : 'border-border hover:border-primary/30'
-                                                }`}
+                                                    }`}
                                             >
                                                 {/* Task Header */}
                                                 <div className="flex items-start gap-3 mb-3">
@@ -119,11 +118,10 @@ export default function TaskBoardView({
                                                                 onStatusChange(task.id, 'done');
                                                             }
                                                         }}
-                                                        className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                                                            task.status === 'done'
+                                                        className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${task.status === 'done'
                                                                 ? 'bg-success border-success'
                                                                 : 'border-primary hover:bg-primary/10'
-                                                        }`}
+                                                            }`}
                                                     >
                                                         {task.status === 'done' && (
                                                             <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,11 +142,10 @@ export default function TaskBoardView({
                                                     {/* Priority & Tags */}
                                                     <div className="flex flex-wrap gap-2">
                                                         {task.priority && (
-                                                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                                                                task.priority === 'high' ? 'bg-error/10 text-error' :
-                                                                task.priority === 'medium' ? 'bg-warning/10 text-warning' :
-                                                                'bg-info/10 text-info'
-                                                            }`}>
+                                                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${task.priority === 'high' ? 'bg-error/10 text-error' :
+                                                                    task.priority === 'medium' ? 'bg-warning/10 text-warning' :
+                                                                        'bg-info/10 text-info'
+                                                                }`}>
                                                                 {task.priority}
                                                             </span>
                                                         )}

@@ -84,7 +84,7 @@ export default function Modal({
                             </div>
                             <button
                                 onClick={onClose}
-                                className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-accent transition-all focus-ring"
+                                className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-accent transition-all focus-ring cursor-pointer"
                                 aria-label="Close modal"
                             >
                                 <svg
