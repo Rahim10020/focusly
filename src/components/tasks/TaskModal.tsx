@@ -308,6 +308,7 @@ export default function TaskModal({
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
                                     min={new Date().toISOString().split('T')[0]}
+                                    noBorder
                                 />
                             </div>
                             <div className="space-y-2">
@@ -317,6 +318,7 @@ export default function TaskModal({
                                     value={dueDate}
                                     onChange={(e) => setDueDate(e.target.value)}
                                     min={new Date().toISOString().split('T')[0]}
+                                    noBorder
                                 />
                             </div>
                         </div>
@@ -329,6 +331,7 @@ export default function TaskModal({
                                     type="time"
                                     value={startTime}
                                     onChange={(e) => setStartTime(e.target.value)}
+                                    noBorder
                                 />
                             </div>
                             <div className="space-y-2">
@@ -337,6 +340,7 @@ export default function TaskModal({
                                     type="time"
                                     value={endTime}
                                     onChange={(e) => setEndTime(e.target.value)}
+                                    noBorder
                                 />
                             </div>
                             <div className="space-y-2">
@@ -347,6 +351,7 @@ export default function TaskModal({
                                     onChange={(e) => setEstimatedDuration(e.target.value)}
                                     min="0"
                                     placeholder="60"
+                                    noBorder
                                 />
                             </div>
                         </div>

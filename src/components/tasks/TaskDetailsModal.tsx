@@ -223,6 +223,7 @@ export default function TaskDetailsModal({
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
+                                    noBorder
                                 />
                             </div>
                             <div className="space-y-2">
@@ -231,6 +232,7 @@ export default function TaskDetailsModal({
                                     type="date"
                                     value={dueDate}
                                     onChange={(e) => setDueDate(e.target.value)}
+                                    noBorder
                                 />
                                 {isOverdue && (
                                     <p className="text-xs text-error">
@@ -253,6 +255,7 @@ export default function TaskDetailsModal({
                                     type="time"
                                     value={startTime}
                                     onChange={(e) => setStartTime(e.target.value)}
+                                    noBorder
                                 />
                             </div>
                             <div className="space-y-2">
@@ -261,6 +264,7 @@ export default function TaskDetailsModal({
                                     type="time"
                                     value={endTime}
                                     onChange={(e) => setEndTime(e.target.value)}
+                                    noBorder
                                 />
                             </div>
                             <div className="space-y-2">
@@ -271,6 +275,7 @@ export default function TaskDetailsModal({
                                     onChange={(e) => setEstimatedDuration(e.target.value)}
                                     min="0"
                                     step="5"
+                                    noBorder
                                 />
                             </div>
                         </div>

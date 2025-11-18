@@ -5,6 +5,7 @@ interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, '
     error?: string;
     success?: boolean;
     helperText?: string;
+    noBorder?: boolean;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({
@@ -31,12 +32,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({
             <div className="relative">
                 <input
                     ref={ref}
-                    className={`w-full px-4 py-2.5 bg-card text-foreground border-2 rounded-xl
+                    className={`w-full px-4 py-2.5 bg-card text-foreground 
+                        ${props.noBorder ? 'border-0' : 'border-2 rounded-xl'}
                         focus:outline-none focus:ring-2 focus:ring-offset-0
                         placeholder:text-muted-foreground
                         transition-all duration-300 ease-out
                         disabled:opacity-50 disabled:cursor-not-allowed
-                        ${borderColor} ${className}`}
+                        ${!props.noBorder ? borderColor : ''} ${className}`}
                     {...props}
                 />
                 {success && !error && (
