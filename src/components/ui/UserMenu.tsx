@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import type { FocusEvent } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 
@@ -25,9 +26,23 @@ export default function UserMenu() {
     if (!session) return null;
 
     return (
-        <div className="relative" ref={menuRef}>
+        <div
+            className="relative"
+            ref={menuRef}
+            onMouseEnter={() => setIsOpen(true)}
+            onMouseLeave={() => setIsOpen(false)}
+            onFocus={() => setIsOpen(true)}
+            onBlur={(event: FocusEvent<HTMLDivElement>) => {
+                const nextTarget = event.relatedTarget as Node | null;
+                if (!nextTarget || !event.currentTarget.contains(nextTarget)) {
+                    setIsOpen(false);
+                }
+            }}
+        >
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => setIsOpen(true)}
+                aria-haspopup="menu"
+                aria-expanded={isOpen}
                 className="flex items-center gap-2 hover:opacity-80 cursor-pointer transition-opacity"
             >
                 <img
@@ -39,7 +54,7 @@ export default function UserMenu() {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-md shadow-lg z-50">
+                <div className="absolute right-0 mt-4 w-48 bg-background border border-border rounded-md z-50">
                     <div className="py-1">
                         <Link
                             href="/profile"
