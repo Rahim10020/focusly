@@ -11,3 +11,5 @@
     dates, les filtrer par priorite.
 
 - permettre le partage des taches (via les reseaux sociaux)
+- demander a windsurf de verifier que la page d'acceuil n'affiche que les taches 
+    iminentes et la pages des taches affiches lui toutes les taches 
