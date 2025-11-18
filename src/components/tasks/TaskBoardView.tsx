@@ -25,10 +25,8 @@ export default function TaskBoardView({
     tags,
     sortType,
     sortTasks,
-    onToggle,
     onDelete,
     onSelectTask,
-    onUpdate,
     onStatusChange,
     onEditTask,
 }: TaskBoardViewProps) {
