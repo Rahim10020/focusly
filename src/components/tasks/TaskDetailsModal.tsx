@@ -147,135 +147,109 @@ export default function TaskDetailsModal({
                         />
                     </div>
 
-                    {/* Priority & Tags */}
-                    <div className="flex flex-wrap gap-3 items-center">
-                        <div className="relative">
-                            <select
-                                value={priority || ''}
-                                onChange={(e) => setPriority(e.target.value as Priority || undefined)}
-                                className="appearance-none bg-muted text-foreground rounded-lg px-3 py-1.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
-                            >
-                                <option value="">Set priority</option>
-                                {priorityOptions.map((option) => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </option>
+                    {/* Priority */}
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                            {priorityOptions.map((option) => (
+                                <button
+                                    key={option.value}
+                                    type="button"
+                                    onClick={() => setPriority(priority === option.value ? undefined : option.value)}
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${priority === option.value
+                                        ? `${option.color} scale-105 shadow-md`
+                                        : 'bg-muted hover:bg-accent text-muted-foreground hover:text-foreground'
+                                        }`}
+                                >
+                                    {option.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Tags */}
+                    {tags.length > 0 && (
+                        <div className="space-y-3">
+                            <div className="flex flex-wrap gap-2">
+                                {tags.map(tag => (
+                                    <button
+                                        key={tag.id}
+                                        type="button"
+                                        onClick={() => toggleTag(tag.id)}
+                                        className={`px-3 py-1 rounded-full text-sm font-medium transition-all cursor-pointer ${selectedTags.includes(tag.id)
+                                            ? 'bg-primary text-primary-foreground scale-105'
+                                            : 'bg-muted hover:bg-accent text-muted-foreground hover:text-foreground'
+                                            }`}
+                                    >
+                                        {tag.name}
+                                    </button>
                                 ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
+                            </div>
+                        </div>
+                    )}
+
+
+                    {/* Schedule & Duration */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium text-foreground">Schedule & Duration</h3>
+
+                        {/* Date Row */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-foreground">Start Date</label>
+                                <Input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-foreground">Due Date</label>
+                                <Input
+                                    type="date"
+                                    value={dueDate}
+                                    onChange={(e) => setDueDate(e.target.value)}
+                                />
+                                {isOverdue && (
+                                    <p className="text-xs text-error">
+                                        ⚠️ This task is overdue!
+                                    </p>
+                                )}
+                                {isDueToday && !isOverdue && (
+                                    <p className="text-xs text-muted-foreground">
+                                        📅 Due today
+                                    </p>
+                                )}
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-2">
-                            {taskTags.map(tag => (
-                                <TagBadge
-                                    key={tag.id}
-                                    tag={tag}
-                                    onRemove={() => toggleTag(tag.id)}
+                        {/* Time Row */}
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-foreground">Start Time</label>
+                                <Input
+                                    type="time"
+                                    value={startTime}
+                                    onChange={(e) => setStartTime(e.target.value)}
                                 />
-                            ))}
-                            <button
-                                onClick={() => document.getElementById('tag-search')?.focus()}
-                                className="text-muted-foreground hover:text-foreground text-sm flex items-center gap-1"
-                            >
-                                <span>+</span> Add tag
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Tag Search */}
-                    <div className="relative">
-                        <input
-                            id="tag-search"
-                            type="text"
-                            placeholder="Search tags..."
-                            className="w-full bg-muted text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                        />
-                        <div className="absolute z-10 mt-1 w-full bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-auto">
-                            {tags
-                                .filter(tag => !selectedTags.includes(tag.id))
-                                .map(tag => (
-                                    <div
-                                        key={tag.id}
-                                        onClick={() => toggleTag(tag.id)}
-                                        className="px-4 py-2 hover:bg-accent cursor-pointer text-sm"
-                                    >
-                                        {tag.name}
-                                    </div>
-                                ))}
-                        </div>
-                    </div>
-
-                    {/* Due Date & Time */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">
-                                Due Date
-                            </label>
-                            <Input
-                                type="date"
-                                value={dueDate}
-                                onChange={(e) => setDueDate(e.target.value)}
-                            />
-                            {isOverdue && (
-                                <p className="text-xs text-error">
-                                    ⚠️ This task is overdue!
-                                </p>
-                            )}
-                            {isDueToday && !isOverdue && (
-                                <p className="text-xs text-muted-foreground">
-                                    📅 Due today
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">
-                                Start Date
-                            </label>
-                            <Input
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">
-                                Start Time
-                            </label>
-                            <Input
-                                type="time"
-                                value={startTime}
-                                onChange={(e) => setStartTime(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">
-                                End Time
-                            </label>
-                            <Input
-                                type="time"
-                                value={endTime}
-                                onChange={(e) => setEndTime(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">
-                                Estimated Duration (minutes)
-                            </label>
-                            <Input
-                                type="number"
-                                value={estimatedDuration}
-                                onChange={(e) => setEstimatedDuration(e.target.value)}
-                                min="0"
-                                step="5"
-                            />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-foreground">End Time</label>
+                                <Input
+                                    type="time"
+                                    value={endTime}
+                                    onChange={(e) => setEndTime(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-foreground">Duration (min)</label>
+                                <Input
+                                    type="number"
+                                    value={estimatedDuration}
+                                    onChange={(e) => setEstimatedDuration(e.target.value)}
+                                    min="0"
+                                    step="5"
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -288,7 +262,7 @@ export default function TaskDetailsModal({
                             <button
                                 type="button"
                                 onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                                className="w-full text-left bg-muted text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary flex items-center justify-between"
+                                className="w-full text-left bg-muted text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary flex items-center justify-between cursor-pointer"
                             >
                                 <span>
                                     {selectedSubDomain
@@ -362,7 +336,7 @@ export default function TaskDetailsModal({
                             <button
                                 type="button"
                                 onClick={() => setIsSubTasksOpen(!isSubTasksOpen)}
-                                className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+                                className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
                             >
                                 {isSubTasksOpen ? 'Hide' : 'Show'}
                                 <svg
@@ -410,7 +384,7 @@ export default function TaskDetailsModal({
                                                 </span>
                                                 <button
                                                     onClick={() => onDeleteSubTask(subTask.id)}
-                                                    className="text-muted-foreground hover:text-foreground"
+                                                    className="text-muted-foreground hover:text-foreground cursor-pointer"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
