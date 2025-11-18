@@ -426,6 +426,7 @@ export default function Home() {
                 onDeleteSubTask={deleteSubTask}
                 onReorder={reorderTasks}
                 onEditTask={handleEditTask}
+                showSortOptions={false}
               />
               {hasMoreTasksThanDisplayed && (
                 <p className="text-xs text-muted-foreground text-center">
