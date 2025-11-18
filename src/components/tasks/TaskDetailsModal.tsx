@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Task, Tag, DOMAINS, getDomainFromSubDomain } from '@/types';
+import { useState, useEffect } from 'react';
+import { Task, Tag, DOMAINS, getDomainFromSubDomain, Priority, SubDomain } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import PriorityBadge from '@/components/ui/PriorityBadge';
@@ -27,93 +27,317 @@ export default function TaskDetailsModal({
     onToggleSubTask,
     onDeleteSubTask,
 }: TaskDetailsModalProps) {
+    const [isFullScreen, setIsFullScreen] = useState(false);
+    const [title, setTitle] = useState(task.title || '');
     const [notes, setNotes] = useState(task.notes || '');
-    const [dueDate, setDueDate] = useState(
-        task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : ''
-    );
+    const [priority, setPriority] = useState<Priority | undefined>(task.priority);
+    const [selectedTags, setSelectedTags] = useState<string[]>(task.tags || []);
+    const [dueDate, setDueDate] = useState(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '');
+    const [startDate, setStartDate] = useState(task.startDate ? new Date(task.startDate).toISOString().split('T')[0] : '');
+    const [startTime, setStartTime] = useState(task.startTime || '');
+    const [endTime, setEndTime] = useState(task.endTime || '');
+    const [estimatedDuration, setEstimatedDuration] = useState(task.estimatedDuration?.toString() || '');
+    const [selectedSubDomain, setSelectedSubDomain] = useState<SubDomain | undefined>(task.subDomain);
+    const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+    const [isSubTasksOpen, setIsSubTasksOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [newSubTask, setNewSubTask] = useState('');
+
+    const taskTags = tags.filter(tag => selectedTags.includes(tag.id));
+    const isOverdue = task.dueDate && task.dueDate < Date.now() && !task.completed;
+    const isDueToday = task.dueDate && new Date(task.dueDate).toDateString() === new Date().toDateString();
 
     const handleSave = () => {
         onUpdate({
-            notes: notes.trim() || undefined,
+            title: title.trim(),
+            priority,
+            tags: selectedTags.length > 0 ? selectedTags : undefined,
             dueDate: dueDate ? new Date(dueDate).getTime() : undefined,
+            notes: notes.trim() || undefined,
+            subDomain: selectedSubDomain,
+            startDate: startDate ? new Date(startDate).getTime() : undefined,
+            startTime: startTime || undefined,
+            endTime: endTime || undefined,
+            estimatedDuration: estimatedDuration ? parseInt(estimatedDuration) : undefined,
+            subTasks: task.subTasks || []
         });
     };
 
-    const taskTags = tags.filter(tag => task.tags?.includes(tag.id));
+    const toggleTag = (tagId: string) => {
+        setSelectedTags(prev =>
+            prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
+        );
+    };
 
-    const isOverdue = task.dueDate && task.dueDate < Date.now() && !task.completed;
-    const isDueToday = task.dueDate &&
-        new Date(task.dueDate).toDateString() === new Date().toDateString();
+    const addSubTask = () => {
+        if (newSubTask.trim()) {
+            onAddSubTask(newSubTask.trim());
+            setNewSubTask('');
+        }
+    };
+
+    const filteredDomains = Object.entries(DOMAINS).filter(([domainKey, domainInfo]) => {
+        const domainMatch = domainInfo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            domainInfo.description.toLowerCase().includes(searchQuery.toLowerCase());
+        const subDomainMatch = Object.values(domainInfo.subDomains).some(subName =>
+            subName.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        return domainMatch || subDomainMatch;
+    });
+
+    const priorityOptions = [
+        { value: 'high' as Priority, label: 'High', color: 'bg-error text-white' },
+        { value: 'medium' as Priority, label: 'Medium', color: 'bg-warning text-white' },
+        { value: 'low' as Priority, label: 'Low', color: 'bg-info text-white' },
+    ];
+
+    const modalClasses = isFullScreen
+        ? "fixed inset-0 z-50 bg-background"
+        : "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm";
+
+    const contentClasses = isFullScreen
+        ? "w-full h-full bg-card border-0 rounded-none shadow-none overflow-y-auto"
+        : "w-full max-w-2xl max-h-[90vh] bg-card border border-border rounded-2xl shadow-2xl overflow-y-auto";
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-card rounded-2xl border border-border max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className={modalClasses}>
+            <div className={contentClasses}>
                 {/* Header */}
-                <div className="sticky top-0 bg-card border-b border-border p-6 flex items-start justify-between">
-                    <div className="flex-1 space-y-3">
-                        <h2 className="text-2xl font-bold text-foreground">
-                            {task.title}
-                        </h2>
-                        <div className="flex items-center gap-2 flex-wrap">
-                            {task.priority && <PriorityBadge priority={task.priority} />}
-                            {taskTags.map(tag => (
-                                <TagBadge key={tag.id} tag={tag} />
-                            ))}
-                            {task.subDomain && (
-                                <span className="text-xs px-2 py-1 rounded-full bg-accent text-accent-foreground">
-                                    {DOMAINS[getDomainFromSubDomain(task.subDomain)].subDomains[task.subDomain]}
-                                </span>
-                            )}
-                            {task.pomodoroCount > 0 && (
-                                <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                                    🍅 {task.pomodoroCount} pomodoros
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
+                <div className="sticky top-0 bg-card border-b border-border p-6 flex items-center justify-between z-10">
+                    <h2 className="text-xl font-semibold text-foreground">
+                        Task Details
+                    </h2>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setIsFullScreen(!isFullScreen)}
+                            className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all cursor-pointer"
+                            title={isFullScreen ? 'Switch to compact mode' : 'Switch to full screen mode'}
                         >
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
+                            {isFullScreen ? (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            ) : (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                </svg>
+                            )}
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all cursor-pointer"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-6 space-y-6">
-                    {/* Due Date */}
+                <div className="p-6 space-y-8">
+                    {/* Task Title */}
+                    <div className="space-y-2">
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="What needs to be done?"
+                            className="w-full text-2xl font-bold bg-transparent border-none focus:outline-none focus:ring-0 p-0 text-foreground"
+                        />
+                    </div>
+
+                    {/* Priority & Tags */}
+                    <div className="flex flex-wrap gap-3 items-center">
+                        <div className="relative">
+                            <select
+                                value={priority || ''}
+                                onChange={(e) => setPriority(e.target.value as Priority || undefined)}
+                                className="appearance-none bg-muted text-foreground rounded-lg px-3 py-1.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+                            >
+                                <option value="">Set priority</option>
+                                {priorityOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                            {taskTags.map(tag => (
+                                <TagBadge
+                                    key={tag.id}
+                                    tag={tag}
+                                    onRemove={() => toggleTag(tag.id)}
+                                />
+                            ))}
+                            <button
+                                onClick={() => document.getElementById('tag-search')?.focus()}
+                                className="text-muted-foreground hover:text-foreground text-sm flex items-center gap-1"
+                            >
+                                <span>+</span> Add tag
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Tag Search */}
+                    <div className="relative">
+                        <input
+                            id="tag-search"
+                            type="text"
+                            placeholder="Search tags..."
+                            className="w-full bg-muted text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                        <div className="absolute z-10 mt-1 w-full bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-auto">
+                            {tags
+                                .filter(tag => !selectedTags.includes(tag.id))
+                                .map(tag => (
+                                    <div
+                                        key={tag.id}
+                                        onClick={() => toggleTag(tag.id)}
+                                        className="px-4 py-2 hover:bg-accent cursor-pointer text-sm"
+                                    >
+                                        {tag.name}
+                                    </div>
+                                ))}
+                        </div>
+                    </div>
+
+                    {/* Due Date & Time */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">
+                                Due Date
+                            </label>
+                            <Input
+                                type="date"
+                                value={dueDate}
+                                onChange={(e) => setDueDate(e.target.value)}
+                            />
+                            {isOverdue && (
+                                <p className="text-xs text-error">
+                                    ⚠️ This task is overdue!
+                                </p>
+                            )}
+                            {isDueToday && !isOverdue && (
+                                <p className="text-xs text-muted-foreground">
+                                    📅 Due today
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">
+                                Start Date
+                            </label>
+                            <Input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">
+                                Start Time
+                            </label>
+                            <Input
+                                type="time"
+                                value={startTime}
+                                onChange={(e) => setStartTime(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">
+                                End Time
+                            </label>
+                            <Input
+                                type="time"
+                                value={endTime}
+                                onChange={(e) => setEndTime(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">
+                                Estimated Duration (minutes)
+                            </label>
+                            <Input
+                                type="number"
+                                value={estimatedDuration}
+                                onChange={(e) => setEstimatedDuration(e.target.value)}
+                                min="0"
+                                step="5"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Category */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-foreground">
-                            Due Date
+                            Category
                         </label>
-                        <Input
-                            type="date"
-                            value={dueDate}
-                            onChange={(e) => setDueDate(e.target.value)}
-                        />
-                        {isOverdue && (
-                            <p className="text-xs text-black dark:text-white">
-                                ⚠️ This task is overdue!
-                            </p>
-                        )}
-                        {isDueToday && !isOverdue && (
-                            <p className="text-xs text-gray-600 dark:text-gray-300">
-                                📅 Due today
-                            </p>
-                        )}
+                        <div className="relative">
+                            <button
+                                type="button"
+                                onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                                className="w-full text-left bg-muted text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary flex items-center justify-between"
+                            >
+                                <span>
+                                    {selectedSubDomain
+                                        ? DOMAINS[getDomainFromSubDomain(selectedSubDomain)].subDomains[selectedSubDomain]
+                                        : 'Select a category'}
+                                </span>
+                                <svg
+                                    className={`w-4 h-4 text-muted-foreground transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            {isCategoriesOpen && (
+                                <div className="absolute z-10 mt-1 w-full bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-auto">
+                                    <div className="p-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Search categories..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            className="w-full bg-muted text-foreground rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                        />
+                                    </div>
+                                    {filteredDomains.map(([domainKey, domainInfo]) => (
+                                        <div key={domainKey} className="border-t border-border">
+                                            <div className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                                {domainInfo.name}
+                                            </div>
+                                            {Object.entries(domainInfo.subDomains).map(([subKey, subName]) => (
+                                                <div
+                                                    key={subKey}
+                                                    onClick={() => {
+                                                        setSelectedSubDomain(subKey as SubDomain);
+                                                        setIsCategoriesOpen(false);
+                                                    }}
+                                                    className={`px-6 py-2 text-sm cursor-pointer hover:bg-accent ${selectedSubDomain === subKey ? 'bg-accent' : ''}`}
+                                                >
+                                                    {subName}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Notes */}
@@ -131,17 +355,73 @@ export default function TaskDetailsModal({
 
                     {/* Sub-tasks */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">
-                            Sub-tasks
-                        </label>
-                        <div className="p-4 bg-muted rounded-xl">
-                            <SubTaskList
-                                subTasks={task.subTasks || []}
-                                onAdd={onAddSubTask}
-                                onToggle={onToggleSubTask}
-                                onDelete={onDeleteSubTask}
-                            />
+                        <div className="flex items-center justify-between">
+                            <label className="text-sm font-medium text-foreground">
+                                Sub-tasks
+                            </label>
+                            <button
+                                type="button"
+                                onClick={() => setIsSubTasksOpen(!isSubTasksOpen)}
+                                className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+                            >
+                                {isSubTasksOpen ? 'Hide' : 'Show'}
+                                <svg
+                                    className={`w-4 h-4 transition-transform ${isSubTasksOpen ? 'rotate-180' : ''}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
                         </div>
+
+                        {isSubTasksOpen && (
+                            <div className="space-y-2">
+                                <div className="flex gap-2">
+                                    <Input
+                                        type="text"
+                                        value={newSubTask}
+                                        onChange={(e) => setNewSubTask(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && addSubTask()}
+                                        placeholder="Add a sub-task..."
+                                        className="flex-1"
+                                    />
+                                    <Button
+                                        onClick={addSubTask}
+                                        size="sm"
+                                    >
+                                        Add
+                                    </Button>
+                                </div>
+
+                                {(task.subTasks?.length || 0) > 0 && (
+                                    <div className="space-y-2 mt-2">
+                                        {task.subTasks?.map((subTask, index) => (
+                                            <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded-lg">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={subTask.completed}
+                                                    onChange={() => onToggleSubTask(subTask.id)}
+                                                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                                                />
+                                                <span className={`flex-1 text-sm ${subTask.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                                                    {subTask.title}
+                                                </span>
+                                                <button
+                                                    onClick={() => onDeleteSubTask(subTask.id)}
+                                                    className="text-muted-foreground hover:text-foreground"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Meta Info */}
@@ -150,22 +430,39 @@ export default function TaskDetailsModal({
                         {task.completedAt && (
                             <p>Completed: {new Date(task.completedAt).toLocaleString()}</p>
                         )}
+                        {task.pomodoroCount > 0 && (
+                            <p>🍅 {task.pomodoroCount} pomodoros completed</p>
+                        )}
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="sticky bottom-0 bg-card border-t border-border p-6 flex gap-3 justify-end">
-                    <Button onClick={onClose} variant="secondary">
-                        Cancel
-                    </Button>
+                <div className="sticky bottom-0 bg-card border-t border-border p-6 flex gap-3 justify-between">
                     <Button
                         onClick={() => {
-                            handleSave();
+                            onUpdate({ completed: !task.completed });
                             onClose();
                         }}
+                        variant="secondary"
                     >
-                        Save Changes
+                        {task.completed ? 'Mark as Incomplete' : 'Mark as Complete'}
                     </Button>
+                    <div className="flex gap-3">
+                        <Button
+                            onClick={onClose}
+                            variant="outline"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                handleSave();
+                                onClose();
+                            }}
+                        >
+                            Save Changes
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>
