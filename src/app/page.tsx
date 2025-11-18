@@ -21,6 +21,45 @@ import { useKeyboardShortcuts, GLOBAL_SHORTCUTS } from '@/lib/hooks/useKeyboardS
 import { useTaskNotifications } from '@/lib/hooks/useTaskNotifications';
 import { Task } from '@/types';
 
+const combineDateAndTime = (timestamp: number, startTime?: string) => {
+  if (!startTime) return timestamp;
+  const [hoursStr, minutesStr] = startTime.split(':');
+  const hours = Number(hoursStr);
+  const minutes = Number(minutesStr);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return timestamp;
+  }
+  const date = new Date(timestamp);
+  date.setHours(hours, minutes, 0, 0);
+  return date.getTime();
+};
+
+const getTaskScheduleTimestamp = (task: Task) => {
+  if (task.startDate) {
+    return combineDateAndTime(task.startDate, task.startTime);
+  }
+  if (task.dueDate) {
+    return task.dueDate;
+  }
+  return null;
+};
+
+const getImminentTasks = (tasks: Task[], limit = 5) => {
+  const activeTasks = tasks.filter(task => !task.completed);
+
+  const scheduledTasks = activeTasks
+    .map(task => ({ task, scheduledAt: getTaskScheduleTimestamp(task) }))
+    .filter(item => item.scheduledAt !== null)
+    .sort((a, b) => (a.scheduledAt! - b.scheduledAt!))
+    .map(item => item.task);
+
+  const fallbackTasks = activeTasks
+    .filter(task => getTaskScheduleTimestamp(task) === null)
+    .sort((a, b) => a.createdAt - b.createdAt);
+
+  return [...scheduledTasks, ...fallbackTasks].slice(0, limit);
+};
+
 export default function Home() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -129,6 +168,10 @@ export default function Home() {
   const handleSessionComplete = (session: any) => {
     addSession(session);
   };
+
+  const imminentTasks = getImminentTasks(tasks);
+  const totalActiveTasks = tasks.filter(task => !task.completed).length;
+  const hasMoreTasksThanDisplayed = totalActiveTasks > imminentTasks.length;
 
   // Toggle theme function
   const toggleTheme = () => {
@@ -369,7 +412,7 @@ export default function Home() {
               <QuickAddTask onAdd={handleQuickAddTask} />
 
               <TasksView
-                tasks={tasks}
+                tasks={imminentTasks}
                 activeTaskId={activeTaskId}
                 tags={tags}
                 loading={loading}
@@ -384,6 +427,11 @@ export default function Home() {
                 onReorder={reorderTasks}
                 onEditTask={handleEditTask}
               />
+              {hasMoreTasksThanDisplayed && (
+                <p className="text-xs text-muted-foreground text-center">
+                  Seules les 5 prochaines tâches imminentes sont affichées ici.
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
