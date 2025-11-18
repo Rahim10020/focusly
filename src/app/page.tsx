@@ -273,10 +273,10 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-brand-accent/5 pointer-events-none"></div>
 
           {/* Floating Feature Cards - Background */}
-          <div className="absolute inset-0 max-w-7xl mx-auto px-6 pointer-events-none">
+          <div className="absolute inset-0 max-w-[1200px] mx-auto px-6 pointer-events-none hidden lg:block">
             <div className="relative h-full">
               {/* Left Card - Pomodoro Timer */}
-              <div className="absolute left-0 top-1/7 w-90 opacity-70 blur-[0.1px] scale-90 animate-float">
+              <div className="absolute -left-10 top-10 w-80 opacity-70 blur-[0.1px] animate-float">
                 <Card variant="elevated" className="group">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-2xl flex items-center justify-center">
@@ -293,7 +293,7 @@ export default function Home() {
               </div>
 
               {/* Right Top Card - Smart Task Management */}
-              <div className="absolute right-10 top-1/7 w-90 opacity-70 blur-[0.1px] scale-90 animate-float-delayed">
+              <div className="absolute -right-12 top-12 w-80 opacity-70 blur-[0.1px] animate-float-delayed">
                 <Card variant="elevated" className="group">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
@@ -310,7 +310,7 @@ export default function Home() {
               </div>
 
               {/* Right Bottom Card - Achievements */}
-              <div className="absolute right-0 bottom-1/4 w-90 opacity-70 blur-[0.1px] scale-90 animate-float-slow">
+              <div className="absolute -right-6 bottom-12 w-80 opacity-70 blur-[0.1px] animate-float-slow">
                 <Card variant="elevated" className="group">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-accent/10 rounded-2xl flex items-center justify-center">
@@ -327,7 +327,7 @@ export default function Home() {
               </div>
 
               {/* Left Bottom Card - Calendar */}
-              <div className="absolute left-6 bottom-1/4 w-80 opacity-70 blur-[0.1px] scale-90 animate-float-delayed">
+              <div className="absolute -left-12 bottom-10 w-80 opacity-70 blur-[0.1px] animate-float-delayed">
                 <Card variant="elevated" className="group">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
@@ -347,7 +347,7 @@ export default function Home() {
               </div>
 
               {/* Center Card - Analytics */}
-              <div className="absolute left-1/2 -translate-x-1/2 top-1/3 w-80 opacity-70 blur-[0.1px] scale-90 animate-float">
+              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-80 opacity-70 blur-[0.1px] animate-float">
                 <Card variant="elevated" className="group">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-2xl flex items-center justify-center">
@@ -364,7 +364,7 @@ export default function Home() {
               </div>
 
               {/* Right Middle Card - Social */}
-              <div className="absolute right-16 top-1/2 w-80 opacity-70 blur-[0.1px] scale-90 animate-float">
+              <div className="absolute -right-44 top-1/2 -translate-y-1/2 w-80 opacity-70 blur-[0.1px] animate-float">
                 <Card variant="elevated" className="group">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-accent/10 rounded-2xl flex items-center justify-center">
@@ -381,7 +381,7 @@ export default function Home() {
               </div>
 
               {/* Left Mid Card - Notifications */}
-              <div className="absolute left-16 top-1/2 w-80 opacity-70 blur-[0.1px] scale-90 animate-float-slow">
+              <div className="absolute -left-44 top-1/2 -translate-y-1/2 w-80 opacity-70 blur-[0.1px] animate-float-slow">
                 <Card variant="elevated" className="group">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
@@ -399,7 +399,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="max-w-4xl mx-auto px-6 py-12 relative z-10">
+          <div className="max-w-4xl mx-auto px-6 py-16 md:py-24 relative z-10">
             {/* Hero Content */}
             <div className="text-center space-y-6">
               <div className="inline-block">
