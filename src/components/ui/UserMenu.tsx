@@ -54,7 +54,7 @@ export default function UserMenu() {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-4 w-48 bg-background border border-border rounded-md z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-md z-50">
                     <div className="py-1">
                         <Link
                             href="/profile"
