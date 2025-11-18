@@ -104,8 +104,8 @@ export default function TaskBoardView({
                                                 draggable
                                                 onDragStart={(e) => handleDragStart(e, task.id)}
                                                 className={`p-4 rounded-xl border-2 bg-card transition-all duration-300 cursor-grab active:cursor-grabbing hover:shadow-md group ${isActive
-                                                        ? 'border-primary/40 shadow-md ring-2 ring-primary/20'
-                                                        : 'border-border hover:border-primary/30'
+                                                    ? 'border-primary/40 shadow-md ring-2 ring-primary/20'
+                                                    : 'border-border hover:border-primary/30'
                                                     }`}
                                             >
                                                 {/* Task Header */}
@@ -119,8 +119,8 @@ export default function TaskBoardView({
                                                             }
                                                         }}
                                                         className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${task.status === 'done'
-                                                                ? 'bg-success border-success'
-                                                                : 'border-primary hover:bg-primary/10'
+                                                            ? 'bg-success border-success'
+                                                            : 'border-primary hover:bg-primary/10'
                                                             }`}
                                                     >
                                                         {task.status === 'done' && (
@@ -131,9 +131,29 @@ export default function TaskBoardView({
                                                     </button>
 
                                                     <div className="flex-1 min-w-0">
-                                                        <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                                                            {task.title}
-                                                        </p>
+                                                        <div>
+                                                            <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                                                                {task.title}
+                                                            </p>
+                                                            {task.dueDate && (
+                                                                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                    </svg>
+                                                                    <span>{new Date(task.dueDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</span>
+                                                                    {new Date(task.dueDate).toDateString() === new Date().toDateString() && (
+                                                                        <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
+                                                                            Today
+                                                                        </span>
+                                                                    )}
+                                                                    {task.dueDate < Date.now() && task.status !== 'done' && (
+                                                                        <span className="ml-1 px-1.5 py-0.5 rounded-full bg-error/10 text-error text-[10px] font-medium">
+                                                                            Overdue
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -143,8 +163,8 @@ export default function TaskBoardView({
                                                     <div className="flex flex-wrap gap-2">
                                                         {task.priority && (
                                                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${task.priority === 'high' ? 'bg-error/10 text-error' :
-                                                                    task.priority === 'medium' ? 'bg-warning/10 text-warning' :
-                                                                        'bg-info/10 text-info'
+                                                                task.priority === 'medium' ? 'bg-warning/10 text-warning' :
+                                                                    'bg-info/10 text-info'
                                                                 }`}>
                                                                 {task.priority}
                                                             </span>
