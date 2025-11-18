@@ -44,6 +44,55 @@ export default function TaskModal({
     const [endTime, setEndTime] = useState('');
     const [estimatedDuration, setEstimatedDuration] = useState('');
     const [notes, setNotes] = useState('');
+
+    // Calculate duration when start time or end time changes
+    useEffect(() => {
+        const calculateDuration = () => {
+            if (!startTime || !endTime) return;
+
+            try {
+                // Ensure time strings have the correct format (HH:MM)
+                const start = startTime.includes(':') ? startTime : `${startTime}:00`;
+                const end = endTime.includes(':') ? endTime : `${endTime}:00`;
+
+                const [startHours, startMinutes = 0] = start.split(':').map(Number);
+                const [endHours, endMinutes = 0] = end.split(':').map(Number);
+
+                // Validate time values
+                if (isNaN(startHours) || isNaN(startMinutes) || isNaN(endHours) || isNaN(endMinutes)) {
+                    console.error('Invalid time format');
+                    return;
+                }
+
+                // Create date objects for comparison
+                const startDate = new Date();
+                startDate.setHours(startHours, startMinutes, 0, 0);
+
+                let endDate = new Date();
+                endDate.setHours(endHours, endMinutes, 0, 0);
+
+                // Handle case where end time is on the next day
+                if (endDate <= startDate) {
+                    endDate.setDate(endDate.getDate() + 1);
+                }
+
+                const diffInMs = endDate.getTime() - startDate.getTime();
+                const diffInMinutes = Math.round(diffInMs / (1000 * 60));
+
+                // Only update if we have a valid positive duration
+                if (diffInMinutes > 0) {
+                    setEstimatedDuration(diffInMinutes.toString());
+                } else if (diffInMinutes < 0) {
+                    // If end time is before start time, clear the duration
+                    setEstimatedDuration('');
+                }
+            } catch (error) {
+                console.error('Error calculating duration:', error);
+            }
+        };
+
+        calculateDuration();
+    }, [startTime, endTime]);
     const [selectedSubDomain, setSelectedSubDomain] = useState<SubDomain | undefined>(undefined);
     const [subTasks, setSubTasks] = useState<{ title: string; completed: boolean }[]>([]);
     const [newSubTask, setNewSubTask] = useState('');
