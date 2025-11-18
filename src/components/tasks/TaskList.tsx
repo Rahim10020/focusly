@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Task, Tag } from '@/types';
 import { isToday, isTomorrow } from '@/lib/utils/time';
 import Button from '@/components/ui/Button';
@@ -10,6 +10,8 @@ interface TaskListProps {
     tasks: Task[];
     activeTaskId: string | null;
     tags: Tag[];
+    sortType: SortType;
+    sortTasks: (taskList: Task[]) => Task[];
     onToggle: (id: string) => void;
     onDelete: (id: string) => void;
     onSelectTask: (id: string | null) => void;
@@ -21,11 +23,14 @@ interface TaskListProps {
 }
 
 type TabType = 'today' | 'tomorrow' | 'others' | 'completed';
+type SortType = 'default' | 'alphabetical' | 'createdAt' | 'priority';
 
 export default function TaskList({
     tasks,
     activeTaskId,
     tags,
+    sortType,
+    sortTasks,
     onToggle,
     onDelete,
     onSelectTask,
@@ -41,21 +46,21 @@ export default function TaskList({
 
     const activeTasks = tasks.filter(task => !task.completed);
 
-    const todayTasks = activeTasks
-        .filter(task => task.dueDate && isToday(task.dueDate))
-        .sort((a, b) => (a.order || 0) - (b.order || 0));
+    const todayTasks = sortTasks(
+        activeTasks.filter(task => task.dueDate && isToday(task.dueDate))
+    );
 
-    const tomorrowTasks = activeTasks
-        .filter(task => task.dueDate && isTomorrow(task.dueDate))
-        .sort((a, b) => (a.order || 0) - (b.order || 0));
+    const tomorrowTasks = sortTasks(
+        activeTasks.filter(task => task.dueDate && isTomorrow(task.dueDate))
+    );
 
-    const otherTasks = activeTasks
-        .filter(task => !task.dueDate || (!isToday(task.dueDate) && !isTomorrow(task.dueDate)))
-        .sort((a, b) => (a.order || 0) - (b.order || 0));
+    const otherTasks = sortTasks(
+        activeTasks.filter(task => !task.dueDate || (!isToday(task.dueDate) && !isTomorrow(task.dueDate)))
+    );
 
-    const completedTasks = tasks
-        .filter(task => task.completed)
-        .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+    const completedTasks = sortTasks(
+        tasks.filter(task => task.completed)
+    );
 
     const handleDragStart = (index: number) => {
         setDraggedIndex(index);
@@ -111,6 +116,13 @@ export default function TaskList({
         { id: 'tomorrow' as TabType, label: 'Tomorrow', count: tomorrowTasks.length },
         { id: 'others' as TabType, label: 'Others', count: otherTasks.length },
         { id: 'completed' as TabType, label: 'Completed', count: completedTasks.length },
+    ];
+
+    const sortOptions = [
+        { value: 'default' as SortType, label: 'Due Date & Priority', icon: '📅' },
+        { value: 'alphabetical' as SortType, label: 'Alphabetical', icon: '🔤' },
+        { value: 'createdAt' as SortType, label: 'Date Added', icon: '🕒' },
+        { value: 'priority' as SortType, label: 'Priority', icon: '⚡' },
     ];
 
     return (

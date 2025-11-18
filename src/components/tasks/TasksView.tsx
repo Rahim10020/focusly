@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Task, Tag, TaskStatus } from '@/types';
-import Button from '../ui/Button';
 import TaskList from './TaskList';
 import TaskBoardView from './TaskBoardView';
+
+type SortType = 'default' | 'alphabetical' | 'createdAt' | 'priority';
 
 interface TasksViewProps {
     tasks: Task[];
@@ -27,6 +28,55 @@ type ViewType = 'list' | 'board';
 
 export default function TasksView(props: TasksViewProps) {
     const [view, setView] = useState<ViewType>('list');
+    const [sortType, setSortType] = useState<SortType>('default');
+
+    // Load sort preference from localStorage
+    useEffect(() => {
+        const savedSort = localStorage.getItem('taskSortType') as SortType;
+        if (savedSort && ['default', 'alphabetical', 'createdAt', 'priority'].includes(savedSort)) {
+            setSortType(savedSort);
+        }
+    }, []);
+
+    // Save sort preference to localStorage
+    useEffect(() => {
+        localStorage.setItem('taskSortType', sortType);
+    }, [sortType]);
+
+    // Sorting function
+    const sortTasks = (taskList: Task[]): Task[] => {
+        return [...taskList].sort((a, b) => {
+            switch (sortType) {
+                case 'alphabetical':
+                    return a.title.localeCompare(b.title);
+
+                case 'createdAt':
+                    return a.createdAt - b.createdAt;
+
+                case 'priority':
+                    const priorityOrder = { high: 3, medium: 2, low: 1 };
+                    const aPriority = priorityOrder[a.priority || 'low'];
+                    const bPriority = priorityOrder[b.priority || 'low'];
+                    return bPriority - aPriority; // High priority first
+
+                case 'default':
+                default:
+                    // Sort by dueDate first (null dates go to end), then by priority
+                    const aDate = a.dueDate || Infinity;
+                    const bDate = b.dueDate || Infinity;
+
+                    if (aDate !== bDate) {
+                        return aDate - bDate;
+                    }
+
+                    // Same date or both null, sort by priority
+                    const priorityOrderDefault = { high: 3, medium: 2, low: 1 };
+                    const aPriorityDefault = priorityOrderDefault[a.priority || 'low'];
+                    const bPriorityDefault = priorityOrderDefault[b.priority || 'low'];
+                    return bPriorityDefault - aPriorityDefault; // High priority first
+            }
+        });
+    };
 
     const handleStatusChange = (taskId: string, status: TaskStatus) => {
         props.onUpdate(taskId, {
@@ -36,10 +86,38 @@ export default function TasksView(props: TasksViewProps) {
         });
     };
 
+    const sortOptions = [
+        { value: 'default' as SortType, label: 'Due Date & Priority', icon: '📅' },
+        { value: 'alphabetical' as SortType, label: 'Alphabetical', icon: '🔤' },
+        { value: 'createdAt' as SortType, label: 'Date Added', icon: '🕒' },
+        { value: 'priority' as SortType, label: 'Priority', icon: '⚡' },
+    ];
+
     return (
         <div className="space-y-4">
-            {/* View Toggle */}
+            {/* Sorting Options */}
             <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground">Sort by:</span>
+                    <div className="flex gap-1 bg-muted p-1 rounded-lg">
+                        {sortOptions.map((option) => (
+                            <button
+                                key={option.value}
+                                onClick={() => setSortType(option.value)}
+                                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer flex items-center gap-1 ${
+                                    sortType === option.value
+                                        ? 'bg-background text-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                            >
+                                <span>{option.icon}</span>
+                                <span>{option.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* View Toggle */}
                 <div className="flex items-center gap-2 bg-muted p-1 rounded-lg">
                     <button
                         onClick={() => setView('list')}
@@ -98,10 +176,12 @@ export default function TasksView(props: TasksViewProps) {
             {!props.loading && !props.error && (
                 <>
                     {view === 'list' ? (
-                        <TaskList {...props} />
+                        <TaskList {...props} sortType={sortType} sortTasks={sortTasks} />
                     ) : (
                         <TaskBoardView
                             {...props}
+                            sortType={sortType}
+                            sortTasks={sortTasks}
                             onStatusChange={handleStatusChange}
                         />
                     )}

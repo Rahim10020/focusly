@@ -3,10 +3,14 @@
 import { Task, Tag, TaskStatus } from '@/types';
 import Button from '../ui/Button';
 
+type SortType = 'default' | 'alphabetical' | 'createdAt' | 'priority';
+
 interface TaskBoardViewProps {
     tasks: Task[];
     activeTaskId: string | null;
     tags: Tag[];
+    sortType: SortType;
+    sortTasks: (taskList: Task[]) => Task[];
     onToggle: (id: string) => void;
     onDelete: (id: string) => void;
     onSelectTask: (id: string | null) => void;
@@ -19,6 +23,8 @@ export default function TaskBoardView({
     tasks,
     activeTaskId,
     tags,
+    sortType,
+    sortTasks,
     onToggle,
     onDelete,
     onSelectTask,
@@ -33,10 +39,11 @@ export default function TaskBoardView({
     ];
 
     const getTasksByStatus = (status: TaskStatus) => {
-        return tasks.filter(task => {
+        const filteredTasks = tasks.filter(task => {
             const taskStatus = task.status || (task.completed ? 'done' : 'todo');
             return taskStatus === status;
         });
+        return sortTasks(filteredTasks);
     };
 
     const handleDragStart = (e: React.DragEvent, taskId: string) => {
