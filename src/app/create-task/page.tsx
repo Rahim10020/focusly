@@ -23,18 +23,20 @@ export default function CreateTaskPage() {
 
     const handleSave = async (taskData: TaskFormData) => {
         try {
-            await addTask(
-                taskData.title,
-                taskData.priority,
-                taskData.tags,
-                taskData.dueDate,
-                taskData.notes,
-                taskData.subDomain,
-                taskData.startDate,
-                taskData.startTime,
-                taskData.endTime,
-                taskData.estimatedDuration
-            );
+            await addTask({
+                title: taskData.title,
+                priority: taskData.priority,
+                tags: taskData.tags,
+                dueDate: taskData.dueDate,
+                notes: taskData.notes,
+                subDomain: taskData.subDomain,
+                scheduling: {
+                    startDate: taskData.startDate,
+                    startTime: taskData.startTime,
+                    endTime: taskData.endTime,
+                    estimatedDuration: taskData.estimatedDuration
+                }
+            });
 
             // Handle subtasks if any
             if (taskData.subTasks && taskData.subTasks.length > 0) {

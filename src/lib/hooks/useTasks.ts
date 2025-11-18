@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Task, SubTask, Priority, SubDomain } from '@/types';
+import { CreateTaskInput } from '@/types/task-input';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { useToastContext } from '@/components/providers/ToastProvider';
@@ -106,36 +107,29 @@ export function useTasks() {
     const currentTasks = getUserId() ? dbTasks : tasks;
     const setCurrentTasks = getUserId() ? setDbTasks : setTasks;
 
-    const addTask = async (
-        title: string,
-        priority?: Priority,
-        tags?: string[],
-        dueDate?: number,
-        notes?: string,
-        subDomain?: SubDomain,
-        startDate?: number,
-        startTime?: string,
-        endTime?: string,
-        estimatedDuration?: number
-    ) => {
+    /**
+     * Add a new task
+     * @param input - Task creation input with all task properties
+     */
+    const addTask = async (input: CreateTaskInput) => {
         const maxOrder = currentTasks.length > 0 ? Math.max(...currentTasks.map(t => t.order || 0)) : 0;
         const newTask: Task = {
             id: Date.now().toString(),
-            title,
+            title: input.title,
             completed: false,
             createdAt: Date.now(),
             pomodoroCount: 0,
-            priority,
-            tags: tags || [],
-            dueDate,
-            startDate,
-            startTime,
-            endTime,
-            estimatedDuration,
-            notes,
+            priority: input.priority,
+            tags: input.tags || [],
+            dueDate: input.dueDate,
+            startDate: input.scheduling?.startDate,
+            startTime: input.scheduling?.startTime,
+            endTime: input.scheduling?.endTime,
+            estimatedDuration: input.scheduling?.estimatedDuration,
+            notes: input.notes,
             subTasks: [],
             order: maxOrder + 1,
-            subDomain,
+            subDomain: input.subDomain,
         };
 
         const userId = getUserId();
@@ -174,7 +168,7 @@ export function useTasks() {
                 logger.error('Error adding task to DB', error, {
                     action: 'addTask',
                     userId: getUserId(),
-                    taskTitle: title
+                    taskTitle: input.title
                 });
                 const errorMessage = error.message || 'Failed to save task to database';
                 showErrorToast('Failed to Add Task', errorMessage);

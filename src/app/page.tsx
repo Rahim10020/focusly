@@ -109,7 +109,7 @@ export default function Home() {
 
   // Task handlers - redirect to dedicated task page
   const handleQuickAddTask = (title: string) => {
-    addTask(title);
+    addTask({ title });
   };
 
   const handleCreateTask = () => {
