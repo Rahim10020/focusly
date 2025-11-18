@@ -36,6 +36,33 @@ export default function TaskDetailsModal({
     const [endTime, setEndTime] = useState(task.endTime || '');
     const [estimatedDuration, setEstimatedDuration] = useState(task.estimatedDuration?.toString() || '');
     const [selectedSubDomain, setSelectedSubDomain] = useState<SubDomain | undefined>(task.subDomain);
+
+    // Calculate duration when start time or end time changes
+    useEffect(() => {
+        if (startTime && endTime) {
+            const [startHours, startMinutes] = startTime.split(':').map(Number);
+            const [endHours, endMinutes] = endTime.split(':').map(Number);
+
+            // Create date objects for comparison (using same date since we only care about time difference)
+            const startDate = new Date();
+            startDate.setHours(startHours, startMinutes, 0, 0);
+
+            let endDate = new Date();
+            endDate.setHours(endHours, endMinutes, 0, 0);
+
+            // Handle case where end time is on the next day
+            if (endDate <= startDate) {
+                endDate.setDate(endDate.getDate() + 1);
+            }
+
+            const diffInMs = endDate.getTime() - startDate.getTime();
+            const diffInMinutes = Math.round(diffInMs / (1000 * 60));
+
+            if (diffInMinutes > 0) {
+                setEstimatedDuration(diffInMinutes.toString());
+            }
+        }
+    }, [startTime, endTime]);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isSubTasksOpen, setIsSubTasksOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
