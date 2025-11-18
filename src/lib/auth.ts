@@ -1,6 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logger';
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -27,7 +28,10 @@ export const authOptions: NextAuthOptions = {
                     });
 
                     if (error) {
-                        console.error('Auth error:', error);
+                        logger.error('Auth error', error as Error, {
+                            action: 'signIn',
+                            email: credentials.email
+                        });
                         return null;
                     }
 
@@ -39,7 +43,10 @@ export const authOptions: NextAuthOptions = {
                         refreshToken: data.session?.refresh_token,
                     };
                 } catch (error) {
-                    console.error('Auth error:', error);
+                    logger.error('Auth error', error as Error, {
+                        action: 'authorize',
+                        email: credentials.email
+                    });
                     return null;
                 }
             }
@@ -79,7 +86,9 @@ export const authOptions: NextAuthOptions = {
                         token.expiresAt = Date.now() + 60 * 60 * 1000;
                     }
                 } catch (error) {
-                    console.error('Token refresh error:', error);
+                    logger.error('Token refresh error', error as Error, {
+                        action: 'refreshToken'
+                    });
                     // Continue with existing token
                 }
             }
