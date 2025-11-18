@@ -1,14 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/supabase';
 import { withRateLimit } from '@/lib/rateLimit';
 import { Cache } from '@/lib/cache';
+import { logger } from '@/lib/logger';
+
+// Validation schema for query parameters
+const LeaderboardQuerySchema = z.object({
+    page: z.string().optional().transform(val => parseInt(val || '1')).pipe(z.number().min(1).max(1000)),
+    limit: z.string().optional().transform(val => parseInt(val || '20')).pipe(z.number().min(1).max(100))
+});
 
 async function getHandler(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
-        const page = parseInt(searchParams.get('page') || '1');
-        const limit = parseInt(searchParams.get('limit') || '20');
+
+        // Validate query parameters
+        const validationResult = LeaderboardQuerySchema.safeParse({
+            page: searchParams.get('page'),
+            limit: searchParams.get('limit')
+        });
+
+        if (!validationResult.success) {
+            logger.warn('Invalid leaderboard query parameters', {
+                action: 'leaderboardValidation',
+                errors: validationResult.error.format()
+            });
+            return NextResponse.json({
+                error: 'Invalid query parameters',
+                details: validationResult.error.format()
+            }, { status: 400 });
+        }
+
+        const { page, limit } = validationResult.data;
         const offset = (page - 1) * limit;
 
         const cacheKey = `leaderboard:${page}:${limit}`;
@@ -20,7 +45,9 @@ async function getHandler(request: NextRequest) {
                 .select('*', { count: 'exact', head: true });
 
             if (countError) {
-                console.error('Error fetching count:', countError);
+                logger.error('Error fetching count', countError as Error, {
+                    action: 'leaderboardGetCount'
+                });
                 throw new Error('Failed to fetch leaderboard count');
             }
 
@@ -32,7 +59,9 @@ async function getHandler(request: NextRequest) {
                 .range(offset, offset + limit - 1);
 
             if (statsError) {
-                console.error('Error fetching stats:', statsError);
+                logger.error('Error fetching stats', statsError as Error, {
+                    action: 'leaderboardGetStats'
+                });
                 throw new Error('Failed to fetch leaderboard stats');
             }
 
@@ -60,7 +89,9 @@ async function getHandler(request: NextRequest) {
                 .in('id', userIds);
 
             if (profilesError) {
-                console.error('Error fetching profiles:', profilesError);
+                logger.error('Error fetching profiles', profilesError as Error, {
+                    action: 'leaderboardGetProfiles'
+                });
                 // Continue even if profiles fetch fails, we'll use defaults
             }
 
@@ -102,7 +133,9 @@ async function getHandler(request: NextRequest) {
 
         return NextResponse.json(result);
     } catch (error) {
-        console.error('Error in leaderboard API:', error);
+        logger.error('Error in leaderboard API', error as Error, {
+            action: 'leaderboardAPI'
+        });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

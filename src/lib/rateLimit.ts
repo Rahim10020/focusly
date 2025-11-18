@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { logger } from './logger';
 
 interface RateLimitOptions {
     windowMs: number; // Time window in milliseconds
@@ -20,7 +21,10 @@ export async function rateLimit(
             .single();
 
         if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "not found"
-            console.error('Error fetching rate limit:', fetchError);
+            logger.error('Error fetching rate limit', fetchError as Error, {
+                action: 'rateLimitFetch',
+                identifier
+            });
             // Allow request on error to avoid blocking users
             return { allowed: true };
         }
@@ -40,7 +44,10 @@ export async function rateLimit(
                 });
 
             if (upsertError) {
-                console.error('Error upserting rate limit:', upsertError);
+                logger.error('Error upserting rate limit', upsertError as Error, {
+                    action: 'rateLimitUpsert',
+                    identifier
+                });
                 return { allowed: true };
             }
 
@@ -59,7 +66,10 @@ export async function rateLimit(
             .eq('identifier', identifier);
 
         if (updateError) {
-            console.error('Error updating rate limit:', updateError);
+            logger.error('Error updating rate limit', updateError as Error, {
+                action: 'rateLimitUpdate',
+                identifier
+            });
             return { allowed: true };
         }
 
@@ -69,7 +79,10 @@ export async function rateLimit(
             resetTime: new Date(existingEntry.reset_time).getTime()
         };
     } catch (error) {
-        console.error('Rate limit error:', error);
+        logger.error('Rate limit error', error as Error, {
+            action: 'rateLimit',
+            identifier
+        });
         // Allow request on error
         return { allowed: true };
     }

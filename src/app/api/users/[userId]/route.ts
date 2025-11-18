@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { supabase } from '@/lib/supabase';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { Database } from '@/lib/supabase';
 import { withRateLimit } from '@/lib/rateLimit';
+import { logger } from '@/lib/logger';
+
+// Validation schema for userId parameter
+const UserIdSchema = z.string().uuid('Invalid user ID format');
 
 async function getHandler(
     request: NextRequest,
@@ -13,8 +18,13 @@ async function getHandler(
         const { userId } = await params;
 
         // Validate userId format (UUID)
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (!uuidRegex.test(userId)) {
+        const validationResult = UserIdSchema.safeParse(userId);
+        if (!validationResult.success) {
+            logger.warn('Invalid user ID format', {
+                action: 'userIdValidation',
+                userId,
+                errors: validationResult.error.format()
+            });
             return NextResponse.json({ error: 'Invalid user ID format' }, { status: 400 });
         }
 
@@ -43,7 +53,10 @@ async function getHandler(
                 .single();
 
             if (error) {
-                console.error('Error fetching user stats:', error);
+                logger.error('Error fetching user stats', error as Error, {
+                    action: 'getUserStatsOwn',
+                    userId
+                });
                 return NextResponse.json({ error: 'User not found' }, { status: 404 });
             }
 
@@ -93,7 +106,11 @@ async function getHandler(
             .single();
 
         if (error) {
-            console.error('Error fetching user stats:', error);
+            logger.error('Error fetching user stats', error as Error, {
+                action: 'getUserStats',
+                userId,
+                viewerId
+            });
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
@@ -112,7 +129,9 @@ async function getHandler(
 
         return NextResponse.json(data);
     } catch (error) {
-        console.error('Error in user API:', error);
+        logger.error('Error in user API', error as Error, {
+            action: 'userAPI'
+        });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

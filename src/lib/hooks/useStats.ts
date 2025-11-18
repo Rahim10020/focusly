@@ -5,6 +5,7 @@ import { Stats, PomodoroSession } from '@/types';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { useToastContext } from '@/components/providers/ToastProvider';
+import { logger } from '@/lib/logger';
 
 export function useStats() {
     const { data: session } = useSession();
@@ -91,7 +92,10 @@ export function useStats() {
                 });
             }
         } catch (error: any) {
-            console.error('Error loading stats from DB:', error);
+            logger.error('Error loading stats from DB', error, {
+                action: 'loadStatsFromDB',
+                userId: getUserId()
+            });
             const errorMessage = error.message || 'Failed to load statistics from database';
             setError(errorMessage);
             showErrorToast('Failed to Load Statistics', errorMessage);
@@ -125,7 +129,10 @@ export function useStats() {
 
             setDbSessions(formattedSessions);
         } catch (error) {
-            console.error('Error loading sessions from DB:', error);
+            logger.error('Error loading sessions from DB', error as Error, {
+                action: 'loadSessionsFromDB',
+                userId: getUserId()
+            });
         }
     };
 
@@ -171,7 +178,10 @@ export function useStats() {
                     }));
                 }
             } catch (error) {
-                console.error('Error adding session to DB:', error);
+                logger.error('Error adding session to DB', error as Error, {
+                    action: 'addSession',
+                    userId: getUserId()
+                });
             }
         } else {
             // Save to localStorage
@@ -212,7 +222,10 @@ export function useStats() {
                     };
                 });
             } catch (error) {
-                console.error('Error updating task stats in DB:', error);
+                logger.error('Error updating task stats in DB', error as Error, {
+                    action: 'updateTaskStats',
+                    userId: getUserId()
+                });
             }
         } else {
             // Update in localStorage

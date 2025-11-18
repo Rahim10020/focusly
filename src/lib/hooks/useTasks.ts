@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Task, SubTask, Priority, SubDomain } from '@/types';
+import { CreateTaskInput } from '@/types/task-input';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { useToastContext } from '@/components/providers/ToastProvider';
+import { logger } from '@/lib/logger';
 
 export function useTasks() {
     const { data: session } = useSession();
@@ -90,7 +92,10 @@ export function useTasks() {
 
             setDbTasks(formattedTasks);
         } catch (error: any) {
-            console.error('Error loading tasks from DB:', error);
+            logger.error('Error loading tasks from DB', error, {
+                action: 'loadTasksFromDB',
+                userId: getUserId()
+            });
             const errorMessage = error.message || 'Failed to load tasks from database';
             setError(errorMessage);
             showErrorToast('Failed to Load Tasks', errorMessage);
@@ -102,36 +107,29 @@ export function useTasks() {
     const currentTasks = getUserId() ? dbTasks : tasks;
     const setCurrentTasks = getUserId() ? setDbTasks : setTasks;
 
-    const addTask = async (
-        title: string,
-        priority?: Priority,
-        tags?: string[],
-        dueDate?: number,
-        notes?: string,
-        subDomain?: SubDomain,
-        startDate?: number,
-        startTime?: string,
-        endTime?: string,
-        estimatedDuration?: number
-    ) => {
+    /**
+     * Add a new task
+     * @param input - Task creation input with all task properties
+     */
+    const addTask = async (input: CreateTaskInput) => {
         const maxOrder = currentTasks.length > 0 ? Math.max(...currentTasks.map(t => t.order || 0)) : 0;
         const newTask: Task = {
             id: Date.now().toString(),
-            title,
+            title: input.title,
             completed: false,
             createdAt: Date.now(),
             pomodoroCount: 0,
-            priority,
-            tags: tags || [],
-            dueDate,
-            startDate,
-            startTime,
-            endTime,
-            estimatedDuration,
-            notes,
+            priority: input.priority,
+            tags: input.tags || [],
+            dueDate: input.dueDate,
+            startDate: input.scheduling?.startDate,
+            startTime: input.scheduling?.startTime,
+            endTime: input.scheduling?.endTime,
+            estimatedDuration: input.scheduling?.estimatedDuration,
+            notes: input.notes,
             subTasks: [],
             order: maxOrder + 1,
-            subDomain,
+            subDomain: input.subDomain,
         };
 
         const userId = getUserId();
@@ -167,7 +165,11 @@ export function useTasks() {
                 newTask.id = data.id;
                 setCurrentTasks([...currentTasks, newTask]);
             } catch (error: any) {
-                console.error('Error adding task to DB:', error);
+                logger.error('Error adding task to DB', error, {
+                    action: 'addTask',
+                    userId: getUserId(),
+                    taskTitle: input.title
+                });
                 const errorMessage = error.message || 'Failed to save task to database';
                 showErrorToast('Failed to Add Task', errorMessage);
                 // Still add to local state for offline functionality
@@ -230,7 +232,11 @@ export function useTasks() {
                     task.id === id ? { ...task, ...updates, version: data.version } : task
                 ));
             } catch (error: any) {
-                console.error('Error updating task in DB:', error);
+                logger.error('Error updating task in DB', error, {
+                    action: 'updateTask',
+                    userId: getUserId(),
+                    taskId: id
+                });
                 const errorMessage = error.message || 'Failed to update task in database';
                 showErrorToast('Failed to Update Task', errorMessage);
                 // Still update local state for offline functionality
@@ -261,7 +267,11 @@ export function useTasks() {
 
                 setCurrentTasks(currentTasks.filter(task => task.id !== id));
             } catch (error: any) {
-                console.error('Error deleting task from DB:', error);
+                logger.error('Error deleting task from DB', error, {
+                    action: 'deleteTask',
+                    userId: getUserId(),
+                    taskId: id
+                });
                 const errorMessage = error.message || 'Failed to delete task from database';
                 showErrorToast('Failed to Delete Task', errorMessage);
                 // Don't delete from local state if DB delete failed
@@ -561,18 +571,23 @@ export function useTasks() {
                     order: task.order,
                 }));
 
-                // Update each task's order
-                for (const update of updates) {
-                    await supabase
-                        .from('tasks')
-                        .update({ order: update.order })
-                        .eq('id', update.id)
-                        .eq('user_id', userId);
-                }
+                // Update all tasks in parallel for better performance
+                await Promise.all(
+                    updates.map(update =>
+                        supabase
+                            .from('tasks')
+                            .update({ order: update.order })
+                            .eq('id', update.id)
+                            .eq('user_id', userId)
+                    )
+                );
 
                 setCurrentTasks(reorderedTasks);
             } catch (error: any) {
-                console.error('Error reordering tasks in DB:', error);
+                logger.error('Error reordering tasks in DB', error, {
+                    action: 'reorderTasks',
+                    userId: getUserId()
+                });
             }
         } else {
             // Update in localStorage
