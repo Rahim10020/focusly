@@ -23,4 +23,7 @@
     la page de connexion ou soit on lui affiche verification reussi
     et quand il revient sur le site on lui affiche la page de connexion
 
-- voir si on peut rendre le changement dynamique apres chaque session de tache (chargements des stats depuis la page d'accueil (todays focus, total focus time, task completed))
+- voir si on peut rendre le changement dynamique apres chaque session de tache 
+    (chargements des stats depuis la page d'accueil (todays focus, total focus time, task completed))
+
+- revoir la page de full screen (pour la creation de taches)

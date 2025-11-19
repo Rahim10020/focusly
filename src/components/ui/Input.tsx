@@ -13,6 +13,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({
     error,
     success,
     helperText,
+    noBorder,
     className = '',
     ...props
 }, ref) => {
@@ -32,13 +33,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({
             <div className="relative">
                 <input
                     ref={ref}
-                    className={`w-full px-4 py-2.5 bg-card text-foreground 
-                        ${props.noBorder ? 'border-0' : 'border-2 rounded-xl'}
+                    className={`w-full px-4 py-2.5 bg-card text-foreground
+                        ${noBorder ? 'border-0' : 'border-2 rounded-xl'}
                         focus:outline-none focus:ring-2 focus:ring-offset-0
                         placeholder:text-muted-foreground
                         transition-all duration-300 ease-out
                         disabled:opacity-50 disabled:cursor-not-allowed
-                        ${!props.noBorder ? borderColor : ''} ${className}`}
+                        ${!noBorder ? borderColor : ''} ${className}`}
                     {...props}
                 />
                 {success && !error && (
