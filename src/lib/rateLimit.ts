@@ -14,11 +14,13 @@ export async function rateLimit(
 
     try {
         // Try to get existing rate limit entry
-        const { data: existingEntry, error: fetchError } = await supabase
+        const { data, error: fetchError } = await supabase
             .from('rate_limits')
             .select('count, reset_time')
             .eq('identifier', identifier)
             .single();
+
+        const existingEntry = data as { count: number; reset_time: string } | null;
 
         if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "not found"
             logger.error('Error fetching rate limit', fetchError as Error, {
@@ -31,10 +33,34 @@ export async function rateLimit(
 
         const resetTime = new Date(now.getTime() + options.windowMs);
 
-        if (!existingEntry || now > new Date(existingEntry.reset_time)) {
+        if (existingEntry && now <= new Date(existingEntry.reset_time)) {
+            // Existing entry within window
+            if (existingEntry.count >= options.maxRequests) {
+                return { allowed: false, resetTime: new Date(existingEntry.reset_time).getTime() };
+            }
+
+            // Increment counter
+            const newCount = existingEntry.count + 1;
+            const { error: updateError } = await (supabase.from('rate_limits') as any)
+                .update({ count: newCount })
+                .eq('identifier', identifier);
+
+            if (updateError) {
+                logger.error('Error updating rate limit', updateError as Error, {
+                    action: 'rateLimitUpdate',
+                    identifier
+                });
+                return { allowed: true };
+            }
+
+            return {
+                allowed: true,
+                remaining: options.maxRequests - newCount,
+                resetTime: new Date(existingEntry.reset_time).getTime()
+            };
+        } else {
             // First request or window expired
-            const { error: upsertError } = await supabase
-                .from('rate_limits')
+            const { error: upsertError } = await (supabase.from('rate_limits') as any)
                 .upsert({
                     identifier,
                     count: 1,
@@ -51,33 +77,8 @@ export async function rateLimit(
                 return { allowed: true };
             }
 
-            return { allowed: true, remaining: options.maxRequests - 1 };
+            return { allowed: true, remaining: options.maxRequests - 1, resetTime: resetTime.getTime() };
         }
-
-        if (existingEntry.count >= options.maxRequests) {
-            return { allowed: false, resetTime: new Date(existingEntry.reset_time).getTime() };
-        }
-
-        // Increment counter
-        const newCount = existingEntry.count + 1;
-        const { error: updateError } = await supabase
-            .from('rate_limits')
-            .update({ count: newCount })
-            .eq('identifier', identifier);
-
-        if (updateError) {
-            logger.error('Error updating rate limit', updateError as Error, {
-                action: 'rateLimitUpdate',
-                identifier
-            });
-            return { allowed: true };
-        }
-
-        return {
-            allowed: true,
-            remaining: options.maxRequests - newCount,
-            resetTime: new Date(existingEntry.reset_time).getTime()
-        };
     } catch (error) {
         logger.error('Rate limit error', error as Error, {
             action: 'rateLimit',
@@ -120,8 +121,12 @@ export function withRateLimit(
         const response = await handler(request, ...args);
 
         if (response instanceof Response) {
-            response.headers.set('X-RateLimit-Remaining', result.remaining!.toString());
-            response.headers.set('X-RateLimit-Reset', result.resetTime!.toString());
+            if (result.remaining !== undefined) {
+                response.headers.set('X-RateLimit-Remaining', result.remaining.toString());
+            }
+            if (result.resetTime !== undefined) {
+                response.headers.set('X-RateLimit-Reset', result.resetTime.toString());
+            }
         }
 
         return response;
