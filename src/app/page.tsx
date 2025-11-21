@@ -266,26 +266,26 @@ export default function Home() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background dark:bg-slate-900 transition-colors duration-200">
         {/* Hero Section */}
         <main className="relative overflow-hidden min-h-screen flex items-center">
           {/* Background Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-brand-accent/5 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-brand-accent/5 dark:from-primary/10 dark:to-brand-accent/10 pointer-events-none"></div>
 
           {/* Floating Feature Cards - Background */}
           <div className="absolute inset-0 max-w-[1200px] mx-auto px-6 pointer-events-none hidden lg:block">
             <div className="relative h-full">
               {/* Left Card - Pomodoro Timer */}
-              <div className="absolute -left-10 top-10 w-80 opacity-70 blur-[0.1px] animate-float">
-                <Card variant="elevated" className="group">
+              <div className="absolute -left-10 top-10 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float">
+                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">Pomodoro Timer</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Pomodoro Timer</h3>
+                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
                       Stay focused with customizable 25-minute work sessions followed by refreshing breaks.
                     </p>
                   </CardContent>
@@ -293,16 +293,16 @@ export default function Home() {
               </div>
 
               {/* Right Top Card - Smart Task Management */}
-              <div className="absolute -right-12 top-12 w-80 opacity-70 blur-[0.1px] animate-float-delayed">
-                <Card variant="elevated" className="group">
+              <div className="absolute -right-12 top-12 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float-delayed">
+                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-brand-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">Smart Task Management</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Smart Task Management</h3>
+                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
                       Organize tasks by priority, add sub-tasks, and track your progress with detailed insights.
                     </p>
                   </CardContent>
@@ -310,16 +310,16 @@ export default function Home() {
               </div>
 
               {/* Right Bottom Card - Achievements */}
-              <div className="absolute -right-6 bottom-12 w-80 opacity-70 blur-[0.1px] animate-float-slow">
-                <Card variant="elevated" className="group">
+              <div className="absolute -right-6 bottom-12 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float-slow">
+                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-accent/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">Achievements & Stats</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Achievements & Stats</h3>
+                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
                       Build streaks, unlock achievements, and compete with friends on the leaderboard.
                     </p>
                   </CardContent>
@@ -327,8 +327,8 @@ export default function Home() {
               </div>
 
               {/* Left Bottom Card - Calendar */}
-              <div className="absolute -left-12 bottom-10 w-80 opacity-70 blur-[0.1px] animate-float-delayed">
-                <Card variant="elevated" className="group">
+              <div className="absolute -left-12 bottom-10 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float-delayed">
+                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-brand-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,8 +338,8 @@ export default function Home() {
                         <line x1="3" y1="10" x2="21" y2="10" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">Calendar Planning</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Calendar Planning</h3>
+                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
                       Plot tasks on a monthly calendar, see start times, and export your schedule to iCal.
                     </p>
                   </CardContent>
@@ -347,16 +347,16 @@ export default function Home() {
               </div>
 
               {/* Center Card - Analytics */}
-              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-80 opacity-70 blur-[0.1px] animate-float">
-                <Card variant="elevated" className="group">
+              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float">
+                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3v18h18M7 14l3 3 7-10" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">Analytics & Export</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Analytics & Export</h3>
+                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
                       Unlock charts, streak insights, and one-click CSV/PDF exports from the dashboard.
                     </p>
                   </CardContent>
@@ -364,16 +364,16 @@ export default function Home() {
               </div>
 
               {/* Right Middle Card - Social */}
-              <div className="absolute -right-44 top-1/2 -translate-y-1/2 w-80 opacity-70 blur-[0.1px] animate-float">
-                <Card variant="elevated" className="group">
+              <div className="absolute -right-44 top-1/2 -translate-y-1/2 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float">
+                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-accent/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 12a4 4 0 10-4-4 4 4 0 004 4zm0 0c-3.314 0-6 2.239-6 5v1h6m5-9a4 4 0 114-4 4 4 0 01-4 4zm0 0c-1.48 0-2.805.804-3.5 2" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">Friends & Leaderboard</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Friends & Leaderboard</h3>
+                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
                       Add friends, accept requests, and climb global rankings for tasks, focus time, or streaks.
                     </p>
                   </CardContent>
@@ -381,16 +381,16 @@ export default function Home() {
               </div>
 
               {/* Left Mid Card - Notifications */}
-              <div className="absolute -left-44 top-1/2 -translate-y-1/2 w-80 opacity-70 blur-[0.1px] animate-float-slow">
-                <Card variant="elevated" className="group">
+              <div className="absolute -left-44 top-1/2 -translate-y-1/2 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float-slow">
+                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-brand-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11c0-3.07-1.64-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.64 5.36 6 7.92 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">Smart Notifications</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Smart Notifications</h3>
+                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
                       Get alerted for overdue tasks, due-today reminders, and completed Pomodoros in real-time.
                     </p>
                   </CardContent>
@@ -411,7 +411,7 @@ export default function Home() {
                 </span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight animate-slide-up">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground dark:text-white leading-tight animate-slide-up">
                 Master Your Focus,
                 <br />
                 <span className="bg-gradient-to-r from-primary via-brand-secondary to-brand-accent bg-clip-text text-transparent">
@@ -419,7 +419,7 @@ export default function Home() {
                 </span>
               </h1>
 
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>
+              <p className="text-lg md:text-xl text-muted-foreground dark:text-gray-300 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>
                 Focusly combines the power of the Pomodoro Technique with smart task management
                 to help you stay productive and build lasting habits.
               </p>
@@ -438,7 +438,7 @@ export default function Home() {
               </div>
 
               {/* Social Proof */}
-              <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground pt-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground dark:text-gray-400 pt-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
                 <div className="flex items-center gap-2">
                   <svg className="w-4 h-4 text-brand-accent" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
