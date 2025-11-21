@@ -35,7 +35,12 @@ export default function VerifyEmail() {
                     }
 
                     setIsVerified(true);
-                    setMessage('Votre email a été vérifié avec succès !');
+                    setMessage('Votre email a été vérifié avec succès ! Redirection vers la page de connexion...');
+
+                    // Auto-redirect after 3 seconds
+                    setTimeout(() => {
+                        router.push('/auth/signin');
+                    }, 3000);
                 }
             } catch (error) {
                 setMessage('Erreur lors de la vérification de l\'email. Le lien peut avoir expiré ou est invalide.');
@@ -46,7 +51,7 @@ export default function VerifyEmail() {
         };
 
         verifyEmail();
-    }, [token_hash, type]);
+    }, [token_hash, type, router]);
 
     const handleContinue = () => {
         router.push('/auth/signin');
