@@ -27,4 +27,4 @@
     (chargements des stats depuis la page d'accueil (todays focus, total focus time, task completed))
 
 - revoir la page de full screen (pour la creation de taches)
-- dark mode pour la page d'accueil (avant connexion)
+- mettre un bouton de retour apres le message d'inscription reussi  (retour a la connexion)

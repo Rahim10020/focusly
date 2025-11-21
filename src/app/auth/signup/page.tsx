@@ -56,7 +56,7 @@ export default function SignUp() {
     if (success) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 px-4 transition-colors duration-200">
-                <Card className="w-full max-w-md">
+                <Card className="w-full max-w-md" variant="none">
                     <CardContent className="text-center py-8">
                         <div className="text-green-500 text-4xl mb-4">✉️</div>
                         <h2 className="text-xl font-semibold mb-2 dark:text-white">Inscription réussie !</h2>
@@ -95,7 +95,7 @@ export default function SignUp() {
                                 </button>
                             </p>
                         </div>
-                        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div className="mt-6 pt-4">
                             <Button
                                 variant="outline"
                                 onClick={() => router.push('/auth/signin')}
@@ -112,7 +112,7 @@ export default function SignUp() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 px-4 transition-colors duration-200">
-            <Card className="w-full max-w-md bg-transparent" variant='none'>
+            <Card className="w-full max-w-md bg-transparent" variant="none">
                 <CardHeader>
                     <CardTitle className="text-start dark:text-white">Créer un compte</CardTitle>
                 </CardHeader>

@@ -81,7 +81,7 @@ export default function VerifyEmail() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 px-4 transition-colors duration-200">
-            <Card className="w-full max-w-md dark:bg-slate-800/80 dark:border-slate-700">
+            <Card className="w-full max-w-md dark:bg-transparent" variant="none">
                 <CardContent className="text-center py-8">
                     <div className={`text-4xl mb-4 ${isVerified ? 'text-green-500' : 'text-yellow-500'}`}>
                         {isVerified ? '✓' : '⏳'}
