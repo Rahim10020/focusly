@@ -18,6 +18,7 @@ export default function SignUp() {
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const router = useRouter();
@@ -32,9 +33,10 @@ export default function SignUp() {
                 email,
                 password,
                 options: {
+                    emailRedirectTo: `${window.location.origin}/auth/verify-email`,
                     data: {
                         name: name,
-                    },
+                    }
                 },
             });
 
@@ -42,10 +44,7 @@ export default function SignUp() {
                 setError(error.message);
             } else {
                 setSuccess(true);
-                // Redirect to signin after a delay
-                setTimeout(() => {
-                    router.push('/auth/signin');
-                }, 2000);
+                setSuccessMessage('Un email de vérification a été envoyé à votre adresse email.');
             }
         } catch (error: any) {
             setError('An error occurred');
@@ -59,11 +58,52 @@ export default function SignUp() {
             <div className="min-h-screen flex items-center justify-center bg-background px-4">
                 <Card className="w-full max-w-md">
                     <CardContent className="text-center py-8">
-                        <div className="text-green-500 text-4xl mb-4">✓</div>
-                        <h2 className="text-xl font-semibold mb-2">Account Created!</h2>
-                        <p className="text-muted-foreground">
-                            Please check your email to verify your account, then sign in.
+                        <div className="text-green-500 text-4xl mb-4">✉️</div>
+                        <h2 className="text-xl font-semibold mb-2">Inscription réussie !</h2>
+                        <p className="text-muted-foreground mb-4">
+                            {successMessage || 'Un email de vérification a été envoyé à votre adresse email.'}
                         </p>
+                        <p className="text-sm text-muted-foreground mb-4">
+                            Vérifiez votre boîte de réception et cliquez sur le lien pour activer votre compte.
+                        </p>
+                        <div className="mt-4">
+                            <p className="text-sm text-muted-foreground">
+                                Vous n'avez pas reçu l'email ?{' '}
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            setLoading(true);
+                                            const { error } = await supabase.auth.resend({
+                                                type: 'signup',
+                                                email,
+                                                options: {
+                                                    emailRedirectTo: `${window.location.origin}/auth/verify-email`,
+                                                },
+                                            });
+                                            if (error) throw error;
+                                            setSuccessMessage('Un nouvel email de vérification a été envoyé !');
+                                        } catch (err) {
+                                            setError('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.');
+                                        } finally {
+                                            setLoading(false);
+                                        }
+                                    }}
+                                    className="text-primary hover:underline focus:outline-none"
+                                    disabled={loading}
+                                >
+                                    {loading ? 'Envoi en cours...' : 'Renvoyer l\'email'}
+                                </button>
+                            </p>
+                        </div>
+                        <div className="mt-6 pt-4 border-t border-gray-200">
+                            <Button
+                                variant="outline"
+                                onClick={() => router.push('/auth/signin')}
+                                className="w-full"
+                            >
+                                Retour à la connexion
+                            </Button>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
@@ -74,13 +114,13 @@ export default function SignUp() {
         <div className="min-h-screen flex items-center justify-center bg-background px-4">
             <Card className="w-full max-w-md" variant="none">
                 <CardHeader>
-                    <CardTitle className="text-center">Create Account</CardTitle>
+                    <CardTitle className="text-center">Créer un compte</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label htmlFor="name" className="block text-sm font-medium mb-1">
-                                Name
+                                Nom
                             </label>
                             <Input
                                 id="name"
@@ -88,7 +128,7 @@ export default function SignUp() {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 required
-                                placeholder="Enter your name"
+                                placeholder="Votre nom"
                             />
                         </div>
                         <div>
@@ -101,7 +141,7 @@ export default function SignUp() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                placeholder="Enter your email"
+                                placeholder="votre@email.com"
                             />
                         </div>
                         <div>
@@ -115,21 +155,21 @@ export default function SignUp() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 minLength={6}
-                                placeholder="Enter your password"
+                                placeholder="Votre mot de passe"
                             />
                         </div>
                         {error && (
                             <div className="text-red-500 text-sm text-center">{error}</div>
                         )}
                         <Button type="submit" className="w-full" disabled={loading}>
-                            {loading ? 'Creating account...' : 'Create Account'}
+                            {loading ? 'Création du compte...' : 'Créer mon compte'}
                         </Button>
                     </form>
                     <div className="mt-4 text-center">
                         <p className="text-sm">
-                            Already have an account?{' '}
+                            Vous avez déjà un compte ?{' '}
                             <Link href="/auth/signin" className="text-primary hover:underline">
-                                Sign in
+                                Se connecter
                             </Link>
                         </p>
                     </div>

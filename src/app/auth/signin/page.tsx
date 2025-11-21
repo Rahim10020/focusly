@@ -28,12 +28,20 @@ export default function SignIn() {
             });
 
             if (result?.error) {
-                setError('Invalid credentials');
+                // Vérifier si l'erreur est due à un email non vérifié
+                if (result.error.includes('Email not confirmed')) {
+                    setError('Veuvez vérifier votre adresse email avant de vous connecter.');
+                } else if (result.error === 'CredentialsSignin') {
+                    setError('Email ou mot de passe incorrect');
+                } else {
+                    setError(result.error);
+                }
             } else {
                 router.push('/');
             }
         } catch (error) {
-            setError('An error occurred');
+            console.error('Erreur de connexion:', error);
+            setError('Une erreur est survenue lors de la connexion');
         } finally {
             setLoading(false);
         }
@@ -43,13 +51,13 @@ export default function SignIn() {
         <div className="min-h-screen flex items-center justify-center bg-background px-4">
             <Card className="w-full max-w-md" variant="none">
                 <CardHeader>
-                    <CardTitle className="text-center">Sign In</CardTitle>
+                    <CardTitle className="text-center">Connexion</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium mb-1">
-                                Email
+                                Adresse email
                             </label>
                             <Input
                                 id="email"
@@ -57,12 +65,12 @@ export default function SignIn() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                placeholder="Enter your email"
+                                placeholder="votre@email.com"
                             />
                         </div>
                         <div>
                             <label htmlFor="password" className="block text-sm font-medium mb-1">
-                                Password
+                                Mot de passe
                             </label>
                             <Input
                                 id="password"
@@ -70,21 +78,21 @@ export default function SignIn() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                placeholder="Enter your password"
+                                placeholder="Votre mot de passe"
                             />
                         </div>
                         {error && (
                             <div className="text-red-500 text-sm text-center">{error}</div>
                         )}
                         <Button type="submit" className="w-full" disabled={loading}>
-                            {loading ? 'Signing in...' : 'Sign In'}
+                            {loading ? 'Connexion...' : 'Se connecter'}
                         </Button>
                     </form>
                     <div className="mt-4 text-center">
                         <p className="text-sm">
-                            Don't have an account?{' '}
+                            Vous n'avez pas de compte ?{' '}
                             <Link href="/auth/signup" className="text-primary hover:underline">
-                                Sign up
+                                S'inscrire
                             </Link>
                         </p>
                     </div>
