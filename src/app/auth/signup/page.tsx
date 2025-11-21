@@ -55,19 +55,19 @@ export default function SignUp() {
 
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background px-4">
+            <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 px-4 transition-colors duration-200">
                 <Card className="w-full max-w-md">
                     <CardContent className="text-center py-8">
                         <div className="text-green-500 text-4xl mb-4">✉️</div>
-                        <h2 className="text-xl font-semibold mb-2">Inscription réussie !</h2>
-                        <p className="text-muted-foreground mb-4">
+                        <h2 className="text-xl font-semibold mb-2 dark:text-white">Inscription réussie !</h2>
+                        <p className="text-muted-foreground dark:text-gray-300 mb-4">
                             {successMessage || 'Un email de vérification a été envoyé à votre adresse email.'}
                         </p>
-                        <p className="text-sm text-muted-foreground mb-4">
+                        <p className="text-sm text-muted-foreground dark:text-gray-400 mb-4">
                             Vérifiez votre boîte de réception et cliquez sur le lien pour activer votre compte.
                         </p>
                         <div className="mt-4">
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground dark:text-gray-400">
                                 Vous n'avez pas reçu l'email ?{' '}
                                 <button
                                     onClick={async () => {
@@ -88,14 +88,14 @@ export default function SignUp() {
                                             setLoading(false);
                                         }
                                     }}
-                                    className="text-primary hover:underline focus:outline-none"
+                                    className="text-primary hover:underline focus:outline-none dark:text-brand-accent"
                                     disabled={loading}
                                 >
                                     {loading ? 'Envoi en cours...' : 'Renvoyer l\'email'}
                                 </button>
                             </p>
                         </div>
-                        <div className="mt-6 pt-4 border-t border-gray-200">
+                        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
                             <Button
                                 variant="outline"
                                 onClick={() => router.push('/auth/signin')}
@@ -111,15 +111,15 @@ export default function SignUp() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background px-4">
-            <Card className="w-full max-w-md" variant="none">
+        <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 px-4 transition-colors duration-200">
+            <Card className="w-full max-w-md bg-transparent" variant='none'>
                 <CardHeader>
-                    <CardTitle className="text-center">Créer un compte</CardTitle>
+                    <CardTitle className="text-start dark:text-white">Créer un compte</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium mb-1">
+                            <label htmlFor="name" className="block text-sm font-medium mb-1 dark:text-gray-300">
                                 Nom
                             </label>
                             <Input
@@ -132,7 +132,7 @@ export default function SignUp() {
                             />
                         </div>
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium mb-1">
+                            <label htmlFor="email" className="block text-sm font-medium mb-1 dark:text-gray-300">
                                 Email
                             </label>
                             <Input
@@ -145,7 +145,7 @@ export default function SignUp() {
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium mb-1">
+                            <label htmlFor="password" className="block text-sm font-medium mb-1 dark:text-gray-300">
                                 Password
                             </label>
                             <Input
@@ -166,9 +166,9 @@ export default function SignUp() {
                         </Button>
                     </form>
                     <div className="mt-4 text-center">
-                        <p className="text-sm">
+                        <p className="text-sm dark:text-gray-300">
                             Vous avez déjà un compte ?{' '}
-                            <Link href="/auth/signin" className="text-primary hover:underline">
+                            <Link href="/auth/signin" className="text-primary hover:underline dark:text-brand-accent">
                                 Se connecter
                             </Link>
                         </p>

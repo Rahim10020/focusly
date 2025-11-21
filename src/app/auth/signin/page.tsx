@@ -48,15 +48,15 @@ export default function SignIn() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background px-4">
-            <Card className="w-full max-w-md" variant="none">
+        <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 px-4 transition-colors duration-200">
+            <Card className="w-full max-w-md dark:bg-transparent" variant="none">
                 <CardHeader>
-                    <CardTitle className="text-center">Connexion</CardTitle>
+                    <CardTitle className="text-start dark:text-white">Connexion</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium mb-1">
+                            <label htmlFor="email" className="block text-sm font-medium mb-1 dark:text-gray-300">
                                 Adresse email
                             </label>
                             <Input
@@ -69,7 +69,7 @@ export default function SignIn() {
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium mb-1">
+                            <label htmlFor="password" className="block text-sm font-medium mb-1 dark:text-gray-300">
                                 Mot de passe
                             </label>
                             <Input
@@ -89,9 +89,9 @@ export default function SignIn() {
                         </Button>
                     </form>
                     <div className="mt-4 text-center">
-                        <p className="text-sm">
+                        <p className="text-sm dark:text-gray-300">
                             Vous n'avez pas de compte ?{' '}
-                            <Link href="/auth/signup" className="text-primary hover:underline">
+                            <Link href="/auth/signup" className="text-primary hover:underline dark:text-brand-accent">
                                 S'inscrire
                             </Link>
                         </p>

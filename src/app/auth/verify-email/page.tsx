@@ -80,23 +80,27 @@ export default function VerifyEmail() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background px-4">
-            <Card className="w-full max-w-md">
+        <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 px-4 transition-colors duration-200">
+            <Card className="w-full max-w-md dark:bg-slate-800/80 dark:border-slate-700">
                 <CardContent className="text-center py-8">
                     <div className={`text-4xl mb-4 ${isVerified ? 'text-green-500' : 'text-yellow-500'}`}>
                         {isVerified ? '✓' : '⏳'}
                     </div>
-                    <h2 className="text-xl font-semibold mb-2">
+                    <h2 className="text-xl font-semibold mb-2 dark:text-white">
                         {isVerified ? 'Email Vérifié !' : 'Vérification en cours...'}
                     </h2>
-                    <p className="text-muted-foreground mb-6">{message}</p>
+                    <p className="text-muted-foreground dark:text-gray-300 mb-6">{message}</p>
                     {isVerified ? (
-                        <Button onClick={handleContinue} disabled={isLoading}>
+                        <Button
+                            onClick={handleContinue}
+                            disabled={isLoading}
+                            className="dark:bg-brand-accent dark:hover:bg-brand-accent/90"
+                        >
                             Se connecter
                         </Button>
                     ) : (
                         email && (
-                            <Button onClick={handleResend} disabled={isLoading} variant="outline">
+                            <Button onClick={handleResend} disabled={isLoading} variant="outline" className="mt-4 dark:border-gray-600 dark:text-white dark:hover:bg-slate-700">
                                 {isLoading ? 'Envoi en cours...' : 'Renvoyer l\'email'}
                             </Button>
                         )
