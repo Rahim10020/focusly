@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Settings component for configuring timer, sound, and privacy preferences.
+ * Provides UI for customizing Pomodoro durations, auto-start options, and stat visibility.
+ * @module components/settings/Settings
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -7,14 +13,40 @@ import Input from '@/components/ui/Input';
 import { TimerSettings } from '@/lib/hooks/useSettings';
 import { useStatVisibility } from '@/lib/hooks/useStatVisibility';
 
+/**
+ * Props for the Settings component.
+ * @interface SettingsProps
+ */
 interface SettingsProps {
+    /** Current timer settings */
     settings: TimerSettings;
+    /** Callback to update timer settings */
     onUpdateSettings: (updates: Partial<TimerSettings>) => void;
+    /** Callback to reset settings to defaults */
     onReset: () => void;
+    /** Whether sound notifications are enabled */
     soundEnabled: boolean;
+    /** Callback to toggle sound on/off */
     onToggleSound: () => void;
 }
 
+/**
+ * Settings configuration component for the Pomodoro timer application.
+ * Allows users to customize timer durations, auto-start behavior, sound notifications,
+ * and control which statistics are visible to friends.
+ *
+ * @param {SettingsProps} props - Component props
+ * @returns {JSX.Element} Settings panel with multiple configuration cards
+ *
+ * @example
+ * <Settings
+ *   settings={timerSettings}
+ *   onUpdateSettings={handleUpdateSettings}
+ *   onReset={handleReset}
+ *   soundEnabled={true}
+ *   onToggleSound={handleToggleSound}
+ * />
+ */
 export default function Settings({
     settings,
     onUpdateSettings,

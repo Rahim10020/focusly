@@ -1,10 +1,42 @@
+/**
+ * @fileoverview Theme management hook for light/dark mode switching.
+ * Handles theme persistence in localStorage and synchronization with user preferences.
+ * @module hooks/useTheme
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
+/**
+ * Available theme options.
+ * @typedef {'light' | 'dark'} Theme
+ */
 type Theme = 'light' | 'dark';
 
+/**
+ * Custom hook for managing application theme (light/dark mode).
+ * Persists theme choice to localStorage and syncs with user account preferences.
+ *
+ * @returns {Object} Theme state and controls
+ * @returns {Theme} returns.theme - Current theme ('light' or 'dark')
+ * @returns {Function} returns.toggleTheme - Function to switch between themes
+ * @returns {boolean} returns.mounted - Whether the component has mounted (for hydration safety)
+ *
+ * @example
+ * function ThemeButton() {
+ *   const { theme, toggleTheme, mounted } = useTheme();
+ *
+ *   if (!mounted) return null;
+ *
+ *   return (
+ *     <button onClick={toggleTheme}>
+ *       Current: {theme}
+ *     </button>
+ *   );
+ * }
+ */
 export function useTheme() {
     const [theme, setTheme] = useState<Theme>('light');
     const [mounted, setMounted] = useState(false);
