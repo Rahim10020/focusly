@@ -101,6 +101,9 @@ export default function SignUp() {
                                 onClick={() => router.push('/auth/signin')}
                                 className="w-full"
                             >
+                                <svg className="w-5 h-5 animate-arrow-slide" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
                                 Retour à la connexion
                             </Button>
                         </div>
@@ -163,6 +166,9 @@ export default function SignUp() {
                         )}
                         <Button type="submit" className="w-full" disabled={loading}>
                             {loading ? 'Création du compte...' : 'Créer mon compte'}
+                            <svg className="w-5 h-5 animate-arrow-slide" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
                         </Button>
                     </form>
                     <div className="mt-4 text-center">
