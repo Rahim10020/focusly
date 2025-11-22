@@ -8,20 +8,6 @@
 - reflechir pour voir dans la prochaine version comment ameliorer le ui.
 
 - permettre le partage des taches (via les reseaux sociaux)
-- demander a windsurf de verifier que la page d'acceuil n'affiche que les taches 
-    iminentes (max 5) et la page des taches affiche lui toutes les taches 
-
-- verifier avec windsurf la logique de creation de compte:
-    quand on cree un compte on demande de verifier l'email avant de se connecter 
-    et c'est bien mais le truc c'est que avant que la personne ne verfie son mail, 
-    la page de connexion s'affiche( et le souci que j'ai c'est que si la personne veut 
-    se connecter sans avoir avant 
-    verifier l'email, on lui dit que ses identifiants sont invalides ce qui est normal)
-    ce que je veux qu'on fasse c'est que tant 
-    que la personne n'a pas verifier son mail, on lui affiche pas la page de connexion
-    ou bien quand il clique sur le lien de confirmation(depuis gmail) on le conduit sur 
-    la page de connexion ou soit on lui affiche verification reussi
-    et quand il revient sur le site on lui affiche la page de connexion
 
 - voir si on peut rendre le changement dynamique apres chaque session de tache 
     (chargements des stats depuis la page d'accueil (todays focus, total focus time, task completed))
