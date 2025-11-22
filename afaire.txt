@@ -11,6 +11,8 @@
 
 - voir si on peut rendre le changement dynamique apres chaque session de tache 
     (chargements des stats depuis la page d'accueil (todays focus, total focus time, task completed))
+    c'est a dire pas besoin de recharger la page pour voir les stats a jour.
 
 - revoir la page de full screen (pour la creation de taches)
 - mettre un bouton de retour apres le message d'inscription reussi  (retour a la connexion)
+- modifier moi meme le design de taskModal dans components/tasks
