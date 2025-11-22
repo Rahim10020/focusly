@@ -48,8 +48,8 @@ export default function SignIn() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background dark:bg-background px-4 transition-colors duration-200">
-            <Card className="w-full max-w-md dark:bg-card" variant="default">
+        <div className="min-h-screen flex items-center justify-center bg-background px-4 transition-colors duration-200">
+            <Card className="w-full max-w-md bg-card" variant="default">
                 <CardHeader>
                     <CardTitle className="text-start text-foreground">Connexion</CardTitle>
                 </CardHeader>
@@ -69,7 +69,7 @@ export default function SignIn() {
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium mb-1 dark:text-gray-300">
+                            <label htmlFor="password" className="block text-sm font-medium mb-1 text-foreground">
                                 Mot de passe
                             </label>
                             <Input
@@ -89,9 +89,9 @@ export default function SignIn() {
                         </Button>
                     </form>
                     <div className="mt-4 text-center">
-                        <p className="text-sm dark:text-gray-300">
+                        <p className="text-sm text-muted-foreground">
                             Vous n'avez pas de compte ?{' '}
-                            <Link href="/auth/signup" className="text-primary hover:underline dark:text-brand-accent">
+                            <Link href="/auth/signup" className="text-brand-accent hover:underline">
                                 S'inscrire
                             </Link>
                         </p>

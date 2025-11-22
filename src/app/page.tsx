@@ -21,6 +21,7 @@ import { useTags } from '@/lib/hooks/useTags';
 import { useKeyboardShortcuts, GLOBAL_SHORTCUTS } from '@/lib/hooks/useKeyboardShortcuts';
 import { useTaskNotifications } from '@/lib/hooks/useTaskNotifications';
 import { Task } from '@/types';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 const combineDateAndTime = (timestamp: number, startTime?: string) => {
   if (!startTime) return timestamp;
@@ -174,18 +175,8 @@ export default function Home() {
   const totalActiveTasks = tasks.filter(task => !task.completed).length;
   const hasMoreTasksThanDisplayed = totalActiveTasks > imminentTasks.length;
 
-  // Toggle theme function
-  const toggleTheme = () => {
-    const html = document.documentElement;
-    const isDark = html.classList.contains('dark');
-    if (isDark) {
-      html.classList.remove('dark');
-      localStorage.setItem('focusly_theme', 'light');
-    } else {
-      html.classList.add('dark');
-      localStorage.setItem('focusly_theme', 'dark');
-    }
-  };
+  // Use theme from context
+  const { toggleTheme } = useTheme();
 
   // Keyboard shortcuts
   useKeyboardShortcuts([
@@ -266,7 +257,7 @@ export default function Home() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-background dark:bg-background transition-colors duration-200">
+      <div className="min-h-screen bg-background transition-colors duration-200">
         {/* Hero Section */}
         <main className="relative overflow-hidden min-h-screen flex items-center">
           {/* Background Gradient */}
@@ -276,7 +267,7 @@ export default function Home() {
           <div className="absolute inset-0 max-w-[1200px] mx-auto px-6 pointer-events-none hidden lg:block">
             <div className="relative h-full">
               {/* Left Card - Pomodoro Timer */}
-              <div className="absolute -left-10 top-10 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float">
+              <div className="absolute -left-10 top-10 w-80 opacity-70 blur-[0.1px] animate-float">
                 <Card variant="elevated" className="group bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-2xl flex items-center justify-center">
@@ -293,7 +284,7 @@ export default function Home() {
               </div>
 
               {/* Right Top Card - Smart Task Management */}
-              <div className="absolute -right-12 top-12 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float-delayed">
+              <div className="absolute -right-12 top-12 w-80 opacity-70 blur-[0.1px] animate-float-delayed">
                 <Card variant="elevated" className="group bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
@@ -310,8 +301,8 @@ export default function Home() {
               </div>
 
               {/* Right Bottom Card - Achievements */}
-              <div className="absolute -right-6 bottom-12 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float-slow">
-                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
+              <div className="absolute -right-6 bottom-12 w-80 opacity-70 blur-[0.1px] animate-float-slow">
+                <Card variant="elevated" className="group bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-accent/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -327,7 +318,7 @@ export default function Home() {
               </div>
 
               {/* Left Bottom Card - Calendar */}
-              <div className="absolute -left-12 bottom-10 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float-delayed">
+              <div className="absolute -left-12 bottom-10 w-80 opacity-70 blur-[0.1px] animate-float-delayed">
                 <Card variant="elevated" className="group bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
@@ -347,16 +338,16 @@ export default function Home() {
               </div>
 
               {/* Center Card - Analytics */}
-              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float">
-                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
+              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-80 opacity-70 blur-[0.1px] animate-float">
+                <Card variant="elevated" className="group bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3v18h18M7 14l3 3 7-10" />
                       </svg>
                     </div>
-                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Analytics & Export</h3>
-                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
+                    <h3 className="text-lg text-foreground font-semibold mb-2">Analytics & Export</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       Unlock charts, streak insights, and one-click CSV/PDF exports from the dashboard.
                     </p>
                   </CardContent>
@@ -364,8 +355,8 @@ export default function Home() {
               </div>
 
               {/* Right Middle Card - Social */}
-              <div className="absolute -right-44 top-1/2 -translate-y-1/2 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float">
-                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
+              <div className="absolute -right-44 top-1/2 -translate-y-1/2 w-80 opacity-70 blur-[0.1px] animate-float">
+                <Card variant="elevated" className="group bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-accent/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -381,7 +372,7 @@ export default function Home() {
               </div>
 
               {/* Left Mid Card - Notifications */}
-              <div className="absolute -left-44 top-1/2 -translate-y-1/2 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float-slow">
+              <div className="absolute -left-44 top-1/2 -translate-y-1/2 w-80 opacity-70 blur-[0.1px] animate-float-slow">
                 <Card variant="elevated" className="group bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
@@ -411,7 +402,7 @@ export default function Home() {
                 </span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground dark:text-white leading-tight animate-slide-up">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight animate-slide-up">
                 Master Your Focus,
                 <br />
                 <span className="bg-gradient-to-r from-primary via-brand-secondary to-brand-accent bg-clip-text text-transparent">
@@ -419,7 +410,7 @@ export default function Home() {
                 </span>
               </h1>
 
-              <p className="text-lg md:text-xl text-muted-foreground dark:text-gray-300 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>
                 Focusly combines the power of the Pomodoro Technique with smart task management
                 to help you stay productive and build lasting habits.
               </p>
@@ -438,7 +429,7 @@ export default function Home() {
               </div>
 
               {/* Social Proof */}
-              <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground dark:text-gray-400 pt-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground pt-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
                 <div className="flex items-center gap-2">
                   <svg className="w-4 h-4 text-brand-accent" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />

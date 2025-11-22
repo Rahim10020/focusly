@@ -10,30 +10,21 @@ export function useTheme() {
     const [mounted, setMounted] = useState(false);
     const { data: session } = useSession();
 
-    // Récupérer le thème depuis le localStorage ou le thème système
+    // Récupérer le thème depuis le localStorage
     useEffect(() => {
         setMounted(true);
 
-        // Récupérer le thème depuis le localStorage
+        // Toujours forcer le mode clair par défaut
         const savedTheme = localStorage.getItem('focusly_theme') as Theme | null;
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-
-        // Si l'utilisateur est connecté, on utilisera le thème sauvegardé côté serveur
-        // qui sera chargé via la session
-        const initialTheme = savedTheme || systemTheme;
+        const initialTheme = savedTheme || 'light'; // Forcer le mode clair par défaut
 
         setTheme(initialTheme);
         applyTheme(initialTheme);
 
-        // Écouter les changements de thème système
+        // Écouter les changements de thème système (mais ne pas les appliquer automatiquement)
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         const handleChange = (e: MediaQueryListEvent) => {
-            const newTheme = e.matches ? 'dark' : 'light';
-            // Ne mettre à jour que si l'utilisateur n'a pas de préférence enregistrée
-            if (!localStorage.getItem('focusly_theme')) {
-                setTheme(newTheme);
-                applyTheme(newTheme);
-            }
+            // Ne rien faire ici pour éviter les changements automatiques
         };
 
         mediaQuery.addEventListener('change', handleChange);
@@ -52,20 +43,24 @@ export function useTheme() {
 
     const applyTheme = (theme: Theme) => {
         const root = window.document.documentElement;
-        root.classList.remove('light', 'dark');
-        root.classList.add(theme);
-
-        // Ajouter la classe au body pour les styles globaux
-        document.body.classList.toggle('dark', theme === 'dark');
+        // Tailwind CSS utilise seulement la classe 'dark' sur l'élément html
+        // Le mode clair est le défaut (pas de classe)
+        if (theme === 'dark') {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
     };
 
     const toggleTheme = async () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
         applyTheme(newTheme);
+
+        // Toujours sauvegarder la préférence
         localStorage.setItem('focusly_theme', newTheme);
 
-        // Si l'utilisateur est connecté, mettre à jour la préférence côté serveur
+        // Mettre à jour la préférence côté serveur si connecté
         if (session) {
             try {
                 await fetch('/api/user/preferences', {

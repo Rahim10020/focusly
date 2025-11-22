@@ -15,6 +15,13 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const { theme, toggleTheme, mounted } = useNextTheme();
 
+    // Forcer le mode clair par défaut
+    useEffect(() => {
+        if (mounted && theme === 'dark') {
+            toggleTheme();
+        }
+    }, [mounted]);
+
     return (
         <ThemeContext.Provider value={{ theme, toggleTheme, mounted }}>
             {children}

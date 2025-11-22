@@ -55,8 +55,8 @@ export default function SignUp() {
 
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 px-4 transition-colors duration-200">
-                <Card className="w-full max-w-md dark:bg-card" variant="default">
+            <div className="min-h-screen flex items-center justify-center bg-background px-4 transition-colors duration-200">
+                <Card className="w-full max-w-md bg-card" variant="default">
                     <CardContent className="text-center py-8">
                         <div className="text-green-500 text-4xl mb-4">✉️</div>
                         <h2 className="text-xl font-semibold mb-2 text-foreground">Inscription réussie !</h2>
@@ -111,15 +111,15 @@ export default function SignUp() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 px-4 transition-colors duration-200">
+        <div className="min-h-screen flex items-center justify-center bg-background px-4 transition-colors duration-200">
             <Card className="w-full max-w-md bg-transparent" variant="none">
                 <CardHeader>
-                    <CardTitle className="text-start dark:text-white">Créer un compte</CardTitle>
+                    <CardTitle className="text-start text-foreground">Créer un compte</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium mb-1 dark:text-gray-300">
+                            <label htmlFor="name" className="block text-sm font-medium mb-1 text-foreground">
                                 Nom
                             </label>
                             <Input
@@ -132,7 +132,7 @@ export default function SignUp() {
                             />
                         </div>
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium mb-1 dark:text-gray-300">
+                            <label htmlFor="email" className="block text-sm font-medium mb-1 text-foreground">
                                 Email
                             </label>
                             <Input
@@ -145,7 +145,7 @@ export default function SignUp() {
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium mb-1 dark:text-gray-300">
+                            <label htmlFor="password" className="block text-sm font-medium mb-1 text-foreground">
                                 Password
                             </label>
                             <Input
@@ -166,9 +166,9 @@ export default function SignUp() {
                         </Button>
                     </form>
                     <div className="mt-4 text-center">
-                        <p className="text-sm dark:text-gray-300">
+                        <p className="text-sm text-muted-foreground">
                             Vous avez déjà un compte ?{' '}
-                            <Link href="/auth/signin" className="text-primary hover:underline dark:text-brand-accent">
+                            <Link href="/auth/signin" className="text-brand-accent hover:underline">
                                 Se connecter
                             </Link>
                         </p>
