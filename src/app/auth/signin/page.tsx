@@ -49,7 +49,7 @@ export default function SignIn() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background px-4 transition-colors duration-200">
-            <Card className="w-full max-w-md bg-card" variant="default">
+            <Card className="w-full max-w-md bg-card" variant="none">
                 <CardHeader>
                     <CardTitle className="text-start text-foreground">Connexion</CardTitle>
                 </CardHeader>
