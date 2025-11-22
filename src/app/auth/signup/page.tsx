@@ -56,18 +56,18 @@ export default function SignUp() {
     if (success) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 px-4 transition-colors duration-200">
-                <Card className="w-full max-w-md" variant="none">
+                <Card className="w-full max-w-md dark:bg-card" variant="default">
                     <CardContent className="text-center py-8">
                         <div className="text-green-500 text-4xl mb-4">✉️</div>
-                        <h2 className="text-xl font-semibold mb-2 dark:text-white">Inscription réussie !</h2>
-                        <p className="text-muted-foreground dark:text-gray-300 mb-4">
+                        <h2 className="text-xl font-semibold mb-2 text-foreground">Inscription réussie !</h2>
+                        <p className="text-muted-foreground mb-4">
                             {successMessage || 'Un email de vérification a été envoyé à votre adresse email.'}
                         </p>
-                        <p className="text-sm text-muted-foreground dark:text-gray-400 mb-4">
+                        <p className="text-sm text-muted-foreground mb-4">
                             Vérifiez votre boîte de réception et cliquez sur le lien pour activer votre compte.
                         </p>
                         <div className="mt-4">
-                            <p className="text-sm text-muted-foreground dark:text-gray-400">
+                            <p className="text-sm text-muted-foreground">
                                 Vous n'avez pas reçu l'email ?{' '}
                                 <button
                                     onClick={async () => {
@@ -88,7 +88,7 @@ export default function SignUp() {
                                             setLoading(false);
                                         }
                                     }}
-                                    className="text-primary hover:underline focus:outline-none dark:text-brand-accent"
+                                    className="text-primary hover:underline focus:outline-none"
                                     disabled={loading}
                                 >
                                     {loading ? 'Envoi en cours...' : 'Renvoyer l\'email'}

@@ -1,59 +1,26 @@
 'use client';
 
-import { useTheme } from '@/hooks/useTheme';
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 export default function ThemeToggle() {
     const { theme, toggleTheme, mounted } = useTheme();
 
     // Éviter le flash pendant l'hydratation
     if (!mounted) {
-        return (
-            <div className="p-2 rounded-full bg-muted w-9 h-9" />
-        );
+        return <div className="p-2 rounded-full w-9 h-9" />;
     }
 
     return (
         <button
             onClick={toggleTheme}
-            className="p-2 rounded-full cursor-pointer bg-muted hover:bg-accent transition-colors"
-            aria-label="Toggle theme"
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         >
-            {theme === 'light' ? (
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                >
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
+            {theme === 'dark' ? (
+                <Sun className="h-5 w-5 text-yellow-400" />
             ) : (
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                >
-                    <circle cx="12" cy="12" r="4"></circle>
-                    <path d="M12 2v2"></path>
-                    <path d="M12 20v2"></path>
-                    <path d="m4.93 4.93 1.41 1.41"></path>
-                    <path d="m17.66 17.66 1.41 1.41"></path>
-                    <path d="M2 12h2"></path>
-                    <path d="M20 12h2"></path>
-                    <path d="m6.34 17.66-1.41 1.41"></path>
-                    <path d="m19.07 4.93-1.41 1.41"></path>
-                </svg>
+                <Moon className="h-5 w-5 text-gray-600" />
             )}
         </button>
     );

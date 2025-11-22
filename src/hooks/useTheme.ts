@@ -43,18 +43,20 @@ export function useTheme() {
     // Synchroniser avec le thème de l'utilisateur connecté
     useEffect(() => {
         if (session?.user?.themePreference) {
-            setTheme(session.user.themePreference);
-            applyTheme(session.user.themePreference);
-            localStorage.setItem('focusly_theme', session.user.themePreference);
+            const newTheme = session.user.themePreference as Theme;
+            setTheme(newTheme);
+            applyTheme(newTheme);
+            localStorage.setItem('focusly_theme', newTheme);
         }
     }, [session]);
 
     const applyTheme = (theme: Theme) => {
-        if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        const root = window.document.documentElement;
+        root.classList.remove('light', 'dark');
+        root.classList.add(theme);
+
+        // Ajouter la classe au body pour les styles globaux
+        document.body.classList.toggle('dark', theme === 'dark');
     };
 
     const toggleTheme = async () => {

@@ -48,15 +48,15 @@ export default function SignIn() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 px-4 transition-colors duration-200">
-            <Card className="w-full max-w-md dark:bg-transparent" variant="none">
+        <div className="min-h-screen flex items-center justify-center bg-background dark:bg-background px-4 transition-colors duration-200">
+            <Card className="w-full max-w-md dark:bg-card" variant="default">
                 <CardHeader>
-                    <CardTitle className="text-start dark:text-white">Connexion</CardTitle>
+                    <CardTitle className="text-start text-foreground">Connexion</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium mb-1 dark:text-gray-300">
+                            <label htmlFor="email" className="block text-sm font-medium mb-1 text-foreground/80">
                                 Adresse email
                             </label>
                             <Input

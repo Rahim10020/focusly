@@ -266,7 +266,7 @@ export default function Home() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-background dark:bg-slate-900 transition-colors duration-200">
+      <div className="min-h-screen bg-background dark:bg-background transition-colors duration-200">
         {/* Hero Section */}
         <main className="relative overflow-hidden min-h-screen flex items-center">
           {/* Background Gradient */}
@@ -277,15 +277,15 @@ export default function Home() {
             <div className="relative h-full">
               {/* Left Card - Pomodoro Timer */}
               <div className="absolute -left-10 top-10 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float">
-                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
+                <Card variant="elevated" className="group bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Pomodoro Timer</h3>
-                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
+                    <h3 className="text-lg text-foreground font-semibold mb-2">Pomodoro Timer</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       Stay focused with customizable 25-minute work sessions followed by refreshing breaks.
                     </p>
                   </CardContent>
@@ -294,15 +294,15 @@ export default function Home() {
 
               {/* Right Top Card - Smart Task Management */}
               <div className="absolute -right-12 top-12 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float-delayed">
-                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
+                <Card variant="elevated" className="group bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-brand-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                       </svg>
                     </div>
-                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Smart Task Management</h3>
-                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
+                    <h3 className="text-lg text-foreground font-semibold mb-2">Smart Task Management</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       Organize tasks by priority, add sub-tasks, and track your progress with detailed insights.
                     </p>
                   </CardContent>
@@ -318,8 +318,8 @@ export default function Home() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                       </svg>
                     </div>
-                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Achievements & Stats</h3>
-                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
+                    <h3 className="text-lg text-foreground font-semibold mb-2">Achievements & Stats</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       Build streaks, unlock achievements, and compete with friends on the leaderboard.
                     </p>
                   </CardContent>
@@ -328,7 +328,7 @@ export default function Home() {
 
               {/* Left Bottom Card - Calendar */}
               <div className="absolute -left-12 bottom-10 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float-delayed">
-                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
+                <Card variant="elevated" className="group bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-brand-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,8 +338,8 @@ export default function Home() {
                         <line x1="3" y1="10" x2="21" y2="10" />
                       </svg>
                     </div>
-                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Calendar Planning</h3>
-                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
+                    <h3 className="text-lg text-foreground font-semibold mb-2">Calendar Planning</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       Plot tasks on a monthly calendar, see start times, and export your schedule to iCal.
                     </p>
                   </CardContent>
@@ -372,8 +372,8 @@ export default function Home() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 12a4 4 0 10-4-4 4 4 0 004 4zm0 0c-3.314 0-6 2.239-6 5v1h6m5-9a4 4 0 114-4 4 4 0 01-4 4zm0 0c-1.48 0-2.805.804-3.5 2" />
                       </svg>
                     </div>
-                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Friends & Leaderboard</h3>
-                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
+                    <h3 className="text-lg text-foreground font-semibold mb-2">Friends & Leaderboard</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       Add friends, accept requests, and climb global rankings for tasks, focus time, or streaks.
                     </p>
                   </CardContent>
@@ -382,15 +382,15 @@ export default function Home() {
 
               {/* Left Mid Card - Notifications */}
               <div className="absolute -left-44 top-1/2 -translate-y-1/2 w-80 opacity-70 dark:opacity-80 blur-[0.1px] animate-float-slow">
-                <Card variant="elevated" className="group bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm">
+                <Card variant="elevated" className="group bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-6 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 bg-brand-secondary/10 rounded-2xl flex items-center justify-center">
                       <svg className="w-6 h-6 text-brand-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11c0-3.07-1.64-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.64 5.36 6 7.92 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1" />
                       </svg>
                     </div>
-                    <h3 className="text-lg dark:text-[#F1F5F9] font-semibold mb-2">Smart Notifications</h3>
-                    <p className="text-sm text-muted-foreground dark:text-gray-300 leading-relaxed">
+                    <h3 className="text-lg text-foreground font-semibold mb-2">Smart Notifications</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       Get alerted for overdue tasks, due-today reminders, and completed Pomodoros in real-time.
                     </p>
                   </CardContent>
