@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Domain evolution chart component that visualizes progress
+ * across different life domains using radar charts and bar charts.
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -18,10 +23,39 @@ import {
     Cell,
 } from 'recharts';
 
+/**
+ * Props for the DomainEvolutionChart component.
+ * @interface DomainEvolutionChartProps
+ */
 interface DomainEvolutionChartProps {
+    /** Array of tasks to analyze by domain */
     tasks: Task[];
 }
 
+/**
+ * Displays domain-specific progress using multiple chart visualizations.
+ * Includes a radar chart for life balance overview, bar charts for task
+ * completion by domain, and summary cards with detailed statistics.
+ * Supports both light and dark themes with automatic detection.
+ *
+ * @param {DomainEvolutionChartProps} props - Component props
+ * @param {Task[]} props.tasks - Array of tasks to analyze across domains
+ * @returns {JSX.Element} Multi-chart visualization of domain progress
+ *
+ * @example
+ * ```tsx
+ * import DomainEvolutionChart from '@/components/stats/DomainEvolutionChart';
+ *
+ * function DomainAnalytics({ tasks }) {
+ *   return (
+ *     <div className="p-6">
+ *       <h2>Life Balance Overview</h2>
+ *       <DomainEvolutionChart tasks={tasks} />
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
 export default function DomainEvolutionChart({ tasks }: DomainEvolutionChartProps) {
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
 

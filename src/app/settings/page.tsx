@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Settings page for the Focusly application.
+ * Allows users to customize timer durations, auto-start behavior,
+ * sound preferences, and other application settings.
+ * @module app/settings/page
+ */
+
 'use client';
 
 import Header from '@/components/layout/Header';
@@ -5,6 +12,12 @@ import Settings from '@/components/settings/Settings';
 import { useSettings } from '@/lib/hooks/useSettings';
 import { useSound } from '@/lib/hooks/useSound';
 
+/**
+ * Settings page component for customizing Focusly preferences.
+ * Provides controls for timer settings, sound preferences, and reset options.
+ *
+ * @returns {JSX.Element} The rendered settings page
+ */
 export default function SettingsPage() {
     const { settings, updateSettings, resetSettings } = useSettings();
     const { soundEnabled, toggleSound } = useSound();

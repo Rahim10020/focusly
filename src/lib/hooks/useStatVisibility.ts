@@ -1,12 +1,49 @@
+/**
+ * @fileoverview Stat visibility settings hook.
+ * Manages user preferences for which statistics are visible
+ * to friends, with database persistence via Supabase.
+ */
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useSession } from 'next-auth/react';
 
+/**
+ * Represents a single stat visibility setting.
+ * @interface StatVisibility
+ */
 export interface StatVisibility {
+    /** Name of the statistic field */
     stat_field: string;
+    /** Whether this stat is visible to friends */
     visible_to_friends: boolean;
 }
 
+/**
+ * Hook for managing stat visibility preferences.
+ * Controls which user statistics are visible to friends.
+ * Settings are persisted to Supabase.
+ *
+ * @returns {Object} Visibility state and management functions
+ * @returns {StatVisibility[]} returns.visibilitySettings - Array of visibility settings
+ * @returns {boolean} returns.loading - Whether settings are being loaded
+ * @returns {Function} returns.updateVisibility - Update visibility for a stat field
+ *
+ * @example
+ * const { visibilitySettings, loading, updateVisibility } = useStatVisibility();
+ *
+ * // Render visibility toggles
+ * {visibilitySettings.map(setting => (
+ *   <Toggle
+ *     key={setting.stat_field}
+ *     checked={setting.visible_to_friends}
+ *     onChange={(checked) => updateVisibility(setting.stat_field, checked)}
+ *   />
+ * ))}
+ *
+ * // Update a specific stat visibility
+ * await updateVisibility('total_sessions', false);
+ */
 export function useStatVisibility() {
     const { data: session } = useSession();
     const [visibilitySettings, setVisibilitySettings] = useState<StatVisibility[]>([]);

@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Create Task page for the Focusly application.
+ * Provides a full-featured task creation modal with support for
+ * priorities, tags, scheduling, domains, and subtasks.
+ * @module app/create-task/page
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,6 +15,13 @@ import TaskModal, { TaskFormData } from '@/components/tasks/TaskModal';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useTags } from '@/lib/hooks/useTags';
 
+/**
+ * Create Task page component that displays a task creation modal.
+ * Supports full task configuration including title, priority, tags,
+ * due date, scheduling, notes, and domain classification.
+ *
+ * @returns {JSX.Element | null} The rendered create task page or null during redirect
+ */
 export default function CreateTaskPage() {
     const router = useRouter();
     const { data: session, status } = useSession();

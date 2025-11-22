@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Calendar page for the Focusly application.
+ * Displays tasks in a monthly calendar view with task details modal
+ * for viewing and editing tasks.
+ * @module app/calendar/page
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -10,6 +17,12 @@ import { useTags } from '@/lib/hooks/useTags';
 import { Task } from '@/types';
 import TaskDetailsModal from '@/components/tasks/TaskDetailsModal';
 
+/**
+ * Calendar page component that displays tasks in a monthly calendar layout.
+ * Allows users to view task schedules and click on tasks to view/edit details.
+ *
+ * @returns {JSX.Element | null} The rendered calendar page or null during redirect
+ */
 export default function CalendarPage() {
     const { data: session, status } = useSession();
     const router = useRouter();

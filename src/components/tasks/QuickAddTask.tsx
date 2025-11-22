@@ -1,13 +1,38 @@
+/**
+ * @fileoverview QuickAddTask component for rapid task creation.
+ * Provides a minimal interface for quickly adding tasks with just a title.
+ * Supports keyboard shortcuts for efficient workflow.
+ */
+
 'use client';
 
 import { useState, KeyboardEvent } from 'react';
 import Button from '../ui/Button';
 
+/**
+ * Props for the QuickAddTask component.
+ */
 interface QuickAddTaskProps {
     onAdd: (title: string) => void;
+    /** Custom placeholder text for the input */
     placeholder?: string;
 }
 
+/**
+ * QuickAddTask component provides a streamlined interface for rapid task creation.
+ * Features an expandable input that appears when clicked, with keyboard shortcuts
+ * for saving (Enter) and canceling (Escape). Ideal for quick task capture.
+ *
+ * @param {QuickAddTaskProps} props - Component props
+ * @param {function} props.onAdd - Callback when task is added with the title
+ * @param {string} [props.placeholder] - Custom placeholder text
+ *
+ * @example
+ * <QuickAddTask
+ *   onAdd={(title) => createTask({ title })}
+ *   placeholder="What do you need to do?"
+ * />
+ */
 export default function QuickAddTask({
     onAdd,
     placeholder = 'Add a task... Press Enter to save, Esc to cancel',

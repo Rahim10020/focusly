@@ -1,3 +1,9 @@
+/**
+ * @fileoverview TaskItem component for displaying individual task cards.
+ * Shows task details including title, priority, tags, due date, subtasks, and pomodoro count.
+ * Supports completion toggling, deletion, and opening task details modal.
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -10,6 +16,9 @@ import DueDateBadge from '@/components/ui/DueDateBadge';
 import TaskDetailsModal from './TaskDetailsModal';
 import { useSound } from '@/lib/hooks/useSound';
 
+/**
+ * Props for the TaskItem component.
+ */
 interface TaskItemProps {
     task: Task;
     isActive: boolean;
@@ -21,10 +30,45 @@ interface TaskItemProps {
     onAddSubTask: (taskId: string, title: string) => void;
     onToggleSubTask: (taskId: string, subTaskId: string) => void;
     onDeleteSubTask: (taskId: string, subTaskId: string) => void;
+    /** Whether the task is currently being dragged */
     isDragging?: boolean;
+    /** Props for the drag handle element */
     dragHandleProps?: any;
 }
 
+/**
+ * TaskItem component displays a single task card with all its details and actions.
+ * Includes visual feedback for active state, drag state, and completion status.
+ * Plays sound effect when task is completed.
+ *
+ * @param {TaskItemProps} props - Component props
+ * @param {Task} props.task - The task data to display
+ * @param {boolean} props.isActive - Whether this task is currently active for timer
+ * @param {Tag[]} props.tags - Available tags for display
+ * @param {function} props.onToggle - Callback when task completion is toggled
+ * @param {function} props.onDelete - Callback when task is deleted
+ * @param {function} props.onSelect - Callback when task is selected as active
+ * @param {function} props.onUpdate - Callback when task is updated
+ * @param {function} props.onAddSubTask - Callback when subtask is added
+ * @param {function} props.onToggleSubTask - Callback when subtask is toggled
+ * @param {function} props.onDeleteSubTask - Callback when subtask is deleted
+ * @param {boolean} [props.isDragging] - Whether task is being dragged
+ * @param {any} [props.dragHandleProps] - Props for drag handle
+ *
+ * @example
+ * <TaskItem
+ *   task={taskData}
+ *   isActive={taskData.id === activeTaskId}
+ *   tags={availableTags}
+ *   onToggle={(id) => toggleTask(id)}
+ *   onDelete={(id) => deleteTask(id)}
+ *   onSelect={(id) => selectTask(id)}
+ *   onUpdate={(id, updates) => updateTask(id, updates)}
+ *   onAddSubTask={(taskId, title) => addSubTask(taskId, title)}
+ *   onToggleSubTask={(taskId, subTaskId) => toggleSubTask(taskId, subTaskId)}
+ *   onDeleteSubTask={(taskId, subTaskId) => deleteSubTask(taskId, subTaskId)}
+ * />
+ */
 export default function TaskItem({
     task,
     isActive,

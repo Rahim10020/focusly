@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Statistics calculation and tracking hook.
+ * Manages user productivity statistics including focus time, completed tasks,
+ * sessions, and streaks with database synchronization support.
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
@@ -7,6 +13,37 @@ import { supabase } from '@/lib/supabase';
 import { useToastContext } from '@/components/providers/ToastProvider';
 import { logger } from '@/lib/logger';
 
+/**
+ * Hook for managing and calculating user productivity statistics.
+ * Tracks focus time, completed tasks, pomodoro sessions, and streaks.
+ * Automatically syncs with Supabase when authenticated.
+ *
+ * @returns {Object} Statistics state and management functions
+ * @returns {Stats} returns.stats - Current statistics object
+ * @returns {PomodoroSession[]} returns.sessions - Array of all pomodoro sessions
+ * @returns {boolean} returns.loading - Whether stats are being loaded
+ * @returns {string|null} returns.error - Error message if any
+ * @returns {Function} returns.addSession - Record a new pomodoro session
+ * @returns {Function} returns.updateTaskStats - Update task completion statistics
+ * @returns {Function} returns.getTodaySessions - Get all sessions from today
+ * @returns {Function} returns.getTodayFocusTime - Get total focus time for today
+ *
+ * @example
+ * const { stats, addSession, getTodayFocusTime } = useStats();
+ *
+ * // Record a completed session
+ * await addSession({
+ *   id: 'session-123',
+ *   type: 'work',
+ *   duration: 1500,
+ *   completed: true,
+ *   startedAt: Date.now() - 1500000,
+ *   taskId: 'task-456'
+ * });
+ *
+ * // Get today's focus time in seconds
+ * const todayFocus = getTodayFocusTime();
+ */
 export function useStats() {
     const { data: session } = useSession();
     const { error: showErrorToast } = useToastContext();

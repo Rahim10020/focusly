@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Tasks management page for the Focusly application.
+ * Provides a full-featured task list with quick add, sorting, filtering,
+ * and all task management operations.
+ * @module app/tasks/page
+ */
+
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -12,6 +19,13 @@ import { useTasks } from '@/lib/hooks/useTasks';
 import { useTags } from '@/lib/hooks/useTags';
 import { Task } from '@/types';
 
+/**
+ * Tasks page component that displays and manages all user tasks.
+ * Provides functionality for adding, editing, deleting, reordering,
+ * and completing tasks with support for subtasks and tags.
+ *
+ * @returns {JSX.Element | null} The rendered tasks page or null during redirect
+ */
 export default function TasksPage() {
     const router = useRouter();
     const { data: session, status } = useSession();

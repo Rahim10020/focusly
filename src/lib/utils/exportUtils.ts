@@ -1,8 +1,25 @@
+/**
+ * @fileoverview Export utilities for generating PDF and CSV reports.
+ * Provides functions to export tasks and analytics data in various formats.
+ * @module lib/utils/exportUtils
+ */
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Task, Stats, PomodoroSession, DOMAINS, getDomainFromSubDomain } from '@/types';
 import { format } from 'date-fns';
 
+/**
+ * Exports tasks to a formatted PDF document with summary statistics.
+ * Includes task details, completion rates, and domain categorization.
+ *
+ * @param {Task[]} tasks - Array of tasks to export
+ * @param {string} [userName='User'] - Name to display on the report
+ * @returns {void} Downloads the PDF file
+ *
+ * @example
+ * exportTasksToPDF(tasks, 'John Doe'); // Downloads focusly-tasks-2024-01-15.pdf
+ */
 export const exportTasksToPDF = (tasks: Task[], userName: string = 'User') => {
     const doc = new jsPDF();
 
@@ -56,6 +73,20 @@ export const exportTasksToPDF = (tasks: Task[], userName: string = 'User') => {
     doc.save(`focusly-tasks-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 };
 
+/**
+ * Exports comprehensive analytics report to PDF.
+ * Includes overall statistics, domain breakdown, and recent session history.
+ *
+ * @param {Stats} stats - User statistics object
+ * @param {Task[]} tasks - Array of user tasks
+ * @param {PomodoroSession[]} sessions - Array of Pomodoro sessions
+ * @param {string} [userName='User'] - Name to display on the report
+ * @returns {void} Downloads the PDF file
+ *
+ * @example
+ * exportAnalyticsToPDF(stats, tasks, sessions, 'John Doe');
+ * // Downloads focusly-analytics-2024-01-15.pdf
+ */
 export const exportAnalyticsToPDF = (
     stats: Stats,
     tasks: Task[],
@@ -149,6 +180,16 @@ export const exportAnalyticsToPDF = (
     doc.save(`focusly-analytics-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 };
 
+/**
+ * Exports tasks to a CSV file for spreadsheet applications.
+ * Includes all task fields: title, priority, dates, times, and notes.
+ *
+ * @param {Task[]} tasks - Array of tasks to export
+ * @returns {void} Downloads the CSV file
+ *
+ * @example
+ * exportTasksToCSV(tasks); // Downloads focusly-tasks-2024-01-15.csv
+ */
 export const exportTasksToCSV = (tasks: Task[]) => {
     const headers = ['Title', 'Priority', 'Domain', 'Completed', 'Start Date', 'Start Time', 'Due Date', 'End Time', 'Estimated Duration (min)', 'Pomodoros', 'Notes'];
 
@@ -184,6 +225,19 @@ export const exportTasksToCSV = (tasks: Task[]) => {
     document.body.removeChild(link);
 };
 
+/**
+ * Exports analytics data to a CSV file with multiple sections.
+ * Includes overall statistics, domain breakdown, and recent session history.
+ *
+ * @param {Stats} stats - User statistics object
+ * @param {Task[]} tasks - Array of user tasks
+ * @param {PomodoroSession[]} sessions - Array of Pomodoro sessions
+ * @returns {void} Downloads the CSV file
+ *
+ * @example
+ * exportAnalyticsToCSV(stats, tasks, sessions);
+ * // Downloads focusly-analytics-2024-01-15.csv
+ */
 export const exportAnalyticsToCSV = (stats: Stats, tasks: Task[], sessions: PomodoroSession[]) => {
     const lines: string[] = [];
 

@@ -1,13 +1,46 @@
+/**
+ * @fileoverview Achievements list component displaying user progress.
+ * Shows both unlocked and locked achievements with progress tracking.
+ */
+
 'use client';
 
 import { useState } from 'react';
 import { Achievement } from '@/types';
 
+/**
+ * Props for the AchievementsList component.
+ * @interface AchievementsListProps
+ * @property {Achievement[]} unlockedAchievements - Array of achievements the user has unlocked
+ * @property {Achievement[]} lockedAchievements - Array of achievements still to be unlocked
+ */
 interface AchievementsListProps {
     unlockedAchievements: Achievement[];
     lockedAchievements: Achievement[];
 }
 
+/**
+ * Achievements list component that displays user achievements organized by level.
+ * Features tabbed navigation between beginner and expert achievements,
+ * with progress bars for locked achievements.
+ *
+ * @param {AchievementsListProps} props - Component props
+ * @param {Achievement[]} props.unlockedAchievements - Achievements the user has earned
+ * @param {Achievement[]} props.lockedAchievements - Achievements still in progress
+ * @returns {JSX.Element} The achievements list with tabs and progress indicators
+ *
+ * @example
+ * function AchievementsPage() {
+ *   const { unlocked, locked } = useAchievements();
+ *
+ *   return (
+ *     <AchievementsList
+ *       unlockedAchievements={unlocked}
+ *       lockedAchievements={locked}
+ *     />
+ *   );
+ * }
+ */
 export default function AchievementsList({
     unlockedAchievements,
     lockedAchievements

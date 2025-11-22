@@ -1,13 +1,57 @@
+/**
+ * @fileoverview Input component with label, validation states, and helper text.
+ */
+
 import React from 'react';
 
+/**
+ * Props for the Input component.
+ * @interface InputProps
+ * @extends {Omit<React.InputHTMLAttributes<HTMLInputElement>, 'ref'>}
+ */
 interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'ref'> {
+    /** Label text displayed above the input */
     label?: string;
+    /** Error message to display below the input */
     error?: string;
+    /** Whether to show success state styling */
     success?: boolean;
+    /** Helper text displayed below the input */
     helperText?: string;
+    /** Whether to render without border */
     noBorder?: boolean;
 }
 
+/**
+ * A form input component with support for labels, validation states, and helper text.
+ * Supports forwarded refs for form integration.
+ *
+ * @param {InputProps} props - The component props
+ * @param {string} [props.label] - Label text displayed above the input
+ * @param {string} [props.error] - Error message to display
+ * @param {boolean} [props.success] - Shows success state styling
+ * @param {string} [props.helperText] - Helper text below the input
+ * @param {boolean} [props.noBorder] - Removes border styling
+ * @param {string} [props.className=''] - Additional CSS classes
+ * @param {React.Ref<HTMLInputElement>} ref - Forwarded ref
+ * @returns {JSX.Element} The rendered input element
+ *
+ * @example
+ * // Basic input with label
+ * <Input label="Email" type="email" placeholder="Enter email" />
+ *
+ * @example
+ * // Input with error state
+ * <Input
+ *   label="Password"
+ *   type="password"
+ *   error="Password must be at least 8 characters"
+ * />
+ *
+ * @example
+ * // Input with success state
+ * <Input label="Username" success={true} helperText="Username is available" />
+ */
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({
     label,
     error,

@@ -1,12 +1,56 @@
+/**
+ * @fileoverview Button component with multiple variants, sizes, and loading state.
+ */
+
 import React from 'react';
 
+/**
+ * Props for the Button component.
+ * @interface ButtonProps
+ * @extends {React.ButtonHTMLAttributes<HTMLButtonElement>}
+ */
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    /** The visual style variant of the button */
     variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger' | 'success';
+    /** The size of the button */
     size?: 'sm' | 'md' | 'lg';
+    /** Whether the button is in a loading state */
     loading?: boolean;
+    /** The content to display inside the button */
     children: React.ReactNode;
 }
 
+/**
+ * A versatile button component with multiple variants and sizes.
+ * Supports loading state with spinner animation and inherits all native button attributes.
+ *
+ * @param {ButtonProps} props - The component props
+ * @param {('primary'|'secondary'|'ghost'|'outline'|'danger'|'success')} [props.variant='primary'] - Visual style variant
+ * @param {('sm'|'md'|'lg')} [props.size='md'] - Button size
+ * @param {boolean} [props.loading=false] - Shows loading spinner when true
+ * @param {string} [props.className=''] - Additional CSS classes
+ * @param {React.ReactNode} props.children - Button content
+ * @param {boolean} [props.disabled] - Whether the button is disabled
+ * @returns {JSX.Element} The rendered button element
+ *
+ * @example
+ * // Primary button
+ * <Button variant="primary" onClick={handleClick}>
+ *   Save Changes
+ * </Button>
+ *
+ * @example
+ * // Loading button
+ * <Button loading={true} disabled>
+ *   Saving...
+ * </Button>
+ *
+ * @example
+ * // Danger button with small size
+ * <Button variant="danger" size="sm">
+ *   Delete
+ * </Button>
+ */
 export default function Button({
     variant = 'primary',
     size = 'md',

@@ -1,11 +1,37 @@
+/**
+ * @fileoverview Rate limiting utilities for API protection.
+ * Provides functions and middleware for limiting request frequency per identifier.
+ * @module lib/rateLimit
+ */
+
 import { supabase } from './supabase';
 import { logger } from './logger';
 
+/**
+ * Configuration options for rate limiting.
+ * @interface RateLimitOptions
+ */
 interface RateLimitOptions {
-    windowMs: number; // Time window in milliseconds
-    maxRequests: number; // Maximum requests per window
+    /** Time window in milliseconds */
+    windowMs: number;
+    /** Maximum requests allowed per window */
+    maxRequests: number;
 }
 
+/**
+ * Checks and updates rate limit for a given identifier.
+ * Uses Supabase to track request counts with automatic window expiration.
+ *
+ * @param {string} identifier - Unique identifier (e.g., IP address, user ID)
+ * @param {RateLimitOptions} options - Rate limit configuration
+ * @returns {Promise<{allowed: boolean, resetTime?: number, remaining?: number}>} Rate limit result
+ *
+ * @example
+ * const result = await rateLimit('user-123', { windowMs: 60000, maxRequests: 10 });
+ * if (!result.allowed) {
+ *   return res.status(429).json({ error: 'Too many requests' });
+ * }
+ */
 export async function rateLimit(
     identifier: string,
     options: RateLimitOptions
@@ -89,10 +115,23 @@ export async function rateLimit(
     }
 }
 
-// Middleware function for API routes
+/**
+ * Higher-order function that wraps an API handler with rate limiting.
+ * Automatically extracts client IP and adds rate limit headers to responses.
+ *
+ * @param {Function} handler - The API route handler to wrap
+ * @param {RateLimitOptions} [options] - Rate limit configuration (default: 100 requests per 15 minutes)
+ * @returns {Function} Wrapped handler with rate limiting
+ *
+ * @example
+ * // In API route
+ * export const GET = withRateLimit(async (request) => {
+ *   return Response.json({ data: 'success' });
+ * }, { windowMs: 60000, maxRequests: 30 });
+ */
 export function withRateLimit(
     handler: Function,
-    options: RateLimitOptions = { windowMs: 15 * 60 * 1000, maxRequests: 100 } // 100 requests per 15 minutes
+    options: RateLimitOptions = { windowMs: 15 * 60 * 1000, maxRequests: 100 }
 ) {
     return async (request: Request, ...args: any[]) => {
         // Get client IP (in production, use proper IP extraction)

@@ -1,9 +1,22 @@
+/**
+ * @fileoverview Modal component displaying available keyboard shortcuts.
+ */
+
 'use client';
 
+/**
+ * Props for the KeyboardShortcutsModal component.
+ * @interface KeyboardShortcutsModalProps
+ */
 interface KeyboardShortcutsModalProps {
+    /** Callback function when modal should close */
     onClose: () => void;
 }
 
+/**
+ * Configuration array of keyboard shortcuts organized by category.
+ * @constant
+ */
 const shortcuts = [
     {
         category: 'Timer Control',
@@ -41,6 +54,22 @@ const shortcuts = [
     },
 ];
 
+/**
+ * A modal component that displays all available keyboard shortcuts.
+ * Shortcuts are organized by category (Timer, Navigation, Tasks, etc.).
+ * Closes when clicking outside or pressing the close button.
+ *
+ * @param {KeyboardShortcutsModalProps} props - The component props
+ * @param {Function} props.onClose - Callback when modal closes
+ * @returns {JSX.Element} The rendered shortcuts modal
+ *
+ * @example
+ * const [showShortcuts, setShowShortcuts] = useState(false);
+ *
+ * {showShortcuts && (
+ *   <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
+ * )}
+ */
 export default function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps) {
     return (
         <div

@@ -1,3 +1,8 @@
+/**
+ * @fileoverview SubTaskManager component for managing subtasks within a task.
+ * Provides full CRUD operations with drag-and-drop reordering and progress tracking.
+ */
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -5,15 +10,41 @@ import { SubTask } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 
+/**
+ * Props for the SubTaskManager component.
+ */
 interface SubTaskManagerProps {
     subTasks: SubTask[];
     onAdd: (title: string) => void;
     onToggle: (id: string) => void;
     onDelete: (id: string) => void;
     onReorder?: (startIndex: number, endIndex: number) => void;
+    /** Whether the component is in read-only mode */
     readonly?: boolean;
 }
 
+/**
+ * SubTaskManager component provides comprehensive subtask management with progress tracking.
+ * Features include adding new subtasks, toggling completion, deleting, and drag-and-drop reordering.
+ * Shows visual progress bar with completion percentage.
+ *
+ * @param {SubTaskManagerProps} props - Component props
+ * @param {SubTask[]} props.subTasks - Array of subtasks to display and manage
+ * @param {function} props.onAdd - Callback when a new subtask is added
+ * @param {function} props.onToggle - Callback when subtask completion is toggled
+ * @param {function} props.onDelete - Callback when subtask is deleted
+ * @param {function} [props.onReorder] - Callback when subtasks are reordered via drag-and-drop
+ * @param {boolean} [props.readonly=false] - Whether to disable editing actions
+ *
+ * @example
+ * <SubTaskManager
+ *   subTasks={task.subTasks}
+ *   onAdd={(title) => addSubTask(task.id, title)}
+ *   onToggle={(subTaskId) => toggleSubTask(task.id, subTaskId)}
+ *   onDelete={(subTaskId) => deleteSubTask(task.id, subTaskId)}
+ *   onReorder={(startIndex, endIndex) => reorderSubTasks(task.id, startIndex, endIndex)}
+ * />
+ */
 export default function SubTaskManager({
     subTasks,
     onAdd,

@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Home page component for the Focusly application.
+ * This is the main entry point that displays the landing page for unauthenticated users
+ * and the dashboard with tasks, Pomodoro timer, and stats overview for authenticated users.
+ * @module app/page
+ */
+
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -23,6 +30,12 @@ import { useTaskNotifications } from '@/lib/hooks/useTaskNotifications';
 import { Task } from '@/types';
 import { useTheme } from '@/components/providers/ThemeProvider';
 
+/**
+ * Combines a date timestamp with a time string to create a full datetime timestamp.
+ * @param {number} timestamp - The base date timestamp in milliseconds
+ * @param {string} [startTime] - Optional time string in "HH:MM" format
+ * @returns {number} The combined timestamp, or original timestamp if no valid time provided
+ */
 const combineDateAndTime = (timestamp: number, startTime?: string) => {
   if (!startTime) return timestamp;
   const [hoursStr, minutesStr] = startTime.split(':');
@@ -36,6 +49,11 @@ const combineDateAndTime = (timestamp: number, startTime?: string) => {
   return date.getTime();
 };
 
+/**
+ * Retrieves the scheduling timestamp for a task, prioritizing start date over due date.
+ * @param {Task} task - The task to get the schedule timestamp for
+ * @returns {number | null} The timestamp for scheduling, or null if no dates are set
+ */
 const getTaskScheduleTimestamp = (task: Task) => {
   if (task.startDate) {
     return combineDateAndTime(task.startDate, task.startTime);
@@ -46,6 +64,12 @@ const getTaskScheduleTimestamp = (task: Task) => {
   return null;
 };
 
+/**
+ * Retrieves the most imminent active tasks, sorted by schedule date then creation date.
+ * @param {Task[]} tasks - Array of all tasks
+ * @param {number} [limit=5] - Maximum number of tasks to return
+ * @returns {Task[]} Array of the most imminent active tasks
+ */
 const getImminentTasks = (tasks: Task[], limit = 5) => {
   const activeTasks = tasks.filter(task => !task.completed);
 
@@ -62,6 +86,13 @@ const getImminentTasks = (tasks: Task[], limit = 5) => {
   return [...scheduledTasks, ...fallbackTasks].slice(0, limit);
 };
 
+/**
+ * Home page component that serves as the main entry point for the Focusly application.
+ * Displays a marketing landing page for unauthenticated users, or a productivity dashboard
+ * with task management, Pomodoro timer, and statistics for authenticated users.
+ *
+ * @returns {JSX.Element} The rendered home page component
+ */
 export default function Home() {
   const router = useRouter();
   const { data: session, status } = useSession();

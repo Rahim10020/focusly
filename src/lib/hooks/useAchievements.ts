@@ -1,9 +1,20 @@
+/**
+ * @fileoverview Achievement tracking and unlocking hook.
+ * Manages gamification achievements based on user activity including
+ * completed tasks, pomodoro sessions, streaks, and focus time milestones.
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Achievement } from '@/types';
 import { supabase } from '@/lib/supabase';
 
+/**
+ * Predefined achievement definitions with targets and metadata.
+ * Includes beginner and expert level achievements for various milestones.
+ * @constant
+ */
 const ACHIEVEMENTS_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress'>[] = [
     // Beginner Level Achievements
     {
@@ -170,6 +181,36 @@ const ACHIEVEMENTS_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress'>[] =
     },
 ];
 
+/**
+ * Hook for tracking and managing user achievements.
+ * Automatically checks and unlocks achievements based on user statistics
+ * and activity. Syncs with Supabase when authenticated.
+ *
+ * @returns {Object} Achievement state and management functions
+ * @returns {Achievement[]} returns.achievements - All achievements with progress
+ * @returns {Achievement[]} returns.unlockedAchievements - Only unlocked achievements
+ * @returns {Achievement[]} returns.lockedAchievements - Only locked achievements
+ * @returns {Achievement[]} returns.newlyUnlocked - Recently unlocked achievements for notifications
+ * @returns {Function} returns.checkAchievements - Check and unlock achievements based on stats
+ * @returns {Function} returns.checkTimeBasedAchievements - Check time-based achievements (early bird, night owl)
+ * @returns {Function} returns.clearNewlyUnlocked - Clear the newly unlocked achievements list
+ *
+ * @example
+ * const { achievements, checkAchievements, newlyUnlocked } = useAchievements();
+ *
+ * // Check achievements after completing a task
+ * checkAchievements({
+ *   totalSessions: 10,
+ *   completedTasks: 5,
+ *   streak: 3,
+ *   todayFocusMinutes: 120
+ * });
+ *
+ * // Show notifications for newly unlocked achievements
+ * newlyUnlocked.forEach(achievement => {
+ *   showNotification(`Achievement unlocked: ${achievement.title}`);
+ * });
+ */
 export function useAchievements() {
     const { data: session } = useSession();
     const [localAchievements, setLocalAchievements] = useLocalStorage<Achievement[]>(

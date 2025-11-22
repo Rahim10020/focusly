@@ -1,3 +1,10 @@
+/**
+ * @fileoverview How to Use documentation page for the Focusly application.
+ * Comprehensive guide covering all features including Pomodoro technique,
+ * task management, calendar, analytics, achievements, and keyboard shortcuts.
+ * @module app/how-to-use/page
+ */
+
 'use client';
 
 import Link from 'next/link';
@@ -5,6 +12,13 @@ import Card, { CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
+/**
+ * How to Use page component providing comprehensive user documentation.
+ * Includes sections on getting started, app tour, task management,
+ * timer controls, calendar, analytics, achievements, and keyboard shortcuts.
+ *
+ * @returns {JSX.Element} The rendered documentation page
+ */
 export default function HowToUsePage() {
     return (
         <div className="min-h-screen bg-background">

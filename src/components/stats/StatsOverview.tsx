@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Statistics overview component that displays summary cards
+ * for key productivity metrics including focus time, tasks, and completion rate.
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,6 +11,27 @@ import { useTasks } from '@/lib/hooks/useTasks';
 import { formatTime } from '@/lib/utils/time';
 import StatsCard from './StatsCard';
 
+/**
+ * Displays a grid of summary statistic cards showing key productivity metrics.
+ * Includes today's focus time, total focus time, tasks completed, and completion rate.
+ * Renders a loading skeleton state before client-side hydration.
+ *
+ * @returns {JSX.Element} A responsive grid of StatsCard components
+ *
+ * @example
+ * ```tsx
+ * import StatsOverview from '@/components/stats/StatsOverview';
+ *
+ * function Dashboard() {
+ *   return (
+ *     <div className="space-y-6">
+ *       <h1>Your Statistics</h1>
+ *       <StatsOverview />
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
 export default function StatsOverview() {
     const { stats, getTodayFocusTime } = useStats();
     const { tasks } = useTasks();

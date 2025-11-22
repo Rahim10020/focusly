@@ -1,15 +1,60 @@
+/**
+ * @fileoverview Pomodoro timer state management hook.
+ * Provides complete timer functionality including work sessions, breaks,
+ * automatic session transitions, and cycle tracking for the Pomodoro technique.
+ */
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TimerStatus, PomodoroSession } from '@/types';
 import { TimerSettings } from './useSettings';
 
+/**
+ * Configuration options for the usePomodoro hook.
+ * @interface UsePomodoroOptions
+ */
 interface UsePomodoroOptions {
+    /** Timer duration and behavior settings */
     settings: TimerSettings;
+    /** Callback fired when any session (work or break) completes */
     onSessionComplete?: (session: PomodoroSession) => void;
+    /** Callback fired specifically when a work session completes */
     onWorkComplete?: () => void;
+    /** Callback fired specifically when a break session completes */
     onBreakComplete?: () => void;
+    /** ID of the currently active task being worked on */
     activeTaskId?: string | null;
 }
 
+/**
+ * Hook for managing Pomodoro timer state and controls.
+ * Handles work sessions, short/long breaks, automatic transitions,
+ * and tracks completed cycles.
+ *
+ * @param {UsePomodoroOptions} options - Configuration options for the timer
+ * @returns {Object} Timer state and control functions
+ * @returns {number} returns.timeLeft - Remaining time in seconds
+ * @returns {TimerStatus} returns.status - Current timer status ('idle' | 'running' | 'paused')
+ * @returns {'work' | 'break'} returns.sessionType - Type of current session
+ * @returns {number} returns.completedCycles - Number of completed work/break cycles
+ * @returns {Function} returns.start - Start or resume the timer
+ * @returns {Function} returns.pause - Pause the timer
+ * @returns {Function} returns.reset - Reset timer to initial state
+ * @returns {Function} returns.skip - Skip the current session
+ *
+ * @example
+ * const {
+ *   timeLeft,
+ *   status,
+ *   sessionType,
+ *   start,
+ *   pause,
+ *   reset
+ * } = usePomodoro({
+ *   settings: timerSettings,
+ *   onWorkComplete: () => console.log('Work session done!'),
+ *   activeTaskId: 'task-123'
+ * });
+ */
 export function usePomodoro(options: UsePomodoroOptions) {
     const { settings, onSessionComplete, onWorkComplete, onBreakComplete, activeTaskId } = options;
 

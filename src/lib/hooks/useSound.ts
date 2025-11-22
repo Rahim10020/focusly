@@ -1,6 +1,18 @@
+/**
+ * @fileoverview Audio management hook for timer sounds.
+ * Handles loading and playing audio feedback for timer events
+ * including work start, pause, completion, and break sounds.
+ */
+
 import { useCallback, useRef, useState, useEffect } from 'react';
 
-// Fonction pour générer un son de notification simple (pour les pauses)
+/**
+ * Creates a simple beep sound using Web Audio API.
+ * Used for break completion and tick sounds.
+ *
+ * @param {number} frequency - Sound frequency in Hz (default: 800)
+ * @param {number} duration - Sound duration in milliseconds (default: 200)
+ */
 const createBeepSound = (frequency: number = 800, duration: number = 200) => {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
@@ -19,6 +31,34 @@ const createBeepSound = (frequency: number = 800, duration: number = 200) => {
     oscillator.stop(audioContext.currentTime + duration / 1000);
 };
 
+/**
+ * Hook for managing timer audio feedback.
+ * Provides sound effects for timer events with enable/disable toggle.
+ * Preloads WAV files and uses Web Audio API for generated sounds.
+ *
+ * @returns {Object} Sound state and playback functions
+ * @returns {boolean} returns.soundEnabled - Whether sounds are enabled
+ * @returns {Function} returns.toggleSound - Toggle sounds on/off
+ * @returns {Function} returns.playWorkStart - Play work session start sound
+ * @returns {Function} returns.playWorkPause - Play work pause sound
+ * @returns {Function} returns.playWorkComplete - Play work completion sound
+ * @returns {Function} returns.playBreakComplete - Play break completion sound
+ * @returns {Function} returns.playTick - Play tick sound
+ *
+ * @example
+ * const { soundEnabled, toggleSound, playWorkComplete } = useSound();
+ *
+ * // Toggle sound on/off
+ * <button onClick={toggleSound}>
+ *   {soundEnabled ? 'Mute' : 'Unmute'}
+ * </button>
+ *
+ * // Play sound when work session completes
+ * const handleWorkComplete = () => {
+ *   playWorkComplete();
+ *   showNotification('Work session complete!');
+ * };
+ */
 export function useSound() {
     const [soundEnabled, setSoundEnabled] = useState(true);
 

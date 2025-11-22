@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Task CRUD operations and management hook.
+ * Provides comprehensive task management with support for local storage
+ * and Supabase database synchronization, including subtasks, priorities,
+ * tags, and drag-and-drop reordering.
+ */
+
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
@@ -8,6 +15,50 @@ import { supabase } from '@/lib/supabase';
 import { useToastContext } from '@/components/providers/ToastProvider';
 import { logger } from '@/lib/logger';
 
+/**
+ * Hook for managing tasks with full CRUD operations.
+ * Automatically syncs with Supabase when authenticated, falls back to localStorage otherwise.
+ * Supports subtasks, priorities, tags, due dates, and optimistic locking for concurrent updates.
+ *
+ * @returns {Object} Task state and management functions
+ * @returns {Task[]} returns.tasks - Array of all tasks
+ * @returns {string|null} returns.activeTaskId - ID of the currently active task
+ * @returns {boolean} returns.loading - Whether tasks are being loaded
+ * @returns {string|null} returns.error - Error message if any
+ * @returns {Function} returns.addTask - Add a new task
+ * @returns {Function} returns.updateTask - Update an existing task
+ * @returns {Function} returns.deleteTask - Delete a task
+ * @returns {Function} returns.toggleTask - Toggle task completion status
+ * @returns {Function} returns.incrementPomodoro - Increment pomodoro count for a task
+ * @returns {Function} returns.addSubTask - Add a subtask to a task
+ * @returns {Function} returns.toggleSubTask - Toggle subtask completion
+ * @returns {Function} returns.deleteSubTask - Delete a subtask
+ * @returns {Function} returns.reorderTasks - Reorder tasks via drag and drop
+ * @returns {Function} returns.setActiveTask - Set the active task
+ * @returns {Function} returns.getActiveTask - Get the current active task
+ * @returns {Function} returns.getActiveTasks - Get all incomplete tasks
+ * @returns {Function} returns.getCompletedTasks - Get all completed tasks
+ * @returns {Function} returns.getTasksByPriority - Filter tasks by priority
+ * @returns {Function} returns.getTasksByTag - Filter tasks by tag
+ * @returns {Function} returns.getOverdueTasks - Get all overdue tasks
+ * @returns {Function} returns.getTasksDueToday - Get tasks due today
+ * @returns {Function} returns.sortTasksByPriority - Sort tasks by priority
+ * @returns {Function} returns.sortTasksByOrder - Sort tasks by order
+ *
+ * @example
+ * const { tasks, addTask, toggleTask, deleteTask } = useTasks();
+ *
+ * // Add a new task
+ * await addTask({
+ *   title: 'Complete project',
+ *   priority: 'high',
+ *   tags: ['work'],
+ *   dueDate: Date.now() + 86400000
+ * });
+ *
+ * // Toggle task completion
+ * await toggleTask('task-123');
+ */
 export function useTasks() {
     const { data: session } = useSession();
     const { error: showErrorToast } = useToastContext();

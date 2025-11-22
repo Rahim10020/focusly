@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Sign In page for the Focusly application.
+ * Provides email/password authentication form with error handling
+ * and navigation to sign up page.
+ * @module app/auth/signin/page
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -8,6 +15,13 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 
+/**
+ * Sign In page component for user authentication.
+ * Provides email and password fields with validation,
+ * error messages for failed attempts, and link to sign up.
+ *
+ * @returns {JSX.Element} The rendered sign in form
+ */
 export default function SignIn() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

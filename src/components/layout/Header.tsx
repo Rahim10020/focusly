@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Main header component with navigation and user controls.
+ * Provides responsive navigation for both desktop and mobile devices.
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -7,6 +12,27 @@ import { useSession } from 'next-auth/react';
 import ThemeToggle from '../ui/ThemeToggle';
 import UserMenu from '../ui/UserMenu';
 
+/**
+ * Main header component that displays the application logo, navigation links,
+ * theme toggle, and user menu. Includes responsive design with a mobile hamburger menu.
+ *
+ * @returns {JSX.Element} The header component with navigation
+ *
+ * @example
+ * // Use in a layout component
+ * function Layout({ children }) {
+ *   return (
+ *     <>
+ *       <Header />
+ *       <main>{children}</main>
+ *     </>
+ *   );
+ * }
+ *
+ * @example
+ * // Header automatically handles active states based on current route
+ * // Navigation includes: Dashboard, Tasks, Calendar, Statistics, Friends, Leaderboard
+ */
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const pathname = usePathname();

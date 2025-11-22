@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Email Verification page for the Focusly application.
+ * Handles email verification tokens from Supabase and provides
+ * feedback on verification status with resend functionality.
+ * @module app/auth/verify-email/page
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,6 +18,13 @@ const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+/**
+ * Email Verification page component that processes verification tokens.
+ * Automatically verifies OTP tokens from email links and provides
+ * status feedback with auto-redirect to sign in on success.
+ *
+ * @returns {JSX.Element} The rendered verification status page
+ */
 export default function VerifyEmail() {
     const [message, setMessage] = useState('Vérification en cours...');
     const [isVerified, setIsVerified] = useState(false);

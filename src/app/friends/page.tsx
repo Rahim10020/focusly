@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Friends management page for the Focusly application.
+ * Displays friend requests and friends list with accept/reject functionality
+ * and navigation to friend profiles.
+ * @module app/friends/page
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -7,22 +14,40 @@ import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
+/**
+ * Represents a friend relationship between users.
+ * @interface Friend
+ */
 interface Friend {
+    /** Unique friendship identifier */
     id: string;
+    /** ID of the user who sent the request */
     sender_id: string;
+    /** ID of the user who received the request */
     receiver_id: string;
+    /** Current status of the friend request */
     status: 'pending' | 'accepted' | 'rejected';
+    /** Timestamp when the request was created */
     created_at: string;
+    /** Information about the sender */
     sender: {
         username: string | null;
         avatar_url: string | null;
     } | null;
+    /** Information about the receiver */
     receiver: {
         username: string | null;
         avatar_url: string | null;
     } | null;
 }
 
+/**
+ * Friends page component for managing friend relationships.
+ * Displays pending friend requests with accept/reject actions
+ * and a list of accepted friends with profile navigation.
+ *
+ * @returns {JSX.Element} The rendered friends page
+ */
 export default function FriendsPage() {
     const { data: session, status } = useSession();
     const router = useRouter();

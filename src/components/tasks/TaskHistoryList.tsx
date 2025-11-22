@@ -1,3 +1,8 @@
+/**
+ * @fileoverview TaskHistoryList component for displaying completed and failed task history.
+ * Shows a tabbed view of past tasks with their details and completion status.
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -5,12 +10,33 @@ import { Task, Tag } from '@/types';
 import PriorityBadge from '@/components/ui/PriorityBadge';
 import TagBadge from '@/components/ui/TagBadge';
 
+/**
+ * Props for the TaskHistoryList component.
+ */
 interface TaskHistoryListProps {
     completedTasks: Task[];
     failedTasks: Task[];
+    /** Available tags for display */
     tags: Tag[];
 }
 
+/**
+ * TaskHistoryList component displays historical task data in a tabbed interface.
+ * Shows completed and failed tasks with their details including priority, tags,
+ * completion date, and pomodoro count. Tasks are displayed in reverse chronological order.
+ *
+ * @param {TaskHistoryListProps} props - Component props
+ * @param {Task[]} props.completedTasks - Array of successfully completed tasks
+ * @param {Task[]} props.failedTasks - Array of failed/incomplete tasks
+ * @param {Tag[]} props.tags - Available tags for display
+ *
+ * @example
+ * <TaskHistoryList
+ *   completedTasks={tasks.filter(t => t.completed && !t.failed)}
+ *   failedTasks={tasks.filter(t => t.failed)}
+ *   tags={availableTags}
+ * />
+ */
 export default function TaskHistoryList({
     completedTasks,
     failedTasks,

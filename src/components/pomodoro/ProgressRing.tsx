@@ -1,5 +1,18 @@
+/**
+ * @fileoverview SVG circular progress indicator component for visualizing timer progress.
+ * Features gradient colors, glow effects, and milestone animations.
+ */
+
 'use client';
 
+/**
+ * Props for the ProgressRing component.
+ * @interface ProgressRingProps
+ * @property {number} progress - Current progress percentage (0-100)
+ * @property {number} [size=200] - Diameter of the ring in pixels
+ * @property {number} [strokeWidth=8] - Width of the ring stroke in pixels
+ * @property {boolean} [isActive=false] - Whether the timer is actively running (enables glow effects)
+ */
 interface ProgressRingProps {
     progress: number;
     size?: number;
@@ -7,6 +20,27 @@ interface ProgressRingProps {
     isActive?: boolean;
 }
 
+/**
+ * Renders a circular SVG progress indicator with gradient colors and visual effects.
+ * Includes a background track, progress arc with gradient, glow effects when active,
+ * and pulse animations at milestone percentages (25%, 50%, 75%).
+ *
+ * @param {ProgressRingProps} props - Component props
+ * @returns {JSX.Element} The rendered progress ring SVG
+ *
+ * @example
+ * // Basic usage
+ * <ProgressRing progress={75} />
+ *
+ * @example
+ * // Full customization with active state
+ * <ProgressRing
+ *   progress={50}
+ *   size={260}
+ *   strokeWidth={12}
+ *   isActive={true}
+ * />
+ */
 export default function ProgressRing({
     progress,
     size = 200,

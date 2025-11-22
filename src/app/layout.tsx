@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Root layout component for the Focusly application.
+ * Sets up global providers (session, theme, toast), fonts, and metadata.
+ * This layout wraps all pages and provides the core application structure.
+ * @module app/layout
+ */
+
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
@@ -33,6 +40,14 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Root layout component that wraps all pages in the application.
+ * Provides session management, theming, toast notifications, and analytics.
+ *
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Child components to render within the layout
+ * @returns {JSX.Element} The root HTML structure with all providers
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

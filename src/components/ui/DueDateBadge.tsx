@@ -1,8 +1,39 @@
+/**
+ * @fileoverview Badge component for displaying task due dates with contextual styling.
+ */
+
+/**
+ * Props for the DueDateBadge component.
+ * @interface DueDateBadgeProps
+ */
 interface DueDateBadgeProps {
+    /** Due date as Unix timestamp in milliseconds */
     dueDate: number;
+    /** Whether the associated task is completed */
     completed?: boolean;
 }
 
+/**
+ * A badge component that displays a due date with contextual formatting and styling.
+ * Shows relative dates (Today, Tomorrow) and applies different styles based on urgency.
+ *
+ * @param {DueDateBadgeProps} props - The component props
+ * @param {number} props.dueDate - Unix timestamp in milliseconds
+ * @param {boolean} [props.completed] - Task completion status
+ * @returns {JSX.Element} The rendered badge element
+ *
+ * @example
+ * // Due today
+ * <DueDateBadge dueDate={Date.now()} />
+ *
+ * @example
+ * // Completed task
+ * <DueDateBadge dueDate={1700000000000} completed={true} />
+ *
+ * @example
+ * // Overdue task
+ * <DueDateBadge dueDate={Date.now() - 86400000} />
+ */
 export default function DueDateBadge({ dueDate, completed }: DueDateBadgeProps) {
     const now = Date.now();
     const isOverdue = dueDate < now && !completed;

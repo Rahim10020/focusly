@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Main Pomodoro timer orchestrator component that coordinates all timer functionality.
+ * Manages timer state, sound effects, notifications, and integrates with task management.
+ */
+
 'use client';
 
 import { useEffect } from 'react';
@@ -13,6 +18,16 @@ import SessionIndicator from './SessionIndicator';
 import TaskSelector from '../tasks/TaskSelector';
 import { Task } from '@/types';
 
+/**
+ * Props for the PomodoroTimer component.
+ * @interface PomodoroTimerProps
+ * @property {string | null} activeTaskId - ID of the currently selected task, or null if none
+ * @property {Task[]} tasks - Array of available tasks to select from
+ * @property {function} onSelectTask - Callback when a task is selected or deselected
+ * @property {function} onSessionComplete - Callback when a work or break session completes
+ * @property {function} onPomodoroComplete - Callback when a pomodoro is completed for a task
+ * @property {function} onTimerRefReady - Callback to expose timer controls to parent component
+ */
 interface PomodoroTimerProps {
     activeTaskId: string | null;
     tasks: Task[];
@@ -22,6 +37,24 @@ interface PomodoroTimerProps {
     onTimerRefReady: (ref: { start: () => void; pause: () => void; reset: () => void; skip: () => void; status: 'idle' | 'running' | 'paused'; }) => void;
 }
 
+/**
+ * Main Pomodoro timer component that orchestrates the complete timer experience.
+ * Combines timer display, controls, progress visualization, and task selection.
+ * Handles sound effects, browser notifications, and session tracking.
+ *
+ * @param {PomodoroTimerProps} props - Component props
+ * @returns {JSX.Element} The rendered Pomodoro timer interface
+ *
+ * @example
+ * <PomodoroTimer
+ *   activeTaskId={selectedTaskId}
+ *   tasks={taskList}
+ *   onSelectTask={(id) => setSelectedTaskId(id)}
+ *   onSessionComplete={(session) => saveSession(session)}
+ *   onPomodoroComplete={(taskId) => incrementTaskPomodoro(taskId)}
+ *   onTimerRefReady={(ref) => setTimerRef(ref)}
+ * />
+ */
 export default function PomodoroTimer({
     activeTaskId,
     tasks,

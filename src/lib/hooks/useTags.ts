@@ -1,9 +1,19 @@
+/**
+ * @fileoverview Tag management hook for task categorization.
+ * Provides CRUD operations for tags with custom colors,
+ * supporting both localStorage and Supabase persistence.
+ */
+
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Tag } from '@/types';
 import { supabase } from '@/lib/supabase';
 
+/**
+ * Default tags provided for new users.
+ * @constant
+ */
 const DEFAULT_TAGS: Tag[] = [
     { id: 'work', name: 'Work', color: '#3B82F6', createdAt: Date.now() },
     { id: 'personal', name: 'Personal', color: '#10B981', createdAt: Date.now() },
@@ -11,6 +21,30 @@ const DEFAULT_TAGS: Tag[] = [
     { id: 'study', name: 'Study', color: '#8B5CF6', createdAt: Date.now() },
 ];
 
+/**
+ * Hook for managing task tags with custom names and colors.
+ * Provides CRUD operations with localStorage or Supabase persistence.
+ *
+ * @returns {Object} Tag state and management functions
+ * @returns {Tag[]} returns.tags - Array of all tags
+ * @returns {Function} returns.addTag - Create a new tag
+ * @returns {Function} returns.updateTag - Update an existing tag
+ * @returns {Function} returns.deleteTag - Delete a tag
+ * @returns {Function} returns.getTagById - Get a single tag by ID
+ * @returns {Function} returns.getTagsByIds - Get multiple tags by IDs
+ *
+ * @example
+ * const { tags, addTag, updateTag, deleteTag, getTagById } = useTags();
+ *
+ * // Add a new tag
+ * const newTag = await addTag('Project X', '#FF5722');
+ *
+ * // Update tag color
+ * await updateTag('tag-123', { color: '#4CAF50' });
+ *
+ * // Get tags for display
+ * const taskTags = getTagsByIds(['work', 'urgent']);
+ */
 export function useTags() {
     const { data: session } = useSession();
     const [localTags, setLocalTags] = useLocalStorage<Tag[]>('focusly_tags', DEFAULT_TAGS);

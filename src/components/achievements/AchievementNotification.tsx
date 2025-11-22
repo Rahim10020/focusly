@@ -1,13 +1,49 @@
+/**
+ * @fileoverview Achievement notification popup component.
+ * Displays a celebratory notification when a user unlocks an achievement.
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { Achievement } from '@/types';
 
+/**
+ * Props for the AchievementNotification component.
+ * @interface AchievementNotificationProps
+ * @property {Achievement} achievement - The achievement that was unlocked
+ * @property {() => void} onClose - Callback function when notification is closed
+ */
 interface AchievementNotificationProps {
     achievement: Achievement;
     onClose: () => void;
 }
 
+/**
+ * Achievement notification component that displays a popup when a user unlocks an achievement.
+ * Features animated entry/exit transitions and auto-closes after 5 seconds.
+ *
+ * @param {AchievementNotificationProps} props - Component props
+ * @param {Achievement} props.achievement - The unlocked achievement to display
+ * @param {() => void} props.onClose - Callback when the notification closes
+ * @returns {JSX.Element} The achievement notification popup
+ *
+ * @example
+ * function App() {
+ *   const [achievement, setAchievement] = useState(null);
+ *
+ *   return (
+ *     <>
+ *       {achievement && (
+ *         <AchievementNotification
+ *           achievement={achievement}
+ *           onClose={() => setAchievement(null)}
+ *         />
+ *       )}
+ *     </>
+ *   );
+ * }
+ */
 export default function AchievementNotification({
     achievement,
     onClose

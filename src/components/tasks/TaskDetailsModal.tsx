@@ -1,3 +1,9 @@
+/**
+ * @fileoverview TaskDetailsModal component for viewing and editing task details.
+ * Displays comprehensive task information including metadata, schedule, notes,
+ * and subtasks with inline editing capabilities.
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,6 +12,9 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import TagBadge from '@/components/ui/TagBadge';
 
+/**
+ * Props for the TaskDetailsModal component.
+ */
 interface TaskDetailsModalProps {
     task: Task;
     tags: Tag[];
@@ -13,9 +22,36 @@ interface TaskDetailsModalProps {
     onUpdate: (updates: Partial<Task>) => void;
     onAddSubTask: (title: string) => void;
     onToggleSubTask: (subTaskId: string) => void;
+    /** Callback when a subtask is deleted */
     onDeleteSubTask: (subTaskId: string) => void;
 }
 
+/**
+ * TaskDetailsModal component displays and allows editing of task details.
+ * Provides inline editing for title, priority, tags, dates, times, duration,
+ * category, notes, and subtasks. Shows task metadata like creation date and pomodoro count.
+ * Supports fullscreen mode for better visibility.
+ *
+ * @param {TaskDetailsModalProps} props - Component props
+ * @param {Task} props.task - The task to display and edit
+ * @param {Tag[]} props.tags - Available tags for selection
+ * @param {function} props.onClose - Callback when modal is closed
+ * @param {function} props.onUpdate - Callback when task is updated
+ * @param {function} props.onAddSubTask - Callback when subtask is added
+ * @param {function} props.onToggleSubTask - Callback when subtask is toggled
+ * @param {function} props.onDeleteSubTask - Callback when subtask is deleted
+ *
+ * @example
+ * <TaskDetailsModal
+ *   task={selectedTask}
+ *   tags={availableTags}
+ *   onClose={() => setShowDetails(false)}
+ *   onUpdate={(updates) => updateTask(selectedTask.id, updates)}
+ *   onAddSubTask={(title) => addSubTask(selectedTask.id, title)}
+ *   onToggleSubTask={(subTaskId) => toggleSubTask(selectedTask.id, subTaskId)}
+ *   onDeleteSubTask={(subTaskId) => deleteSubTask(selectedTask.id, subTaskId)}
+ * />
+ */
 export default function TaskDetailsModal({
     task,
     tags,

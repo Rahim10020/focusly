@@ -1,3 +1,7 @@
+/**
+ * @fileoverview User menu dropdown component with profile, settings, and logout options.
+ */
+
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -6,6 +10,21 @@ import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { createPortal } from 'react-dom';
 
+/**
+ * A dropdown menu component for authenticated users.
+ * Displays user avatar and provides navigation to profile, settings, and logout.
+ * Supports both click and hover interactions with smooth animations.
+ *
+ * @returns {JSX.Element|null} The rendered user menu or null if not authenticated
+ *
+ * @example
+ * // In a header component
+ * <header>
+ *   <nav>
+ *     <UserMenu />
+ *   </nav>
+ * </header>
+ */
 export default function UserMenu() {
     const [isOpen, setIsOpen] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });

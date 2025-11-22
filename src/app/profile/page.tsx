@@ -1,3 +1,10 @@
+/**
+ * @fileoverview User profile page for the Focusly application.
+ * Displays user information, avatar, stats, activity overview,
+ * and domain distribution with profile editing capabilities.
+ * @module app/profile/page
+ */
+
 'use client';
 
 import { useState, useRef } from 'react';
@@ -12,6 +19,13 @@ import { useTasks } from '@/lib/hooks/useTasks';
 import { useStats } from '@/lib/hooks/useStats';
 import { DOMAINS, getDomainFromSubDomain } from '@/types';
 
+/**
+ * Profile page component displaying user information and statistics.
+ * Allows users to edit their name, email, and avatar image.
+ * Shows stats overview, activity metrics, and domain distribution.
+ *
+ * @returns {JSX.Element} The rendered profile page
+ */
 export default function ProfilePage() {
     const { data: session, status, update } = useSession();
     const [isEditing, setIsEditing] = useState(false);
