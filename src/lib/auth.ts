@@ -100,6 +100,35 @@ export const authOptions: NextAuthOptions = {
                 session.user.id = token.id as string;
                 session.accessToken = token.accessToken;
                 session.refreshToken = token.refreshToken;
+
+                // Récupérer la préférence de thème depuis la base de données
+                if (token.id) {
+                    try {
+                        const supabase = createClient(
+                            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+                            {
+                                global: {
+                                    headers: {
+                                        'Authorization': `Bearer ${token.accessToken}`
+                                    }
+                                }
+                            }
+                        );
+
+                        const { data: userData, error } = await supabase
+                            .from('users')
+                            .select('theme_preference')
+                            .eq('id', token.id)
+                            .single();
+
+                        if (!error && userData?.theme_preference) {
+                            session.user.themePreference = userData.theme_preference;
+                        }
+                    } catch (error) {
+                        console.error('Error fetching user theme preference:', error);
+                    }
+                }
             }
             return session;
         },

@@ -9,6 +9,7 @@ declare module 'next-auth' {
         image?: string | null;
         accessToken?: string;
         refreshToken?: string;
+        themePreference?: 'light' | 'dark';
     }
 
     interface Session {
@@ -17,6 +18,7 @@ declare module 'next-auth' {
             email?: string | null;
             name?: string | null;
             image?: string | null;
+            themePreference?: 'light' | 'dark';
         };
         accessToken?: string;
         refreshToken?: string;

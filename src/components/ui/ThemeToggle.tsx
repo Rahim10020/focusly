@@ -1,39 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function ThemeToggle() {
-    const [theme, setTheme] = useState<'light' | 'dark'>('light');
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-        const savedTheme = localStorage.getItem('focusly_theme') as 'light' | 'dark' | null;
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        const initialTheme = savedTheme || systemTheme;
-
-        setTheme(initialTheme);
-
-        // Appliquer le thème sur l'élément html
-        if (initialTheme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }, []);
-
-    const toggleTheme = () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        setTheme(newTheme);
-        localStorage.setItem('focusly_theme', newTheme);
-
-        // Toggle la classe dark sur l'élément html
-        if (newTheme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    };
+    const { theme, toggleTheme, mounted } = useTheme();
 
     // Éviter le flash pendant l'hydratation
     if (!mounted) {
