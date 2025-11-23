@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Enhanced task management hook with hierarchical task support.
+ * Extends base task functionality with parent-child relationships, progress tracking,
+ * reminders, and advanced task hierarchy operations.
+ */
+
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
@@ -7,7 +13,59 @@ import { supabase } from '@/lib/supabase';
 import { useToastContext } from '@/components/providers/ToastProvider';
 
 /**
- * Enhanced useTasks hook with hierarchical task support
+ * Enhanced task management hook with hierarchical task support.
+ * Provides all base task operations plus parent-child relationships,
+ * progress tracking, reminders, and tree-based task organization.
+ *
+ * @returns {Object} Enhanced task state and management functions
+ * @returns {Task[]} returns.tasks - Hierarchical array of root tasks with children
+ * @returns {Task[]} returns.flatTasks - Flattened array of all tasks for filtering
+ * @returns {string|null} returns.activeTaskId - ID of the currently active task
+ * @returns {boolean} returns.loading - Whether tasks are being loaded
+ * @returns {string|null} returns.error - Error message if any
+ * @returns {Function} returns.addTask - Add a new task with optional parent
+ * @returns {Function} returns.updateTask - Update an existing task
+ * @returns {Function} returns.deleteTask - Delete a task and all its children
+ * @returns {Function} returns.toggleTask - Toggle task completion status
+ * @returns {Function} returns.incrementPomodoro - Increment pomodoro count
+ * @returns {Function} returns.addSubTask - Add a subtask to a task
+ * @returns {Function} returns.toggleSubTask - Toggle subtask completion
+ * @returns {Function} returns.deleteSubTask - Delete a subtask
+ * @returns {Function} returns.reorderTasks - Reorder tasks
+ * @returns {Function} returns.setActiveTask - Set the active task
+ * @returns {Function} returns.getActiveTask - Get the current active task
+ * @returns {Function} returns.getActiveTasks - Get all incomplete tasks
+ * @returns {Function} returns.getCompletedTasks - Get all completed tasks
+ * @returns {Function} returns.getTasksByPriority - Filter tasks by priority
+ * @returns {Function} returns.getTasksByTag - Filter tasks by tag
+ * @returns {Function} returns.getOverdueTasks - Get all overdue tasks
+ * @returns {Function} returns.getTasksDueToday - Get tasks due today
+ * @returns {Function} returns.getRootTasks - Get only root-level tasks
+ * @returns {Function} returns.getChildTasks - Get children of a specific task
+ * @returns {Function} returns.sortTasksByPriority - Sort tasks by priority
+ * @returns {Function} returns.sortTasksByOrder - Sort tasks by order
+ * @returns {Function} returns.loadTasksFromDB - Reload tasks from database
+ *
+ * @example
+ * const { tasks, flatTasks, addTask, getRootTasks, getChildTasks } = useTasksEnhanced();
+ *
+ * // Add a child task
+ * await addTask(
+ *   'Sub-task title',
+ *   'high',
+ *   ['work'],
+ *   undefined,
+ *   undefined,
+ *   undefined,
+ *   undefined,
+ *   undefined,
+ *   undefined,
+ *   undefined,
+ *   'parent-task-id'
+ * );
+ *
+ * // Get children of a task
+ * const children = getChildTasks('parent-task-id');
  */
 export function useTasksEnhanced() {
     const { data: session } = useSession();

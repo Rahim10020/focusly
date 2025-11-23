@@ -1,15 +1,34 @@
+/**
+ * @fileoverview Error boundary components for catching and handling React errors.
+ * Provides both class-based and functional wrapper components.
+ */
+
 'use client';
 
 import React from 'react';
 import { logger } from '@/lib/logger';
 import Button from './ui/Button';
 
+/**
+ * Props for the ErrorBoundary component.
+ * @interface Props
+ * @property {React.ReactNode} children - Child components to render
+ * @property {React.ReactNode} [fallback] - Custom fallback UI to show on error
+ * @property {() => void} [onReset] - Callback when user attempts to reset/retry
+ */
 interface Props {
     children: React.ReactNode;
     fallback?: React.ReactNode;
     onReset?: () => void;
 }
 
+/**
+ * Internal state for the ErrorBoundary component.
+ * @interface State
+ * @property {boolean} hasError - Whether an error has been caught
+ * @property {Error} [error] - The caught error object
+ * @property {React.ErrorInfo} [errorInfo] - React error info with component stack
+ */
 interface State {
     hasError: boolean;
     error?: Error;
@@ -17,16 +36,29 @@ interface State {
 }
 
 /**
- * Error Boundary component to catch React errors and display a fallback UI
+ * Error boundary class component that catches JavaScript errors in child components.
+ * Displays a fallback UI instead of crashing the entire application.
+ * Logs errors to the application's logging service.
  *
- * Usage:
+ * @class ErrorBoundary
+ * @extends {React.Component<Props, State>}
+ *
+ * @example
+ * // Basic usage
  * <ErrorBoundary>
  *   <YourComponent />
  * </ErrorBoundary>
  *
- * Or with custom fallback:
+ * @example
+ * // With custom fallback UI
  * <ErrorBoundary fallback={<CustomErrorUI />}>
  *   <YourComponent />
+ * </ErrorBoundary>
+ *
+ * @example
+ * // With reset callback
+ * <ErrorBoundary onReset={() => refetchData()}>
+ *   <DataComponent />
  * </ErrorBoundary>
  */
 export class ErrorBoundary extends React.Component<Props, State> {

@@ -1,6 +1,37 @@
+/**
+ * @fileoverview Keyboard shortcuts management hook.
+ * Registers and handles global keyboard shortcuts with support
+ * for modifier keys (Ctrl, Shift, Alt) and automatic cleanup.
+ */
+
 import { useEffect } from 'react';
 import { KeyboardShortcut } from '@/types';
 
+/**
+ * Hook for registering and handling keyboard shortcuts.
+ * Automatically ignores shortcuts when typing in input fields.
+ * Supports modifier keys and prevents default browser behavior.
+ *
+ * @param {KeyboardShortcut[]} shortcuts - Array of shortcut definitions
+ * @param {boolean} [enabled=true] - Whether shortcuts are active
+ *
+ * @example
+ * const shortcuts = [
+ *   {
+ *     key: ' ',
+ *     action: () => toggleTimer(),
+ *     description: 'Start/Pause timer'
+ *   },
+ *   {
+ *     key: 'n',
+ *     ctrlKey: true,
+ *     action: () => openNewTask(),
+ *     description: 'New task'
+ *   }
+ * ];
+ *
+ * useKeyboardShortcuts(shortcuts, isEnabled);
+ */
 export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[], enabled: boolean = true) {
     useEffect(() => {
         if (!enabled) return;
@@ -38,7 +69,11 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[], enabled: boo
     }, [shortcuts, enabled]);
 }
 
-// Predefined shortcuts that can be used across the app
+/**
+ * Predefined global keyboard shortcuts for the application.
+ * These can be combined with actions to create KeyboardShortcut objects.
+ * @constant
+ */
 export const GLOBAL_SHORTCUTS = {
     START_PAUSE_TIMER: {
         key: ' ',

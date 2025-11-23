@@ -1,3 +1,9 @@
+/**
+ * @fileoverview TasksView component that serves as the main container for task display.
+ * Provides view switching between list and board views, sorting options,
+ * and handles loading/error states.
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -5,8 +11,12 @@ import { Task, Tag, TaskStatus } from '@/types';
 import TaskList from './TaskList';
 import TaskBoardView from './TaskBoardView';
 
+/** Available sort types for task ordering */
 type SortType = 'default' | 'alphabetical' | 'createdAt' | 'priority';
 
+/**
+ * Props for the TasksView component.
+ */
 interface TasksViewProps {
     tasks: Task[];
     activeTaskId: string | null;
@@ -22,11 +32,53 @@ interface TasksViewProps {
     onDeleteSubTask: (taskId: string, subTaskId: string) => void;
     onReorder: (startIndex: number, endIndex: number) => void;
     onEditTask: (task: Task) => void;
+    /** Whether to show sorting options UI */
     showSortOptions?: boolean;
 }
 
+/** Available view types for task display */
 type ViewType = 'list' | 'board';
 
+/**
+ * TasksView component is the main container for displaying tasks.
+ * Provides view switching between list and Kanban board views, sorting options,
+ * and handles loading and error states. Persists sort preference in localStorage.
+ *
+ * @param {TasksViewProps} props - Component props
+ * @param {Task[]} props.tasks - Array of all tasks to display
+ * @param {string | null} props.activeTaskId - ID of the currently active task
+ * @param {Tag[]} props.tags - Available tags for display
+ * @param {boolean} [props.loading] - Whether tasks are being loaded
+ * @param {string | null} [props.error] - Error message if loading failed
+ * @param {function} props.onToggle - Callback when task completion is toggled
+ * @param {function} props.onDelete - Callback when task is deleted
+ * @param {function} props.onSelectTask - Callback when task is selected as active
+ * @param {function} props.onUpdate - Callback when task is updated
+ * @param {function} props.onAddSubTask - Callback when subtask is added
+ * @param {function} props.onToggleSubTask - Callback when subtask is toggled
+ * @param {function} props.onDeleteSubTask - Callback when subtask is deleted
+ * @param {function} props.onReorder - Callback when tasks are reordered
+ * @param {function} props.onEditTask - Callback when task edit is requested
+ * @param {boolean} [props.showSortOptions=true] - Whether to show sorting UI
+ *
+ * @example
+ * <TasksView
+ *   tasks={tasks}
+ *   activeTaskId={currentTaskId}
+ *   tags={availableTags}
+ *   loading={isLoading}
+ *   error={errorMessage}
+ *   onToggle={handleToggle}
+ *   onDelete={handleDelete}
+ *   onSelectTask={handleSelect}
+ *   onUpdate={handleUpdate}
+ *   onAddSubTask={handleAddSubTask}
+ *   onToggleSubTask={handleToggleSubTask}
+ *   onDeleteSubTask={handleDeleteSubTask}
+ *   onReorder={handleReorder}
+ *   onEditTask={handleEditTask}
+ * />
+ */
 export default function TasksView(props: TasksViewProps) {
     const [view, setView] = useState<ViewType>('list');
     const [sortType, setSortType] = useState<SortType>('default');

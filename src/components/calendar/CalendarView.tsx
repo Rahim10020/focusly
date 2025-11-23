@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Calendar view component for visualizing tasks by date.
+ * Displays a monthly calendar grid with task indicators and a detail panel.
+ */
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -18,11 +23,44 @@ import {
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 
+/**
+ * Props for the CalendarView component.
+ * @interface CalendarViewProps
+ * @property {Task[]} tasks - Array of tasks to display on the calendar
+ * @property {(task: Task) => void} [onTaskClick] - Optional callback when a task is clicked
+ */
 interface CalendarViewProps {
     tasks: Task[];
     onTaskClick?: (task: Task) => void;
 }
 
+/**
+ * Calendar view component that displays tasks in a monthly calendar format.
+ * Features month navigation, task indicators with priority colors,
+ * and a side panel showing tasks for the selected date.
+ *
+ * @param {CalendarViewProps} props - Component props
+ * @param {Task[]} props.tasks - Tasks to display on the calendar
+ * @param {(task: Task) => void} [props.onTaskClick] - Handler for task selection
+ * @returns {JSX.Element} The calendar view with task overlays
+ *
+ * @example
+ * function CalendarPage() {
+ *   const { tasks } = useTasks();
+ *
+ *   const handleTaskClick = (task) => {
+ *     // Open task detail modal
+ *     setSelectedTask(task);
+ *   };
+ *
+ *   return (
+ *     <CalendarView
+ *       tasks={tasks}
+ *       onTaskClick={handleTaskClick}
+ *     />
+ *   );
+ * }
+ */
 export default function CalendarView({ tasks, onTaskClick }: CalendarViewProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);

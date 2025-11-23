@@ -1,19 +1,71 @@
+/**
+ * @fileoverview Modal dialog component with overlay and keyboard support.
+ */
+
 'use client';
 
 import { useEffect, ReactNode } from 'react';
 import Button from './Button';
 
+/**
+ * Props for the Modal component.
+ * @interface ModalProps
+ */
 interface ModalProps {
+    /** Whether the modal is visible */
     isOpen: boolean;
+    /** Callback function when modal should close */
     onClose: () => void;
+    /** Modal title displayed in the header */
     title?: string;
+    /** Description text displayed below the title */
     description?: string;
+    /** Main content of the modal */
     children: ReactNode;
+    /** Size variant of the modal */
     size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+    /** Content to render in the modal footer */
     footer?: ReactNode;
+    /** Whether clicking the overlay closes the modal */
     closeOnOverlayClick?: boolean;
 }
 
+/**
+ * A modal dialog component with overlay, header, body, and footer sections.
+ * Supports keyboard navigation (Escape to close) and body scroll locking.
+ *
+ * @param {ModalProps} props - The component props
+ * @param {boolean} props.isOpen - Controls modal visibility
+ * @param {Function} props.onClose - Called when modal should close
+ * @param {string} [props.title] - Modal title
+ * @param {string} [props.description] - Description text
+ * @param {React.ReactNode} props.children - Modal body content
+ * @param {('sm'|'md'|'lg'|'xl'|'full')} [props.size='md'] - Modal width
+ * @param {React.ReactNode} [props.footer] - Footer content
+ * @param {boolean} [props.closeOnOverlayClick=true] - Close on overlay click
+ * @returns {JSX.Element|null} The rendered modal or null when closed
+ *
+ * @example
+ * // Basic modal
+ * <Modal
+ *   isOpen={isOpen}
+ *   onClose={() => setIsOpen(false)}
+ *   title="Confirm Action"
+ * >
+ *   <p>Are you sure you want to proceed?</p>
+ * </Modal>
+ *
+ * @example
+ * // Modal with footer
+ * <Modal
+ *   isOpen={isOpen}
+ *   onClose={handleClose}
+ *   title="Edit Task"
+ *   footer={<Button onClick={handleSave}>Save</Button>}
+ * >
+ *   <Input label="Task name" />
+ * </Modal>
+ */
 export default function Modal({
     isOpen,
     onClose,

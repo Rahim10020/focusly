@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Advanced productivity analytics component with multiple chart types
+ * including area charts, bar charts, and line charts for comprehensive productivity insights.
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -17,11 +22,45 @@ import {
     AreaChart,
 } from 'recharts';
 
+/**
+ * Props for the AdvancedProductivityChart component.
+ * @interface AdvancedProductivityChartProps
+ */
 interface AdvancedProductivityChartProps {
+    /** Array of pomodoro sessions to analyze and visualize */
     sessions: PomodoroSession[];
+    /** Number of days to display (7 or 30). Defaults to 7 */
     days?: number;
 }
 
+/**
+ * Displays advanced productivity analytics with multiple visualizations.
+ * Includes a summary statistics section, area chart for daily focus time,
+ * bar chart for completed sessions, and line chart for focus score trends.
+ * Supports both light and dark themes with automatic detection.
+ *
+ * @param {AdvancedProductivityChartProps} props - Component props
+ * @param {PomodoroSession[]} props.sessions - Array of pomodoro sessions to analyze
+ * @param {number} [props.days=7] - Number of days to display (7 or 30)
+ * @returns {JSX.Element} Multiple chart visualizations with productivity analytics
+ *
+ * @example
+ * ```tsx
+ * import AdvancedProductivityChart from '@/components/stats/AdvancedProductivityChart';
+ *
+ * function AnalyticsPage({ sessions }) {
+ *   return (
+ *     <div className="space-y-6">
+ *       <h2>7-Day Analytics</h2>
+ *       <AdvancedProductivityChart sessions={sessions} days={7} />
+ *
+ *       <h2>30-Day Analytics</h2>
+ *       <AdvancedProductivityChart sessions={sessions} days={30} />
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
 export default function AdvancedProductivityChart({
     sessions,
     days = 7

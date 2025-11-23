@@ -1,18 +1,47 @@
+/**
+ * @fileoverview Time validation utilities for task scheduling.
+ * Provides functions to validate time ranges, date ranges, check for overlaps,
+ * and suggest optimal time slots for task scheduling.
+ * @module lib/utils/timeValidation
+ */
+
 import { Task } from '@/types';
 
+/**
+ * Result of a time validation operation.
+ * @interface TimeValidationResult
+ */
 export interface TimeValidationResult {
+    /** Whether the validation passed without errors */
     valid: boolean;
+    /** Array of error messages (validation failures) */
     errors: string[];
+    /** Array of warning messages (non-critical issues) */
     warnings: string[];
 }
 
+/**
+ * Result of checking for time slot overlaps.
+ * @interface TimeOverlapResult
+ */
 export interface TimeOverlapResult {
+    /** Whether any overlap was detected */
     hasOverlap: boolean;
+    /** Array of tasks that have overlapping time slots */
     overlappingTasks: Task[];
 }
 
 /**
- * Validates time range (start time must be before end time)
+ * Validates that a time range is valid (start time must be before end time).
+ * Also provides warnings for very short or very long durations.
+ *
+ * @param {string} startTime - Start time in HH:mm format
+ * @param {string} endTime - End time in HH:mm format
+ * @returns {TimeValidationResult} Validation result with errors and warnings
+ *
+ * @example
+ * validateTimeRange('09:00', '17:00'); // { valid: true, errors: [], warnings: [] }
+ * validateTimeRange('17:00', '09:00'); // { valid: false, errors: ['Start time must be before end time'], warnings: [] }
  */
 export function validateTimeRange(startTime: string, endTime: string): TimeValidationResult {
     const errors: string[] = [];
@@ -50,7 +79,15 @@ export function validateTimeRange(startTime: string, endTime: string): TimeValid
 }
 
 /**
- * Validates date range (start date must be before or equal to due date)
+ * Validates that a date range is valid (start date must be before or equal to due date).
+ * Also provides warnings for tasks spanning more than a year.
+ *
+ * @param {number} [startDate] - Start date as Unix timestamp in milliseconds
+ * @param {number} [dueDate] - Due date as Unix timestamp in milliseconds
+ * @returns {TimeValidationResult} Validation result with errors and warnings
+ *
+ * @example
+ * validateDateRange(Date.now(), Date.now() + 86400000); // Valid: start before due
  */
 export function validateDateRange(startDate?: number, dueDate?: number): TimeValidationResult {
     const errors: string[] = [];
@@ -84,7 +121,21 @@ export function validateDateRange(startDate?: number, dueDate?: number): TimeVal
 }
 
 /**
- * Checks for time slot overlaps with existing tasks
+ * Checks for time slot overlaps with existing tasks on the same day.
+ * Excludes the current task (for editing) and completed tasks from the check.
+ *
+ * @param {Task[]} tasks - Array of all tasks to check against
+ * @param {string | undefined} currentTaskId - ID of the task being edited (to exclude from check)
+ * @param {number | undefined} startDate - Start date as Unix timestamp
+ * @param {string | undefined} startTime - Start time in HH:mm format
+ * @param {string | undefined} endTime - End time in HH:mm format
+ * @returns {TimeOverlapResult} Result containing overlap status and conflicting tasks
+ *
+ * @example
+ * const result = checkTimeOverlaps(tasks, 'task-123', Date.now(), '09:00', '10:00');
+ * if (result.hasOverlap) {
+ *   console.log('Conflicts with:', result.overlappingTasks);
+ * }
  */
 export function checkTimeOverlaps(
     tasks: Task[],
@@ -149,7 +200,14 @@ export function checkTimeOverlaps(
 }
 
 /**
- * Calculate duration in minutes from start and end times
+ * Calculates the duration in minutes between start and end times.
+ *
+ * @param {string} startTime - Start time in HH:mm format
+ * @param {string} endTime - End time in HH:mm format
+ * @returns {number} Duration in minutes (minimum 0)
+ *
+ * @example
+ * calculateDuration('09:00', '10:30'); // Returns 90
  */
 export function calculateDuration(startTime: string, endTime: string): number {
     const [startHour, startMin] = startTime.split(':').map(Number);
@@ -162,7 +220,16 @@ export function calculateDuration(startTime: string, endTime: string): number {
 }
 
 /**
- * Auto-calculate end time based on start time and duration
+ * Calculates the end time based on a start time and duration.
+ * Wraps around midnight if the duration extends past 24:00.
+ *
+ * @param {string} startTime - Start time in HH:mm format
+ * @param {number} durationMinutes - Duration in minutes
+ * @returns {string} End time in HH:mm format
+ *
+ * @example
+ * calculateEndTime('09:00', 90); // Returns '10:30'
+ * calculateEndTime('23:00', 120); // Returns '01:00'
  */
 export function calculateEndTime(startTime: string, durationMinutes: number): string {
     const [startHour, startMin] = startTime.split(':').map(Number);
@@ -175,7 +242,15 @@ export function calculateEndTime(startTime: string, durationMinutes: number): st
 }
 
 /**
- * Format duration in minutes to human-readable string
+ * Formats a duration in minutes to a human-readable string.
+ *
+ * @param {number} minutes - Duration in minutes
+ * @returns {string} Formatted string (e.g., "45m", "2h", "1h 30m")
+ *
+ * @example
+ * formatDuration(45);  // Returns '45m'
+ * formatDuration(120); // Returns '2h'
+ * formatDuration(90);  // Returns '1h 30m'
  */
 export function formatDuration(minutes: number): string {
     if (minutes < 60) {
@@ -193,14 +268,35 @@ export function formatDuration(minutes: number): string {
 }
 
 /**
- * Estimate Pomodoro count based on duration (assumes 25-min pomodoros)
+ * Estimates the number of Pomodoro sessions needed for a given duration.
+ * Assumes standard 25-minute Pomodoro sessions.
+ *
+ * @param {number} durationMinutes - Total duration in minutes
+ * @returns {number} Estimated number of Pomodoro sessions (rounded up)
+ *
+ * @example
+ * estimatePomodoros(50);  // Returns 2
+ * estimatePomodoros(30);  // Returns 2
+ * estimatePomodoros(25);  // Returns 1
  */
 export function estimatePomodoros(durationMinutes: number): number {
     return Math.ceil(durationMinutes / 25);
 }
 
 /**
- * Suggests optimal time slots based on existing tasks
+ * Suggests available time slots for a new task based on existing task schedules.
+ * Finds gaps in the schedule that can accommodate the requested duration.
+ *
+ * @param {Task[]} tasks - Array of existing tasks to check against
+ * @param {Date} date - The date to find available slots for
+ * @param {number} durationMinutes - Required duration in minutes
+ * @param {number} [workStartHour=9] - Start of work day (0-23)
+ * @param {number} [workEndHour=18] - End of work day (0-23)
+ * @returns {Array<{startTime: string, endTime: string}>} Up to 3 suggested time slots
+ *
+ * @example
+ * const slots = suggestTimeSlots(tasks, new Date(), 60, 9, 18);
+ * // Returns: [{ startTime: '09:00', endTime: '10:00' }, ...]
  */
 export function suggestTimeSlots(
     tasks: Task[],

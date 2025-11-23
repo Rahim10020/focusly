@@ -1,10 +1,19 @@
+/**
+ * @fileoverview TaskBoardView component for displaying tasks in a Kanban-style board.
+ * Organizes tasks into columns by status (To Do, In Progress, Done) with drag-and-drop support.
+ */
+
 'use client';
 
 import { Task, Tag, TaskStatus } from '@/types';
 import Button from '../ui/Button';
 
+/** Available sort types for task ordering */
 type SortType = 'default' | 'alphabetical' | 'createdAt' | 'priority';
 
+/**
+ * Props for the TaskBoardView component.
+ */
 interface TaskBoardViewProps {
     tasks: Task[];
     activeTaskId: string | null;
@@ -16,9 +25,43 @@ interface TaskBoardViewProps {
     onSelectTask: (id: string | null) => void;
     onUpdate: (id: string, updates: Partial<Task>) => void;
     onStatusChange: (id: string, status: TaskStatus) => void;
+    /** Callback when task edit is requested */
     onEditTask: (task: Task) => void;
 }
 
+/**
+ * TaskBoardView component displays tasks in a Kanban-style board with three columns.
+ * Supports drag-and-drop to change task status between To Do, In Progress, and Done.
+ * Shows task details including priority, tags, due date, and pomodoro count.
+ *
+ * @param {TaskBoardViewProps} props - Component props
+ * @param {Task[]} props.tasks - Array of all tasks to display
+ * @param {string | null} props.activeTaskId - ID of the currently active task
+ * @param {Tag[]} props.tags - Available tags for display
+ * @param {SortType} props.sortType - Current sort method for tasks
+ * @param {function} props.sortTasks - Function to sort task arrays
+ * @param {function} props.onToggle - Callback when task completion is toggled
+ * @param {function} props.onDelete - Callback when task is deleted
+ * @param {function} props.onSelectTask - Callback when task is selected as active
+ * @param {function} props.onUpdate - Callback when task is updated
+ * @param {function} props.onStatusChange - Callback when task status changes via drag-and-drop
+ * @param {function} props.onEditTask - Callback when task edit is requested
+ *
+ * @example
+ * <TaskBoardView
+ *   tasks={tasks}
+ *   activeTaskId={currentTaskId}
+ *   tags={availableTags}
+ *   sortType="default"
+ *   sortTasks={sortFunction}
+ *   onToggle={handleToggle}
+ *   onDelete={handleDelete}
+ *   onSelectTask={handleSelect}
+ *   onUpdate={handleUpdate}
+ *   onStatusChange={handleStatusChange}
+ *   onEditTask={handleEditTask}
+ * />
+ */
 export default function TaskBoardView({
     tasks,
     activeTaskId,

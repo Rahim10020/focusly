@@ -1,3 +1,10 @@
+/**
+ * @fileoverview User Profile page for viewing other users in the Focusly application.
+ * Displays user statistics, avatar, and provides friend request functionality
+ * for public user profiles accessed from leaderboard or friend lists.
+ * @module app/users/[userId]/page
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -7,10 +14,18 @@ import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
+/**
+ * Represents a user's public profile data with statistics.
+ * @interface UserStats
+ */
 interface UserStats {
+    /** Unique user identifier */
     id: string;
+    /** User's display name */
     username: string | null;
+    /** URL to user's avatar image */
     avatar_url: string | null;
+    /** User's productivity statistics (null values indicate hidden data) */
     stats: {
         total_sessions: number | null;
         completed_tasks: number | null;
@@ -22,6 +37,13 @@ interface UserStats {
     } | null;
 }
 
+/**
+ * User Profile page component for viewing other users' public profiles.
+ * Displays user stats, avatar, and provides friend request functionality.
+ * Accessible via dynamic route parameter [userId].
+ *
+ * @returns {JSX.Element | null} The rendered user profile page or null during loading
+ */
 export default function UserProfilePage() {
     const { data: session, status } = useSession();
     const router = useRouter();

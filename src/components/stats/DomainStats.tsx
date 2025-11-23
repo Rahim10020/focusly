@@ -1,13 +1,46 @@
+/**
+ * @fileoverview Domain statistics component that displays task completion
+ * progress organized by life domains and their sub-domains.
+ */
+
 'use client';
 
 import { useMemo } from 'react';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Task, DOMAINS, getDomainFromSubDomain, Domain, SubDomain } from '@/types';
 
+/**
+ * Props for the DomainStats component.
+ * @interface DomainStatsProps
+ */
 interface DomainStatsProps {
+    /** Array of tasks to calculate domain statistics from */
     tasks: Task[];
 }
 
+/**
+ * Displays per-domain statistics with progress bars for each life domain
+ * and its sub-domains. Shows completion rates and task counts organized
+ * in expandable cards. All domains are always displayed even with 0% completion.
+ *
+ * @param {DomainStatsProps} props - Component props
+ * @param {Task[]} props.tasks - Array of tasks to calculate statistics from
+ * @returns {JSX.Element} Cards displaying domain and sub-domain progress
+ *
+ * @example
+ * ```tsx
+ * import DomainStats from '@/components/stats/DomainStats';
+ *
+ * function StatsPage({ tasks }) {
+ *   return (
+ *     <div className="space-y-4">
+ *       <h2>Progress by Domain</h2>
+ *       <DomainStats tasks={tasks} />
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
 export default function DomainStats({ tasks }: DomainStatsProps) {
     const domainStats = useMemo(() => {
         const stats: Record<Domain, {

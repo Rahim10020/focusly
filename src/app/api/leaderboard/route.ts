@@ -1,3 +1,12 @@
+/**
+ * @fileoverview Leaderboard API route for fetching user rankings.
+ *
+ * Provides a paginated endpoint to retrieve user statistics ranked by
+ * total focus time. Results are cached for 10 minutes to improve performance.
+ *
+ * Route: /api/leaderboard
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabase';
@@ -6,12 +15,87 @@ import { withRateLimit } from '@/lib/rateLimit';
 import { Cache } from '@/lib/cache';
 import { logger } from '@/lib/logger';
 
+/**
+ * Leaderboard entry containing user profile and statistics.
+ * @typedef {Object} LeaderboardEntry
+ * @property {string} id - User ID
+ * @property {string} username - User's display name
+ * @property {string|null} avatar_url - User's avatar URL
+ * @property {Object} stats - User's statistics
+ * @property {number} stats.total_sessions - Total number of focus sessions
+ * @property {number} stats.completed_tasks - Number of completed tasks
+ * @property {number} stats.total_tasks - Total number of tasks
+ * @property {number} stats.streak - Current streak count
+ * @property {number} stats.total_focus_time - Total focus time in minutes
+ * @property {number} stats.longest_streak - Longest streak achieved
+ */
+
+/**
+ * Paginated leaderboard response.
+ * @typedef {Object} LeaderboardResponse
+ * @property {LeaderboardEntry[]} data - Array of leaderboard entries
+ * @property {Object} pagination - Pagination metadata
+ * @property {number} pagination.page - Current page number
+ * @property {number} pagination.limit - Items per page
+ * @property {number} pagination.total - Total number of entries
+ * @property {number} pagination.totalPages - Total number of pages
+ */
+
 // Validation schema for query parameters
 const LeaderboardQuerySchema = z.object({
     page: z.string().optional().transform(val => parseInt(val || '1')).pipe(z.number().min(1).max(1000)),
     limit: z.string().optional().transform(val => parseInt(val || '20')).pipe(z.number().min(1).max(100))
 });
 
+/**
+ * Retrieves the paginated leaderboard ranked by total focus time.
+ *
+ * Users are ranked in descending order by their total focus time.
+ * Results are cached for 10 minutes to reduce database load.
+ * Rate limited to 30 requests per minute.
+ *
+ * @param {NextRequest} request - The incoming request object
+ * @returns {Promise<NextResponse>} JSON response containing leaderboard data with pagination
+ *
+ * @example
+ * // Basic request
+ * // GET /api/leaderboard
+ *
+ * @example
+ * // Request with pagination
+ * // GET /api/leaderboard?page=2&limit=10
+ *
+ * @example
+ * // Successful response (200 OK)
+ * {
+ *   "data": [
+ *     {
+ *       "id": "user-uuid",
+ *       "username": "topuser",
+ *       "avatar_url": "https://...",
+ *       "stats": {
+ *         "total_sessions": 150,
+ *         "completed_tasks": 320,
+ *         "total_tasks": 400,
+ *         "streak": 15,
+ *         "total_focus_time": 12500,
+ *         "longest_streak": 30
+ *       }
+ *     }
+ *   ],
+ *   "pagination": {
+ *     "page": 1,
+ *     "limit": 20,
+ *     "total": 100,
+ *     "totalPages": 5
+ *   }
+ * }
+ *
+ * @example
+ * // Error responses
+ * // 400: { "error": "Invalid query parameters", "details": {...} }
+ * // 500: { "error": "Internal server error" }
+ */
 async function getHandler(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);

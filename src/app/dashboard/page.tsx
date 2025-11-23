@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Analytics Dashboard page for the Focusly application.
+ * Displays comprehensive productivity analytics, charts, and export functionality
+ * for tasks, sessions, and domain progress data.
+ * @module app/dashboard/page
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -13,6 +20,13 @@ import { useStats } from '@/lib/hooks/useStats';
 import { exportTasksToPDF, exportAnalyticsToPDF, exportTasksToCSV, exportAnalyticsToCSV } from '@/lib/utils/exportUtils';
 import { exportTasksToICS } from '@/lib/utils/calendarIntegration';
 
+/**
+ * Dashboard page component that displays comprehensive analytics and productivity insights.
+ * Features include productivity charts, quick stats, domain evolution tracking,
+ * and export functionality for tasks and analytics data.
+ *
+ * @returns {JSX.Element | null} The rendered dashboard page or null during redirect
+ */
 export default function DashboardPage() {
     const router = useRouter();
     const { data: session, status } = useSession();

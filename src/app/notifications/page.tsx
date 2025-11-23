@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Notifications page for the Focusly application.
+ * Displays auto-generated notifications for overdue tasks,
+ * due-today items, and recently completed tasks.
+ * @module app/notifications/page
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,15 +15,32 @@ import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { useTasks } from '@/lib/hooks/useTasks';
 
+/**
+ * Represents a notification item in the notification feed.
+ * @interface Notification
+ */
 interface Notification {
+    /** Unique notification identifier */
     id: string;
+    /** Type of notification for styling and icons */
     type: 'task_completed' | 'task_overdue' | 'achievement' | 'info';
+    /** Notification title */
     title: string;
+    /** Detailed notification message */
     message: string;
+    /** Timestamp when the notification was created */
     timestamp: number;
+    /** Whether the notification has been read */
     read: boolean;
 }
 
+/**
+ * Notifications page component displaying task-related alerts.
+ * Auto-generates notifications for overdue tasks, due-today items,
+ * and recently completed tasks with read/unread filtering.
+ *
+ * @returns {JSX.Element | null} The rendered notifications page or null during redirect
+ */
 export default function NotificationsPage() {
     const router = useRouter();
     const { data: session, status } = useSession();

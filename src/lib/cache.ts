@@ -1,9 +1,35 @@
+/**
+ * @fileoverview Caching utilities for reducing database calls.
+ * Provides a Cache class with get/set operations backed by Supabase.
+ * @module lib/cache
+ */
+
 import { supabase } from './supabase';
 
+/**
+ * Options for cache operations.
+ * @interface CacheOptions
+ */
 interface CacheOptions {
-    ttl: number; // Time to live in milliseconds
+    /** Time to live in milliseconds before cache expires */
+    ttl: number;
 }
 
+/**
+ * Cache utility class for storing and retrieving data with TTL support.
+ * Uses Supabase as the backing store for persistence.
+ *
+ * @class Cache
+ *
+ * @example
+ * // Using getOrSet for automatic caching
+ * const data = await Cache.getOrSet('user-stats-123', fetchUserStats, { ttl: 300000 });
+ *
+ * @example
+ * // Invalidating cache
+ * await Cache.invalidate('user-stats-123');
+ * await Cache.invalidatePattern('user-stats');
+ */
 export class Cache {
     private static async get(key: string): Promise<any | null> {
         try {

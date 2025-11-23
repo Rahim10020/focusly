@@ -1,3 +1,9 @@
+/**
+ * @fileoverview TaskModal component for creating and editing tasks.
+ * Provides a comprehensive form with fields for title, priority, tags, dates, times,
+ * duration, notes, categories, and subtasks. Supports fullscreen mode.
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -5,14 +11,21 @@ import Button from '../ui/Button';
 import Input from '../ui/Input';
 import { Priority, SubDomain, DOMAINS, Domain, Tag } from '@/types';
 
+/**
+ * Props for the TaskModal component.
+ */
 interface TaskModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (taskData: TaskFormData) => void;
     initialData?: TaskFormData;
+    /** Available tags for task categorization */
     tags: Tag[];
 }
 
+/**
+ * Form data structure for creating or editing a task.
+ */
 export interface TaskFormData {
     title: string;
     priority?: Priority;
@@ -24,9 +37,42 @@ export interface TaskFormData {
     estimatedDuration?: number;
     notes?: string;
     subDomain?: SubDomain;
+    /** Array of subtasks with title and completion status */
     subTasks?: { title: string; completed: boolean }[];
 }
 
+/**
+ * TaskModal component provides a form for creating new tasks or editing existing ones.
+ * Features include priority selection, tag assignment, date/time scheduling,
+ * duration calculation, notes, category selection, and subtask management.
+ * Supports both compact and fullscreen modes.
+ *
+ * @param {TaskModalProps} props - Component props
+ * @param {boolean} props.isOpen - Whether the modal is visible
+ * @param {function} props.onClose - Callback when modal is closed
+ * @param {function} props.onSave - Callback when form is submitted with task data
+ * @param {TaskFormData} [props.initialData] - Initial form data for editing
+ * @param {Tag[]} props.tags - Available tags for selection
+ *
+ * @example
+ * // Creating a new task
+ * <TaskModal
+ *   isOpen={isModalOpen}
+ *   onClose={() => setIsModalOpen(false)}
+ *   onSave={(data) => createTask(data)}
+ *   tags={availableTags}
+ * />
+ *
+ * @example
+ * // Editing an existing task
+ * <TaskModal
+ *   isOpen={isModalOpen}
+ *   onClose={() => setIsModalOpen(false)}
+ *   onSave={(data) => updateTask(taskId, data)}
+ *   initialData={existingTaskData}
+ *   tags={availableTags}
+ * />
+ */
 export default function TaskModal({
     isOpen,
     onClose,

@@ -1,3 +1,12 @@
+/**
+ * @fileoverview User profile and statistics API route.
+ *
+ * Provides an endpoint to fetch a user's profile and statistics.
+ * Supports privacy controls based on friendship status and visibility settings.
+ *
+ * Route: /api/users/[userId]
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabase';
@@ -7,9 +16,79 @@ import { Database } from '@/lib/supabase';
 import { withRateLimit } from '@/lib/rateLimit';
 import { logger } from '@/lib/logger';
 
+/**
+ * User profile with statistics.
+ * @typedef {Object} UserProfile
+ * @property {string} id - User ID
+ * @property {string} username - User's display name
+ * @property {string|null} avatar_url - User's avatar URL
+ * @property {Object|null} stats - User's statistics (may be filtered based on visibility)
+ * @property {number} [stats.total_sessions] - Total number of focus sessions
+ * @property {number} [stats.completed_tasks] - Number of completed tasks
+ * @property {number} [stats.total_tasks] - Total number of tasks
+ * @property {number} [stats.streak] - Current streak count
+ * @property {number} [stats.total_focus_time] - Total focus time in minutes
+ * @property {number} [stats.longest_streak] - Longest streak achieved
+ * @property {number} [stats.tasks_completed_today] - Tasks completed today
+ */
+
 // Validation schema for userId parameter
 const UserIdSchema = z.string().uuid('Invalid user ID format');
 
+/**
+ * Retrieves a user's profile and statistics.
+ *
+ * Returns different levels of data based on the viewer's relationship:
+ * - Own profile: Full statistics
+ * - Friend's profile: All statistics (friendship verified)
+ * - Other user's profile: Filtered based on visibility settings
+ *
+ * Rate limited to 30 requests per minute.
+ *
+ * @param {NextRequest} request - The incoming request object
+ * @param {Object} context - Route context
+ * @param {Promise<{userId: string}>} context.params - Route parameters containing the target user ID
+ * @returns {Promise<NextResponse>} JSON response containing user profile and statistics
+ *
+ * @example
+ * // Fetch user profile
+ * // GET /api/users/user-uuid-here
+ *
+ * @example
+ * // Successful response for own profile (200 OK)
+ * {
+ *   "id": "user-uuid",
+ *   "username": "myusername",
+ *   "avatar_url": "https://...",
+ *   "stats": {
+ *     "total_sessions": 50,
+ *     "completed_tasks": 120,
+ *     "total_tasks": 150,
+ *     "streak": 7,
+ *     "total_focus_time": 3000,
+ *     "longest_streak": 14,
+ *     "tasks_completed_today": 5
+ *   }
+ * }
+ *
+ * @example
+ * // Response for non-friend with restricted visibility
+ * {
+ *   "id": "user-uuid",
+ *   "username": "otherusername",
+ *   "avatar_url": null,
+ *   "stats": {
+ *     "total_sessions": 50,
+ *     "streak": 7
+ *   }
+ * }
+ *
+ * @example
+ * // Error responses
+ * // 400: { "error": "Invalid user ID format" }
+ * // 404: { "error": "User not found" }
+ * // 500: { "error": "Internal server error" }
+ */
 async function getHandler(
     request: NextRequest,
     { params }: { params: Promise<{ userId: string }> }

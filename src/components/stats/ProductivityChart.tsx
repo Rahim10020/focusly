@@ -1,11 +1,44 @@
+/**
+ * @fileoverview Weekly productivity chart component that displays focus time
+ * as a bar chart for the last 7 days with interactive tooltips.
+ */
+
 'use client';
 
 import { PomodoroSession } from '@/types';
 
+/**
+ * Props for the ProductivityChart component.
+ * @interface ProductivityChartProps
+ */
 interface ProductivityChartProps {
+    /** Array of pomodoro sessions to calculate daily focus time */
     sessions: PomodoroSession[];
 }
 
+/**
+ * Displays a simple bar chart showing daily focus time for the last 7 days.
+ * Each bar represents total minutes of completed work sessions per day.
+ * Includes hover tooltips showing detailed session information.
+ *
+ * @param {ProductivityChartProps} props - Component props
+ * @param {PomodoroSession[]} props.sessions - Array of pomodoro sessions to visualize
+ * @returns {JSX.Element} A bar chart visualization of weekly productivity
+ *
+ * @example
+ * ```tsx
+ * import ProductivityChart from '@/components/stats/ProductivityChart';
+ *
+ * function Dashboard({ sessions }) {
+ *   return (
+ *     <div className="p-4">
+ *       <h2>Weekly Productivity</h2>
+ *       <ProductivityChart sessions={sessions} />
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
 export default function ProductivityChart({ sessions }: ProductivityChartProps) {
     // Get last 7 days data
     const getLast7Days = () => {

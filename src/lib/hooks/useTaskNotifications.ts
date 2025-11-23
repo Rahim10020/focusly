@@ -1,11 +1,48 @@
+/**
+ * @fileoverview Task-specific notifications hook.
+ * Monitors tasks for upcoming start times and due dates,
+ * sending browser notifications for reminders and overdue tasks.
+ */
+
 import { useEffect } from 'react';
 import { Task } from '@/types';
 
+/**
+ * Configuration props for useTaskNotifications hook.
+ * @interface UseTaskNotificationsProps
+ */
 interface UseTaskNotificationsProps {
+    /** Array of tasks to monitor for notifications */
     tasks: Task[];
+    /** Whether notifications are enabled */
     enabled: boolean;
 }
 
+/**
+ * Hook for monitoring tasks and sending time-based notifications.
+ * Checks for upcoming task start times and overdue tasks,
+ * sending browser notifications when appropriate.
+ *
+ * @param {UseTaskNotificationsProps} props - Configuration props
+ * @param {Task[]} props.tasks - Tasks to monitor
+ * @param {boolean} props.enabled - Whether to enable notifications
+ * @returns {Object} Notification control functions
+ * @returns {Function} returns.requestPermission - Request notification permission
+ *
+ * @example
+ * const { requestPermission } = useTaskNotifications({
+ *   tasks: allTasks,
+ *   enabled: notificationsEnabled
+ * });
+ *
+ * // Request permission when user enables notifications
+ * const handleEnableNotifications = async () => {
+ *   const granted = await requestPermission();
+ *   if (granted) {
+ *     setNotificationsEnabled(true);
+ *   }
+ * };
+ */
 export function useTaskNotifications({ tasks, enabled }: UseTaskNotificationsProps) {
     useEffect(() => {
         if (!enabled || typeof window === 'undefined') return;

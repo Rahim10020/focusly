@@ -1,3 +1,8 @@
+/**
+ * @fileoverview SubTaskList component for displaying and managing hierarchical subtasks.
+ * Shows subtask progress with a visual progress bar and supports inline editing.
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -5,13 +10,36 @@ import { SubTask } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 
+/**
+ * Props for the SubTaskList component.
+ */
 interface SubTaskListProps {
     subTasks: SubTask[];
     onAdd: (title: string) => void;
     onToggle: (subTaskId: string) => void;
+    /** Callback when a subtask is deleted */
     onDelete: (subTaskId: string) => void;
 }
 
+/**
+ * SubTaskList component displays subtasks with a progress bar and management controls.
+ * Features inline input for adding new subtasks with keyboard support (Enter to add, Escape to cancel).
+ * Shows completion progress as a visual bar with count.
+ *
+ * @param {SubTaskListProps} props - Component props
+ * @param {SubTask[]} props.subTasks - Array of subtasks to display
+ * @param {function} props.onAdd - Callback when a new subtask is added
+ * @param {function} props.onToggle - Callback when subtask completion is toggled
+ * @param {function} props.onDelete - Callback when subtask is deleted
+ *
+ * @example
+ * <SubTaskList
+ *   subTasks={task.subTasks}
+ *   onAdd={(title) => addSubTask(task.id, title)}
+ *   onToggle={(subTaskId) => toggleSubTask(task.id, subTaskId)}
+ *   onDelete={(subTaskId) => deleteSubTask(task.id, subTaskId)}
+ * />
+ */
 export default function SubTaskList({
     subTasks,
     onAdd,

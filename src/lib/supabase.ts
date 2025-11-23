@@ -1,7 +1,22 @@
+/**
+ * @fileoverview Supabase client configuration and database type definitions.
+ * Provides a singleton Supabase client instance and complete TypeScript types
+ * for all database tables including tasks, sessions, stats, and more.
+ * @module lib/supabase
+ */
+
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
+/** Singleton Supabase client instance */
 let supabaseInstance: SupabaseClient<Database> | null = null;
 
+/**
+ * Gets or creates a Supabase client singleton instance.
+ * Uses environment variables for configuration.
+ *
+ * @returns {SupabaseClient<Database>} Typed Supabase client
+ * @throws {Error} If environment variables are not set
+ */
 const getSupabaseInstance = (): SupabaseClient<Database> => {
     if (!supabaseInstance) {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -14,10 +29,33 @@ const getSupabaseInstance = (): SupabaseClient<Database> => {
     return supabaseInstance;
 };
 
-// Export a properly typed instance instead of a Proxy
+/**
+ * Supabase client instance for database operations.
+ * Use this exported client throughout the application.
+ *
+ * @example
+ * import { supabase } from '@/lib/supabase';
+ * const { data, error } = await supabase.from('tasks').select('*');
+ */
 export const supabase = getSupabaseInstance();
 
-// Database types
+/**
+ * Complete database type definitions for Supabase.
+ * Provides TypeScript types for all tables, including Row, Insert, and Update variants.
+ *
+ * @interface Database
+ *
+ * @description Tables included:
+ * - tasks: User tasks with priorities, tags, and scheduling
+ * - subtasks: Subtasks belonging to parent tasks
+ * - stats: User productivity statistics
+ * - sessions: Pomodoro session records
+ * - tags: Custom user tags
+ * - achievements: Unlocked achievements
+ * - profiles: User profiles with avatars
+ * - friends: Friend relationships
+ * - stat_visibility: Privacy settings for stats
+ */
 export interface Database {
     public: {
         Tables: {

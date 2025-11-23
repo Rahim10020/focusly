@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Sign Up page for the Focusly application.
+ * Provides user registration form with email verification flow
+ * using Supabase authentication.
+ * @module app/auth/signup/page
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -13,6 +20,13 @@ const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+/**
+ * Sign Up page component for user registration.
+ * Collects name, email, and password, sends verification email,
+ * and provides resend functionality for verification emails.
+ *
+ * @returns {JSX.Element} The rendered sign up form or success message
+ */
 export default function SignUp() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

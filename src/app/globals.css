@@ -1,3 +1,22 @@
+/**
+ * Global CSS Styles for the Focusly Application
+ *
+ * This file defines:
+ * - CSS custom properties (variables) for theming
+ * - Light and dark mode color schemes
+ * - Brand colors (Pomodoro-themed reds, oranges, greens)
+ * - Semantic colors for success, warning, error, info states
+ * - Typography settings using Plus Jakarta Sans and Inter fonts
+ * - Custom animations (float, slide, fade, glow, etc.)
+ * - Utility classes for focus rings, interactive elements
+ * - Mobile-responsive font size adjustments
+ * - Custom scrollbar styling
+ * - Selection highlighting
+ *
+ * Theme switching is handled via the .dark class on the html element.
+ * All colors use CSS custom properties for dynamic theming support.
+ */
+
 @import "tailwindcss";
 
 :root {

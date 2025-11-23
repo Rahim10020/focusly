@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Leaderboard page for the Focusly application.
+ * Displays global user rankings with tabs for tasks completed,
+ * focus time, and streak metrics with pagination support.
+ * @module app/leaderboard/page
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -7,10 +14,18 @@ import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
+/**
+ * Represents a user in the leaderboard with their stats.
+ * @interface LeaderboardUser
+ */
 interface LeaderboardUser {
+    /** Unique user identifier */
     id: string;
+    /** User's display name */
     username: string | null;
+    /** URL to user's avatar image */
     avatar_url: string | null;
+    /** User's productivity statistics */
     stats: {
         total_sessions: number;
         completed_tasks: number;
@@ -21,8 +36,14 @@ interface LeaderboardUser {
     } | null;
 }
 
+/**
+ * API response structure for leaderboard data.
+ * @interface LeaderboardResponse
+ */
 interface LeaderboardResponse {
+    /** Array of leaderboard users */
     data: LeaderboardUser[];
+    /** Pagination information */
     pagination: {
         page: number;
         limit: number;
@@ -31,6 +52,13 @@ interface LeaderboardResponse {
     };
 }
 
+/**
+ * Leaderboard page component displaying user rankings.
+ * Features tabs for different metrics (tasks, time, streak),
+ * top 3 podium display, paginated list, and user rank highlight.
+ *
+ * @returns {JSX.Element} The rendered leaderboard page
+ */
 export default function LeaderboardPage() {
     const { data: session, status } = useSession();
     const router = useRouter();

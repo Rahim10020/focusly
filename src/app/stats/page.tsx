@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Statistics page for the Focusly application.
+ * Displays productivity statistics, achievements, task history, and domain breakdown
+ * with tabbed navigation for different data views.
+ * @module app/stats/page
+ */
+
 'use client';
 
 import Header from '@/components/layout/Header';
@@ -14,6 +21,13 @@ import { useTags } from '@/lib/hooks/useTags';
 import { formatTime } from '@/lib/utils/time';
 import { useState } from 'react';
 
+/**
+ * Statistics page component that displays comprehensive productivity data.
+ * Features tabbed navigation between overview (charts, recent sessions),
+ * achievements, task history, and domain statistics.
+ *
+ * @returns {JSX.Element} The rendered statistics page
+ */
 export default function StatsPage() {
     const { sessions } = useStats();
     const { unlockedAchievements, lockedAchievements } = useAchievements();

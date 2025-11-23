@@ -1,7 +1,24 @@
+/**
+ * @fileoverview Calendar integration utilities for exporting tasks to iCalendar format.
+ * Provides functions to export tasks as .ics files for import into calendar applications.
+ * @module lib/utils/calendarIntegration
+ */
+
 import { createEvents, DateArray, EventAttributes } from 'ics';
 import { Task } from '@/types';
 import { format } from 'date-fns';
 
+/**
+ * Exports multiple tasks to an ICS file and triggers download.
+ * Creates calendar events with proper start/end times, descriptions, and alarms.
+ * High priority tasks automatically get a 1-hour reminder alarm.
+ *
+ * @param {Task[]} tasks - Array of tasks to export
+ * @returns {void}
+ *
+ * @example
+ * exportTasksToICS(tasks); // Downloads focusly-tasks-2024-01-15.ics
+ */
 export const exportTasksToICS = (tasks: Task[]) => {
     const events: EventAttributes[] = tasks
         .filter(task => task.startDate || task.dueDate)
@@ -91,6 +108,19 @@ export const exportTasksToICS = (tasks: Task[]) => {
     document.body.removeChild(link);
 };
 
+/**
+ * Generates ICS content string for a single task.
+ * Useful for sharing individual tasks or programmatic calendar integration.
+ *
+ * @param {Task} task - The task to generate ICS for
+ * @returns {string | null} ICS content string, or null if task has no date
+ *
+ * @example
+ * const icsContent = generateICSForTask(task);
+ * if (icsContent) {
+ *   // Use icsContent for sharing or integration
+ * }
+ */
 export const generateICSForTask = (task: Task): string | null => {
     if (!task.startDate && !task.dueDate) {
         return null;
@@ -153,7 +183,18 @@ export const generateICSForTask = (task: Task): string | null => {
     return value!;
 };
 
-// Generate a shareable calendar subscription URL (would need backend support)
+/**
+ * Generates calendar subscription data for incomplete tasks.
+ * Returns ICS content that could be used for calendar subscriptions.
+ * Note: Full subscription support requires backend endpoint implementation.
+ *
+ * @param {Task[]} tasks - Array of tasks to include in subscription
+ * @returns {string | null} ICS content string, or null on error
+ *
+ * @example
+ * const subscriptionData = generateCalendarSubscriptionData(tasks);
+ * // Could be served from a backend endpoint as webcal://
+ */
 export const generateCalendarSubscriptionData = (tasks: Task[]) => {
     // This would typically generate a webcal:// URL that points to a backend endpoint
     // For now, we'll just generate the ICS content

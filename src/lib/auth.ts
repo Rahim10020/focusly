@@ -1,8 +1,32 @@
+/**
+ * @fileoverview NextAuth.js configuration for authentication.
+ * Configures credentials-based authentication with Supabase as the backend.
+ * Handles JWT token management, refresh, and session callbacks.
+ * @module lib/auth
+ */
+
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@supabase/supabase-js';
 import { logger } from '@/lib/logger';
 
+/**
+ * NextAuth.js configuration options.
+ * Defines authentication providers, session strategy, and callbacks.
+ *
+ * @type {NextAuthOptions}
+ *
+ * @property {Array} providers - Authentication providers (Credentials with Supabase)
+ * @property {Object} session - Session configuration using JWT strategy
+ * @property {Object} callbacks - JWT and session callbacks for token management
+ * @property {Object} pages - Custom authentication pages
+ *
+ * @example
+ * // Usage in API route
+ * import { authOptions } from '@/lib/auth';
+ * import NextAuth from 'next-auth';
+ * export default NextAuth(authOptions);
+ */
 export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({

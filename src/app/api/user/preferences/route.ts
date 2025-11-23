@@ -1,8 +1,66 @@
+/**
+ * @fileoverview User preferences API route.
+ *
+ * Provides endpoints for managing user preferences such as theme settings.
+ * Uses upsert to create or update preferences as needed.
+ *
+ * Route: /api/user/preferences
+ */
+
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authOptions } from '@/lib/auth';
 
+/**
+ * User preferences request body.
+ * @typedef {Object} PreferencesRequest
+ * @property {'light' | 'dark'} theme - The theme preference to set
+ */
+
+/**
+ * Successful preferences update response.
+ * @typedef {Object} PreferencesSuccessResponse
+ * @property {boolean} success - Always true on success
+ */
+
+/**
+ * Updates the user's theme preference.
+ *
+ * Creates a new preference record if one doesn't exist, or updates the
+ * existing record. Requires authentication.
+ *
+ * @param {Request} request - The incoming request object
+ * @returns {Promise<NextResponse>} JSON response indicating success or failure
+ *
+ * @example
+ * // Set theme to dark mode
+ * // POST /api/user/preferences
+ * // Request body:
+ * {
+ *   "theme": "dark"
+ * }
+ *
+ * @example
+ * // Set theme to light mode
+ * // POST /api/user/preferences
+ * // Request body:
+ * {
+ *   "theme": "light"
+ * }
+ *
+ * @example
+ * // Successful response (200 OK)
+ * {
+ *   "success": true
+ * }
+ *
+ * @example
+ * // Error responses
+ * // 400: { "error": "Invalid theme value. Must be \"light\" or \"dark\"." }
+ * // 401: { "error": "Unauthorized" }
+ * // 500: { "error": "Failed to update preferences" }
+ */
 export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
 
