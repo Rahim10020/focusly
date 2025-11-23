@@ -264,15 +264,10 @@ export default function TaskModal({
                             title={isFullScreen ? 'Switch to compact mode' : 'Switch to full screen mode'}
                         >
                             {isFullScreen ? (
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    {/* Top-left arrow pointing down-right */}
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 6l6 6M6 6h6v6" />
-                                    {/* Top-right arrow pointing down-left */}
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 6l-6 6M18 6h-6v6" />
-                                    {/* Bottom-left arrow pointing up-right */}
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18l6-6M6 18h6v-6" />
-                                    {/* Bottom-right arrow pointing up-left */}
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 18l-6-6M18 18h-6v-6" />
+                                // Use the provided SVG for reducing the modal
+                                <svg className="w-5 h-5" data-testid="CollapseIcon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+                                    <path d="M30.706 2.706 21.413 12h7.586a1 1 0 0 1 0 2h-10a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v7.586l9.293-9.293a.999.999 0 1 1 1.413 1.414Zm-29.414 28a.997.997 0 0 0 1.414 0l9.293-9.293v7.586a1 1 0 0 0 2 0V19a1 1 0 0 0-1-1h-10a1 1 0 0 0 0 2h7.586l-9.293 9.293a.999.999 0 0 0 0 1.414Z"></path>
+                                    <path d="M30.706 2.706 21.413 12h7.586a1 1 0 0 1 0 2h-10a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v7.586l9.293-9.293a.999.999 0 1 1 1.413 1.414Zm-29.414 28a.997.997 0 0 0 1.414 0l9.293-9.293v7.586a1 1 0 0 0 2 0V19a1 1 0 0 0-1-1h-10a1 1 0 0 0 0 2h7.586l-9.293 9.293a.999.999 0 0 0 0 1.414Z"></path>
                                 </svg>
                             ) : (
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
