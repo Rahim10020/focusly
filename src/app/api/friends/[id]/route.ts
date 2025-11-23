@@ -96,18 +96,20 @@ export async function PUT(
             return NextResponse.json({ error: 'Friend request not found' }, { status: 404 });
         }
 
-        if (friendRequest.receiver_id !== userId) {
+        const friendData = friendRequest as { receiver_id: string; status: string };
+
+        if (friendData.receiver_id !== userId) {
             return NextResponse.json({ error: 'Unauthorized to modify this request' }, { status: 403 });
         }
 
-        if (friendRequest.status !== 'pending') {
+        if (friendData.status !== 'pending') {
             return NextResponse.json({ error: 'Request already processed' }, { status: 400 });
         }
 
         const newStatus = action === 'accept' ? 'accepted' : 'rejected';
 
-        const { data, error } = await supabase
-            .from('friends')
+        const { data, error } = await (supabase
+            .from('friends') as any)
             .update({ status: newStatus })
             .eq('id', friendId)
             .select()

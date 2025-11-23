@@ -170,8 +170,8 @@ async function postHandler(request: NextRequest) {
             return NextResponse.json({ error: 'Friend request already exists' }, { status: 400 });
         }
 
-        const { data, error } = await supabase
-            .from('friends')
+        const { data, error } = await (supabase
+            .from('friends') as any)
             .insert({
                 sender_id: userId,
                 receiver_id,

@@ -115,8 +115,8 @@ export function useTags() {
         if (userId) {
             // Save to database
             try {
-                const { data, error } = await supabase
-                    .from('tags')
+                const { data, error } = await (supabase
+                    .from('tags') as any)
                     .insert({
                         id: newTag.id,
                         user_id: userId,
@@ -146,8 +146,8 @@ export function useTags() {
         if (userId) {
             // Update in database
             try {
-                const { error } = await supabase
-                    .from('tags')
+                const { error } = await (supabase
+                    .from('tags') as any)
                     .update({
                         name: updates.name,
                         color: updates.color,
@@ -172,8 +172,8 @@ export function useTags() {
         if (userId) {
             // Delete from database
             try {
-                const { error } = await supabase
-                    .from('tags')
+                const { error } = await (supabase
+                    .from('tags') as any)
                     .delete()
                     .eq('id', id)
                     .eq('user_id', userId);

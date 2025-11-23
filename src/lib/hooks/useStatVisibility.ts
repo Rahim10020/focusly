@@ -67,10 +67,13 @@ export function useStatVisibility() {
 
     const fetchVisibilitySettings = async () => {
         try {
+            const userId = (session?.user as any)?.id;
+            if (!userId) return;
+
             const { data, error } = await supabase
                 .from('stat_visibility')
                 .select('stat_field, visible_to_friends')
-                .eq('user_id', session?.user?.id);
+                .eq('user_id', userId);
 
             if (error) throw error;
 
@@ -91,10 +94,10 @@ export function useStatVisibility() {
 
     const updateVisibility = async (statField: string, visible: boolean) => {
         try {
-            const { error } = await supabase
-                .from('stat_visibility')
+            const { error } = await (supabase
+                .from('stat_visibility') as any)
                 .upsert({
-                    user_id: session?.user?.id,
+                    user_id: (session?.user as any)?.id,
                     stat_field: statField,
                     visible_to_friends: visible
                 });

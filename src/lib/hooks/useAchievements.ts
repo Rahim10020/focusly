@@ -260,11 +260,12 @@ export function useAchievements() {
                 .select('*')
                 .eq('user_id', userId);
 
-            if (error) throw error;
+            if (error || !data) throw error;
 
             // Merge with definitions
+            const achievementData = data as { achievement_id: string; unlocked_at: string }[];
             const achievementsWithData = ACHIEVEMENTS_DEFINITIONS.map(def => {
-                const dbAchievement = data.find((a: any) => a.achievement_id === def.id);
+                const dbAchievement = achievementData.find((a) => a.achievement_id === def.id);
                 return {
                     ...def,
                     progress: 0, // Progress is calculated dynamically
@@ -396,8 +397,8 @@ export function useAchievements() {
                         (async () => {
                             try {
                                 await ensureSupabaseSession();
-                                const { error } = await supabase
-                                    .from('achievements')
+                                const { error } = await (supabase
+                                    .from('achievements') as any)
                                     .upsert({
                                         user_id: userId,
                                         achievement_id: achievement.id,
@@ -467,8 +468,8 @@ export function useAchievements() {
                         (async () => {
                             try {
                                 await ensureSupabaseSession();
-                                const { error } = await supabase
-                                    .from('achievements')
+                                const { error } = await (supabase
+                                    .from('achievements') as any)
                                     .upsert({
                                         user_id: userId,
                                         achievement_id: achievement.id,
@@ -508,8 +509,8 @@ export function useAchievements() {
                         (async () => {
                             try {
                                 await ensureSupabaseSession();
-                                const { error } = await supabase
-                                    .from('achievements')
+                                const { error } = await (supabase
+                                    .from('achievements') as any)
                                     .upsert({
                                         user_id: userId,
                                         achievement_id: achievement.id,

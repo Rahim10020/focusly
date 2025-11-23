@@ -42,7 +42,7 @@ export class Cache {
 
             if (error || !data) return null;
 
-            return data.data;
+            return (data as { data: any }).data;
         } catch (error) {
             console.error('Cache get error:', error);
             return null;
@@ -53,8 +53,8 @@ export class Cache {
         try {
             const expiresAt = new Date(Date.now() + ttl);
 
-            await supabase
-                .from('cache')
+            await (supabase
+                .from('cache') as any)
                 .upsert({
                     cache_key: key,
                     data,
@@ -69,8 +69,8 @@ export class Cache {
 
     private static async delete(key: string): Promise<void> {
         try {
-            await supabase
-                .from('cache')
+            await (supabase
+                .from('cache') as any)
                 .delete()
                 .eq('cache_key', key);
         } catch (error) {
@@ -105,8 +105,8 @@ export class Cache {
     static async invalidatePattern(pattern: string): Promise<void> {
         try {
             // Use a simple LIKE query to delete matching keys
-            await supabase
-                .from('cache')
+            await (supabase
+                .from('cache') as any)
                 .delete()
                 .like('cache_key', `%${pattern}%`);
         } catch (error) {
