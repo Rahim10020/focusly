@@ -365,11 +365,8 @@ export default function TaskModal({
                                                 value={startDate}
                                                 onChange={(e) => setStartDate(e.target.value)}
                                                 min={new Date().toISOString().split('T')[0]}
-                                                className="bg-background border-border pr-10"
+                                                className="bg-background border-border"
                                             />
-                                            <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
                                         </div>
                                     </div>
                                     <div className="space-y-1.5">
@@ -380,11 +377,8 @@ export default function TaskModal({
                                                 value={dueDate}
                                                 onChange={(e) => setDueDate(e.target.value)}
                                                 min={new Date().toISOString().split('T')[0]}
-                                                className="bg-background border-border pr-10"
+                                                className="bg-background border-border"
                                             />
-                                            <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
                                         </div>
                                     </div>
                                 </div>
@@ -398,11 +392,8 @@ export default function TaskModal({
                                                 type="time"
                                                 value={startTime}
                                                 onChange={(e) => setStartTime(e.target.value)}
-                                                className="bg-background border-border pr-10"
+                                                className="bg-background border-border"
                                             />
-                                            <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
                                         </div>
                                     </div>
                                     <div className="space-y-1.5">
@@ -412,11 +403,8 @@ export default function TaskModal({
                                                 type="time"
                                                 value={endTime}
                                                 onChange={(e) => setEndTime(e.target.value)}
-                                                className="bg-background border-border pr-10"
+                                                className="bg-background border-border"
                                             />
-                                            <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
                                         </div>
                                     </div>
                                     <div className="space-y-1.5">
