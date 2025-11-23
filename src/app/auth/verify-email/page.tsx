@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Card, { CardContent } from '@/components/ui/Card';
@@ -19,13 +19,13 @@ const supabase = createClient(
 );
 
 /**
- * Email Verification page component that processes verification tokens.
+ * Email Verification content component that processes verification tokens.
  * Automatically verifies OTP tokens from email links and provides
  * status feedback with auto-redirect to sign in on success.
  *
  * @returns {JSX.Element} The rendered verification status page
  */
-export default function VerifyEmail() {
+function VerifyEmailContent() {
     const [message, setMessage] = useState('Vérification en cours...');
     const [isVerified, setIsVerified] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -121,5 +121,29 @@ export default function VerifyEmail() {
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+/**
+ * Email Verification page component wrapped in Suspense boundary.
+ * This prevents client-side rendering bailout when using useSearchParams.
+ *
+ * @returns {JSX.Element} The rendered verification status page with Suspense
+ */
+export default function VerifyEmail() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-background px-4">
+                <Card className="w-full max-w-md bg-transparent" variant="none">
+                    <CardContent className="text-center py-8">
+                        <div className="text-4xl mb-4 text-yellow-500">⏳</div>
+                        <h2 className="text-xl font-semibold mb-2 text-foreground">Chargement...</h2>
+                        <p className="text-muted-foreground">Vérification de votre email en cours.</p>
+                    </CardContent>
+                </Card>
+            </div>
+        }>
+            <VerifyEmailContent />
+        </Suspense>
     );
 }
