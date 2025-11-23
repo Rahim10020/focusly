@@ -279,7 +279,7 @@ export default function TaskModal({
                 </div>
 
                 {/* Content */}
-                <div className={`p-6 ${isFullScreen ? 'grid grid-cols-[1fr_400px] gap-8' : 'space-y-8'}`}>
+                <div className={`p-6 ${isFullScreen ? 'grid grid-cols-[1fr_1fr] gap-8' : 'space-y-8'}`}>
                     {/* Main Content */}
                     <div className="space-y-8">
                         {/* Task Title */}
@@ -432,7 +432,7 @@ export default function TaskModal({
                             <div className="space-y-4">
                                 <button
                                     onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                                    className="w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted rounded-xl transition-all cursor-pointer"
+                                    className="w-full flex items-center justify-between p-2 cursor-pointer"
                                 >
                                     <div className="flex items-center gap-3">
                                         <svg className={`w-5 h-5 text-muted-foreground transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -504,7 +504,7 @@ export default function TaskModal({
                             <div className="space-y-4">
                                 <button
                                     onClick={() => setIsSubTasksOpen(!isSubTasksOpen)}
-                                    className="w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted rounded-xl transition-all cursor-pointer"
+                                    className="w-full flex items-center justify-between p-2 cursor-pointer"
                                 >
                                     <div className="flex items-center gap-3">
                                         <svg className={`w-5 h-5 text-muted-foreground transition-transform ${isSubTasksOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -521,7 +521,7 @@ export default function TaskModal({
 
                                 {isSubTasksOpen && (
                                     <div className="space-y-4 animate-slide-down">
-                                        <div className="flex gap-2">
+                                        <div className="flex items-center gap-2">
                                             <Input
                                                 type="text"
                                                 placeholder="Add a subtask..."
@@ -576,7 +576,7 @@ export default function TaskModal({
                             <div className="space-y-4">
                                 <button
                                     onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                                    className="w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted rounded-xl transition-all cursor-pointer"
+                                    className="w-full flex items-center justify-between p-2 cursor-pointer"
                                 >
                                     <div className="flex items-center gap-3">
                                         <svg className={`w-5 h-5 text-muted-foreground transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -648,7 +648,7 @@ export default function TaskModal({
                             <div className="space-y-4">
                                 <button
                                     onClick={() => setIsSubTasksOpen(!isSubTasksOpen)}
-                                    className="w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted rounded-xl transition-all cursor-pointer"
+                                    className="w-full flex items-center justify-between p-2 cursor-pointer"
                                 >
                                     <div className="flex items-center gap-3">
                                         <svg className={`w-5 h-5 text-muted-foreground transition-transform ${isSubTasksOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
