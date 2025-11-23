@@ -293,8 +293,8 @@ export function useTasksEnhanced() {
                     reminder_sent: newTask.reminderSent,
                 };
 
-                const { data, error } = await supabase
-                    .from('tasks')
+                const { data, error } = await (supabase
+                    .from('tasks') as any)
                     .insert(insertData)
                     .select()
                     .single();
@@ -351,8 +351,8 @@ export function useTasksEnhanced() {
                 }
 
                 // Use optimistic locking with version check
-                const { data, error } = await supabase
-                    .from('tasks')
+                const { data, error } = await (supabase
+                    .from('tasks') as any)
                     .update(updateData)
                     .eq('id', id)
                     .eq('user_id', userId)
@@ -411,16 +411,16 @@ export function useTasksEnhanced() {
 
             // Delete removed subtasks
             const toDelete = existingSubTasks?.filter((st: { id: string }) => !newIds.has(st.id)) || [];
-            for (const st of toDelete) {
-                await supabase.from('subtasks').delete().eq('id', st.id);
+            for (const st of toDelete as { id: string }[]) {
+                await (supabase.from('subtasks') as any).delete().eq('id', st.id);
             }
 
             // Insert or update subtasks
             for (const st of subTasks) {
                 if (existingIds.has(st.id)) {
                     // Update existing
-                    await supabase
-                        .from('subtasks')
+                    await (supabase
+                        .from('subtasks') as any)
                         .update({
                             title: st.title,
                             completed: st.completed,
@@ -430,8 +430,8 @@ export function useTasksEnhanced() {
                         .eq('id', st.id);
                 } else {
                     // Insert new
-                    await supabase
-                        .from('subtasks')
+                    await (supabase
+                        .from('subtasks') as any)
                         .insert({
                             id: st.id,
                             task_id: taskId,
@@ -456,8 +456,8 @@ export function useTasksEnhanced() {
         if (userId) {
             // Delete from database (cascade is handled by DB foreign key)
             try {
-                const { error } = await supabase
-                    .from('tasks')
+                const { error } = await (supabase
+                    .from('tasks') as any)
                     .delete()
                     .eq('id', id)
                     .eq('user_id', userId);
@@ -498,8 +498,8 @@ export function useTasksEnhanced() {
 
         if (userId) {
             try {
-                const { data, error } = await supabase
-                    .from('tasks')
+                const { data, error } = await (supabase
+                    .from('tasks') as any)
                     .update({
                         completed: newCompleted,
                         completed_at: newCompleted ? new Date().toISOString() : null
@@ -558,8 +558,8 @@ export function useTasksEnhanced() {
 
         if (userId) {
             try {
-                const { data, error } = await supabase
-                    .from('tasks')
+                const { data, error } = await (supabase
+                    .from('tasks') as any)
                     .update({ pomodoro_count: newCount })
                     .eq('id', id)
                     .eq('user_id', userId)
@@ -611,8 +611,8 @@ export function useTasksEnhanced() {
         const userId = getUserId();
         if (userId) {
             try {
-                const { data, error } = await supabase
-                    .from('subtasks')
+                const { data, error } = await (supabase
+                    .from('subtasks') as any)
                     .insert({
                         task_id: taskId,
                         title: newSubTask.title,
@@ -658,8 +658,8 @@ export function useTasksEnhanced() {
 
         if (userId) {
             try {
-                const { error } = await supabase
-                    .from('subtasks')
+                const { error } = await (supabase
+                    .from('subtasks') as any)
                     .update({
                         completed: newCompleted,
                         completed_at: newCompleted ? new Date().toISOString() : null
@@ -699,8 +699,8 @@ export function useTasksEnhanced() {
         const userId = getUserId();
         if (userId) {
             try {
-                const { error } = await supabase
-                    .from('subtasks')
+                const { error } = await (supabase
+                    .from('subtasks') as any)
                     .delete()
                     .eq('id', subTaskId);
 
@@ -741,8 +741,8 @@ export function useTasksEnhanced() {
         if (userId) {
             try {
                 for (const task of reorderedTasks) {
-                    await supabase
-                        .from('tasks')
+                    await (supabase
+                        .from('tasks') as any)
                         .update({ order: task.order })
                         .eq('id', task.id)
                         .eq('user_id', userId);

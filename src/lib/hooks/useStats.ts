@@ -120,12 +120,19 @@ export function useStats() {
             }
 
             if (data) {
+                const statsData = data as {
+                    total_focus_time: number;
+                    total_tasks: number;
+                    completed_tasks: number;
+                    total_sessions: number;
+                    streak: number;
+                };
                 setDbStats({
-                    totalFocusTime: data.total_focus_time,
-                    totalTasks: data.total_tasks,
-                    completedTasks: data.completed_tasks,
-                    totalSessions: data.total_sessions,
-                    streak: data.streak,
+                    totalFocusTime: statsData.total_focus_time,
+                    totalTasks: statsData.total_tasks,
+                    completedTasks: statsData.completed_tasks,
+                    totalSessions: statsData.total_sessions,
+                    streak: statsData.streak,
                 });
             }
         } catch (error: any) {
@@ -183,8 +190,8 @@ export function useStats() {
         if (userId) {
             // Save to database
             try {
-                await supabase
-                    .from('sessions')
+                await (supabase
+                    .from('sessions') as any)
                     .insert({
                         user_id: userId,
                         task_id: session.taskId,
@@ -196,8 +203,8 @@ export function useStats() {
 
                 // Update stats in database
                 if (session.completed && session.type === 'work') {
-                    await supabase
-                        .from('stats')
+                    await (supabase
+                        .from('stats') as any)
                         .upsert({
                             user_id: userId,
                             total_focus_time: dbStats.totalFocusTime + Math.floor(session.duration / 60),
@@ -239,8 +246,8 @@ export function useStats() {
         if (userId) {
             // Update in database
             try {
-                await supabase
-                    .from('stats')
+                await (supabase
+                    .from('stats') as any)
                     .upsert({
                         user_id: userId,
                         total_tasks: totalTasks,

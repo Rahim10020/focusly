@@ -205,8 +205,8 @@ export function useTasks() {
                     sub_domain: newTask.subDomain,
                 };
 
-                const { data, error } = await supabase
-                    .from('tasks')
+                const { data, error } = await (supabase
+                    .from('tasks') as any)
                     .insert(insertData)
                     .select()
                     .single();
@@ -259,8 +259,8 @@ export function useTasks() {
                 if (updates.subDomain !== undefined) updateData.sub_domain = updates.subDomain;
 
                 // Use optimistic locking with version check
-                const { data, error } = await supabase
-                    .from('tasks')
+                const { data, error } = await (supabase
+                    .from('tasks') as any)
                     .update(updateData)
                     .eq('id', id)
                     .eq('user_id', userId)
@@ -348,8 +348,8 @@ export function useTasks() {
         if (userId) {
             // Update in database with optimistic locking
             try {
-                const { data, error } = await supabase
-                    .from('tasks')
+                const { data, error } = await (supabase
+                    .from('tasks') as any)
                     .update({
                         completed: newCompleted,
                         completed_at: newCompleted ? new Date().toISOString() : null
@@ -422,8 +422,8 @@ export function useTasks() {
         if (userId) {
             // Update in database with optimistic locking
             try {
-                const { data, error } = await supabase
-                    .from('tasks')
+                const { data, error } = await (supabase
+                    .from('tasks') as any)
                     .update({ pomodoro_count: newCount })
                     .eq('id', id)
                     .eq('user_id', userId)
@@ -479,8 +479,8 @@ export function useTasks() {
         if (userId) {
             // Add to database
             try {
-                const { data, error } = await supabase
-                    .from('subtasks')
+                const { data, error } = await (supabase
+                    .from('subtasks') as any)
                     .insert({
                         task_id: taskId,
                         title: newSubTask.title,
@@ -529,8 +529,8 @@ export function useTasks() {
         if (userId) {
             // Update in database
             try {
-                const { error } = await supabase
-                    .from('subtasks')
+                const { error } = await (supabase
+                    .from('subtasks') as any)
                     .update({
                         completed: newCompleted,
                         completed_at: newCompleted ? new Date().toISOString() : null
@@ -576,8 +576,8 @@ export function useTasks() {
         if (userId) {
             // Delete from database
             try {
-                const { error } = await supabase
-                    .from('subtasks')
+                const { error } = await (supabase
+                    .from('subtasks') as any)
                     .delete()
                     .eq('id', subTaskId);
 
@@ -625,8 +625,8 @@ export function useTasks() {
                 // Update all tasks in parallel for better performance
                 await Promise.all(
                     updates.map(update =>
-                        supabase
-                            .from('tasks')
+                        (supabase
+                            .from('tasks') as any)
                             .update({ order: update.order })
                             .eq('id', update.id)
                             .eq('user_id', userId)

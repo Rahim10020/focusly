@@ -184,7 +184,7 @@ async function getHandler(
             .eq('id', userId)
             .single();
 
-        if (error) {
+        if (error || !data) {
             logger.error('Error fetching user stats', error as Error, {
                 action: 'getUserStats',
                 userId,
@@ -193,20 +193,22 @@ async function getHandler(
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
+        const userData = data as { id: string; username: string | null; avatar_url: string | null; stats: Record<string, any> | null };
+
         // Filter stats based on visibility
-        if (data.stats && !isFriend) {
+        if (userData.stats && !isFriend) {
             const filteredStats: Record<string, any> = {};
-            for (const [key, value] of Object.entries(data.stats)) {
+            for (const [key, value] of Object.entries(userData.stats)) {
                 const visible = visibilityMap.get(key) ?? true; // Default to visible
                 if (visible) {
                     filteredStats[key] = value;
                 }
                 // Don't add the key if not visible (better security - doesn't reveal which fields exist)
             }
-            data.stats = filteredStats as any;
+            userData.stats = filteredStats;
         }
 
-        return NextResponse.json(data);
+        return NextResponse.json(userData);
     } catch (error) {
         logger.error('Error in user API', error as Error, {
             action: 'userAPI'
