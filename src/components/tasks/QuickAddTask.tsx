@@ -85,7 +85,7 @@ export default function QuickAddTask({
                     </svg>
                 </div>
                 <span className="text-muted-foreground group-hover:text-foreground transition-colors font-medium">
-                    Add a task
+                    Quick task
                 </span>
             </button>
         );
