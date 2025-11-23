@@ -86,28 +86,29 @@ export async function PUT(
         }
 
         // Check if the user is the receiver of this friend request
-        const { data: friendRequest, error: fetchError } = await supabase
+        const { data: friendRequestData, error: fetchError } = await supabase
             .from('friends')
             .select('receiver_id, status')
             .eq('id', friendId)
             .single();
 
-        if (fetchError || !friendRequest) {
+        if (fetchError || !friendRequestData) {
             return NextResponse.json({ error: 'Friend request not found' }, { status: 404 });
         }
 
-        if (friendRequest.receiver_id !== userId) {
+        const typedFriendRequestData = friendRequestData as { receiver_id: string; status: 'pending' | 'accepted' | 'rejected' };
+
+        if (typedFriendRequestData.receiver_id !== userId) {
             return NextResponse.json({ error: 'Unauthorized to modify this request' }, { status: 403 });
         }
 
-        if (friendRequest.status !== 'pending') {
+        if (typedFriendRequestData.status !== 'pending') {
             return NextResponse.json({ error: 'Request already processed' }, { status: 400 });
         }
 
         const newStatus = action === 'accept' ? 'accepted' : 'rejected';
 
-        const { data, error } = await supabase
-            .from('friends')
+        const { data, error } = await (supabase.from('friends') as any)
             .update({ status: newStatus })
             .eq('id', friendId)
             .select()
