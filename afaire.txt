@@ -18,7 +18,6 @@ PROCHAINE VERSION
 
 A FAIRE PROCHAINEMENT
     - tester toutes les fonctionnalites
-    - modifier la page task detail comme la page task modal (design parlant)
     - j'ais remarque une anomalie: quand je marque une tache comme terminee en 
         etant dans la page tasks, les achievements ne sont pas debloques, 
     - j'ai des taches qui sont marques comme termines mais ils ne sont pas affiches dans la 
@@ -28,4 +27,4 @@ A FAIRE PROCHAINEMENT
          avec lequel on peut inviter un utilisateur a etre notre ami (la personne recevra une notification)
     - et puis quand on clique sur un utilisateur depuis la page de leaderboard, on devrais afficher 
         a la personner qu'il dois etre ami avec la personne avant de voir ses stats.
-    - au lieu de mettre les noms des utilisateurs, il y a Anonymous a la place. Trouver ce qui cause le probleme et le corriger.
+    - et au lieu de mettre les noms des utilisateurs, il y a Anonymous a la place. Trouver ce qui cause le probleme et le corriger.
