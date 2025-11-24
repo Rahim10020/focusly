@@ -17,8 +17,5 @@ PROCHAINE VERSION
 
 A FAIRE PROCHAINEMENT
     - tester toutes les fonctionnalites
-    - rendre le chargement dynamique apres chaque session de tache 
-        (chargements des stats depuis la page d'accueil (todays focus, total focus time, task completed))
-        c'est a dire pas besoin de recharger la page pour voir les stats a jour.
 
     - tester les keyboard shortcuts pour voir si ca marche.
