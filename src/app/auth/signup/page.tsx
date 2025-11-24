@@ -30,7 +30,7 @@ const supabase = createClient(
 export default function SignUp() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -64,7 +64,7 @@ export default function SignUp() {
                 options: {
                     emailRedirectTo: `${window.location.origin}/auth/verify-email`,
                     data: {
-                        name: name,
+                        username: username,
                     }
                 },
             });
@@ -151,16 +151,16 @@ export default function SignUp() {
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium mb-1 text-foreground">
-                                Name
+                            <label htmlFor="username" className="block text-sm font-medium mb-1 text-foreground">
+                                Username
                             </label>
                             <Input
-                                id="name"
+                                id="username"
                                 type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
                                 required
-                                placeholder="Your name"
+                                placeholder="Your username"
                             />
                         </div>
                         <div>

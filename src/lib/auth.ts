@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
                     return {
                         id: data.user.id,
                         email: data.user.email,
-                        name: data.user.user_metadata?.name || data.user.email,
+                        name: data.user.user_metadata?.username || data.user.email,
                         accessToken: data.session?.access_token,
                         refreshToken: data.session?.refresh_token,
                     };
@@ -148,12 +148,16 @@ export const authOptions: NextAuthOptions = {
                             .single();
 
                         if (profileError && profileError.code === 'PGRST116') { // Not found
+                            // Get user metadata to set username
+                            const { data: userData } = await supabase.auth.getUser();
+                            const username = userData.user?.user_metadata?.username || null;
+
                             // Create profile
                             await supabase
                                 .from('profiles')
                                 .insert({
                                     id: token.id,
-                                    username: null,
+                                    username: username,
                                     avatar_url: null
                                 });
                         }
