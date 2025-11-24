@@ -286,9 +286,9 @@ export default function TaskModal({
                     <div className="sticky top-[89px] bg-card border-b border-border px-6 z-10">
                         <div className="flex">
                             {[
-                                { id: 'details', label: 'Détails' },
-                                { id: 'categories', label: 'Catégories', badge: selectedSubDomain ? '1' : null },
-                                { id: 'subtasks', label: 'Sous-tâches', badge: subTasks.length > 0 ? subTasks.length.toString() : null }
+                                { id: 'details', label: 'Details' },
+                                { id: 'categories', label: 'Categories', badge: selectedSubDomain ? '1' : null },
+                                { id: 'subtasks', label: 'Subtasks', badge: subTasks.length > 0 ? subTasks.length.toString() : null }
                             ].map((tab) => (
                                 <button
                                     key={tab.id}
@@ -445,7 +445,7 @@ export default function TaskModal({
                                         </div>
 
                                         {/* Notes */}
-                                        <div className="space-y-2">
+                                        <div className="space-y-2 mb-10">
                                             <label className="block text-sm font-medium text-foreground">Notes</label>
                                             <textarea
                                                 value={notes}
@@ -514,7 +514,7 @@ export default function TaskModal({
                                 {/* Subtasks Tab */}
                                 {activeTab === 'subtasks' && (
                                     <div className="p-6 space-y-4">
-                                        <div className="flex gap-2">
+                                        <div className="flex items-center gap-2">
                                             <Input
                                                 type="text"
                                                 placeholder="Add a subtask..."
