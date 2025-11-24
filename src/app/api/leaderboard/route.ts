@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { createClient } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/supabase';
 import { withRateLimit } from '@/lib/rateLimit';
@@ -180,6 +181,41 @@ async function getHandler(request: NextRequest) {
             }
 
             const typedProfilesData = (profilesData || []) as Database['public']['Tables']['profiles']['Row'][];
+
+            // Create profiles for users who have stats but no profile
+            const usersWithStats = new Set(typedStatsData.map(stat => stat.user_id));
+            const usersWithProfiles = new Set(typedProfilesData.map(profile => profile.id));
+            const usersWithoutProfiles = Array.from(usersWithStats).filter(id => !usersWithProfiles.has(id));
+
+            if (usersWithoutProfiles.length > 0) {
+                const serviceSupabase = createClient(
+                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                    process.env.SUPABASE_SERVICE_ROLE_KEY!
+                );
+
+                const profilesToCreate = usersWithoutProfiles.map(id => ({
+                    id,
+                    username: null,
+                    avatar_url: null
+                }));
+
+                const { error: createError } = await serviceSupabase
+                    .from('profiles')
+                    .insert(profilesToCreate);
+
+                if (createError) {
+                    logger.error('Error creating missing profiles', createError as Error, {
+                        action: 'createMissingProfiles',
+                        userIds: usersWithoutProfiles
+                    });
+                    // Continue without profiles for these users
+                } else {
+                    // Add created profiles to the map
+                    profilesToCreate.forEach(profile => {
+                        typedProfilesData.push(profile as Database['public']['Tables']['profiles']['Row']);
+                    });
+                }
+            }
 
             // Create a map of user_id -> profile for quick lookup
             const profilesMap = new Map(
