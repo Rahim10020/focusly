@@ -216,6 +216,7 @@ export function checkTimeOverlaps(
 
 /**
  * Calculates the duration in minutes between start and end times.
+ * Handles cases where the end time crosses midnight (e.g., 23:00 to 01:00).
  *
  * @param {string} startTime - Start time in HH:mm format
  * @param {string} endTime - End time in HH:mm format
@@ -223,15 +224,28 @@ export function checkTimeOverlaps(
  *
  * @example
  * calculateDuration('09:00', '10:30'); // Returns 90
+ * calculateDuration('23:00', '01:00'); // Returns 120 (2 hours, crossing midnight)
  */
 export function calculateDuration(startTime: string, endTime: string): number {
     const [startHour, startMin] = startTime.split(':').map(Number);
     const [endHour, endMin] = endTime.split(':').map(Number);
 
-    const startMinutes = startHour * 60 + startMin;
-    const endMinutes = endHour * 60 + endMin;
+    // Create date objects for comparison
+    const start = new Date();
+    start.setHours(startHour, startMin, 0, 0);
 
-    return Math.max(0, endMinutes - startMinutes);
+    let end = new Date();
+    end.setHours(endHour, endMin, 0, 0);
+
+    // Handle case where end time is on the next day
+    if (end <= start) {
+        end.setDate(end.getDate() + 1);
+    }
+
+    const diffInMs = end.getTime() - start.getTime();
+    const diffInMinutes = Math.round(diffInMs / (1000 * 60));
+
+    return Math.max(0, diffInMinutes);
 }
 
 /**

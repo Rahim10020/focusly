@@ -10,6 +10,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import KeyboardShortcutsProvider from "@/components/providers/KeyboardShortcutsProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -53,7 +54,9 @@ export default function RootLayout({
         <SessionProvider>
           <ThemeProvider>
             <ToastProvider>
-              {children}
+              <KeyboardShortcutsProvider>
+                {children}
+              </KeyboardShortcutsProvider>
             </ToastProvider>
           </ThemeProvider>
         </SessionProvider>

@@ -3,7 +3,7 @@ QUI SERAIT COOL
     - coder une affichage unique pour la version mobile web 
         (quand la personne y accede via le web avec un telehone mobile)
 
-PROCHAINE VERSION
+PROCHAINE VERSION 
     - gerer la derniere section des insights dans le dashboard 
     - permettre le partage des taches via les reseaux sociaux (demander a l'ia de me proposer ces reseaux)
     - ameliorer le ui (pages de creation de taches et autres..)
@@ -17,5 +17,3 @@ PROCHAINE VERSION
 
 A FAIRE PROCHAINEMENT
     - tester toutes les fonctionnalites
-
-    - tester les keyboard shortcuts pour voir si ca marche.

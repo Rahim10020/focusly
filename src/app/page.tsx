@@ -224,7 +224,7 @@ export default function Home() {
   // Use theme from context
   const { toggleTheme } = useTheme();
 
-  // Keyboard shortcuts
+  // Page-specific keyboard shortcuts (timer controls and new task)
   useKeyboardShortcuts([
     {
       ...GLOBAL_SHORTCUTS.START_PAUSE_TIMER,
@@ -261,32 +261,8 @@ export default function Home() {
       },
     },
     {
-      ...GLOBAL_SHORTCUTS.TOGGLE_THEME,
-      action: toggleTheme,
-    },
-    {
       ...GLOBAL_SHORTCUTS.SHOW_SHORTCUTS,
       action: () => setShowShortcuts(true),
-    },
-    {
-      ...GLOBAL_SHORTCUTS.GO_TO_HOME,
-      action: () => router.push('/'),
-    },
-    {
-      ...GLOBAL_SHORTCUTS.GO_TO_STATS,
-      action: () => router.push('/stats'),
-    },
-    {
-      ...GLOBAL_SHORTCUTS.GO_TO_SETTINGS,
-      action: () => router.push('/settings'),
-    },
-    {
-      ...GLOBAL_SHORTCUTS.GO_TO_LEADERBOARD,
-      action: () => router.push('/leaderboard'),
-    },
-    {
-      ...GLOBAL_SHORTCUTS.GO_TO_FRIENDS,
-      action: () => router.push('/friends'),
     },
   ]);
 
