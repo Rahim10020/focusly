@@ -82,11 +82,17 @@ class Logger {
      * Log error message
      */
     error(message: string, error: Error | unknown, context?: LogContext) {
-        const errorObj = error instanceof Error ? error : new Error(String(error));
+        const errorMessage = error instanceof Error
+            ? error.message
+            : (error && typeof error === 'object')
+                ? JSON.stringify(error)
+                : String(error);
+        const errorObj = new Error(errorMessage);
+        const errorStack = error instanceof Error ? error.stack : errorObj.stack;
         this.log('error', message, {
             ...context,
-            errorMessage: errorObj.message,
-            errorStack: errorObj.stack,
+            errorMessage,
+            errorStack,
         }, errorObj);
     }
 

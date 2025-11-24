@@ -3,7 +3,8 @@ QUI SERAIT COOL
     - coder une affichage unique pour la version mobile web 
         (quand la personne y accede via le web avec un telehone mobile)
 
-PROCHAINE VERSION 
+PROCHAINE VERSION
+    - changer weekly activity en un heat Map (comme sur github)
     - gerer la derniere section des insights dans le dashboard 
     - permettre le partage des taches via les reseaux sociaux (demander a l'ia de me proposer ces reseaux)
     - ameliorer le ui (pages de creation de taches et autres..)
@@ -17,3 +18,14 @@ PROCHAINE VERSION
 
 A FAIRE PROCHAINEMENT
     - tester toutes les fonctionnalites
+    - modifier la page task detail comme la page task modal (design parlant)
+    - j'ais remarque une anomalie: quand je marque une tache comme terminee en 
+        etant dans la page tasks, les achievements ne sont pas debloques, 
+    - j'ai des taches qui sont marques comme termines mais ils ne sont pas affiches dans la 
+        partie completed de la page d'accueil. de meme pour les stats.
+    - je veux savoir comment est gerer le fait qu'une tache echoue (quand est ce que une tache echoue ?)
+    - normalement sur la page de leaderboard, on devrais voir un bouton 'send friend request'
+         avec lequel on peut inviter un utilisateur a etre notre ami (la personne recevra une notification)
+    - et puis quand on clique sur un utilisateur depuis la page de leaderboard, on devrais afficher 
+        a la personner qu'il dois etre ami avec la personne avant de voir ses stats.
+    - au lieu de mettre les noms des utilisateurs, il y a Anonymous a la place. Trouver ce qui cause le probleme et le corriger.
