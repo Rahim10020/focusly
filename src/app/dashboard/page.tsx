@@ -67,85 +67,84 @@ export default function DashboardPage() {
                             Comprehensive overview of your productivity and progress
                         </p>
                     </div>
-
-                    {/* Export Buttons */}
-                    <div className="flex flex-wrap gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={() => exportTasksToCSV(tasks)}
-                            className="text-sm"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                            Export Tasks (CSV)
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() => exportTasksToPDF(tasks, session?.user?.name || 'User')}
-                            className="text-sm"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                            </svg>
-                            Export Tasks (PDF)
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() => exportAnalyticsToCSV(stats || {
+                </div>
+                {/* Export Buttons */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                    <Button
+                        variant="outline"
+                        onClick={() => exportTasksToCSV(tasks)}
+                        className="text-sm"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export Tasks (CSV)
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => exportTasksToPDF(tasks, session?.user?.name || 'User')}
+                        className="text-sm"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        Export Tasks (PDF)
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => exportAnalyticsToCSV(stats || {
+                            totalFocusTime: 0,
+                            totalTasks,
+                            completedTasks,
+                            totalSessions: 0,
+                            streak: 0,
+                        }, tasks, sessions)}
+                        className="text-sm"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        Analytics (CSV)
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => exportAnalyticsToPDF(
+                            stats || {
                                 totalFocusTime: 0,
                                 totalTasks,
                                 completedTasks,
                                 totalSessions: 0,
                                 streak: 0,
-                            }, tasks, sessions)}
-                            className="text-sm"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
-                            Analytics (CSV)
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() => exportAnalyticsToPDF(
-                                stats || {
-                                    totalFocusTime: 0,
-                                    totalTasks,
-                                    completedTasks,
-                                    totalSessions: 0,
-                                    streak: 0,
-                                },
-                                tasks,
-                                sessions,
-                                session?.user?.name || 'User'
-                            )}
-                            className="text-sm"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
-                            Analytics (PDF)
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() => exportTasksToICS(tasks)}
-                            className="text-sm"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                            Export Calendar (iCal)
-                        </Button>
-                    </div>
+                            },
+                            tasks,
+                            sessions,
+                            session?.user?.name || 'User'
+                        )}
+                        className="text-sm"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        Analytics (PDF)
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => exportTasksToICS(tasks)}
+                        className="text-sm"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Export Calendar (iCal)
+                    </Button>
                 </div>
 
                 {/* Quick Stats */}

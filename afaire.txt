@@ -13,3 +13,4 @@
 - modifier moi meme le design de taskModal dans components/tasks
 - redesign de task modal (mode compact): mettre categories et subtask dans 
     un tab pour ne plus avoir a trop scroller
+- dans la page de dashboard, revoir a quoi sert concretement weekly insights et si c'est bien gere.
