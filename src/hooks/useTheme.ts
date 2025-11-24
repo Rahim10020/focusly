@@ -42,28 +42,27 @@ export function useTheme() {
     const [mounted, setMounted] = useState(false);
     const { data: session } = useSession();
 
-    // Récupérer le thème depuis le localStorage
+    // Retrieve theme from localStorage
     useEffect(() => {
         setMounted(true);
 
-        // Toujours forcer le mode clair par défaut
         const savedTheme = localStorage.getItem('focusly_theme') as Theme | null;
-        const initialTheme = savedTheme || 'light'; // Forcer le mode clair par défaut
+        const initialTheme = savedTheme || 'light';
 
         setTheme(initialTheme);
         applyTheme(initialTheme);
 
-        // Écouter les changements de thème système (mais ne pas les appliquer automatiquement)
+        // Listen for system theme changes (but don't apply them automatically)
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         const handleChange = (e: MediaQueryListEvent) => {
-            // Ne rien faire ici pour éviter les changements automatiques
+            // Do nothing here to avoid automatic changes
         };
 
         mediaQuery.addEventListener('change', handleChange);
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
-    // Synchroniser avec le thème de l'utilisateur connecté
+    // Synchronize with the logged-in user's theme
     useEffect(() => {
         if (session?.user?.themePreference) {
             const newTheme = session.user.themePreference as Theme;
@@ -75,8 +74,8 @@ export function useTheme() {
 
     const applyTheme = (theme: Theme) => {
         const root = window.document.documentElement;
-        // Tailwind CSS utilise seulement la classe 'dark' sur l'élément html
-        // Le mode clair est le défaut (pas de classe)
+        // Tailwind CSS uses only the 'dark' class on the html element
+        // Light mode is the default (no class)
         if (theme === 'dark') {
             root.classList.add('dark');
         } else {
@@ -89,10 +88,10 @@ export function useTheme() {
         setTheme(newTheme);
         applyTheme(newTheme);
 
-        // Toujours sauvegarder la préférence
+        // Always save the preference
         localStorage.setItem('focusly_theme', newTheme);
 
-        // Mettre à jour la préférence côté serveur si connecté
+        // Update server-side preference if logged in
         if (session) {
             try {
                 await fetch('/api/user/preferences', {

@@ -26,7 +26,7 @@ const supabase = createClient(
  * @returns {JSX.Element} The rendered verification status page
  */
 function VerifyEmailContent() {
-    const [message, setMessage] = useState('Vérification en cours...');
+    const [message, setMessage] = useState('Verification in progress...');
     const [isVerified, setIsVerified] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
@@ -49,7 +49,7 @@ function VerifyEmailContent() {
                     }
 
                     setIsVerified(true);
-                    setMessage('Votre email a été vérifié avec succès ! Redirection vers la page de connexion...');
+                    setMessage('Your email has been verified successfully! Redirecting to sign in page...');
 
                     // Auto-redirect after 3 seconds
                     setTimeout(() => {
@@ -57,7 +57,7 @@ function VerifyEmailContent() {
                     }, 3000);
                 }
             } catch (error) {
-                setMessage('Erreur lors de la vérification de l\'email. Le lien peut avoir expiré ou est invalide.');
+                setMessage('Error verifying email. The link may have expired or is invalid.');
                 console.error(error);
             } finally {
                 setIsLoading(false);
@@ -85,9 +85,9 @@ function VerifyEmailContent() {
             });
 
             if (error) throw error;
-            setMessage('Un nouvel email de vérification a été envoyé !');
+            setMessage('A new verification email has been sent!');
         } catch (error) {
-            setMessage('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.');
+            setMessage('Error sending email. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -101,7 +101,7 @@ function VerifyEmailContent() {
                         {isVerified ? '✓' : '⏳'}
                     </div>
                     <h2 className="text-xl font-semibold mb-2 text-foreground">
-                        {isVerified ? 'Email Vérifié !' : 'Vérification en cours...'}
+                        {isVerified ? 'Email Verified!' : 'Verification in progress...'}
                     </h2>
                     <p className="text-muted-foreground mb-6">{message}</p>
                     {isVerified ? (
@@ -109,12 +109,12 @@ function VerifyEmailContent() {
                             onClick={handleContinue}
                             disabled={isLoading}
                         >
-                            Se connecter
+                            Sign In
                         </Button>
                     ) : (
                         email && (
                             <Button onClick={handleResend} disabled={isLoading} variant="outline" className="mt-4">
-                                {isLoading ? 'Envoi en cours...' : 'Renvoyer l\'email'}
+                                {isLoading ? 'Sending...' : 'Resend Email'}
                             </Button>
                         )
                     )}
@@ -137,8 +137,8 @@ export default function VerifyEmail() {
                 <Card className="w-full max-w-md bg-transparent" variant="none">
                     <CardContent className="text-center py-8">
                         <div className="text-4xl mb-4 text-yellow-500">⏳</div>
-                        <h2 className="text-xl font-semibold mb-2 text-foreground">Chargement...</h2>
-                        <p className="text-muted-foreground">Vérification de votre email en cours.</p>
+                        <h2 className="text-xl font-semibold mb-2 text-foreground">Loading...</h2>
+                        <p className="text-muted-foreground">Verifying your email.</p>
                     </CardContent>
                 </Card>
             </div>

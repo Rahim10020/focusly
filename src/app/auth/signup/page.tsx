@@ -58,7 +58,7 @@ export default function SignUp() {
                 setError(error.message);
             } else {
                 setSuccess(true);
-                setSuccessMessage('Un email de vérification a été envoyé à votre adresse email.');
+                setSuccessMessage('A verification email has been sent to your email address.');
             }
         } catch (error: any) {
             setError('An error occurred');
@@ -73,16 +73,16 @@ export default function SignUp() {
                 <Card className="w-full max-w-md bg-card" variant="default">
                     <CardContent className="text-center py-8">
                         <div className="text-green-500 text-4xl mb-4">✉️</div>
-                        <h2 className="text-xl font-semibold mb-2 text-foreground">Inscription réussie !</h2>
+                        <h2 className="text-xl font-semibold mb-2 text-foreground">Registration Successful!</h2>
                         <p className="text-muted-foreground mb-4">
-                            {successMessage || 'Un email de vérification a été envoyé à votre adresse email.'}
+                            {successMessage || 'A verification email has been sent to your email address.'}
                         </p>
                         <p className="text-sm text-muted-foreground mb-4">
-                            Vérifiez votre boîte de réception et cliquez sur le lien pour activer votre compte.
+                            Check your inbox and click the link to activate your account.
                         </p>
                         <div className="mt-4">
                             <p className="text-sm text-muted-foreground">
-                                Vous n'avez pas reçu l'email ?{' '}
+                                Didn't receive the email?{' '}
                                 <button
                                     onClick={async () => {
                                         try {
@@ -95,9 +95,9 @@ export default function SignUp() {
                                                 },
                                             });
                                             if (error) throw error;
-                                            setSuccessMessage('Un nouvel email de vérification a été envoyé !');
+                                            setSuccessMessage('A new verification email has been sent!');
                                         } catch (err) {
-                                            setError('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.');
+                                            setError('Error sending email. Please try again.');
                                         } finally {
                                             setLoading(false);
                                         }
@@ -105,7 +105,7 @@ export default function SignUp() {
                                     className="text-primary hover:underline focus:outline-none"
                                     disabled={loading}
                                 >
-                                    {loading ? 'Envoi en cours...' : 'Renvoyer l\'email'}
+                                    {loading ? 'Sending...' : 'Resend Email'}
                                 </button>
                             </p>
                         </div>
@@ -118,7 +118,7 @@ export default function SignUp() {
                                 <svg className="w-5 h-5 animate-arrow-slide" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>
-                                Retour à la connexion
+                                Back to Sign In
                             </Button>
                         </div>
                     </CardContent>
@@ -131,13 +131,13 @@ export default function SignUp() {
         <div className="min-h-screen flex items-center justify-center bg-background px-4 transition-colors duration-200">
             <Card className="w-full max-w-md bg-transparent" variant="none">
                 <CardHeader>
-                    <CardTitle className="text-start text-foreground">Créer un compte</CardTitle>
+                    <CardTitle className="text-start text-foreground">Create Account</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label htmlFor="name" className="block text-sm font-medium mb-1 text-foreground">
-                                Nom
+                                Name
                             </label>
                             <Input
                                 id="name"
@@ -145,7 +145,7 @@ export default function SignUp() {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 required
-                                placeholder="Votre nom"
+                                placeholder="Your name"
                             />
                         </div>
                         <div>
@@ -158,7 +158,7 @@ export default function SignUp() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                placeholder="votre@email.com"
+                                placeholder="your@email.com"
                             />
                         </div>
                         <div>
@@ -172,14 +172,14 @@ export default function SignUp() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 minLength={6}
-                                placeholder="Votre mot de passe"
+                                placeholder="Your password"
                             />
                         </div>
                         {error && (
                             <div className="text-red-500 text-sm text-center">{error}</div>
                         )}
                         <Button type="submit" className="w-full" disabled={loading}>
-                            {loading ? 'Création du compte...' : 'Créer mon compte'}
+                            {loading ? 'Creating account...' : 'Create My Account'}
                             <svg className="w-5 h-5 animate-arrow-slide" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
@@ -187,9 +187,9 @@ export default function SignUp() {
                     </form>
                     <div className="mt-4 text-center">
                         <p className="text-sm text-muted-foreground">
-                            Vous avez déjà un compte ?{' '}
+                            Already have an account?{' '}
                             <Link href="/auth/signin" className="text-brand-accent hover:underline">
-                                Se connecter
+                                Sign In
                             </Link>
                         </p>
                     </div>

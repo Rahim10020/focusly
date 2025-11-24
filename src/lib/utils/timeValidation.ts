@@ -80,16 +80,21 @@ export function validateTimeRange(startTime: string, endTime: string): TimeValid
 
 /**
  * Validates that a date range is valid (start date must be before or equal to due date).
+ * If dates are the same, also validates that start time is before end time.
  * Also provides warnings for tasks spanning more than a year.
  *
  * @param {number} [startDate] - Start date as Unix timestamp in milliseconds
  * @param {number} [dueDate] - Due date as Unix timestamp in milliseconds
+ * @param {string} [startTime] - Start time in HH:mm format
+ * @param {string} [endTime] - End time in HH:mm format
  * @returns {TimeValidationResult} Validation result with errors and warnings
  *
  * @example
  * validateDateRange(Date.now(), Date.now() + 86400000); // Valid: start before due
+ * validateDateRange(Date.now(), Date.now(), '09:00', '10:00'); // Valid: same day, start before end
+ * validateDateRange(Date.now(), Date.now(), '10:00', '09:00'); // Invalid: same day, start after end
  */
-export function validateDateRange(startDate?: number, dueDate?: number): TimeValidationResult {
+export function validateDateRange(startDate?: number, dueDate?: number, startTime?: string, endTime?: string): TimeValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -106,6 +111,16 @@ export function validateDateRange(startDate?: number, dueDate?: number): TimeVal
 
     if (start > due) {
         errors.push('Start date must be before or equal to due date');
+    } else if (start.getTime() === due.getTime() && startTime && endTime) {
+        // Same day, validate times
+        const [startHour, startMin] = startTime.split(':').map(Number);
+        const [endHour, endMin] = endTime.split(':').map(Number);
+        const startMinutes = startHour * 60 + startMin;
+        const endMinutes = endHour * 60 + endMin;
+
+        if (startMinutes >= endMinutes) {
+            errors.push('Start time must be before end time');
+        }
     }
 
     const daysDiff = Math.ceil((due.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
