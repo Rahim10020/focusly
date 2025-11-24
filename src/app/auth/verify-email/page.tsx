@@ -38,8 +38,25 @@ function VerifyEmailContent() {
     useEffect(() => {
         const verifyEmail = async () => {
             try {
+                // Si pas de token, vérifier si l'utilisateur est déjà connecté
+                if (!token_hash || !type) {
+                    const { data: { session } } = await supabase.auth.getSession();
+
+                    if (session?.user?.email_confirmed_at) {
+                        setIsVerified(true);
+                        setMessage('Your email has been verified successfully! Redirecting to sign in page...');
+                        setTimeout(() => {
+                            router.push('/auth/signin');
+                        }, 3000);
+                    } else {
+                        setMessage('No verification token found. Please check your email.');
+                    }
+                    setIsLoading(false);
+                    return;
+                }
+
                 if (type === 'signup' && token_hash) {
-                    const { error } = await supabase.auth.verifyOtp({
+                    const { data, error } = await supabase.auth.verifyOtp({
                         type: 'signup',
                         token_hash,
                     });
@@ -48,17 +65,22 @@ function VerifyEmailContent() {
                         throw error;
                     }
 
-                    setIsVerified(true);
-                    setMessage('Your email has been verified successfully! Redirecting to sign in page...');
+                    // Vérifier que la session existe et que l'email est confirmé
+                    if (data.session || data.user) {
+                        setIsVerified(true);
+                        setMessage('Your email has been verified successfully! Redirecting to sign in page...');
 
-                    // Auto-redirect after 3 seconds
-                    setTimeout(() => {
-                        router.push('/auth/signin');
-                    }, 3000);
+                        // Auto-redirect après 3 secondes
+                        setTimeout(() => {
+                            router.push('/auth/signin');
+                        }, 3000);
+                    } else {
+                        throw new Error('Verification failed');
+                    }
                 }
-            } catch (error) {
-                setMessage('Error verifying email. The link may have expired or is invalid.');
-                console.error(error);
+            } catch (error: any) {
+                setMessage(error?.message || 'Error verifying email. The link may have expired or is invalid.');
+                console.error('Verification error:', error);
             } finally {
                 setIsLoading(false);
             }
