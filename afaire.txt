@@ -4,6 +4,7 @@ QUI SERAIT COOL
         (quand la personne y accede via le web avec un telehone mobile)
 
 PROCHAINE VERSION
+    - gerer la derniere section des insights dans le dashboard 
     - permettre le partage des taches via les reseaux sociaux (demander a l'ia de me proposer ces reseaux)
     - ameliorer le ui (pages de creation de taches et autres..)
     - ajoute la langue francaise (voir avec l'ia la meilleure option a adopter)
@@ -11,20 +12,13 @@ PROCHAINE VERSION
     - trouver de bonnes images et mettre dans how to use (pour encourager la personne a ne pas abandonner la lecture)
     - Dans life Balance Radar (dashboard), les traits du pentagone ne sont pas tres visibles en light mode. (regler ca)
         faire remonter un peut 'Health' de tel sorte que ca ne se condonde plus avec le 100
+    - dans les parties graphiques de dashboard, je ne veux plus voir les hover derriere (ca casse la beaute du site)
+        notamment dans Completion Rate Breakdown, task completion by domain, Completed sessions
 
 A FAIRE PROCHAINEMENT
     - tester toutes les fonctionnalites
-    - centrer les loaders (x et y parlant)
-    - voir si on peut rendre le chargement dynamique apres chaque session de tache 
+    - rendre le chargement dynamique apres chaque session de tache 
         (chargements des stats depuis la page d'accueil (todays focus, total focus time, task completed))
         c'est a dire pas besoin de recharger la page pour voir les stats a jour.
 
     - tester les keyboard shortcuts pour voir si ca marche.
-
-    - dans la page de dashboard, revoir a quoi sert concretement weekly insights et si c'est bien gere.
-    - dans les parties graphiques de dashboard, je ne veux plus voir les hover derriere (ca casse la beaute du site)
-        notamment dans Completion Rate Breakdown, task completion by domain, Completed sessions
-
-    - ne pas surelever la page de profil (je sais ce que je dis)
-
-    ** utiliser des screenshots (gpt 4o)

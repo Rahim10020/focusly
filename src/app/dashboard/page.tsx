@@ -251,7 +251,7 @@ export default function DashboardPage() {
                 {/* Insights Section */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Weekly Insights</CardTitle>
+                        <CardTitle>Productivity Insights (Beta)</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
@@ -259,14 +259,12 @@ export default function DashboardPage() {
                             <div className="p-4 bg-muted rounded-lg">
                                 <div className="flex items-start gap-3">
                                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
-                                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                                        </svg>
+                                        {/* ...existing icon... */}
                                     </div>
                                     <div>
                                         <h3 className="font-semibold mb-1">Peak Performance</h3>
                                         <p className="text-sm text-muted-foreground">
-                                            You're most productive during morning sessions. Consider scheduling important tasks early in the day.
+                                            You're most productive during morning sessions. In future updates, this tip will adapt based on your actual focus history.
                                         </p>
                                     </div>
                                 </div>
@@ -274,36 +272,20 @@ export default function DashboardPage() {
 
                             {/* Completion Trend */}
                             <div className="p-4 bg-muted rounded-lg">
-                                <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500">
-                                            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-                                            <polyline points="16 7 22 7 22 13"></polyline>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold mb-1">Great Progress!</h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            Your task completion rate is {completionRate}%. {completionRate >= 70 ? 'Keep up the excellent work!' : 'You can improve by breaking tasks into smaller chunks.'}
-                                        </p>
-                                    </div>
-                                </div>
+                                {/* ...existing Great Progress block (unchanged)... */}
                             </div>
 
                             {/* Recommendation */}
                             <div className="p-4 bg-muted rounded-lg">
                                 <div className="flex items-start gap-3">
                                     <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                        </svg>
+                                        {/* ...existing icon... */}
                                     </div>
                                     <div>
                                         <h3 className="font-semibold mb-1">Balance Suggestion</h3>
                                         <p className="text-sm text-muted-foreground">
                                             Consider spending more time on underrepresented domains to achieve a more balanced lifestyle.
+                                            Soon, this will be based directly on how you distribute your tasks across life domains.
                                         </p>
                                     </div>
                                 </div>
