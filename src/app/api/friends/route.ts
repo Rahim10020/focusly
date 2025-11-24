@@ -208,7 +208,7 @@ async function postHandler(request: NextRequest) {
             }
         }
 
-        // Ensure receiver has a profile
+        // Check if receiver has a profile
         const { data: receiverProfile } = await supabaseWithAuth
             .from('profiles')
             .select('id')
@@ -216,19 +216,7 @@ async function postHandler(request: NextRequest) {
             .single();
 
         if (!receiverProfile) {
-            // Create profile if it doesn't exist
-            const { error: profileError } = await supabaseWithAuth
-                .from('profiles')
-                .insert({
-                    id: receiver_id,
-                    username: null,
-                    avatar_url: null
-                });
-
-            if (profileError) {
-                console.error('Error creating receiver profile:', profileError);
-                return NextResponse.json({ error: 'Failed to create receiver profile' }, { status: 500 });
-            }
+            return NextResponse.json({ error: 'Cannot send friend request to this user' }, { status: 400 });
         }
 
         // Check if request already exists

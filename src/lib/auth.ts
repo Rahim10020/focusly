@@ -140,14 +140,33 @@ export const authOptions: NextAuthOptions = {
                             }
                         );
 
-                        const { data: userData, error } = await supabase
-                            .from('users')
-                            .select('theme_preference')
+                        // Ensure profile exists
+                        const { data: profileData, error: profileError } = await supabase
+                            .from('profiles')
+                            .select('id')
                             .eq('id', token.id)
                             .single();
 
-                        if (!error && userData?.theme_preference) {
-                            session.user.themePreference = userData.theme_preference;
+                        if (profileError && profileError.code === 'PGRST116') { // Not found
+                            // Create profile
+                            await supabase
+                                .from('profiles')
+                                .insert({
+                                    id: token.id,
+                                    username: null,
+                                    avatar_url: null
+                                });
+                        }
+
+                        const { data: userData, error } = await supabase
+                            .from('profiles')
+                            .select('username, avatar_url')
+                            .eq('id', token.id)
+                            .single();
+
+                        if (!error && userData) {
+                            session.user.name = userData.username || session.user.name;
+                            session.user.image = userData.avatar_url || session.user.image;
                         }
                     } catch (error) {
                         console.error('Error fetching user theme preference:', error);
