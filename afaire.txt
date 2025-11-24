@@ -9,6 +9,8 @@ PROCHAINE VERSION
     - ajoute la langue francaise (voir avec l'ia la meilleure option a adopter)
     - reflechir a statistics et dashboard (ce que je peux modifier)
     - trouver de bonnes images et mettre dans how to use (pour encourager la personne a ne pas abandonner la lecture)
+    - Dans life Balance Radar (dashboard), les traits du pentagone ne sont pas tres visibles en light mode. (regler ca)
+        faire remonter un peut 'Health' de tel sorte que ca ne se condonde plus avec le 100
 
 A FAIRE PROCHAINEMENT
     - tester toutes les fonctionnalites
@@ -25,9 +27,6 @@ A FAIRE PROCHAINEMENT
     - dans la page de dashboard, revoir a quoi sert concretement weekly insights et si c'est bien gere.
     - dans les parties graphiques de dashboard, je ne veux plus voir les hover derriere (ca casse la beaute du site)
         notamment dans Completion Rate Breakdown, task completion by domain, Completed sessions
-
-    - Dans life Balance Radar (dashboard), les traits du pentagone ne sont pas tres visibles en light mode. (regler ca)
-        faire remonter un peut 'Health' de tel sorte que ca ne se condonde plus avec le 100
 
     - ne pas surelever la page de profil (je sais ce que je dis)
 
