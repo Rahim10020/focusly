@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -36,6 +36,21 @@ export default function SignUp() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        // Écouter les changements d'authentification
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at) {
+                // L'email a été vérifié, rediriger vers signin
+                router.push('/auth/signin');
+            }
+        });
+
+        // Nettoyer l'écouteur au démontage du composant
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -70,7 +85,7 @@ export default function SignUp() {
     if (success) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background px-4 transition-colors duration-200">
-                <Card className="w-full max-w-md bg-card" variant="default">
+                <Card className="w-full max-w-md bg-card" variant="none">
                     <CardContent className="text-center py-8">
                         <div className="text-green-500 text-4xl mb-4">✉️</div>
                         <h2 className="text-xl font-semibold mb-2 text-foreground">Registration Successful!</h2>
