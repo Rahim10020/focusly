@@ -40,7 +40,7 @@ export default function Header() {
 
     return (
         <header className="w-full bg-background/95 backdrop-blur-md sticky top-0 z-50 border-b border-border/50 shadow-sm">
-            <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-3 group transition-all">
                     <div className="relative">
                         <img
