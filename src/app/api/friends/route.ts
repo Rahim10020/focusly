@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { withRateLimit } from '@/lib/rateLimit';
@@ -63,13 +63,26 @@ import { withRateLimit } from '@/lib/rateLimit';
 async function getHandler(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session?.user) {
+        if (!session?.user || !session.accessToken) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const userId = session.user.id;
 
-        const { data, error } = await supabase
+        // Create supabase client with user's access token for RLS
+        const supabaseWithAuth = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                global: {
+                    headers: {
+                        'Authorization': `Bearer ${session.accessToken}`
+                    }
+                }
+            }
+        );
+
+        const { data, error } = await supabaseWithAuth
             .from('friends')
             .select(`
         id,
@@ -138,7 +151,7 @@ async function getHandler(request: NextRequest) {
 async function postHandler(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session?.user) {
+        if (!session?.user || !session.accessToken) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -159,8 +172,67 @@ async function postHandler(request: NextRequest) {
             return NextResponse.json({ error: 'Cannot send friend request to yourself' }, { status: 400 });
         }
 
+        // Create supabase client with user's access token for RLS
+        const supabaseWithAuth = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                global: {
+                    headers: {
+                        'Authorization': `Bearer ${session.accessToken}`
+                    }
+                }
+            }
+        );
+
+        // Ensure sender has a profile
+        const { data: senderProfile } = await supabaseWithAuth
+            .from('profiles')
+            .select('id')
+            .eq('id', userId)
+            .single();
+
+        if (!senderProfile) {
+            // Create profile if it doesn't exist
+            const { error: profileError } = await supabaseWithAuth
+                .from('profiles')
+                .insert({
+                    id: userId,
+                    username: null,
+                    avatar_url: null
+                });
+
+            if (profileError) {
+                console.error('Error creating profile:', profileError);
+                return NextResponse.json({ error: 'Failed to create user profile' }, { status: 500 });
+            }
+        }
+
+        // Ensure receiver has a profile
+        const { data: receiverProfile } = await supabaseWithAuth
+            .from('profiles')
+            .select('id')
+            .eq('id', receiver_id)
+            .single();
+
+        if (!receiverProfile) {
+            // Create profile if it doesn't exist
+            const { error: profileError } = await supabaseWithAuth
+                .from('profiles')
+                .insert({
+                    id: receiver_id,
+                    username: null,
+                    avatar_url: null
+                });
+
+            if (profileError) {
+                console.error('Error creating receiver profile:', profileError);
+                return NextResponse.json({ error: 'Failed to create receiver profile' }, { status: 500 });
+            }
+        }
+
         // Check if request already exists
-        const { data: existing } = await supabase
+        const { data: existing } = await supabaseWithAuth
             .from('friends')
             .select('id')
             .or(`and(sender_id.eq.${userId},receiver_id.eq.${receiver_id}),and(sender_id.eq.${receiver_id},receiver_id.eq.${userId})`)
@@ -170,8 +242,8 @@ async function postHandler(request: NextRequest) {
             return NextResponse.json({ error: 'Friend request already exists' }, { status: 400 });
         }
 
-        const { data, error } = await (supabase
-            .from('friends') as any)
+        const { data, error } = await supabaseWithAuth
+            .from('friends')
             .insert({
                 sender_id: userId,
                 receiver_id,
