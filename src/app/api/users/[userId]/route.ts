@@ -139,7 +139,7 @@ async function getHandler(
                 return NextResponse.json({ error: 'User not found' }, { status: 404 });
             }
 
-            return NextResponse.json(data);
+            return NextResponse.json({ ...(data as any), isFriend: true }); // Own profile, consider as friend
         }
 
         // Check if viewer is a friend
@@ -208,7 +208,7 @@ async function getHandler(
             userData.stats = filteredStats;
         }
 
-        return NextResponse.json(userData);
+        return NextResponse.json({ ...userData, isFriend });
     } catch (error) {
         logger.error('Error in user API', error as Error, {
             action: 'userAPI'

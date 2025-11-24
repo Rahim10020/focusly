@@ -68,6 +68,7 @@ export default function LeaderboardPage() {
     const [error, setError] = useState<string | null>(null);
     const [selectedTab, setSelectedTab] = useState<'tasks' | 'time' | 'streak'>('tasks');
     const [currentPage, setCurrentPage] = useState(1);
+    const [friendRequestStatuses, setFriendRequestStatuses] = useState<Map<string, 'none' | 'pending' | 'sent'>>(new Map());
 
     useEffect(() => {
         if (status === 'loading') return;
@@ -149,6 +150,29 @@ export default function LeaderboardPage() {
     };
 
     const currentUserRank = leaderboard.findIndex(user => user.id === session?.user?.id);
+
+    const handleSendFriendRequest = async (userId: string) => {
+        setFriendRequestStatuses(prev => new Map(prev.set(userId, 'pending')));
+        try {
+            const response = await fetch('/api/friends', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ receiver_id: userId }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to send friend request');
+            }
+
+            setFriendRequestStatuses(prev => new Map(prev.set(userId, 'sent')));
+        } catch (err) {
+            alert(err instanceof Error ? err.message : 'Failed to send friend request');
+            setFriendRequestStatuses(prev => new Map(prev.set(userId, 'none')));
+        }
+    };
 
     if (status === 'loading' || loading) {
         return (
@@ -272,11 +296,11 @@ export default function LeaderboardPage() {
                                     <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-r from-gray-300 to-gray-500 p-1">
                                         <img
                                             src={sortedLeaderboard[1].avatar_url || '/default-avatar.svg'}
-                                            alt={sortedLeaderboard[1].username || 'User'}
+                                            alt={sortedLeaderboard[1].username || 'Player'}
                                             className="w-full h-full rounded-full object-cover"
                                         />
                                     </div>
-                                    <p className="font-bold text-sm mb-1">{sortedLeaderboard[1].username || 'Anonymous'}</p>
+                                    <p className="font-bold text-sm mb-1">{sortedLeaderboard[1].username || 'Player'}</p>
                                     <p className="text-2xl font-bold text-primary mb-1">
                                         {selectedTab === 'tasks' && (sortedLeaderboard[1].stats?.completed_tasks || 0)}
                                         {selectedTab === 'time' && formatTime(sortedLeaderboard[1].stats?.total_focus_time || 0)}
@@ -300,11 +324,11 @@ export default function LeaderboardPage() {
                                     <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 p-1">
                                         <img
                                             src={sortedLeaderboard[0].avatar_url || '/default-avatar.svg'}
-                                            alt={sortedLeaderboard[0].username || 'User'}
+                                            alt={sortedLeaderboard[0].username || 'Player'}
                                             className="w-full h-full rounded-full object-cover"
                                         />
                                     </div>
-                                    <p className="font-bold mb-1">{sortedLeaderboard[0].username || 'Anonymous'}</p>
+                                    <p className="font-bold mb-1">{sortedLeaderboard[0].username || 'Player'}</p>
                                     <p className="text-3xl font-bold text-primary mb-1">
                                         {selectedTab === 'tasks' && (sortedLeaderboard[0].stats?.completed_tasks || 0)}
                                         {selectedTab === 'time' && formatTime(sortedLeaderboard[0].stats?.total_focus_time || 0)}
@@ -328,11 +352,11 @@ export default function LeaderboardPage() {
                                     <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-r from-amber-600 to-amber-800 p-1">
                                         <img
                                             src={sortedLeaderboard[2].avatar_url || '/default-avatar.svg'}
-                                            alt={sortedLeaderboard[2].username || 'User'}
+                                            alt={sortedLeaderboard[2].username || 'Player'}
                                             className="w-full h-full rounded-full object-cover"
                                         />
                                     </div>
-                                    <p className="font-bold text-sm mb-1">{sortedLeaderboard[2].username || 'Anonymous'}</p>
+                                    <p className="font-bold text-sm mb-1">{sortedLeaderboard[2].username || 'Player'}</p>
                                     <p className="text-2xl font-bold text-primary mb-1">
                                         {selectedTab === 'tasks' && (sortedLeaderboard[2].stats?.completed_tasks || 0)}
                                         {selectedTab === 'time' && formatTime(sortedLeaderboard[2].stats?.total_focus_time || 0)}
@@ -394,7 +418,7 @@ export default function LeaderboardPage() {
                                                 {user.avatar_url ? (
                                                     <img
                                                         src={user.avatar_url}
-                                                        alt={user.username || 'User'}
+                                                        alt={user.username || 'Player'}
                                                         className="w-full h-full object-cover"
                                                     />
                                                 ) : (
@@ -405,7 +429,7 @@ export default function LeaderboardPage() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-semibold truncate">
-                                                    {user.username || 'Anonymous User'}
+                                                    {user.username || 'Player'}
                                                     {user.id === session?.user?.id && (
                                                         <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
                                                             You
@@ -415,6 +439,25 @@ export default function LeaderboardPage() {
                                                 <p className="text-sm text-muted-foreground">
                                                     {user.stats?.total_sessions || 0} sessions
                                                 </p>
+                                                {user.id !== session?.user?.id && (
+                                                    <div className="mt-1">
+                                                        {friendRequestStatuses.get(user.id) === 'sent' ? (
+                                                            <Button size="sm" disabled>Friend Request Sent</Button>
+                                                        ) : friendRequestStatuses.get(user.id) === 'pending' ? (
+                                                            <Button size="sm" disabled>Sending...</Button>
+                                                        ) : (
+                                                            <Button
+                                                                size="sm"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleSendFriendRequest(user.id);
+                                                                }}
+                                                            >
+                                                                Send Friend Request
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="text-right">

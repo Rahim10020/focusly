@@ -25,6 +25,8 @@ interface UserStats {
     username: string | null;
     /** URL to user's avatar image */
     avatar_url: string | null;
+    /** Whether the viewer is friends with this user */
+    isFriend: boolean;
     /** User's productivity statistics (null values indicate hidden data) */
     stats: {
         total_sessions: number | null;
@@ -177,13 +179,13 @@ export default function UserProfilePage() {
                                 />
                             ) : (
                                 <span className="text-2xl">
-                                    {(userStats.username || 'Anonymous').charAt(0).toUpperCase()}
+                                    {(userStats.username || 'Player').charAt(0).toUpperCase()}
                                 </span>
                             )}
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold">
-                                {userStats.username || 'Anonymous User'}
+                                {userStats.username || 'Player'}
                             </h1>
                             {!isOwnProfile && (
                                 <div className="mt-2">
@@ -205,7 +207,13 @@ export default function UserProfilePage() {
                     </div>
                 </div>
 
-                {userStats.stats ? (
+                {!isOwnProfile && !userStats.isFriend ? (
+                    <div className="text-center py-8">
+                        <p className="text-muted-foreground text-lg">
+                            You must be friends with this person to see their stats.
+                        </p>
+                    </div>
+                ) : userStats.stats ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <Card>
                             <CardHeader>

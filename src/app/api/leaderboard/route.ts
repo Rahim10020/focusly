@@ -191,7 +191,7 @@ async function getHandler(request: NextRequest) {
                 const profile = profilesMap.get(stat.user_id);
                 return {
                     id: profile?.id || stat.user_id,
-                    username: profile?.username || 'Anonymous',
+                    username: profile?.username || null,
                     avatar_url: profile?.avatar_url || null,
                     stats: {
                         total_sessions: stat.total_sessions,
