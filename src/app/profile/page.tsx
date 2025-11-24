@@ -152,7 +152,7 @@ export default function ProfilePage() {
         <div className="min-h-screen bg-background">
             <Header />
 
-            <main className="max-w-7xl mx-auto px-6 py-8">
+            <main className="max-w-6xl mx-auto px-6 py-8">
                 {/* Profile Header */}
                 <div className="mb-8">
                     <Card variant="none" className="relative overflow-hidden">
@@ -244,7 +244,7 @@ export default function ProfilePage() {
                     <Card variant="default">
                         <CardContent className="pt-6">
                             <div className="text-center">
-                                <div className="w-12 h-12 rounded-full bg-primary/10 mx-auto mb-3 flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
                                         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                                     </svg>
@@ -258,7 +258,7 @@ export default function ProfilePage() {
                     <Card variant="default">
                         <CardContent className="pt-6">
                             <div className="text-center">
-                                <div className="w-12 h-12 rounded-full bg-green-500/10 mx-auto mb-3 flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
@@ -272,7 +272,7 @@ export default function ProfilePage() {
                     <Card variant="default">
                         <CardContent className="pt-6">
                             <div className="text-center">
-                                <div className="w-12 h-12 rounded-full bg-amber-500/10 mx-auto mb-3 flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500">
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <polyline points="12 6 12 12 16 14"></polyline>
@@ -287,7 +287,7 @@ export default function ProfilePage() {
                     <Card variant="default">
                         <CardContent className="pt-6">
                             <div className="text-center">
-                                <div className="w-12 h-12 rounded-full bg-red-500/10 mx-auto mb-3 flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500">
                                         <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
                                     </svg>
@@ -309,7 +309,7 @@ export default function ProfilePage() {
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <div className="w-10 h-10 rounded-full flex items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
                                                 <circle cx="12" cy="12" r="10"></circle>
                                                 <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -326,7 +326,7 @@ export default function ProfilePage() {
 
                                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                                        <div className="w-10 h-10 rounded-full flex items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500">
                                                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -342,7 +342,7 @@ export default function ProfilePage() {
 
                                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
+                                        <div className="w-10 h-10 rounded-full flex items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500">
                                                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                                             </svg>
