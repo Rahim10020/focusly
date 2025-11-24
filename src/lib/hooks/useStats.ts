@@ -312,6 +312,14 @@ export function useStats() {
             .reduce((total: number, session: PomodoroSession) => total + session.duration, 0);
     }, [currentSessions]);
 
+    const refreshStats = useCallback(async () => {
+        const userId = getUserId();
+        if (userId) {
+            await loadStatsFromDB();
+            await loadSessionsFromDB();
+        }
+    }, [getUserId]);
+
     return {
         stats: currentStats,
         sessions: currentSessions,
@@ -321,5 +329,6 @@ export function useStats() {
         updateTaskStats,
         getTodaySessions,
         getTodayFocusTime,
+        refreshStats,
     };
 }

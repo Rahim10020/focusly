@@ -124,7 +124,7 @@ export default function Home() {
     reorderTasks,
   } = useTasks();
 
-  const { updateTaskStats, addSession, getTodayFocusTime, stats } = useStats();
+  const { updateTaskStats, addSession, getTodayFocusTime, stats, refreshStats } = useStats();
   const { tags } = useTags();
   const {
     newlyUnlocked,
@@ -198,8 +198,23 @@ export default function Home() {
     checkTimeBasedAchievements(hour);
   };
 
-  const handleSessionComplete = (session: any) => {
-    addSession(session);
+  const handleSessionComplete = async (session: any) => {
+    // Ajouter la session
+    await addSession(session);
+
+    // Rafraîchir les stats immédiatement après
+    if (refreshStats) {
+      await refreshStats();
+    }
+
+    // Vérifier les achievements avec les nouvelles stats
+    const todayFocusMinutes = Math.floor(getTodayFocusTime() / 60);
+    checkAchievements({
+      totalSessions: stats.totalSessions + 1,
+      completedTasks: stats.completedTasks,
+      streak: stats.streak,
+      todayFocusMinutes,
+    });
   };
 
   const imminentTasks = getImminentTasks(tasks);
