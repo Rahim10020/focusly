@@ -47,7 +47,7 @@ export default function Card({ children, className = '', variant = 'default' }: 
         elevated: 'shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl border border-border bg-card',
         interactive: 'shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer rounded-2xl border border-border bg-card',
         outline: 'shadow-none border-2 rounded-2xl border border-border bg-card',
-        none: 'bg-transparent',
+        none: 'bg-transparent rounded-2xl',
     };
 
     return (

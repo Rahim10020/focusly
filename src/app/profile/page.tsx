@@ -155,7 +155,7 @@ export default function ProfilePage() {
             <main className="max-w-7xl mx-auto px-6 py-8">
                 {/* Profile Header */}
                 <div className="mb-8">
-                    <Card variant="elevated" className="relative overflow-hidden">
+                    <Card variant="none" className="relative overflow-hidden">
                         {/* Cover gradient */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent h-32"></div>
 

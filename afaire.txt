@@ -19,9 +19,6 @@ A FAIRE PROCHAINEMENT
         (chargements des stats depuis la page d'accueil (todays focus, total focus time, task completed))
         c'est a dire pas besoin de recharger la page pour voir les stats a jour.
 
-    - redesign de task modal (mode compact): mettre categories et subtask dans 
-        un tab pour ne plus avoir a trop scroller
-
     - tester les keyboard shortcuts pour voir si ca marche.
 
     - dans la page de dashboard, revoir a quoi sert concretement weekly insights et si c'est bien gere.
