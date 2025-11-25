@@ -27,8 +27,6 @@ A FAIRE PROCHAINEMENT
          avec lequel on peut inviter un utilisateur a etre notre ami (la personne recevra une notification)
     - et puis quand on clique sur un utilisateur depuis la page de leaderboard, on devrais afficher 
         a la personner qu'il dois etre ami avec la personne avant de voir ses stats.
-    - et au lieu de mettre les noms des utilisateurs, il y a Anonymous a la place. Trouver ce qui 
-        cause le probleme et le corriger.
     - un autre souci est que la notification de l'achievement vient 
         a chaque fois que je quitte une autre page pour aller sur la page d'accueil. 
     - quand je veux accepter une friend request on me dit : Friend request not found. trouver et regler le souci.

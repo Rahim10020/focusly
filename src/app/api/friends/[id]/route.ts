@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
@@ -73,11 +73,11 @@ export async function PUT(
 ) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session?.user) {
+        if (!session?.user || !session.accessToken) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const userId = (session.user as any).id;
+        const userId = session.user.id;
         const { id: friendId } = await params;
         const { action } = await request.json(); // 'accept' or 'reject'
 
@@ -85,8 +85,21 @@ export async function PUT(
             return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
         }
 
+        // Create supabase client with user's access token for RLS
+        const supabaseWithAuth = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                global: {
+                    headers: {
+                        'Authorization': `Bearer ${session.accessToken}`
+                    }
+                }
+            }
+        );
+
         // Check if the user is the receiver of this friend request
-        const { data: friendRequestData, error: fetchError } = await supabase
+        const { data: friendRequestData, error: fetchError } = await supabaseWithAuth
             .from('friends')
             .select('receiver_id, status')
             .eq('id', friendId)
@@ -108,7 +121,8 @@ export async function PUT(
 
         const newStatus = action === 'accept' ? 'accepted' : 'rejected';
 
-        const { data, error } = await (supabase.from('friends') as any)
+        const { data, error } = await supabaseWithAuth
+            .from('friends')
             .update({ status: newStatus })
             .eq('id', friendId)
             .select()
