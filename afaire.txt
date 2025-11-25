@@ -17,7 +17,6 @@ PROCHAINE VERSION
         notamment dans Completion Rate Breakdown, task completion by domain, Completed sessions
 
 A FAIRE PROCHAINEMENT
-    - tester toutes les fonctionnalites
     - j'ais remarque une anomalie: quand je marque une tache comme terminee en 
         etant dans la page tasks, les achievements ne sont pas debloques, 
     - j'ai des taches qui sont marques comme termines mais ils ne sont pas affiches dans la 
@@ -32,3 +31,6 @@ A FAIRE PROCHAINEMENT
     - quand je veux accepter une friend request on me dit : Friend request not found. trouver et regler le souci.
     - normalement quand on envoi une friend request a un utilisateur ,on est pas encore tant que 
     la personne n'a pas encore accepte l'invitation et puis l'utilisateur en question doit recevoir une notification.
+    - il y a un truc que je veux pas: Quand un utilisateur envoi une friend request a un autre utilisateur,
+    il est automatiquement ami avec la personne mais c'est pas normal. la personne doit accepter l'invitation
+    avant d'etre ami avec la personne. donc on ne doit pas voir la personne dans la liste des amis.
