@@ -224,6 +224,12 @@ export default function Home() {
   const totalActiveTasks = tasks.filter(task => !task.completed).length;
   const hasMoreTasksThanDisplayed = totalActiveTasks > imminentTasks.length;
 
+  // Get recently completed tasks (last 5)
+  const completedTasks = tasks
+    .filter(task => task.completed)
+    .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0))
+    .slice(0, 5);
+
   // Use theme from context
   const { toggleTheme } = useTheme();
 
@@ -524,6 +530,68 @@ export default function Home() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Recently Completed Tasks */}
+        {completedTasks.length > 0 && (
+          <Card variant="elevated">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Recently Completed</CardTitle>
+                <span className="text-sm text-muted-foreground">
+                  {stats.completedTasks} total
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {completedTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30"
+                  >
+                    <div className="flex-shrink-0 text-green-500">
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium line-through text-muted-foreground truncate">
+                        {task.title}
+                      </p>
+                      {task.completedAt && (
+                        <p className="text-xs text-muted-foreground">
+                          Completed {new Date(task.completedAt).toLocaleDateString()} at{' '}
+                          {new Date(task.completedAt).toLocaleTimeString()}
+                        </p>
+                      )}
+                    </div>
+                    {task.pomodoroCount > 0 && (
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <span>🍅</span>
+                        <span>{task.pomodoroCount}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {stats.completedTasks > 5 && (
+                  <p className="text-xs text-muted-foreground text-center pt-2">
+                    And {stats.completedTasks - 5} more completed tasks...
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Pomodoro Timer */}
         <Card variant="elevated">

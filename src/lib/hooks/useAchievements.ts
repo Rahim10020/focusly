@@ -223,6 +223,10 @@ export function useAchievements() {
     );
 
     const [newlyUnlocked, setNewlyUnlocked] = useState<Achievement[]>([]);
+    const [notifiedAchievements, setNotifiedAchievements] = useLocalStorage<string[]>(
+        'focusly_notified_achievements',
+        []
+    );
     const [loading, setLoading] = useState(false);
 
     const getUserId = () => session?.user?.id;
@@ -437,12 +441,24 @@ export function useAchievements() {
 
             // Mettre à jour newlyUnlocked en dehors du setState pour éviter les boucles
             if (newlyUnlockedAchievements.length > 0) {
-                setNewlyUnlocked(prev => [...prev, ...newlyUnlockedAchievements]);
+                // Filtrer les achievements déjà notifiés
+                const achievementsToNotify = newlyUnlockedAchievements.filter(
+                    achievement => !notifiedAchievements.includes(achievement.id)
+                );
+
+                if (achievementsToNotify.length > 0) {
+                    setNewlyUnlocked(prev => [...prev, ...achievementsToNotify]);
+                    // Marquer ces achievements comme notifiés
+                    setNotifiedAchievements(prev => [
+                        ...prev,
+                        ...achievementsToNotify.map(a => a.id)
+                    ]);
+                }
             }
 
             return hasChanges ? updated : prevAchievements;
         });
-    }, [getUserId, setCurrentAchievements, session, ensureSupabaseSession]);
+    }, [getUserId, setCurrentAchievements, session, ensureSupabaseSession, notifiedAchievements, setNotifiedAchievements]);
 
     const checkTimeBasedAchievements = useCallback(async (hour: number) => {
         const userId = getUserId();
@@ -540,12 +556,24 @@ export function useAchievements() {
             });
 
             if (newlyUnlockedAchievements.length > 0) {
-                setNewlyUnlocked(prev => [...prev, ...newlyUnlockedAchievements]);
+                // Filtrer les achievements déjà notifiés
+                const achievementsToNotify = newlyUnlockedAchievements.filter(
+                    achievement => !notifiedAchievements.includes(achievement.id)
+                );
+
+                if (achievementsToNotify.length > 0) {
+                    setNewlyUnlocked(prev => [...prev, ...achievementsToNotify]);
+                    // Marquer ces achievements comme notifiés
+                    setNotifiedAchievements(prev => [
+                        ...prev,
+                        ...achievementsToNotify.map(a => a.id)
+                    ]);
+                }
             }
 
             return hasChanges ? updated : prevAchievements;
         });
-    }, [getUserId, setCurrentAchievements, session, ensureSupabaseSession]);
+    }, [getUserId, setCurrentAchievements, session, ensureSupabaseSession, notifiedAchievements, setNotifiedAchievements]);
 
     const clearNewlyUnlocked = useCallback(() => {
         setNewlyUnlocked([]);
