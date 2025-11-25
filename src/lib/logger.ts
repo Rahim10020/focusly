@@ -41,7 +41,14 @@ class Logger {
 
     private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
         const timestamp = new Date().toISOString();
-        const contextStr = context ? ` | ${JSON.stringify(context)}` : '';
+        let contextStr = '';
+        if (context) {
+            try {
+                contextStr = ` | ${JSON.stringify(context)}`;
+            } catch {
+                contextStr = ` | ${String(context)}`;
+            }
+        }
         return `[${timestamp}] [${level.toUpperCase()}] ${message}${contextStr}`;
     }
 
@@ -80,13 +87,18 @@ class Logger {
 
     /**
      * Log error message
-     */
+      */
     error(message: string, error: Error | unknown, context?: LogContext) {
-        const errorMessage = error instanceof Error
-            ? error.message
-            : (error && typeof error === 'object')
-                ? JSON.stringify(error)
-                : String(error);
+        let errorMessage: string;
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        } else {
+            try {
+                errorMessage = error && typeof error === 'object' ? JSON.stringify(error) : String(error);
+            } catch {
+                errorMessage = String(error);
+            }
+        }
         const errorObj = new Error(errorMessage);
         const errorStack = error instanceof Error ? error.stack : errorObj.stack;
         this.log('error', message, {
