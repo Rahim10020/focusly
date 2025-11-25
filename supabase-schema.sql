@@ -128,6 +128,18 @@ CREATE TABLE IF NOT EXISTS public.rate_limits (
 );
 
 -- Cache table for frequently requested data
+CREATE TABLE IF NOT EXISTS public.notifications (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    type TEXT CHECK (type IN ('friend_request', 'friend_request_accepted', 'task_completed', 'task_overdue', 'achievement', 'info')) NOT NULL,
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    data JSONB, -- Additional data like friend_request_id, etc.
+    read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS public.cache (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     cache_key TEXT NOT NULL UNIQUE,
@@ -146,6 +158,7 @@ ALTER TABLE public.tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.friends ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.stat_visibility ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rate_limits ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.cache ENABLE ROW LEVEL SECURITY;
@@ -294,6 +307,23 @@ DROP POLICY IF EXISTS "Users can delete their own friend requests" ON public.fri
 CREATE POLICY "Users can delete their own friend requests" ON public.friends
     FOR DELETE USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
 
+-- Notifications policies
+DROP POLICY IF EXISTS "Users can view their own notifications" ON public.notifications;
+CREATE POLICY "Users can view their own notifications" ON public.notifications
+    FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert their own notifications" ON public.notifications;
+CREATE POLICY "Users can insert their own notifications" ON public.notifications
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own notifications" ON public.notifications;
+CREATE POLICY "Users can update their own notifications" ON public.notifications
+    FOR UPDATE USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their own notifications" ON public.notifications;
+CREATE POLICY "Users can delete their own notifications" ON public.notifications
+    FOR DELETE USING (auth.uid() = user_id);
+
 -- Stat visibility policies
 DROP POLICY IF EXISTS "Users can view their own stat visibility" ON public.stat_visibility;
 CREATE POLICY "Users can view their own stat visibility" ON public.stat_visibility
@@ -390,6 +420,10 @@ CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles
 
 DROP TRIGGER IF EXISTS update_friends_updated_at ON public.friends;
 CREATE TRIGGER update_friends_updated_at BEFORE UPDATE ON public.friends
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_notifications_updated_at ON public.notifications;
+CREATE TRIGGER update_notifications_updated_at BEFORE UPDATE ON public.notifications
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 DROP TRIGGER IF EXISTS update_stat_visibility_updated_at ON public.stat_visibility;

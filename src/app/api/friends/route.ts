@@ -237,12 +237,38 @@ async function postHandler(request: NextRequest) {
                 receiver_id,
                 status: 'pending'
             })
-            .select()
+            .select(`
+                *,
+                sender:profiles!friends_sender_id_fkey (
+                    username
+                ),
+                receiver:profiles!friends_receiver_id_fkey (
+                    username
+                )
+            `)
             .single();
 
         if (error) {
             console.error('Error sending friend request:', error);
             return NextResponse.json({ error: 'Failed to send friend request' }, { status: 500 });
+        }
+
+        // Create notification for the receiver
+        try {
+            const senderName = data.sender?.username || 'Someone';
+            await supabaseWithAuth
+                .from('notifications')
+                .insert({
+                    user_id: receiver_id,
+                    type: 'friend_request',
+                    title: 'New Friend Request',
+                    message: `${senderName} sent you a friend request`,
+                    data: { friend_request_id: data.id },
+                    read: false
+                });
+        } catch (notificationError) {
+            console.error('Error creating friend request notification:', notificationError);
+            // Don't fail the friend request if notification creation fails
         }
 
         return NextResponse.json(data);

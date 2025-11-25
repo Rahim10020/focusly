@@ -54,6 +54,7 @@ export const supabase = getSupabaseInstance();
  * - achievements: Unlocked achievements
  * - profiles: User profiles with avatars
  * - friends: Friend relationships
+ * - notifications: User notifications
  * - stat_visibility: Privacy settings for stats
  */
 export interface Database {
@@ -311,6 +312,41 @@ export interface Database {
                     sender_id?: string;
                     receiver_id?: string;
                     status?: 'pending' | 'accepted' | 'rejected';
+                    created_at?: string;
+                    updated_at?: string;
+                };
+            };
+            notifications: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    type: 'friend_request' | 'friend_request_accepted' | 'task_completed' | 'task_overdue' | 'achievement' | 'info';
+                    title: string;
+                    message: string;
+                    data: any | null;
+                    read: boolean;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    type: 'friend_request' | 'friend_request_accepted' | 'task_completed' | 'task_overdue' | 'achievement' | 'info';
+                    title: string;
+                    message: string;
+                    data?: any | null;
+                    read?: boolean;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    type?: 'friend_request' | 'friend_request_accepted' | 'task_completed' | 'task_overdue' | 'achievement' | 'info';
+                    title?: string;
+                    message?: string;
+                    data?: any | null;
+                    read?: boolean;
                     created_at?: string;
                     updated_at?: string;
                 };

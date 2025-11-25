@@ -125,12 +125,40 @@ export async function PUT(
             .from('friends')
             .update({ status: newStatus })
             .eq('id', friendId)
-            .select()
+            .select(`
+                *,
+                sender:profiles!friends_sender_id_fkey (
+                    username
+                ),
+                receiver:profiles!friends_receiver_id_fkey (
+                    username
+                )
+            `)
             .single();
 
         if (error) {
             console.error('Error updating friend request:', error);
             return NextResponse.json({ error: 'Failed to update friend request' }, { status: 500 });
+        }
+
+        // Create notification for the sender if request was accepted
+        if (action === 'accept') {
+            try {
+                const receiverName = data.receiver?.username || 'Someone';
+                await supabaseWithAuth
+                    .from('notifications')
+                    .insert({
+                        user_id: data.sender_id,
+                        type: 'friend_request_accepted',
+                        title: 'Friend Request Accepted',
+                        message: `${receiverName} accepted your friend request`,
+                        data: { friend_request_id: data.id },
+                        read: false
+                    });
+            } catch (notificationError) {
+                console.error('Error creating friend request accepted notification:', notificationError);
+                // Don't fail the friend request acceptance if notification creation fails
+            }
         }
 
         return NextResponse.json(data);
