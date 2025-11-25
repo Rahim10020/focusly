@@ -17,7 +17,10 @@ import QuickAddTask from '@/components/tasks/QuickAddTask';
 import Button from '@/components/ui/Button';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useTags } from '@/lib/hooks/useTags';
+import { useStats } from '@/lib/hooks/useStats';
+import { useAchievements } from '@/lib/hooks/useAchievements';
 import { Task } from '@/types';
+import AchievementNotification from '@/components/achievements/AchievementNotification';
 
 /**
  * Tasks page component that displays and manages all user tasks.
@@ -48,6 +51,49 @@ export default function TasksPage() {
     } = useTasks();
 
     const { tags } = useTags();
+    const { updateTaskStats, getTodayFocusTime, stats } = useStats();
+    const {
+        newlyUnlocked,
+        clearNewlyUnlocked,
+        checkAchievements,
+        checkTimeBasedAchievements,
+    } = useAchievements();
+
+    // Mise à jour des stats de tâches
+    useEffect(() => {
+        const completedTasks = tasks.filter(task => task.completed).length;
+        updateTaskStats(tasks.length, completedTasks);
+    }, [tasks, updateTaskStats]);
+
+    // Vérification des achievements avec useRef pour éviter les appels répétés
+    const prevStatsRef = useRef({
+        totalSessions: 0,
+        completedTasks: 0,
+        streak: 0,
+        todayFocusMinutes: 0,
+    });
+
+    useEffect(() => {
+        const todayFocusMinutes = Math.floor(getTodayFocusTime() / 60);
+        const currentStats = {
+            totalSessions: stats.totalSessions,
+            completedTasks: stats.completedTasks,
+            streak: stats.streak,
+            todayFocusMinutes,
+        };
+
+        // Ne vérifie que si les stats ont réellement changé
+        const hasChanged =
+            prevStatsRef.current.totalSessions !== currentStats.totalSessions ||
+            prevStatsRef.current.completedTasks !== currentStats.completedTasks ||
+            prevStatsRef.current.streak !== currentStats.streak ||
+            prevStatsRef.current.todayFocusMinutes !== currentStats.todayFocusMinutes;
+
+        if (hasChanged) {
+            checkAchievements(currentStats);
+            prevStatsRef.current = currentStats;
+        }
+    }, [stats.totalSessions, stats.completedTasks, stats.streak, getTodayFocusTime, checkAchievements]);
 
     // Task handlers
     const handleQuickAddTask = (title: string) => {
@@ -128,6 +174,19 @@ export default function TasksPage() {
                     </CardContent>
                 </Card>
             </main>
+
+            {/* Achievement Notifications */}
+            {newlyUnlocked.map((achievement, index) => (
+                <AchievementNotification
+                    key={`${achievement.id}-${index}`}
+                    achievement={achievement}
+                    onClose={() => {
+                        if (index === newlyUnlocked.length - 1) {
+                            clearNewlyUnlocked();
+                        }
+                    }}
+                />
+            ))}
         </div>
     );
 }

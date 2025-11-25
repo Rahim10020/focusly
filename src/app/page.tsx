@@ -27,6 +27,7 @@ import { useAchievements } from '@/lib/hooks/useAchievements';
 import { useTags } from '@/lib/hooks/useTags';
 import { useKeyboardShortcuts, GLOBAL_SHORTCUTS } from '@/lib/hooks/useKeyboardShortcuts';
 import { useTaskNotifications } from '@/lib/hooks/useTaskNotifications';
+import { useNotifications } from '@/lib/hooks/useNotifications';
 import { Task } from '@/types';
 import { useTheme } from '@/components/providers/ThemeProvider';
 
@@ -138,6 +139,8 @@ export default function Home() {
     tasks,
     enabled: typeof window !== 'undefined' && session !== null,
   });
+
+  const { notifications, markAsRead } = useNotifications();
 
   useEffect(() => {
     setMounted(true);
@@ -548,6 +551,57 @@ export default function Home() {
             />
           </CardContent>
         </Card>
+
+        {/* Notifications */}
+        {notifications.length > 0 && (
+          <Card variant="elevated">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Notifications</CardTitle>
+                <button
+                  onClick={() => notifications.forEach(n => markAsRead(n.id))}
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Mark all read
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {notifications.slice(0, 5).map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-3 rounded-lg border ${notification.read ? 'border-border bg-card' : 'border-primary/20 bg-primary/5'
+                      }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{notification.title}</p>
+                        <p className="text-sm text-muted-foreground">{notification.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(notification.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      {!notification.read && (
+                        <button
+                          onClick={() => markAsRead(notification.id)}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          Mark read
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {notifications.length > 5 && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    And {notifications.length - 5} more...
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </main>
 
       {/* Achievement Notifications */}

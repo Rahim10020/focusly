@@ -75,8 +75,10 @@ export default function FriendsPage() {
             if (!response.ok) {
                 throw new Error('Failed to fetch friends');
             }
-            const data = await response.json();
-            setFriends(data);
+            const data: Friend[] = await response.json();
+            // Filter to only accepted friends
+            const acceptedFriends = data.filter(friend => friend.status === 'accepted');
+            setFriends(acceptedFriends);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         }

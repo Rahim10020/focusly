@@ -68,7 +68,9 @@ export default function LeaderboardPage() {
     const [error, setError] = useState<string | null>(null);
     const [selectedTab, setSelectedTab] = useState<'tasks' | 'time' | 'streak'>('tasks');
     const [currentPage, setCurrentPage] = useState(1);
-    const [friendRequestStatuses, setFriendRequestStatuses] = useState<Map<string, 'none' | 'pending' | 'sent'>>(new Map());
+    const [friendRequestStatuses, setFriendRequestStatuses] = useState<Map<string, 'none' | 'pending' | 'sent' | 'friends'>>(new Map());
+    const [friends, setFriends] = useState<string[]>([]);
+    const [pendingRequests, setPendingRequests] = useState<string[]>([]);
 
     useEffect(() => {
         if (status === 'loading') return;
@@ -79,6 +81,7 @@ export default function LeaderboardPage() {
         }
 
         fetchLeaderboard(currentPage);
+        fetchFriendsAndRequests();
     }, [session, status, router, currentPage]);
 
     const fetchLeaderboard = async (page: number = 1) => {
@@ -96,6 +99,49 @@ export default function LeaderboardPage() {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchFriendsAndRequests = async () => {
+        try {
+            const response = await fetch('/api/friends');
+            if (!response.ok) {
+                throw new Error('Failed to fetch friends');
+            }
+            const data = await response.json();
+            const userId = session?.user?.id;
+
+            // Get friend IDs (accepted)
+            const friendIds = data
+                .filter((friend: any) => friend.status === 'accepted')
+                .map((friend: any) =>
+                    friend.sender_id === userId ? friend.receiver_id : friend.sender_id
+                );
+            setFriends(friendIds);
+
+            // Get pending request IDs (sent by current user)
+            const pendingIds = data
+                .filter((friend: any) =>
+                    friend.status === 'pending' && friend.sender_id === userId
+                )
+                .map((friend: any) => friend.receiver_id);
+            setPendingRequests(pendingIds);
+
+            // Update friend request statuses
+            const statuses = new Map<string, 'none' | 'pending' | 'sent' | 'friends'>();
+            data.forEach((friend: any) => {
+                const otherUserId = friend.sender_id === userId ? friend.receiver_id : friend.sender_id;
+                if (friend.status === 'accepted') {
+                    statuses.set(otherUserId, 'friends');
+                } else if (friend.status === 'pending' && friend.sender_id === userId) {
+                    statuses.set(otherUserId, 'sent');
+                } else if (friend.status === 'pending' && friend.receiver_id === userId) {
+                    statuses.set(otherUserId, 'pending');
+                }
+            });
+            setFriendRequestStatuses(statuses);
+        } catch (err) {
+            console.error('Error fetching friends:', err);
         }
     };
 
@@ -168,6 +214,8 @@ export default function LeaderboardPage() {
             }
 
             setFriendRequestStatuses(prev => new Map(prev.set(userId, 'sent')));
+            // Refresh friends and requests after sending
+            fetchFriendsAndRequests();
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to send friend request');
             setFriendRequestStatuses(prev => new Map(prev.set(userId, 'none')));
@@ -441,10 +489,12 @@ export default function LeaderboardPage() {
                                                 </p>
                                                 {user.id !== session?.user?.id && (
                                                     <div className="mt-1">
-                                                        {friendRequestStatuses.get(user.id) === 'sent' ? (
+                                                        {friendRequestStatuses.get(user.id) === 'friends' ? (
+                                                            <Button size="sm" disabled variant="secondary">Friends</Button>
+                                                        ) : friendRequestStatuses.get(user.id) === 'sent' ? (
                                                             <Button size="sm" disabled>Friend Request Sent</Button>
                                                         ) : friendRequestStatuses.get(user.id) === 'pending' ? (
-                                                            <Button size="sm" disabled>Sending...</Button>
+                                                            <Button size="sm" disabled>Request Pending</Button>
                                                         ) : (
                                                             <Button
                                                                 size="sm"
