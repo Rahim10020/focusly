@@ -10,15 +10,31 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import AdvancedProductivityChart from '@/components/stats/AdvancedProductivityChart';
-import DomainEvolutionChart from '@/components/stats/DomainEvolutionChart';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useStats } from '@/lib/hooks/useStats';
 import { exportTasksToPDF, exportAnalyticsToPDF, exportTasksToCSV, exportAnalyticsToCSV } from '@/lib/utils/exportUtils';
 import { exportTasksToICS } from '@/lib/utils/calendarIntegration';
+
+// Lazy load heavy chart components
+const AdvancedProductivityChart = dynamic(
+    () => import('@/components/stats/AdvancedProductivityChart'),
+    {
+        ssr: false,
+        loading: () => <div className="animate-pulse bg-muted/30 h-64 rounded-lg" />
+    }
+);
+
+const DomainEvolutionChart = dynamic(
+    () => import('@/components/stats/DomainEvolutionChart'),
+    {
+        ssr: false,
+        loading: () => <div className="animate-pulse bg-muted/30 h-64 rounded-lg" />
+    }
+);
 
 /**
  * Dashboard page component that displays comprehensive analytics and productivity insights.

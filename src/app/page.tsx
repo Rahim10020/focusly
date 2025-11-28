@@ -17,7 +17,13 @@ import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import TasksView from '@/components/tasks/TasksView';
 import QuickAddTask from '@/components/tasks/QuickAddTask';
 import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
-const StatsOverview = dynamic(() => import('@/components/stats/StatsOverview'), { ssr: false });
+
+// Lazy load heavy components with loading states
+const StatsOverview = dynamic(() => import('@/components/stats/StatsOverview'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-muted/30 h-32 rounded-lg" />
+});
+
 import AchievementNotification from '@/components/achievements/AchievementNotification';
 import KeyboardShortcutsModal from '@/components/ui/KeyboardShortcutsModal';
 import Button from '@/components/ui/Button';
@@ -160,7 +166,7 @@ export default function Home() {
     todayFocusMinutes: 0,
   });
 
-  const todayFocusMinutes = useMemo(() => 
+  const todayFocusMinutes = useMemo(() =>
     Math.floor(getTodayFocusTime() / 60),
     [getTodayFocusTime]
   );

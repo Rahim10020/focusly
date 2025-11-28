@@ -5,11 +5,14 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, memo } from 'react';
 import { useStats } from '@/lib/hooks/useStats';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { formatTime } from '@/lib/utils/time';
 import StatsCard from './StatsCard';
+
+// Memoize StatsCard to prevent unnecessary re-renders
+const MemoizedStatsCard = memo(StatsCard);
 
 /**
  * Displays a grid of summary statistic cards showing key productivity metrics.
@@ -41,10 +44,18 @@ export default function StatsOverview() {
         setMounted(true);
     }, []);
 
+    // Memoize calculations to avoid recomputing on every render
+    const todayFocusSeconds = useMemo(() => getTodayFocusTime(), [getTodayFocusTime]);
+    const todayFocusMinutes = useMemo(() => Math.floor(todayFocusSeconds / 60), [todayFocusSeconds]);
+    const completionRate = useMemo(() =>
+        stats.totalTasks > 0 ? Math.round((stats.completedTasks / stats.totalTasks) * 100) : 0,
+        [stats.completedTasks, stats.totalTasks]
+    );
+
     if (!mounted) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatsCard
+                <MemoizedStatsCard
                     title="Today's Focus"
                     value="0m"
                     subtitle="00:00:00"
@@ -65,7 +76,7 @@ export default function StatsOverview() {
                         </svg>
                     }
                 />
-                <StatsCard
+                <MemoizedStatsCard
                     title="Total Focus Time"
                     value="0m"
                     subtitle="0 sessions"
@@ -85,7 +96,7 @@ export default function StatsOverview() {
                         </svg>
                     }
                 />
-                <StatsCard
+                <MemoizedStatsCard
                     title="Tasks Completed"
                     value={0}
                     subtitle="of 0 total"
@@ -105,7 +116,7 @@ export default function StatsOverview() {
                         </svg>
                     }
                 />
-                <StatsCard
+                <MemoizedStatsCard
                     title="Completion Rate"
                     value="0%"
                     subtitle="Start adding tasks"
@@ -130,15 +141,9 @@ export default function StatsOverview() {
         );
     }
 
-    const todayFocusSeconds = getTodayFocusTime();
-    const todayFocusMinutes = Math.floor(todayFocusSeconds / 60);
-    const completionRate = stats.totalTasks > 0
-        ? Math.round((stats.completedTasks / stats.totalTasks) * 100)
-        : 0;
-
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatsCard
+            <MemoizedStatsCard
                 title="Today's Focus"
                 value={`${todayFocusMinutes}m`}
                 subtitle={formatTime(todayFocusSeconds)}
@@ -160,7 +165,7 @@ export default function StatsOverview() {
                 }
             />
 
-            <StatsCard
+            <MemoizedStatsCard
                 title="Total Focus Time"
                 value={`${stats.totalFocusTime}m`}
                 subtitle={`${stats.totalSessions} sessions`}
@@ -181,7 +186,7 @@ export default function StatsOverview() {
                 }
             />
 
-            <StatsCard
+            <MemoizedStatsCard
                 title="Tasks Completed"
                 value={stats.completedTasks}
                 subtitle={`of ${stats.totalTasks} total`}
@@ -202,7 +207,7 @@ export default function StatsOverview() {
                 }
             />
 
-            <StatsCard
+            <MemoizedStatsCard
                 title="Completion Rate"
                 value={`${completionRate}%`}
                 subtitle={stats.totalTasks > 0 ? 'Keep it up!' : 'Start adding tasks'}

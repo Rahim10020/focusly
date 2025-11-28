@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 
 /**
  * Updated friend request data.
@@ -101,7 +102,7 @@ export async function PUT(
         // Check if the user is the receiver of this friend request
         const { data: friendRequestData, error: fetchError } = await supabaseWithAuth
             .from('friends')
-            .select('receiver_id, status')
+            .select('sender_id, receiver_id, status')
             .eq('id', friendId)
             .single();
 
@@ -120,9 +121,10 @@ export async function PUT(
         }
 
         // 1. Update friendship status
+        const newStatus = action === 'accept' ? 'accepted' : 'rejected';
         const { error: updateError } = await supabaseWithAuth
             .from('friends')
-            .update({ status: 'accepted' })
+            .update({ status: newStatus })
             .eq('id', friendId);
 
         if (updateError) {
@@ -137,25 +139,27 @@ export async function PUT(
             .eq('type', 'friend_request')
             .eq('data->friendshipId', friendId);
 
-        // 3. Create acceptance notification for sender
-        await supabaseWithAuth
-            .from('notifications')
-            .insert({
-                user_id: friendRequestData.sender_id,
-                type: 'friend_request_accepted',
-                title: 'Friend Request Accepted',
-                message: `${session.user.name || session.user.email} accepted your friend request`,
-                data: { friendshipId: friendId }
-            });
+        // 3. Create acceptance notification for sender if accepted
+        if (action === 'accept') {
+            await supabaseWithAuth
+                .from('notifications')
+                .insert({
+                    user_id: friendRequestData.sender_id,
+                    type: 'friend_request_accepted',
+                    title: 'Friend Request Accepted',
+                    message: `${session.user.name || session.user.email} accepted your friend request`,
+                    data: { friendshipId: friendId }
+                });
+        }
 
-        logger.info('Friend request accepted', {
-            action: 'acceptFriendRequest',
+        logger.info(`Friend request ${action}ed`, {
+            action: `${action}FriendRequest`,
             friendId,
             senderId: friendRequestData.sender_id,
             receiverId: userId
         });
 
-        return NextResponse.json({ message: 'Friend request accepted' });
+        return NextResponse.json({ message: `Friend request ${action}ed` });
     } catch (error) {
         console.error('Error in friends PUT API:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

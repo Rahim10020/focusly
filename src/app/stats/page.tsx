@@ -7,19 +7,41 @@
 
 'use client';
 
+import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import StatsOverview from '@/components/stats/StatsOverview';
-import ProductivityChart from '@/components/stats/ProductivityChart';
-import AchievementsList from '@/components/achievements/AchievementsList';
-import TaskHistoryList from '@/components/tasks/TaskHistoryList';
-import DomainStats from '@/components/stats/DomainStats';
 import { useStats } from '@/lib/hooks/useStats';
 import { useAchievements } from '@/lib/hooks/useAchievements';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useTags } from '@/lib/hooks/useTags';
 import { formatTime } from '@/lib/utils/time';
 import { useState, useMemo } from 'react';
+
+// Lazy load heavy chart components
+const StatsOverview = dynamic(() => import('@/components/stats/StatsOverview'), {
+    ssr: false,
+    loading: () => <div className="animate-pulse bg-muted/30 h-32 rounded-lg" />
+});
+
+const ProductivityChart = dynamic(() => import('@/components/stats/ProductivityChart'), {
+    ssr: false,
+    loading: () => <div className="animate-pulse bg-muted/30 h-64 rounded-lg" />
+});
+
+const AchievementsList = dynamic(() => import('@/components/achievements/AchievementsList'), {
+    ssr: false,
+    loading: () => <div className="animate-pulse bg-muted/30 h-48 rounded-lg" />
+});
+
+const TaskHistoryList = dynamic(() => import('@/components/tasks/TaskHistoryList'), {
+    ssr: false,
+    loading: () => <div className="animate-pulse bg-muted/30 h-48 rounded-lg" />
+});
+
+const DomainStats = dynamic(() => import('@/components/stats/DomainStats'), {
+    ssr: false,
+    loading: () => <div className="animate-pulse bg-muted/30 h-48 rounded-lg" />
+});
 
 /**
  * Statistics page component that displays comprehensive productivity data.

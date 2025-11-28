@@ -1,43 +1,22 @@
 /**
- * @fileoverview Supabase client configuration and database type definitions.
- * Provides a singleton Supabase client instance and complete TypeScript types
- * for all database tables including tasks, sessions, stats, and more.
- * @module lib/supabase
+ * @fileoverview DEPRECATED - Use @/lib/supabase/client or @/lib/supabase/server
+ * This file is kept for backward compatibility but should not be used in new code.
+ * 
+ * @deprecated Import from:
+ * - '@/lib/supabase/client' for client-side usage
+ * - '@/lib/supabase/server' for server-side/API routes
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-
-/** Singleton Supabase client instance */
-let supabaseInstance: SupabaseClient<Database> | null = null;
+import { supabaseClient } from './supabase/client';
+import type { Database } from './supabase/client';
 
 /**
- * Gets or creates a Supabase client singleton instance.
- * Uses environment variables for configuration.
- *
- * @returns {SupabaseClient<Database>} Typed Supabase client
- * @throws {Error} If environment variables are not set
+ * @deprecated Use getSupabaseClient() from '@/lib/supabase/client' instead
  */
-const getSupabaseInstance = (): SupabaseClient<Database> => {
-    if (!supabaseInstance) {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-        if (!supabaseUrl || !supabaseAnonKey) {
-            throw new Error('NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set');
-        }
-        supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey);
-    }
-    return supabaseInstance;
-};
+export const supabase = supabaseClient;
 
-/**
- * Supabase client instance for database operations.
- * Use this exported client throughout the application.
- *
- * @example
- * import { supabase } from '@/lib/supabase';
- * const { data, error } = await supabase.from('tasks').select('*');
- */
-export const supabase = getSupabaseInstance();
+// Re-export Database type for backward compatibility
+export type { Database };
 
 /**
  * Complete database type definitions for Supabase.

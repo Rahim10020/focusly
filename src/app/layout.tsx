@@ -14,8 +14,15 @@ import KeyboardShortcutsProvider from "@/components/providers/KeyboardShortcutsP
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Focusly – Focus & Productivity",
-  description: "A beautiful Pomodoro timer app with task management, achievements, and productivity tracking",
+  title: {
+    default: "Focusly – Focus & Productivity",
+    template: "%s | Focusly"
+  },
+  description: "A beautiful Pomodoro timer app with task management, achievements, and productivity tracking. Stay focused, build habits, and achieve your goals.",
+  keywords: ["pomodoro", "productivity", "task management", "focus timer", "time management", "habits"],
+  authors: [{ name: "Focusly Team" }],
+  creator: "Focusly",
+  publisher: "Focusly",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -25,6 +32,31 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://focusly.app",
+    title: "Focusly – Focus & Productivity",
+    description: "Stay focused, build habits, and achieve your goals with our beautiful Pomodoro timer and task management app.",
+    siteName: "Focusly",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Focusly – Focus & Productivity",
+    description: "Stay focused, build habits, and achieve your goals",
+    creator: "@focusly"
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
