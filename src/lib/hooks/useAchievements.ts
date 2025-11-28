@@ -249,9 +249,23 @@ export function useAchievements() {
         if (userId) {
             loadAchievementsFromDB();
         } else {
-            setDbAchievements(ACHIEVEMENTS_DEFINITIONS.map(def => ({ ...def, progress: 0 })));
+            // Reset achievements quand l'utilisateur se déconnecte
+            setDbAchievements(
+                ACHIEVEMENTS_DEFINITIONS.map(def => ({ ...def, progress: 0 }))
+            );
+            setNewlyUnlocked([]);
+            setNotifiedAchievements([]);
         }
     }, [session?.user?.id]);
+
+    // Également reset lors du signOut
+    useEffect(() => {
+        if (session?.user?.id === undefined) {
+            setDbAchievements(
+                ACHIEVEMENTS_DEFINITIONS.map(def => ({ ...def, progress: 0 }))
+            );
+        }
+    }, [session]);
 
     const loadAchievementsFromDB = async () => {
         const userId = getUserId();

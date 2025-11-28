@@ -119,49 +119,43 @@ export async function PUT(
             return NextResponse.json({ error: 'Request already processed' }, { status: 400 });
         }
 
-        const newStatus = action === 'accept' ? 'accepted' : 'rejected';
-
-        const { data, error } = await supabaseWithAuth
+        // 1. Update friendship status
+        const { error: updateError } = await supabaseWithAuth
             .from('friends')
-            .update({ status: newStatus })
-            .eq('id', friendId)
-            .select(`
-                *,
-                sender:profiles!friends_sender_id_fkey (
-                    username
-                ),
-                receiver:profiles!friends_receiver_id_fkey (
-                    username
-                )
-            `)
-            .single();
+            .update({ status: 'accepted' })
+            .eq('id', friendId);
 
-        if (error) {
-            console.error('Error updating friend request:', error);
-            return NextResponse.json({ error: 'Failed to update friend request' }, { status: 500 });
+        if (updateError) {
+            console.error('Error updating friend request:', updateError);
+            return NextResponse.json({ error: 'Failed to accept friend request' }, { status: 500 });
         }
 
-        // Create notification for the sender if request was accepted
-        if (action === 'accept') {
-            try {
-                const receiverName = data.receiver?.username || 'Someone';
-                await supabaseWithAuth
-                    .from('notifications')
-                    .insert({
-                        user_id: data.sender_id,
-                        type: 'friend_request_accepted',
-                        title: 'Friend Request Accepted',
-                        message: `${receiverName} accepted your friend request`,
-                        data: { friend_request_id: data.id },
-                        read: false
-                    });
-            } catch (notificationError) {
-                console.error('Error creating friend request accepted notification:', notificationError);
-                // Don't fail the friend request acceptance if notification creation fails
-            }
-        }
+        // 2. Delete original friend request notification
+        await supabaseWithAuth
+            .from('notifications')
+            .delete()
+            .eq('type', 'friend_request')
+            .eq('data->friendshipId', friendId);
 
-        return NextResponse.json(data);
+        // 3. Create acceptance notification for sender
+        await supabaseWithAuth
+            .from('notifications')
+            .insert({
+                user_id: friendRequestData.sender_id,
+                type: 'friend_request_accepted',
+                title: 'Friend Request Accepted',
+                message: `${session.user.name || session.user.email} accepted your friend request`,
+                data: { friendshipId: friendId }
+            });
+
+        logger.info('Friend request accepted', {
+            action: 'acceptFriendRequest',
+            friendId,
+            senderId: friendRequestData.sender_id,
+            receiverId: userId
+        });
+
+        return NextResponse.json({ message: 'Friend request accepted' });
     } catch (error) {
         console.error('Error in friends PUT API:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -5,6 +5,7 @@
  */
 
 import { supabase } from './supabase';
+import { logger } from './logger';
 
 /**
  * Options for cache operations.
@@ -31,71 +32,148 @@ interface CacheOptions {
  * await Cache.invalidatePattern('user-stats');
  */
 export class Cache {
-    private static async get(key: string): Promise<any | null> {
+    private static sanitizeCacheKey(key: string): string {
+        // Permettre uniquement alphanumeric, :, -, _
+        const sanitized = key.replace(/[^a-zA-Z0-9:_-]/g, '');
+        if (sanitized.length === 0 || sanitized.length > 255) {
+            throw new Error('Invalid cache key format');
+        }
+        return sanitized;
+    }
+
+    private static async get<T>(key: string): Promise<T | null> {
         try {
+            const sanitizedKey = this.sanitizeCacheKey(key);
+            
             const { data, error } = await supabase
                 .from('cache')
-                .select('data')
-                .eq('cache_key', key)
-                .gt('expires_at', new Date().toISOString())
+                .select('data, expires_at')
+                .eq('cache_key', sanitizedKey)
                 .single();
 
-            if (error || !data) return null;
+            if (error && error.code !== 'PGRST116') {
+                logger.error('Cache get failed', error, {
+                    action: 'cacheGet',
+                    key: sanitizedKey
+                });
+                return null;
+            }
 
-            return (data as { data: any }).data;
+            if (!data) return null;
+
+            // Vérifier expiration
+            const expiresAt = new Date(data.expires_at).getTime();
+            if (Date.now() > expiresAt) {
+                // Supprimer entrée expirée
+                await this.delete(sanitizedKey);
+                return null;
+            }
+
+            return data.data as T;
         } catch (error) {
-            console.error('Cache get error:', error);
+            logger.error('Cache get exception', error as Error, {
+                action: 'cacheGet',
+                key
+            });
             return null;
         }
     }
 
+    private static async delete(key: string): Promise<void> {
+        const sanitizedKey = this.sanitizeCacheKey(key);
+        try {
+            const { error } = await supabase
+                .from('cache')
+                .delete()
+                .eq('cache_key', sanitizedKey);
+
+            if (error) {
+                logger.error('Cache delete failed', error, {
+                    action: 'cacheDelete',
+                    key
+                });
+                // Optionnel: throw si critique pour l'app
+                // throw new Error(`Cache delete failed: ${error.message}`);
+            }
+        } catch (error) {
+            logger.error('Cache delete exception', error as Error, {
+                action: 'cacheDelete',
+                key
+            });
+            // Re-throw si l'erreur doit remonter
+            throw error;
+        }
+    }
+
     private static async set(key: string, data: any, ttl: number): Promise<void> {
+        const sanitizedKey = this.sanitizeCacheKey(key);
         try {
             const expiresAt = new Date(Date.now() + ttl);
-
-            await (supabase
-                .from('cache') as any)
+            const { error } = await supabase
+                .from('cache')
                 .upsert({
-                    cache_key: key,
+                    cache_key: sanitizedKey,
                     data,
                     expires_at: expiresAt.toISOString()
                 }, {
                     onConflict: 'cache_key'
                 });
+
+            if (error) {
+                logger.error('Cache set failed', error, {
+                    action: 'cacheSet',
+                    key,
+                    ttl
+                });
+                // Décider si l'app peut continuer sans cache
+            }
         } catch (error) {
-            console.error('Cache set error:', error);
+            logger.error('Cache set exception', error as Error, {
+                action: 'cacheSet',
+                key
+            });
+            throw error;
         }
     }
 
-    private static async delete(key: string): Promise<void> {
-        try {
-            await (supabase
-                .from('cache') as any)
-                .delete()
-                .eq('cache_key', key);
-        } catch (error) {
-            console.error('Cache delete error:', error);
-        }
-    }
+    private static cacheFailureCount = 0;
+    private static readonly MAX_FAILURES = 5;
+    private static cacheDisabled = false;
 
     static async getOrSet<T>(
         key: string,
         fetcher: () => Promise<T>,
         options: CacheOptions = { ttl: 5 * 60 * 1000 } // 5 minutes default
     ): Promise<T> {
-        // Try to get from cache
-        const cached = await this.get(key);
-        if (cached !== null) {
-            return cached;
+        if (this.cacheDisabled) {
+            logger.warn('Cache disabled due to repeated failures', {
+                action: 'cacheGetOrSet',
+                key
+            });
+            return fetcher();
         }
 
-        // Fetch fresh data
-        const data = await fetcher();
+        try {
+            const cached = await this.get<T>(key);
+            if (cached !== null) {
+                this.cacheFailureCount = 0; // Reset on success
+                return cached;
+            }
 
-        // Cache the result
-        await this.set(key, data, options.ttl);
-
-        return data;
+            const data = await fetcher();
+            await this.set(key, data, options.ttl || 300000);
+            return data;
+        } catch (error) {
+            this.cacheFailureCount++;
+            if (this.cacheFailureCount >= this.MAX_FAILURES) {
+                this.cacheDisabled = true;
+                logger.error('Cache circuit breaker triggered', error as Error, {
+                    action: 'cacheCircuitBreaker',
+                    failureCount: this.cacheFailureCount
+                });
+            }
+            return fetcher(); // Fallback sans cache
+        }
     }
 
     static async invalidate(key: string): Promise<void> {

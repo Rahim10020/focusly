@@ -88,33 +88,60 @@ export const authOptions: NextAuthOptions = {
                 token.expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
             }
 
-            // Check if token needs refresh
             const now = Date.now();
             const expiresAt = (token.expiresAt as number) || 0;
+            const tokenId = token.id as string;
 
-            // If token is about to expire in the next 5 minutes, refresh it
+            // Refresh si expire dans 5 minutes
             if (expiresAt - now < 5 * 60 * 1000 && token.refreshToken) {
-                try {
-                    const supabase = createClient(
-                        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-                    );
-
-                    const { data, error } = await supabase.auth.refreshSession({
-                        refresh_token: token.refreshToken as string,
-                    });
-
-                    if (!error && data.session) {
-                        token.accessToken = data.session.access_token;
-                        token.refreshToken = data.session.refresh_token;
-                        token.expiresAt = Date.now() + 60 * 60 * 1000;
+                // Vérifier si un refresh est déjà en cours pour ce token
+                if (refreshingTokens.has(tokenId)) {
+                    try {
+                        // Attendre le refresh en cours
+                        const refreshedToken = await refreshingTokens.get(tokenId);
+                        return refreshedToken || token;
+                    } catch {
+                        return token;
                     }
-                } catch (error) {
-                    logger.error('Token refresh error', error as Error, {
-                        action: 'refreshToken'
-                    });
-                    // Continue with existing token
                 }
+
+                // Créer une nouvelle promise de refresh
+                const refreshPromise = (async () => {
+                    try {
+                        const supabase = createClient(
+                            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                        );
+
+                        const { data, error } = await supabase.auth.refreshSession({
+                            refresh_token: token.refreshToken as string,
+                        });
+
+                        if (!error && data.session) {
+                            token.accessToken = data.session.access_token;
+                            token.refreshToken = data.session.refresh_token;
+                            token.expiresAt = Date.now() + 60 * 60 * 1000;
+                            
+                            logger.info('Token refreshed successfully', {
+                                action: 'tokenRefresh',
+                                userId: token.id
+                            });
+                        } else {
+                            logger.error('Token refresh failed', error as Error, {
+                                action: 'tokenRefresh',
+                                userId: token.id
+                            });
+                        }
+
+                        return token;
+                    } finally {
+                        // Cleanup après refresh
+                        refreshingTokens.delete(tokenId);
+                    }
+                })();
+
+                refreshingTokens.set(tokenId, refreshPromise);
+                return refreshPromise;
             }
 
             return token;
@@ -125,9 +152,10 @@ export const authOptions: NextAuthOptions = {
                 session.accessToken = token.accessToken;
                 session.refreshToken = token.refreshToken;
 
-                // Récupérer la préférence de thème depuis la base de données
+                // Récupérer les préférences via une route API sécurisée
                 if (token.id) {
                     try {
+                        // Utiliser uniquement ANON_KEY côté client
                         const supabase = createClient(
                             process.env.NEXT_PUBLIC_SUPABASE_URL!,
                             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -140,40 +168,16 @@ export const authOptions: NextAuthOptions = {
                             }
                         );
 
-                        // Ensure profile exists
-                        const { data: profileData, error: profileError } = await supabase
-                            .from('profiles')
-                            .select('id')
-                            .eq('id', token.id)
+                        // Fetch avec RLS activé (au lieu de service_role)
+                        const { data: prefData } = await supabase
+                            .from('user_preferences')
+                            .select('theme_preference')
+                            .eq('user_id', token.id)
                             .single();
 
-                        if (profileError && profileError.code === 'PGRST116') { // Not found
-                            // Get user metadata to set username
-                            const { data: userData } = await supabase.auth.getUser();
-                            const username = userData.user?.user_metadata?.username || null;
-
-                            // Create profile
-                            await supabase
-                                .from('profiles')
-                                .insert({
-                                    id: token.id,
-                                    username: username,
-                                    avatar_url: null
-                                });
-                        }
-
-                        const { data: userData, error } = await supabase
-                            .from('profiles')
-                            .select('username, avatar_url')
-                            .eq('id', token.id)
-                            .single();
-
-                        if (!error && userData) {
-                            session.user.name = userData.username || session.user.name;
-                            session.user.image = userData.avatar_url || session.user.image;
-                        }
+                        session.user.theme = prefData?.theme_preference || 'light';
                     } catch (error) {
-                        console.error('Error fetching user theme preference:', error);
+                        console.error('Error fetching theme preference:', error);
                     }
                 }
             }
@@ -184,3 +188,6 @@ export const authOptions: NextAuthOptions = {
         signIn: '/auth/signin',
     },
 };
+
+// Ajouter un simple flag de refresh en mémoire
+const refreshingTokens = new Map<string, Promise<any>>();

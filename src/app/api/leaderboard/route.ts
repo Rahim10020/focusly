@@ -44,8 +44,18 @@ import { logger } from '@/lib/logger';
 
 // Validation schema for query parameters
 const LeaderboardQuerySchema = z.object({
-    page: z.string().optional().transform(val => parseInt(val || '1')).pipe(z.number().min(1).max(1000)),
-    limit: z.string().optional().transform(val => parseInt(val || '20')).pipe(z.number().min(1).max(100))
+    page: z.string()
+        .optional()
+        .transform(val => val ? parseInt(val, 10) : 1)
+        .refine(val => val >= 1 && val <= 1000, {
+            message: 'Page must be between 1 and 1000'
+        }),
+    limit: z.string()
+        .optional()
+        .transform(val => val ? parseInt(val, 10) : 10)
+        .refine(val => val >= 1 && val <= 100, {
+            message: 'Limit must be between 1 and 100'
+        }),
 });
 
 /**
@@ -119,12 +129,53 @@ async function getHandler(request: NextRequest) {
         }
 
         const { page, limit } = validationResult.data;
+
+        // S'assurer que page * limit ne dépasse pas un seuil
+        if (page * limit > 10000) {
+            return NextResponse.json({
+                error: 'Pagination offset too large'
+            }, { status: 400 });
+        }
+
         const offset = (page - 1) * limit;
 
         const cacheKey = `leaderboard:${page}:${limit}`;
 
         const result = await Cache.getOrSet(cacheKey, async () => {
-            // Get total count for pagination
+            // 1. D'abord, s'assurer que tous les users avec stats ont un profil
+            const serviceSupabase = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.SUPABASE_SERVICE_ROLE_KEY!
+            );
+
+            // Fetch users avec stats mais sans profil
+            const { data: statsWithoutProfile } = await serviceSupabase
+                .rpc('get_users_missing_profiles'); // Créer cette function SQL
+
+            if (statsWithoutProfile && statsWithoutProfile.length > 0) {
+                const profilesToCreate = statsWithoutProfile.map((row: any) => ({
+                    id: row.user_id,
+                    username: null,
+                    avatar_url: null
+                }));
+
+                // Check existing profiles to avoid conflicts
+                const { data: existingProfiles } = await serviceSupabase
+                    .from('profiles')
+                    .select('id')
+                    .in('id', profilesToCreate.map((p: { id: string }) => p.id));
+
+                const existingIds = new Set(existingProfiles?.map((p: { id: string }) => p.id) || []);
+                const profilesToInsert = profilesToCreate.filter((p: { id: string }) => !existingIds.has(p.id));
+
+                if (profilesToInsert.length > 0) {
+                    await serviceSupabase
+                        .from('profiles')
+                        .insert(profilesToInsert);
+                }
+            }
+
+            // 2. Maintenant fetch avec pagination
             const { count: totalCount, error: countError } = await supabase
                 .from('stats')
                 .select('*', { count: 'exact', head: true });
@@ -136,7 +187,6 @@ async function getHandler(request: NextRequest) {
                 throw new Error('Failed to fetch leaderboard count');
             }
 
-            // First, get all stats ordered by total_focus_time with pagination
             const { data: statsData, error: statsError } = await supabase
                 .from('stats')
                 .select('user_id, total_sessions, completed_tasks, total_tasks, streak, total_focus_time, longest_streak')
@@ -167,7 +217,7 @@ async function getHandler(request: NextRequest) {
             // Get all user IDs from stats
             const userIds = typedStatsData.map(stat => stat.user_id);
 
-            // Fetch profiles for these users
+            // Fetch profiles (ils devraient tous exister maintenant)
             const { data: profilesData, error: profilesError } = await supabase
                 .from('profiles')
                 .select('id, username, avatar_url')
@@ -199,21 +249,32 @@ async function getHandler(request: NextRequest) {
                     avatar_url: null
                 }));
 
-                const { error: createError } = await serviceSupabase
+                // Check existing profiles to avoid conflicts
+                const { data: existingProfiles } = await serviceSupabase
                     .from('profiles')
-                    .insert(profilesToCreate);
+                    .select('id')
+                    .in('id', profilesToCreate.map((p: { id: string }) => p.id));
 
-                if (createError) {
-                    logger.error('Error creating missing profiles', createError as Error, {
-                        action: 'createMissingProfiles',
-                        userIds: usersWithoutProfiles
-                    });
-                    // Continue without profiles for these users
-                } else {
-                    // Add created profiles to the map
-                    profilesToCreate.forEach(profile => {
-                        typedProfilesData.push(profile as Database['public']['Tables']['profiles']['Row']);
-                    });
+                const existingIds = new Set(existingProfiles?.map((p: { id: string }) => p.id) || []);
+                const profilesToInsert = profilesToCreate.filter((p: { id: string }) => !existingIds.has(p.id));
+
+                if (profilesToInsert.length > 0) {
+                    const { error: createError } = await serviceSupabase
+                        .from('profiles')
+                        .insert(profilesToInsert);
+
+                    if (createError) {
+                        logger.error('Error creating missing profiles', createError as Error, {
+                            action: 'createMissingProfiles',
+                            userIds: usersWithoutProfiles
+                        });
+                        // Continue without profiles for these users
+                    } else {
+                        // Add created profiles to the map
+                        profilesToInsert.forEach(profile => {
+                            typedProfilesData.push(profile as Database['public']['Tables']['profiles']['Row']);
+                        });
+                    }
                 }
             }
 

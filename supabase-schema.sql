@@ -361,6 +361,28 @@ CREATE POLICY "Allow all operations on rate_limits" ON public.rate_limits
 CREATE POLICY "Allow all operations on cache" ON public.cache
     FOR ALL USING (true);
 
+-- Stat Visibility policies
+DROP POLICY IF EXISTS "Users can view their own stat visibility settings" ON public.stat_visibility;
+CREATE POLICY "Users can view their own stat visibility settings" ON public.stat_visibility
+    FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own stat visibility settings" ON public.stat_visibility;
+CREATE POLICY "Users can update their own stat visibility settings" ON public.stat_visibility
+    FOR UPDATE USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert their own stat visibility settings" ON public.stat_visibility;
+CREATE POLICY "Users can insert their own stat visibility settings" ON public.stat_visibility
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Cache policies (service-role only)
+DROP POLICY IF EXISTS "Service role can manage cache" ON public.cache;
+CREATE POLICY "Service role can manage cache" ON public.cache
+    FOR ALL USING (auth.jwt()->>'role' = 'service_role');
+
+-- Rate limits policies (service-role only)
+DROP POLICY IF EXISTS "Service role can manage rate limits" ON public.rate_limits;
+CREATE POLICY "Service role can manage rate limits" ON public.rate_limits
+    FOR ALL USING (auth.jwt()->>'role' = 'service_role');
 
 
 -- Functions for updating updated_at timestamps

@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -160,16 +160,24 @@ export default function Home() {
     todayFocusMinutes: 0,
   });
 
-  useEffect(() => {
-    const todayFocusMinutes = Math.floor(getTodayFocusTime() / 60);
-    const currentStats = {
-      totalSessions: stats.totalSessions,
-      completedTasks: stats.completedTasks,
-      streak: stats.streak,
-      todayFocusMinutes,
-    };
+  const todayFocusMinutes = useMemo(() => 
+    Math.floor(getTodayFocusTime() / 60),
+    [getTodayFocusTime]
+  );
 
-    // Ne vérifie que si les stats ont réellement changé
+  const currentStats = useMemo(() => ({
+    totalSessions: stats.totalSessions,
+    completedTasks: stats.completedTasks,
+    streak: stats.streak,
+    todayFocusMinutes,
+  }), [
+    stats.totalSessions,
+    stats.completedTasks,
+    stats.streak,
+    todayFocusMinutes
+  ]);
+
+  useEffect(() => {
     const hasChanged =
       prevStatsRef.current.totalSessions !== currentStats.totalSessions ||
       prevStatsRef.current.completedTasks !== currentStats.completedTasks ||
@@ -180,7 +188,7 @@ export default function Home() {
       checkAchievements(currentStats);
       prevStatsRef.current = currentStats;
     }
-  }, [stats.totalSessions, stats.completedTasks, stats.streak, getTodayFocusTime, checkAchievements]);
+  }, [currentStats, checkAchievements]);
 
   // Task handlers - redirect to dedicated task page
   const handleQuickAddTask = (title: string) => {

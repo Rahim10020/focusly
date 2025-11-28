@@ -12,6 +12,8 @@ import { STORAGE_KEYS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { useToastContext } from '@/components/providers/ToastProvider';
 import { logger } from '@/lib/logger';
+import { startOfDay, differenceInCalendarDays, parseISO } from 'date-fns';
+import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 
 /**
  * Hook for managing and calculating user productivity statistics.
@@ -312,6 +314,54 @@ export function useStats() {
             .reduce((total: number, session: PomodoroSession) => total + session.duration, 0);
     }, [currentSessions]);
 
+    const calculateStreak = useCallback((sessions: PomodoroSession[]): number => {
+        if (sessions.length === 0) return 0;
+
+        // Obtenir le fuseau horaire de l'utilisateur
+        const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        // Convertir toutes les dates en heure locale de l'utilisateur
+        const workSessions = sessions
+            .filter(s => s.completed && s.type === 'work' && s.startedAt)
+            .map(s => {
+                const utcDate = new Date(s.startedAt);
+                return utcToZonedTime(utcDate, userTimezone);
+            })
+            .sort((a, b) => b.getTime() - a.getTime()); // Plus récent d'abord
+
+        if (workSessions.length === 0) return 0;
+
+        const today = startOfDay(utcToZonedTime(new Date(), userTimezone));
+        const mostRecentSession = startOfDay(workSessions[0]);
+
+        // Si la session la plus récente est > 1 jour dans le passé, streak = 0
+        const daysDiff = differenceInCalendarDays(today, mostRecentSession);
+        if (daysDiff > 1) return 0;
+
+        let streak = 0;
+        let currentDay = mostRecentSession;
+
+        for (const sessionDate of workSessions) {
+            const sessionDay = startOfDay(sessionDate);
+            const diff = differenceInCalendarDays(currentDay, sessionDay);
+
+            if (diff === 0) {
+                // Même jour, continue
+                continue;
+            } else if (diff === 1) {
+                // Jour consécutif
+                streak++;
+                currentDay = sessionDay;
+            } else {
+                // Gap > 1 jour, streak break
+                break;
+            }
+        }
+
+        // +1 pour inclure le jour le plus récent
+        return streak + 1;
+    }, []);
+
     const refreshStats = useCallback(async () => {
         const userId = getUserId();
         if (userId) {
@@ -330,5 +380,6 @@ export function useStats() {
         getTodaySessions,
         getTodayFocusTime,
         refreshStats,
+        calculateStreak,
     };
 }

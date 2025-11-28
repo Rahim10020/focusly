@@ -105,6 +105,13 @@ export function useTasks() {
                 `)
                 .eq('user_id', userId)
                 .order('order', { ascending: true });
+                const { data: tasksData, error: tasksError } = await withTimeout(
+            tasksPromise,
+            10000, // 10 secondes
+            'Failed to load tasks: request timeout'
+        );
+
+        if (tasksError) throw tasksError;
 
             // Get current versions for optimistic locking
             const { data: versionsData, error: versionsError } = await supabase
@@ -150,6 +157,12 @@ export function useTasks() {
             const errorMessage = error.message || 'Failed to load tasks from database';
             setError(errorMessage);
             showErrorToast('Failed to Load Tasks', errorMessage);
+            if (error.message?.includes('timeout')) {
+            setError('Database request timed out. Please try again.');
+            showErrorToast('Request timed out. Please refresh the page.');
+        } else {
+            setError(error.message);
+        }
         } finally {
             setLoading(false);
         }
@@ -232,75 +245,106 @@ export function useTasks() {
         }
     };
 
-    const updateTask = async (id: string, updates: Partial<Task>) => {
+    const updateTask = async (
+        taskId: string,
+        updates: Partial<Task>,
+        maxRetries: number = 3
+    ): Promise<void> => {
         const userId = getUserId();
-        if (userId) {
-            // Update in database with optimistic locking
+        if (!userId) {
+            // Update local only
+            setCurrentTasks(prevTasks =>
+                prevTasks.map(t => t.id === taskId ? { ...t, ...updates } : t)
+            );
+            return;
+        }
+
+        let attempt = 0;
+        let lastError: any;
+
+        while (attempt < maxRetries) {
             try {
-                const currentTask = currentTasks.find(t => t.id === id);
-                if (!currentTask) return;
-
-                const updateData: any = {};
-                if (updates.title !== undefined) updateData.title = updates.title;
-                if (updates.completed !== undefined) {
-                    updateData.completed = updates.completed;
-                    updateData.completed_at = updates.completed ? new Date().toISOString() : null;
-                }
-                if (updates.pomodoroCount !== undefined) updateData.pomodoro_count = updates.pomodoroCount;
-                if (updates.priority !== undefined) updateData.priority = updates.priority;
-                if (updates.tags !== undefined) updateData.tags = updates.tags;
-                if (updates.dueDate !== undefined) updateData.due_date = updates.dueDate ? new Date(updates.dueDate).toISOString() : null;
-                if (updates.startDate !== undefined) updateData.start_date = updates.startDate ? new Date(updates.startDate).toISOString() : null;
-                if (updates.startTime !== undefined) updateData.start_time = updates.startTime;
-                if (updates.endTime !== undefined) updateData.end_time = updates.endTime;
-                if (updates.estimatedDuration !== undefined) updateData.estimated_duration = updates.estimatedDuration;
-                if (updates.notes !== undefined) updateData.notes = updates.notes;
-                if (updates.order !== undefined) updateData.order = updates.order;
-                if (updates.subDomain !== undefined) updateData.sub_domain = updates.subDomain;
-
-                // Use optimistic locking with version check
-                const { data, error } = await (supabase
-                    .from('tasks') as any)
-                    .update(updateData)
-                    .eq('id', id)
+                // 1. Fetch current version
+                const { data: currentTask, error: fetchError } = await supabase
+                    .from('tasks')
+                    .select('id, version')
+                    .eq('id', taskId)
                     .eq('user_id', userId)
-                    .eq('version', (currentTask as any).version || 1)
-                    .select('version')
                     .single();
 
-                if (error) {
-                    if (error.code === 'PGRST116') { // No rows updated - version conflict
-                        showErrorToast('Conflict Detected', 'Task was modified by another session. Please refresh and try again.');
-                        // Reload tasks to get latest data
-                        loadTasksFromDB();
-                        return;
-                    }
-                    throw error;
+                if (fetchError || !currentTask) {
+                    throw fetchError || new Error('Task not found');
                 }
 
-                // Update local state with new version
-                setCurrentTasks(currentTasks.map(task =>
-                    task.id === id ? { ...task, ...updates, version: data.version } : task
-                ));
-            } catch (error: any) {
-                logger.error('Error updating task in DB', error, {
+                const currentVersion = currentTask.version || 1;
+
+                // 2. Prepare updates
+                const taskUpdates: any = {
+                    ...updates,
+                    version: currentVersion + 1,
+                    updated_at: new Date().toISOString(),
+                };
+
+                // 3. Attempt update with version check
+                const { data: updatedTask, error: updateError } = await supabase
+                    .from('tasks')
+                    .update(taskUpdates)
+                    .eq('id', taskId)
+                    .eq('version', currentVersion)
+                    .select()
+                    .single();
+
+                if (updateError) {
+                    // Check if it's a version conflict
+                    if (updateError.code === 'PGRST116' || updateError.message?.includes('version')) {
+                        lastError = new Error('Version conflict');
+                        attempt++;
+                        logger.warn('Version conflict, retrying...', {
+                            action: 'updateTask',
+                            taskId,
+                            attempt,
+                            currentVersion
+                        });
+                        // Exponential backoff
+                        await new Promise(resolve => setTimeout(resolve, 100 * Math.pow(2, attempt)));
+                        continue;
+                    }
+                    throw updateError;
+                }
+
+                // Success - update local state
+                setCurrentTasks(prevTasks =>
+                    prevTasks.map(t => t.id === taskId ? formatTask(updatedTask) : t)
+                );
+
+                logger.info('Task updated successfully', {
                     action: 'updateTask',
-                    userId: getUserId(),
-                    taskId: id
+                    taskId,
+                    attempt: attempt + 1
                 });
-                const errorMessage = error.message || 'Failed to update task in database';
-                showErrorToast('Failed to Update Task', errorMessage);
-                // Still update local state for offline functionality
-                setCurrentTasks(currentTasks.map(task =>
-                    task.id === id ? { ...task, ...updates } : task
-                ));
+                return;
+
+            } catch (error: any) {
+                lastError = error;
+                attempt++;
+                
+                if (attempt >= maxRetries) {
+                    break;
+                }
             }
-        } else {
-            // Update in localStorage
-            setCurrentTasks(currentTasks.map(task =>
-                task.id === id ? { ...task, ...updates } : task
-            ));
         }
+
+        // All retries failed
+        logger.error('Failed to update task after retries', lastError, {
+            action: 'updateTask',
+            taskId,
+            attempts: maxRetries
+        });
+        
+        showErrorToast(
+            'Failed to save changes. The task may have been modified elsewhere. Please refresh.'
+        );
+        throw lastError;
     };
 
     const deleteTask = async (id: string) => {
@@ -561,9 +605,9 @@ export function useTasks() {
                     ? {
                         ...task,
                         subTasks: (task.subTasks || []).map(st =>
-                            st.id === subTaskId
-                                ? { ...st, completed: newCompleted, completedAt: newCompleted ? Date.now() : undefined }
-                                : st
+                          st.id === subTaskId
+                            ? { ...st, completed: newCompleted, completedAt: newCompleted ? Date.now() : undefined }
+                            : st
                         )
                     }
                     : task
