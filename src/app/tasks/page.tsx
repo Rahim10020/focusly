@@ -108,6 +108,16 @@ export default function TasksPage() {
         router.push(`/task/${task.id}`);
     };
 
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.replace('/auth/signin');
+        }
+    }, [status, router]);
+
+    if (status === 'unauthenticated') {
+        return null;
+    }
+
     if (status === 'loading') {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
@@ -117,11 +127,6 @@ export default function TasksPage() {
                 </div>
             </div>
         );
-    }
-
-    if (!session) {
-        router.push('/auth/signin');
-        return null;
     }
 
     return (

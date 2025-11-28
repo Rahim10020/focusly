@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Header from '@/components/layout/Header';
@@ -34,6 +34,12 @@ export default function DashboardPage() {
     const { sessions, stats } = useStats();
     const [timeRange, setTimeRange] = useState<7 | 30>(7);
 
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.replace('/auth/signin');
+        }
+    }, [status, router]);
+
     if (status === 'loading') {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
@@ -45,8 +51,7 @@ export default function DashboardPage() {
         );
     }
 
-    if (!session) {
-        router.push('/auth/signin');
+    if (status === 'unauthenticated') {
         return null;
     }
 

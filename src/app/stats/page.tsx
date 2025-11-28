@@ -19,7 +19,7 @@ import { useAchievements } from '@/lib/hooks/useAchievements';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useTags } from '@/lib/hooks/useTags';
 import { formatTime } from '@/lib/utils/time';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 /**
  * Statistics page component that displays comprehensive productivity data.
@@ -35,13 +35,22 @@ export default function StatsPage() {
     const { tags } = useTags();
     const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'tasks' | 'domains'>('overview');
 
-    const recentSessions = sessions
-        .filter(session => session.completed)
-        .slice(-10)
-        .reverse();
+    const recentSessions = useMemo(
+        () =>
+            sessions
+                .filter(session => session.completed)
+                .slice(-10)
+                .reverse(),
+        [sessions]
+    );
 
-    const completedTasks = tasks.filter(task => task.completed);
-    const failedTasks = tasks.filter(task => !task.completed && task.dueDate && task.dueDate < Date.now());
+    const { completedTasks, failedTasks } = useMemo(() => {
+        const completed = tasks.filter(task => task.completed);
+        const failed = tasks.filter(
+            task => !task.completed && task.dueDate && task.dueDate < Date.now()
+        );
+        return { completedTasks: completed, failedTasks: failed };
+    }, [tasks]);
 
     return (
         <div className="min-h-screen bg-background">
