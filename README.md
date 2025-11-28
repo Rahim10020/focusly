@@ -1,201 +1,278 @@
-# 🎯 Focusly - Pomodoro Productivity App
+# 🔧 Scripts Focusly
 
-A modern, feature-rich Pomodoro timer application built with Next.js, designed to help you stay focused and productive using the proven Pomodoro Technique.
+Ce dossier contient les scripts utilitaires pour la validation, la sécurité et la maintenance du projet Focusly.
 
-## 📸 Screenshots
+## 📋 Scripts Disponibles
 
-### Main Dashboard
-![Main Dashboard](screenshots/home.png)
-*The main interface showing tasks, Pomodoro timer, and quick stats overview.*
+### 🔒 security-check.js
 
-### Task Management
-![Task Management](screenshots/task.png)
-*Comprehensive task management with priorities, tags, and sub-tasks.*
+**Description:** Scanne le code source pour détecter les problèmes de sécurité potentiels.
 
-### Statistics & Analytics
-![Statistics](screenshots/stats.png)
-*Detailed productivity analytics with charts and achievement tracking.*
-
-### Settings
-![Settings](screenshots/settings.png)
-*Customizable timer settings and preferences.*
-
-### Achievements
-![Achievements](screenshots/achievements.png)
-*Gamified achievement system to celebrate productivity milestones.*
-
-## ✨ Features
-
-### 🕒 Pomodoro Timer
-- **Customizable Timer Durations**: Set your preferred work session (default 25 minutes), short break (default 5 minutes), and long break (default 15 minutes) lengths
-- **Auto-start Options**: Automatically start breaks and work sessions to maintain flow
-- **Session Tracking**: Visual progress ring showing current session progress
-- **Cycle Management**: Automatic progression through work sessions and breaks (4 work sessions = 1 long break)
-
-### 📋 Task Management
-- **Task Creation**: Add tasks with titles, priorities, due dates, and notes
-- **Priority Levels**: High, Medium, Low priority tasks with visual indicators
-- **Tags**: Organize tasks with custom color-coded tags
-- **Sub-tasks**: Break down complex tasks into manageable sub-tasks
-- **Drag & Drop**: Reorder tasks easily with drag and drop functionality
-- **Active Task Linking**: Link tasks to Pomodoro sessions for better tracking
-
-### 🔗 Task-Pomodoro Integration
-- **Active Task Selection**: Choose which task to focus on during work sessions
-- **Pomodoro Counter**: Track completed Pomodoros per task
-- **Visual Indicators**: Active task badges and progress tracking
-- **Session History**: View which tasks were worked on during each session
-
-### 🔔 Notifications & Sounds
-- **Browser Notifications**: Get notified when sessions end (with permission)
-- **Custom Sounds**: Web Audio API-generated sounds for session transitions
-- **Sound Toggle**: Enable/disable sounds in settings
-- **Work End & Break End**: Distinct sounds for different session types
-
-### 📊 Statistics & Analytics
-- **Comprehensive Stats**: Total focus time, completed tasks, sessions, and streaks
-- **Weekly Charts**: Visual representation of productivity over the last 7 days
-- **Achievement System**: Unlock achievements for milestones and streaks
-- **Session History**: Detailed log of all completed sessions
-- **Streak Tracking**: Daily work streaks with longest streak records
-
-### 🏆 Achievement System
-- **Gamification**: Earn achievements for productivity milestones
-- **Progress Tracking**: Visual progress bars for locked achievements
-- **Categories**: Tasks, Pomodoros, Streaks, Focus Time achievements
-- **Notifications**: Celebrate unlocking new achievements
-
-### ⚙️ Customizable Settings
-- **Timer Configuration**: Adjust all timer durations and cycle settings
-- **Auto-start Toggles**: Control automatic session starts
-- **Sound Settings**: Enable/disable audio notifications
-- **Reset Options**: Restore default settings anytime
-
-### 🎨 User Experience
-- **Dark/Light Mode**: Toggle between themes with system preference detection
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Keyboard Shortcuts**: Power user shortcuts for common actions
-- **PWA Ready**: Install as a web app on supported devices
-
-### ⌨️ Keyboard Shortcuts
-- **Space**: Start/Pause timer
-- **S**: Skip to next session
-- **R**: Reset current session
-- **N**: Create new task
-- **Shift + ?**: Show shortcuts modal
-- **Navigation**: Quick access to different pages
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd focusly
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-### Build for Production
-
+**Usage:**
 ```bash
-npm run build
-npm start
+npm run test:security
+# ou
+node scripts/security-check.js
 ```
 
-## 📖 How to Use
+**Ce qu'il vérifie:**
+- ✅ Exposition de `SUPABASE_SERVICE_ROLE_KEY` dans le code client
+- ✅ Tokens stockés dans `localStorage` (vulnérabilité XSS)
+- ✅ Création directe de clients Supabase avec SERVICE_ROLE hors API routes
+- ✅ Mots de passe hardcodés dans le code
+- ✅ Clés API hardcodées
+- ✅ Problèmes potentiels dans les policies RLS
 
-### Basic Workflow
-1. **Create Tasks**: Add tasks you want to work on with priorities and due dates
-2. **Set Active Task**: Click "Set Active" on a task to link it to your Pomodoro sessions
-3. **Start Timer**: Begin a 25-minute focus session
-4. **Take Breaks**: Short breaks (5 min) after each work session, long breaks (15 min) after 4 cycles
-5. **Track Progress**: Monitor your productivity with detailed statistics and achievements
+**Niveaux de sévérité:**
+- 🚨 **CRITICAL:** Bloque le CI/CD, doit être corrigé immédiatement
+- ⚠️ **HIGH:** Warning, devrait être corrigé
+- 💡 **MEDIUM:** Suggestion d'amélioration
 
-### Advanced Features
-- **Tag Management**: Create custom tags to categorize your tasks
-- **Sub-task Breakdown**: Split large tasks into smaller, actionable items
-- **Custom Timer Settings**: Adjust durations to match your preferred work rhythm
-- **Achievement Hunting**: Work towards unlocking all productivity achievements
-
-## 🛠️ Tech Stack
-
-- **Framework**: Next.js 14+ with App Router
-- **Styling**: Tailwind CSS
-- **State Management**: React Hooks + localStorage
-- **Charts**: Custom SVG-based productivity charts
-- **Audio**: Web Audio API for sound generation
-- **PWA**: Service Worker ready for offline functionality
-
-## 📁 Project Structure
-
+**Exemple de sortie:**
 ```
-focusly/
-├── src/
-│   ├── app/                 # Next.js app router pages
-│   │   ├── page.tsx        # Home page
-│   │   ├── settings/       # Settings page
-│   │   ├── stats/          # Statistics page
-│   │   └── how-to-use/     # Guide page
-│   ├── components/         # React components
-│   │   ├── pomodoro/       # Timer components
-│   │   ├── tasks/          # Task management
-│   │   ├── stats/          # Statistics display
-│   │   ├── settings/       # Settings interface
-│   │   ├── achievements/   # Achievement system
-│   │   └── ui/             # Reusable UI components
-│   ├── lib/
-│   │   ├── hooks/          # Custom React hooks
-│   │   └── utils/          # Utility functions
-│   └── types/              # TypeScript type definitions
-├── public/                 # Static assets
-└── README.md
+🚨 CRITICAL SECURITY ISSUES:
+
+  src/components/TaskManager.tsx:42
+  🚨 SERVICE_ROLE_KEY found in client-accessible file
+  Code: const client = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY)
+
+📊 SUMMARY:
+  Critical: 1
+  High:     0
+  Medium:   0
+  Total:    1
+
+❌ Security check FAILED - Critical issues found!
 ```
-
-## 🎯 Pomodoro Technique
-
-Focusly implements the classic Pomodoro Technique:
-- **Work Session**: 25 minutes of focused work
-- **Short Break**: 5 minutes between work sessions
-- **Long Break**: 15 minutes after 4 work sessions
-- **Cycle**: Repeat the pattern continuously
-
-The technique helps maintain concentration while preventing burnout through regular breaks.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🙏 Acknowledgments
-
-- Inspired by the Pomodoro Technique® created by Francesco Cirillo
-- Built with modern web technologies for optimal performance
-- Designed for productivity enthusiasts worldwide
 
 ---
 
-**🎉 Stay focused and productive with Focusly! 🍅**
+### 🌍 check-env.js
+
+**Description:** Valide que toutes les variables d'environnement requises sont correctement configurées.
+
+**Usage:**
+```bash
+npm run check:env
+# ou
+node scripts/check-env.js
+```
+
+**Ce qu'il vérifie:**
+- ✅ Présence de toutes les variables requises
+- ✅ Détection de valeurs placeholder (ex: "your-key-here")
+- ✅ Préfixes corrects (`NEXT_PUBLIC_` pour variables publiques)
+- ✅ Longueur minimale pour les secrets
+- ✅ Cohérence entre `.env` et `.env.local`
+
+**Variables vérifiées:**
+
+**Requises:**
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL`
+
+**Optionnelles:**
+- `NODE_ENV`
+- `NEXT_PUBLIC_APP_URL`
+
+**Exemple de sortie:**
+```
+🔍 Checking environment variables for Focusly...
+
+📁 Environment files checked:
+  .env:       ✅
+  .env.local: ✅
+
+🔒 REQUIRED VARIABLES:
+  ✅ NEXT_PUBLIC_SUPABASE_URL
+  ✅ NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ❌ SUPABASE_SERVICE_ROLE_KEY
+
+❌ ISSUES FOUND:
+
+❌ ERRORS:
+
+  SUPABASE_SERVICE_ROLE_KEY: SUPABASE_SERVICE_ROLE_KEY is not set
+    Description: Supabase service role key (NEVER expose to client)
+    Example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+📊 SUMMARY:
+  Critical: 0
+  Errors:   1
+  Warnings: 0
+
+❌ Environment validation FAILED!
+
+💡 TIP: Copy .env.example to .env.local and fill in your values
+```
+
+---
+
+## 🚀 Utilisation dans le Workflow
+
+### Pendant le développement
+
+```bash
+# Avant de committer
+npm run validate
+
+# Cela exécute:
+# - npm run lint
+# - npm run type-check
+# - npm run test:security
+# - npm run check:env
+```
+
+### Dans CI/CD
+
+Ajouter à `.github/workflows/ci.yml`:
+
+```yaml
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run validation
+        run: npm run validate
+        env:
+          # Définir les variables d'env pour le check
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+```
+
+### Pre-commit Hook
+
+Ajouter à `.husky/pre-commit`:
+
+```bash
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Exécuter les vérifications de sécurité
+npm run test:security || exit 1
+
+# Vérifier les types
+npm run type-check || exit 1
+```
+
+---
+
+## 🔧 Personnalisation
+
+### Ajouter des patterns de sécurité
+
+Éditer `scripts/security-check.js`:
+
+```javascript
+const DANGEROUS_PATTERNS = [
+    // ... patterns existants
+    {
+        pattern: /votre-pattern-regex/,
+        exclude: ['dossiers', 'à', 'exclure'],
+        message: 'Votre message d\'erreur',
+        severity: 'CRITICAL' // ou 'HIGH', 'MEDIUM', 'LOW'
+    }
+];
+```
+
+### Ajouter des variables d'environnement
+
+Éditer `scripts/check-env.js`:
+
+```javascript
+const REQUIRED_ENV_VARS = {
+    // ... variables existantes
+    'VOTRE_VARIABLE': {
+        description: 'Description de la variable',
+        example: 'Exemple de valeur',
+        public: false, // true si NEXT_PUBLIC_
+        critical: true // true si critique pour la sécurité
+    }
+};
+```
+
+---
+
+## 🐛 Dépannage
+
+### Le script de sécurité ne trouve rien
+
+**Problème:** Aucune erreur n'est détectée même avec des problèmes évidents.
+
+**Solutions:**
+1. Vérifier que vous êtes dans le dossier racine du projet
+2. Vérifier que `src/` existe
+3. Augmenter la verbosité en modifiant le script
+
+### Le script d'environnement échoue toujours
+
+**Problème:** Variables non détectées même si elles sont dans `.env.local`.
+
+**Solutions:**
+1. Vérifier le format du fichier `.env.local` (pas d'espaces avant `=`)
+2. Vérifier les guillemets (supprimer si présents)
+3. Redémarrer le terminal
+
+### Permission denied
+
+**Problème:** `Permission denied` lors de l'exécution.
+
+**Solution:**
+```bash
+chmod +x scripts/*.js
+```
+
+---
+
+## 📚 Ressources
+
+- [Next.js Environment Variables](https://nextjs.org/docs/basic-features/environment-variables)
+- [Supabase Security Best Practices](https://supabase.com/docs/guides/auth/row-level-security)
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+
+---
+
+## 📝 Notes
+
+- Les scripts sont écrits en JavaScript vanilla (pas de dépendances) pour une exécution rapide
+- Ils peuvent être exécutés directement avec Node.js sans build
+- Les chemins sont relatifs au dossier racine du projet
+- Les scripts retournent des exit codes appropriés pour CI/CD :
+  - `0` = succès
+  - `1` = échec
+
+---
+
+## 🆘 Support
+
+Si vous rencontrez des problèmes avec les scripts :
+
+1. Vérifier les logs de sortie
+2. Exécuter avec Node.js en mode verbose : `node --trace-warnings scripts/security-check.js`
+3. Consulter ce README
+4. Vérifier que Node.js ≥ 18 est installé
+
+---
+
+**Dernière mise à jour:** 28 novembre 2024

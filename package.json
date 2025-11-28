@@ -8,7 +8,15 @@
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "node migrate-db.js",
-    "db:migrate:bash": "./migrate-db.sh"
+    "db:migrate:bash": "./migrate-db.sh",
+    "validate": "npm run lint && npm run type-check && npm run test:security && npm run check:env",
+    "type-check": "tsc --noEmit",
+    "test:security": "node scripts/security-check.js",
+    "check:env": "node scripts/check-env.js",
+    "supabase:types": "npx supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > src/lib/supabase/database.types.ts",
+    "supabase:diff": "npx supabase db diff",
+    "audit:deps": "npm audit --production",
+    "cache:clear": "node scripts/clear-cache.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -27,6 +35,7 @@
     "react-chartjs-2": "^5.3.1",
     "react-dom": "19.2.0",
     "recharts": "^3.4.1",
+    "supabase": "^2.63.1",
     "zod": "^4.1.12"
   },
   "devDependencies": {

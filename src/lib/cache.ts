@@ -1,10 +1,11 @@
 /**
  * @fileoverview Caching utilities for reducing database calls.
  * Provides a Cache class with get/set operations backed by Supabase.
+ * Supports automatic invalidation patterns for related cache entries.
  * @module lib/cache
  */
 
-import { supabase } from './supabase';
+import { supabaseClient } from './supabase/client';
 import { logger } from './logger';
 
 /**
@@ -19,6 +20,7 @@ interface CacheOptions {
 /**
  * Cache utility class for storing and retrieving data with TTL support.
  * Uses Supabase as the backing store for persistence.
+ * Supports automatic invalidation patterns for related cache entries.
  *
  * @class Cache
  *
@@ -27,11 +29,17 @@ interface CacheOptions {
  * const data = await Cache.getOrSet('user-stats-123', fetchUserStats, { ttl: 300000 });
  *
  * @example
- * // Invalidating cache
+ * // Register invalidation patterns
+ * Cache.registerInvalidation('tasks', ['tasks:*', 'stats:*', 'achievements:*']);
+ *
+ * @example
+ * // Invalidating cache by pattern
  * await Cache.invalidate('user-stats-123');
  * await Cache.invalidatePattern('user-stats');
  */
 export class Cache {
+    private static invalidationPatterns = new Map<string, Set<string>>();
+    
     private static sanitizeCacheKey(key: string): string {
         // Permettre uniquement alphanumeric, :, -, _
         const sanitized = key.replace(/[^a-zA-Z0-9:_-]/g, '');
@@ -41,18 +49,67 @@ export class Cache {
         return sanitized;
     }
 
+    /**
+     * Register cache keys that should be invalidated when a pattern is matched.
+     * This allows for automatic cascading invalidation of related cache entries.
+     * 
+     * @param pattern - The pattern name to match
+     * @param keys - Array of cache key patterns to invalidate
+     * 
+     * @example
+     * Cache.registerInvalidation('tasks', ['tasks:*', 'stats:*', 'leaderboard:*']);
+     * // When invalidating 'tasks' pattern, all registered patterns will be cleared
+     */
+    static registerInvalidation(pattern: string, keys: string[]): void {
+        if (!this.invalidationPatterns.has(pattern)) {
+            this.invalidationPatterns.set(pattern, new Set());
+        }
+        keys.forEach(key => this.invalidationPatterns.get(pattern)!.add(key));
+    }
+
+    /**
+     * Get all cache keys matching a pattern.
+     * 
+     * @param pattern - Pattern to match (supports * wildcard)
+     * @returns Array of matching cache keys
+     */
+    private static async getKeysMatchingPattern(pattern: string): Promise<string[]> {
+        try {
+            const { data, error } = await supabaseClient
+                .from('cache')
+                .select('cache_key')
+                .like('cache_key', pattern.replace('*', '%'));
+
+            if (error) {
+                logger.error('Error fetching keys by pattern', error as Error, {
+                    action: 'getKeysMatchingPattern',
+                    pattern
+                });
+                return [];
+            }
+
+            return data?.map(row => row.cache_key) || [];
+        } catch (error) {
+            logger.error('Exception fetching keys by pattern', error as Error, {
+                action: 'getKeysMatchingPattern',
+                pattern
+            });
+            return [];
+        }
+    }
+
     private static async get<T>(key: string): Promise<T | null> {
         try {
             const sanitizedKey = this.sanitizeCacheKey(key);
             
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('cache')
-                .select('data, expires_at')
+                .select('cache_value, expires_at')
                 .eq('cache_key', sanitizedKey)
                 .single();
 
             if (error && error.code !== 'PGRST116') {
-                logger.error('Cache get failed', error, {
+                logger.error('Cache get failed', error as Error, {
                     action: 'cacheGet',
                     key: sanitizedKey
                 });
@@ -69,7 +126,7 @@ export class Cache {
                 return null;
             }
 
-            return data.data as T;
+            return data.cache_value as T;
         } catch (error) {
             logger.error('Cache get exception', error as Error, {
                 action: 'cacheGet',
@@ -82,25 +139,22 @@ export class Cache {
     private static async delete(key: string): Promise<void> {
         const sanitizedKey = this.sanitizeCacheKey(key);
         try {
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('cache')
                 .delete()
                 .eq('cache_key', sanitizedKey);
 
             if (error) {
-                logger.error('Cache delete failed', error, {
+                logger.error('Cache delete failed', error as Error, {
                     action: 'cacheDelete',
                     key
                 });
-                // Optionnel: throw si critique pour l'app
-                // throw new Error(`Cache delete failed: ${error.message}`);
             }
         } catch (error) {
             logger.error('Cache delete exception', error as Error, {
                 action: 'cacheDelete',
                 key
             });
-            // Re-throw si l'erreur doit remonter
             throw error;
         }
     }
@@ -109,23 +163,22 @@ export class Cache {
         const sanitizedKey = this.sanitizeCacheKey(key);
         try {
             const expiresAt = new Date(Date.now() + ttl);
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('cache')
                 .upsert({
                     cache_key: sanitizedKey,
-                    data,
+                    cache_value: data,
                     expires_at: expiresAt.toISOString()
                 }, {
                     onConflict: 'cache_key'
                 });
 
             if (error) {
-                logger.error('Cache set failed', error, {
+                logger.error('Cache set failed', error as Error, {
                     action: 'cacheSet',
                     key,
                     ttl
                 });
-                // Décider si l'app peut continuer sans cache
             }
         } catch (error) {
             logger.error('Cache set exception', error as Error, {
@@ -180,15 +233,78 @@ export class Cache {
         await this.delete(key);
     }
 
+    /**
+     * Invalidate all cache keys matching a pattern and registered dependent patterns.
+     * 
+     * @param pattern - Pattern to match and invalidate
+     * 
+     * @example
+     * // Invalidate all task-related caches
+     * await Cache.invalidatePattern('tasks');
+     * // This will also invalidate registered patterns like 'stats', 'achievements', etc.
+     */
     static async invalidatePattern(pattern: string): Promise<void> {
         try {
-            // Use a simple LIKE query to delete matching keys
-            await (supabase
-                .from('cache') as any)
-                .delete()
-                .like('cache_key', `%${pattern}%`);
+            // Get registered patterns to invalidate
+            const patternsToInvalidate = this.invalidationPatterns.get(pattern);
+            
+            if (patternsToInvalidate) {
+                // Invalidate all registered patterns
+                await Promise.all(
+                    Array.from(patternsToInvalidate).map(async (pat) => {
+                        const keys = await this.getKeysMatchingPattern(pat);
+                        await Promise.all(keys.map(key => this.delete(key)));
+                    })
+                );
+                
+                logger.info('Invalidated pattern with dependencies', {
+                    action: 'invalidatePattern',
+                    pattern,
+                    dependentPatterns: Array.from(patternsToInvalidate)
+                });
+            }
+
+            // Also invalidate the pattern itself
+            const keys = await this.getKeysMatchingPattern(pattern);
+            await Promise.all(keys.map(key => this.delete(key)));
+            
+            logger.info('Pattern invalidated', {
+                action: 'invalidatePattern',
+                pattern,
+                keysInvalidated: keys.length
+            });
         } catch (error) {
-            console.error('Cache invalidate pattern error:', error);
+            logger.error('Cache invalidate pattern error', error as Error, {
+                action: 'invalidatePattern',
+                pattern
+            });
+        }
+    }
+    
+    /**
+     * Clear all expired cache entries.
+     * Should be called periodically (e.g., via a cron job).
+     */
+    static async clearExpired(): Promise<void> {
+        try {
+            const { error } = await supabaseClient
+                .from('cache')
+                .delete()
+                .lt('expires_at', new Date().toISOString());
+
+            if (error) {
+                logger.error('Failed to clear expired cache', error as Error, {
+                    action: 'clearExpired'
+                });
+            } else {
+                logger.info('Expired cache cleared', {
+                    action: 'clearExpired'
+                });
+            }
+        } catch (error) {
+            logger.error('Exception clearing expired cache', error as Error, {
+                action: 'clearExpired'
+            });
         }
     }
 }

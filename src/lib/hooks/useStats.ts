@@ -9,11 +9,12 @@ import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Stats, PomodoroSession } from '@/types';
 import { STORAGE_KEYS } from '@/lib/constants';
-import { supabase } from '@/lib/supabase';
+import { supabaseClient } from '@/lib/supabase/client';
+import { retryWithBackoff } from '@/lib/utils/retry';
 import { useToastContext } from '@/components/providers/ToastProvider';
 import { logger } from '@/lib/logger';
 import { startOfDay, differenceInCalendarDays, parseISO } from 'date-fns';
-import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 
 /**
  * Hook for managing and calculating user productivity statistics.
@@ -79,7 +80,7 @@ export function useStats() {
     // Set Supabase auth session when user logs in
     useEffect(() => {
         if (session?.accessToken && session?.refreshToken) {
-            supabase.auth.setSession({
+            supabaseClient.auth.setSession({
                 access_token: session.accessToken,
                 refresh_token: session.refreshToken,
             });
@@ -111,11 +112,15 @@ export function useStats() {
         setLoading(true);
         setError(null);
         try {
-            const { data, error } = await supabase
-                .from('stats')
-                .select('*')
-                .eq('user_id', userId)
-                .single();
+            const { data, error } = await retryWithBackoff(async () => {
+                const result = await supabaseClient
+                    .from('stats')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .single();
+                if (result.error && result.error.code !== 'PGRST116') throw result.error;
+                return result;
+            });
 
             if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
                 throw error;
@@ -155,11 +160,15 @@ export function useStats() {
         if (!userId) return;
 
         try {
-            const { data, error } = await supabase
-                .from('sessions')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false });
+            const { data, error } = await retryWithBackoff(async () => {
+                const result = await supabaseClient
+                    .from('sessions')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false });
+                if (result.error) throw result.error;
+                return result;
+            });
 
             if (error) throw error;
 
@@ -192,26 +201,34 @@ export function useStats() {
         if (userId) {
             // Save to database
             try {
-                await (supabase
-                    .from('sessions') as any)
-                    .insert({
-                        user_id: userId,
-                        task_id: session.taskId,
-                        duration: session.duration,
-                        type: session.type,
-                        completed: session.completed,
-                        created_at: new Date(session.startedAt).toISOString(),
-                    });
+                await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('sessions') as any)
+                        .insert({
+                            user_id: userId,
+                            task_id: session.taskId,
+                            duration: session.duration,
+                            type: session.type,
+                            completed: session.completed,
+                            created_at: new Date(session.startedAt).toISOString(),
+                        });
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 // Update stats in database
                 if (session.completed && session.type === 'work') {
-                    await (supabase
-                        .from('stats') as any)
-                        .upsert({
-                            user_id: userId,
-                            total_focus_time: dbStats.totalFocusTime + Math.floor(session.duration / 60),
-                            total_sessions: dbStats.totalSessions + 1,
-                        }, { onConflict: 'user_id' });
+                    await retryWithBackoff(async () => {
+                        const result = await (supabaseClient
+                            .from('stats') as any)
+                            .upsert({
+                                user_id: userId,
+                                total_focus_time: dbStats.totalFocusTime + Math.floor(session.duration / 60),
+                                total_sessions: dbStats.totalSessions + 1,
+                            }, { onConflict: 'user_id' });
+                        if (result.error) throw result.error;
+                        return result;
+                    });
                 }
 
                 setCurrentSessions(prevSessions => [...prevSessions, session]);
@@ -248,13 +265,17 @@ export function useStats() {
         if (userId) {
             // Update in database
             try {
-                await (supabase
-                    .from('stats') as any)
-                    .upsert({
-                        user_id: userId,
-                        total_tasks: totalTasks,
-                        completed_tasks: completedTasks,
-                    }, { onConflict: 'user_id' });
+                await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('stats') as any)
+                        .upsert({
+                            user_id: userId,
+                            total_tasks: totalTasks,
+                            completed_tasks: completedTasks,
+                        }, { onConflict: 'user_id' });
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 setCurrentStats(prevStats => {
                     // Ne mettre à jour que si les valeurs ont changé
@@ -325,13 +346,13 @@ export function useStats() {
             .filter(s => s.completed && s.type === 'work' && s.startedAt)
             .map(s => {
                 const utcDate = new Date(s.startedAt);
-                return utcToZonedTime(utcDate, userTimezone);
+                return toZonedTime(utcDate, userTimezone);
             })
             .sort((a, b) => b.getTime() - a.getTime()); // Plus récent d'abord
 
         if (workSessions.length === 0) return 0;
 
-        const today = startOfDay(utcToZonedTime(new Date(), userTimezone));
+        const today = startOfDay(toZonedTime(new Date(), userTimezone));
         const mostRecentSession = startOfDay(workSessions[0]);
 
         // Si la session la plus récente est > 1 jour dans le passé, streak = 0

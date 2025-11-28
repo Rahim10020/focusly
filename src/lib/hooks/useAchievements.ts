@@ -8,7 +8,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Achievement } from '@/types';
-import { supabase } from '@/lib/supabase';
+import { supabaseClient } from '@/lib/supabase/client';
+import { retryWithBackoff } from '@/lib/utils/retry';
 
 /**
  * Predefined achievement definitions with targets and metadata.
@@ -234,7 +235,7 @@ export function useAchievements() {
     // Set Supabase auth session when user logs in
     useEffect(() => {
         if (session?.accessToken && session?.refreshToken) {
-            supabase.auth.setSession({
+            supabaseClient.auth.setSession({
                 access_token: session.accessToken,
                 refresh_token: session.refreshToken,
             }).catch((error: unknown) => {
@@ -273,10 +274,14 @@ export function useAchievements() {
 
         setLoading(true);
         try {
-            const { data, error } = await supabase
-                .from('achievements')
-                .select('*')
-                .eq('user_id', userId);
+            const { data, error } = await retryWithBackoff(async () => {
+                const result = await supabaseClient
+                    .from('achievements')
+                    .select('*')
+                    .eq('user_id', userId);
+                if (result.error) throw result.error;
+                return result;
+            });
 
             if (error || !data) throw error;
 
@@ -304,9 +309,9 @@ export function useAchievements() {
 
     // Helper function to ensure Supabase session is set
     const ensureSupabaseSession = async () => {
-        const { data: { session: supabaseSession } } = await supabase.auth.getSession();
+        const { data: { session: supabaseSession } } = await supabaseClient.auth.getSession();
         if (!supabaseSession && session?.accessToken && session?.refreshToken) {
-            await supabase.auth.setSession({
+            await supabaseClient.auth.setSession({
                 access_token: session.accessToken,
                 refresh_token: session.refreshToken,
             });
@@ -415,13 +420,17 @@ export function useAchievements() {
                         (async () => {
                             try {
                                 await ensureSupabaseSession();
-                                const { error } = await (supabase
-                                    .from('achievements') as any)
-                                    .upsert({
-                                        user_id: userId,
-                                        achievement_id: achievement.id,
-                                        unlocked_at: new Date().toISOString(),
-                                    }, { onConflict: 'user_id,achievement_id' });
+                                const { error } = await retryWithBackoff(async () => {
+                                    const result = await (supabaseClient
+                                        .from('achievements') as any)
+                                        .upsert({
+                                            user_id: userId,
+                                            achievement_id: achievement.id,
+                                            unlocked_at: new Date().toISOString(),
+                                        }, { onConflict: 'user_id,achievement_id' });
+                                    if (result.error) throw result.error;
+                                    return result;
+                                });
 
                                 if (error) {
                                     console.error('Error saving achievement to DB:', {
@@ -498,13 +507,17 @@ export function useAchievements() {
                         (async () => {
                             try {
                                 await ensureSupabaseSession();
-                                const { error } = await (supabase
-                                    .from('achievements') as any)
-                                    .upsert({
-                                        user_id: userId,
-                                        achievement_id: achievement.id,
-                                        unlocked_at: new Date().toISOString(),
-                                    }, { onConflict: 'user_id,achievement_id' });
+                                const { error } = await retryWithBackoff(async () => {
+                                    const result = await (supabaseClient
+                                        .from('achievements') as any)
+                                        .upsert({
+                                            user_id: userId,
+                                            achievement_id: achievement.id,
+                                            unlocked_at: new Date().toISOString(),
+                                        }, { onConflict: 'user_id,achievement_id' });
+                                    if (result.error) throw result.error;
+                                    return result;
+                                });
 
                                 if (error) {
                                     console.error('Error saving time-based achievement to DB:', {
@@ -539,13 +552,17 @@ export function useAchievements() {
                         (async () => {
                             try {
                                 await ensureSupabaseSession();
-                                const { error } = await (supabase
-                                    .from('achievements') as any)
-                                    .upsert({
-                                        user_id: userId,
-                                        achievement_id: achievement.id,
-                                        unlocked_at: new Date().toISOString(),
-                                    }, { onConflict: 'user_id,achievement_id' });
+                                const { error } = await retryWithBackoff(async () => {
+                                    const result = await (supabaseClient
+                                        .from('achievements') as any)
+                                        .upsert({
+                                            user_id: userId,
+                                            achievement_id: achievement.id,
+                                            unlocked_at: new Date().toISOString(),
+                                        }, { onConflict: 'user_id,achievement_id' });
+                                    if (result.error) throw result.error;
+                                    return result;
+                                });
 
                                 if (error) {
                                     console.error('Error saving time-based achievement to DB:', {

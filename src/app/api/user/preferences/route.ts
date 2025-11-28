@@ -9,8 +9,10 @@
 
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { authOptions } from '@/lib/auth';
+import { supabaseServerPool } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
+import { Cache } from '@/lib/cache';
 
 /**
  * User preferences request body.
@@ -83,23 +85,15 @@ export async function POST(request: Request) {
             );
         }
 
-        const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!,
-            {
-                auth: {
-                    autoRefreshToken: false,
-                    persistSession: false
-                }
-            }
-        );
+        // Use pooled server-side admin client with strict user validation
+        const supabaseAdmin = supabaseServerPool.getAdminClient();
 
-        // Mettre à jour ou insérer la préférence de thème
-        const { error } = await supabase
+        // Double-check: only update for authenticated user (never trust client input)
+        const { error } = await supabaseAdmin
             .from('user_preferences')
             .upsert(
                 {
-                    user_id: session.user.id,
+                    user_id: session.user.id, // Use session user ID, not request body
                     theme_preference: theme,
                     updated_at: new Date().toISOString()
                 },
@@ -107,13 +101,21 @@ export async function POST(request: Request) {
             );
 
         if (error) {
-            console.error('Error updating theme preference:', error);
+            logger.error('Error updating theme preference', error as Error, {
+                action: 'updateThemePreference',
+                userId: session.user.id
+            });
             throw error;
         }
 
+        // Invalidate cache for this user's preferences
+        await Cache.invalidate(`theme-preference:${session.user.id}`);
+
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Error in preferences API:', error);
+        logger.error('Error in preferences API', error as Error, {
+            action: 'preferencesAPI'
+        });
         return new NextResponse(
             JSON.stringify({ error: 'Failed to update preferences' }),
             { status: 500, headers: { 'Content-Type': 'application/json' } }

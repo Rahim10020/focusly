@@ -9,9 +9,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createClient } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
-import { Database } from '@/lib/supabase';
+import { supabaseClient } from '@/lib/supabase/client';
+import { supabaseServerPool } from '@/lib/supabase/server';
+import { Database } from '@/lib/supabase/database.types';
 import { withRateLimit } from '@/lib/rateLimit';
 import { Cache } from '@/lib/cache';
 import { logger } from '@/lib/logger';
@@ -142,41 +142,11 @@ async function getHandler(request: NextRequest) {
         const cacheKey = `leaderboard:${page}:${limit}`;
 
         const result = await Cache.getOrSet(cacheKey, async () => {
-            // 1. D'abord, s'assurer que tous les users avec stats ont un profil
-            const serviceSupabase = createClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.SUPABASE_SERVICE_ROLE_KEY!
-            );
+            // Use pooled server admin client for better performance
+            const supabaseAdmin = supabaseServerPool.getAdminClient();
 
-            // Fetch users avec stats mais sans profil
-            const { data: statsWithoutProfile } = await serviceSupabase
-                .rpc('get_users_missing_profiles'); // Créer cette function SQL
-
-            if (statsWithoutProfile && statsWithoutProfile.length > 0) {
-                const profilesToCreate = statsWithoutProfile.map((row: any) => ({
-                    id: row.user_id,
-                    username: null,
-                    avatar_url: null
-                }));
-
-                // Check existing profiles to avoid conflicts
-                const { data: existingProfiles } = await serviceSupabase
-                    .from('profiles')
-                    .select('id')
-                    .in('id', profilesToCreate.map((p: { id: string }) => p.id));
-
-                const existingIds = new Set(existingProfiles?.map((p: { id: string }) => p.id) || []);
-                const profilesToInsert = profilesToCreate.filter((p: { id: string }) => !existingIds.has(p.id));
-
-                if (profilesToInsert.length > 0) {
-                    await serviceSupabase
-                        .from('profiles')
-                        .insert(profilesToInsert);
-                }
-            }
-
-            // 2. Maintenant fetch avec pagination
-            const { count: totalCount, error: countError } = await supabase
+            // 1. Get total count
+            const { count: totalCount, error: countError } = await supabaseClient
                 .from('stats')
                 .select('*', { count: 'exact', head: true });
 
@@ -187,7 +157,8 @@ async function getHandler(request: NextRequest) {
                 throw new Error('Failed to fetch leaderboard count');
             }
 
-            const { data: statsData, error: statsError } = await supabase
+            // 2. Fetch stats with pagination
+            const { data: statsData, error: statsError } = await supabaseClient
                 .from('stats')
                 .select('user_id, total_sessions, completed_tasks, total_tasks, streak, total_focus_time, longest_streak')
                 .order('total_focus_time', { ascending: false })
@@ -217,8 +188,8 @@ async function getHandler(request: NextRequest) {
             // Get all user IDs from stats
             const userIds = typedStatsData.map(stat => stat.user_id);
 
-            // Fetch profiles (ils devraient tous exister maintenant)
-            const { data: profilesData, error: profilesError } = await supabase
+            // 3. Fetch profiles
+            const { data: profilesData, error: profilesError } = await supabaseClient
                 .from('profiles')
                 .select('id, username, avatar_url')
                 .in('id', userIds);
@@ -232,17 +203,12 @@ async function getHandler(request: NextRequest) {
 
             const typedProfilesData = (profilesData || []) as Database['public']['Tables']['profiles']['Row'][];
 
-            // Create profiles for users who have stats but no profile
+            // 4. Create missing profiles (using admin client)
             const usersWithStats = new Set(typedStatsData.map(stat => stat.user_id));
             const usersWithProfiles = new Set(typedProfilesData.map(profile => profile.id));
             const usersWithoutProfiles = Array.from(usersWithStats).filter(id => !usersWithProfiles.has(id));
 
             if (usersWithoutProfiles.length > 0) {
-                const serviceSupabase = createClient(
-                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                    process.env.SUPABASE_SERVICE_ROLE_KEY!
-                );
-
                 const profilesToCreate = usersWithoutProfiles.map(id => ({
                     id,
                     username: null,
@@ -250,7 +216,7 @@ async function getHandler(request: NextRequest) {
                 }));
 
                 // Check existing profiles to avoid conflicts
-                const { data: existingProfiles } = await serviceSupabase
+                const { data: existingProfiles } = await supabaseAdmin
                     .from('profiles')
                     .select('id')
                     .in('id', profilesToCreate.map((p: { id: string }) => p.id));
@@ -259,7 +225,7 @@ async function getHandler(request: NextRequest) {
                 const profilesToInsert = profilesToCreate.filter((p: { id: string }) => !existingIds.has(p.id));
 
                 if (profilesToInsert.length > 0) {
-                    const { error: createError } = await serviceSupabase
+                    const { error: createError } = await supabaseAdmin
                         .from('profiles')
                         .insert(profilesToInsert);
 
@@ -270,7 +236,7 @@ async function getHandler(request: NextRequest) {
                         });
                         // Continue without profiles for these users
                     } else {
-                        // Add created profiles to the map
+                        // Add created profiles to the array
                         profilesToInsert.forEach(profile => {
                             typedProfilesData.push(profile as Database['public']['Tables']['profiles']['Row']);
                         });
@@ -278,12 +244,12 @@ async function getHandler(request: NextRequest) {
                 }
             }
 
-            // Create a map of user_id -> profile for quick lookup
+            // 5. Create a map of user_id -> profile for quick lookup
             const profilesMap = new Map(
                 typedProfilesData.map(profile => [profile.id, profile])
             );
 
-            // Transform data to match expected structure
+            // 6. Transform data to match expected structure
             const transformedData = typedStatsData.map(stat => {
                 const profile = profilesMap.get(stat.user_id);
                 return {

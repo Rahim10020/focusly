@@ -11,7 +11,9 @@ import { useLocalStorage } from './useLocalStorage';
 import { Task, SubTask, Priority, SubDomain } from '@/types';
 import { CreateTaskInput } from '@/types/task-input';
 import { STORAGE_KEYS } from '@/lib/constants';
-import { supabase } from '@/lib/supabase';
+import { supabaseClient } from '@/lib/supabase/client';
+import { retryWithBackoff } from '@/lib/utils/retry';
+import { dateUtils } from '@/lib/utils/dateUtils';
 import { useToastContext } from '@/components/providers/ToastProvider';
 import { logger } from '@/lib/logger';
 
@@ -73,7 +75,7 @@ export function useTasks() {
     // Set Supabase auth session when user logs in
     useEffect(() => {
         if (session?.accessToken && session?.refreshToken) {
-            supabase.auth.setSession({
+            supabaseClient.auth.setSession({
                 access_token: session.accessToken,
                 refresh_token: session.refreshToken,
             });
@@ -97,41 +99,44 @@ export function useTasks() {
         setLoading(true);
         setError(null);
         try {
-            const { data: tasksData, error: tasksError } = await supabase
-                .from('tasks')
-                .select(`
-                    *,
-                    subtasks (*)
-                `)
-                .eq('user_id', userId)
-                .order('order', { ascending: true });
-                const { data: tasksData, error: tasksError } = await withTimeout(
-            tasksPromise,
-            10000, // 10 secondes
-            'Failed to load tasks: request timeout'
-        );
-
-        if (tasksError) throw tasksError;
-
-            // Get current versions for optimistic locking
-            const { data: versionsData, error: versionsError } = await supabase
-                .from('tasks')
-                .select('id, version')
-                .eq('user_id', userId);
+            const { data: tasksData, error: tasksError } = await retryWithBackoff(async () => {
+                const result = await supabaseClient
+                    .from('tasks')
+                    .select(`
+                        *,
+                        subtasks (*)
+                    `)
+                    .eq('user_id', userId)
+                    .order('order', { ascending: true });
+                if (result.error) throw result.error;
+                return result;
+            });
 
             if (tasksError) throw tasksError;
+
+            // Get current versions for optimistic locking
+            const { data: versionsData, error: versionsError } = await retryWithBackoff(async () => {
+                const result = await supabaseClient
+                    .from('tasks')
+                    .select('id, version')
+                    .eq('user_id', userId);
+                if (result.error) throw result.error;
+                return result;
+            });
+
+            if (versionsError) throw versionsError;
 
             const formattedTasks: Task[] = tasksData.map((dbTask: any) => ({
                 id: dbTask.id,
                 title: dbTask.title,
                 completed: dbTask.completed,
-                createdAt: new Date(dbTask.created_at).getTime(),
-                completedAt: dbTask.completed_at ? new Date(dbTask.completed_at).getTime() : undefined,
+                createdAt: dateUtils.toTimestamp(dbTask.created_at),
+                completedAt: dbTask.completed_at ? dateUtils.toTimestamp(dbTask.completed_at) : undefined,
                 pomodoroCount: dbTask.pomodoro_count,
                 priority: dbTask.priority as Priority,
                 tags: dbTask.tags || [],
-                dueDate: dbTask.due_date ? new Date(dbTask.due_date).getTime() : undefined,
-                startDate: dbTask.start_date ? new Date(dbTask.start_date).getTime() : undefined,
+                dueDate: dbTask.due_date ? dateUtils.toTimestamp(dbTask.due_date) : undefined,
+                startDate: dbTask.start_date ? dateUtils.toTimestamp(dbTask.start_date) : undefined,
                 startTime: dbTask.start_time,
                 endTime: dbTask.end_time,
                 estimatedDuration: dbTask.estimated_duration,
@@ -140,8 +145,8 @@ export function useTasks() {
                     id: st.id,
                     title: st.title,
                     completed: st.completed,
-                    createdAt: new Date(st.created_at).getTime(),
-                    completedAt: st.completed_at ? new Date(st.completed_at).getTime() : undefined,
+                    createdAt: dateUtils.toTimestamp(st.created_at),
+                    completedAt: st.completed_at ? dateUtils.toTimestamp(st.completed_at) : undefined,
                 })) || [],
                 order: dbTask.order,
                 subDomain: dbTask.sub_domain as SubDomain,
@@ -157,12 +162,6 @@ export function useTasks() {
             const errorMessage = error.message || 'Failed to load tasks from database';
             setError(errorMessage);
             showErrorToast('Failed to Load Tasks', errorMessage);
-            if (error.message?.includes('timeout')) {
-            setError('Database request timed out. Please try again.');
-            showErrorToast('Request timed out. Please refresh the page.');
-        } else {
-            setError(error.message);
-        }
         } finally {
             setLoading(false);
         }
@@ -218,11 +217,15 @@ export function useTasks() {
                     sub_domain: newTask.subDomain,
                 };
 
-                const { data, error } = await (supabase
-                    .from('tasks') as any)
-                    .insert(insertData)
-                    .select()
-                    .single();
+                const { data, error } = await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('tasks') as any)
+                        .insert(insertData)
+                        .select()
+                        .single();
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (error) throw error;
 
@@ -265,12 +268,16 @@ export function useTasks() {
         while (attempt < maxRetries) {
             try {
                 // 1. Fetch current version
-                const { data: currentTask, error: fetchError } = await supabase
-                    .from('tasks')
-                    .select('id, version')
-                    .eq('id', taskId)
-                    .eq('user_id', userId)
-                    .single();
+                const { data: currentTask, error: fetchError } = await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('tasks') as any)
+                        .select('id, version')
+                        .eq('id', taskId)
+                        .eq('user_id', userId)
+                        .single();
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (fetchError || !currentTask) {
                     throw fetchError || new Error('Task not found');
@@ -286,13 +293,17 @@ export function useTasks() {
                 };
 
                 // 3. Attempt update with version check
-                const { data: updatedTask, error: updateError } = await supabase
-                    .from('tasks')
-                    .update(taskUpdates)
-                    .eq('id', taskId)
-                    .eq('version', currentVersion)
-                    .select()
-                    .single();
+                const { data: updatedTask, error: updateError } = await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('tasks') as any)
+                        .update(taskUpdates)
+                        .eq('id', taskId)
+                        .eq('version', currentVersion)
+                        .select()
+                        .single();
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (updateError) {
                     // Check if it's a version conflict
@@ -314,7 +325,26 @@ export function useTasks() {
 
                 // Success - update local state
                 setCurrentTasks(prevTasks =>
-                    prevTasks.map(t => t.id === taskId ? formatTask(updatedTask) : t)
+                    prevTasks.map(t => t.id === taskId ? {
+                        id: updatedTask.id,
+                        title: updatedTask.title,
+                        completed: updatedTask.completed,
+                        createdAt: dateUtils.toTimestamp(updatedTask.created_at),
+                        completedAt: updatedTask.completed_at ? dateUtils.toTimestamp(updatedTask.completed_at) : undefined,
+                        pomodoroCount: updatedTask.pomodoro_count,
+                        priority: updatedTask.priority as Priority,
+                        tags: updatedTask.tags || [],
+                        dueDate: updatedTask.due_date ? dateUtils.toTimestamp(updatedTask.due_date) : undefined,
+                        startDate: updatedTask.start_date ? dateUtils.toTimestamp(updatedTask.start_date) : undefined,
+                        startTime: updatedTask.start_time,
+                        endTime: updatedTask.end_time,
+                        estimatedDuration: updatedTask.estimated_duration,
+                        notes: updatedTask.notes,
+                        subTasks: t.subTasks || [], // keep existing subtasks
+                        order: updatedTask.order,
+                        subDomain: updatedTask.sub_domain as SubDomain,
+                        version: updatedTask.version,
+                    } : t)
                 );
 
                 logger.info('Task updated successfully', {
@@ -327,7 +357,7 @@ export function useTasks() {
             } catch (error: any) {
                 lastError = error;
                 attempt++;
-                
+
                 if (attempt >= maxRetries) {
                     break;
                 }
@@ -340,7 +370,7 @@ export function useTasks() {
             taskId,
             attempts: maxRetries
         });
-        
+
         showErrorToast(
             'Failed to save changes. The task may have been modified elsewhere. Please refresh.'
         );
@@ -352,11 +382,15 @@ export function useTasks() {
         if (userId) {
             // Delete from database
             try {
-                const { error } = await supabase
-                    .from('tasks')
-                    .delete()
-                    .eq('id', id)
-                    .eq('user_id', userId);
+                const { error } = await retryWithBackoff(async () => {
+                    const result = await supabaseClient
+                        .from('tasks')
+                        .delete()
+                        .eq('id', id)
+                        .eq('user_id', userId);
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (error) throw error;
 
@@ -392,17 +426,21 @@ export function useTasks() {
         if (userId) {
             // Update in database with optimistic locking
             try {
-                const { data, error } = await (supabase
-                    .from('tasks') as any)
-                    .update({
-                        completed: newCompleted,
-                        completed_at: newCompleted ? new Date().toISOString() : null
-                    })
-                    .eq('id', id)
-                    .eq('user_id', userId)
-                    .eq('version', task.version || 1)
-                    .select('version')
-                    .single();
+                const { data, error } = await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('tasks') as any)
+                        .update({
+                            completed: newCompleted,
+                            completed_at: newCompleted ? new Date().toISOString() : null
+                        })
+                        .eq('id', id)
+                        .eq('user_id', userId)
+                        .eq('version', task.version || 1)
+                        .select('version')
+                        .single();
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (error) {
                     if (error.code === 'PGRST116') { // No rows updated - version conflict
@@ -466,14 +504,18 @@ export function useTasks() {
         if (userId) {
             // Update in database with optimistic locking
             try {
-                const { data, error } = await (supabase
-                    .from('tasks') as any)
-                    .update({ pomodoro_count: newCount })
-                    .eq('id', id)
-                    .eq('user_id', userId)
-                    .eq('version', task.version || 1)
-                    .select('version')
-                    .single();
+                const { data, error } = await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('tasks') as any)
+                        .update({ pomodoro_count: newCount })
+                        .eq('id', id)
+                        .eq('user_id', userId)
+                        .eq('version', task.version || 1)
+                        .select('version')
+                        .single();
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (error) {
                     if (error.code === 'PGRST116') { // No rows updated - version conflict
@@ -523,16 +565,20 @@ export function useTasks() {
         if (userId) {
             // Add to database
             try {
-                const { data, error } = await (supabase
-                    .from('subtasks') as any)
-                    .insert({
-                        task_id: taskId,
-                        title: newSubTask.title,
-                        completed: newSubTask.completed,
-                        created_at: new Date(newSubTask.createdAt).toISOString(),
-                    })
-                    .select()
-                    .single();
+                const { data, error } = await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('subtasks') as any)
+                        .insert({
+                            task_id: taskId,
+                            title: newSubTask.title,
+                            completed: newSubTask.completed,
+                            created_at: new Date(newSubTask.createdAt).toISOString(),
+                        })
+                        .select()
+                        .single();
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (error) throw error;
 
@@ -573,13 +619,17 @@ export function useTasks() {
         if (userId) {
             // Update in database
             try {
-                const { error } = await (supabase
-                    .from('subtasks') as any)
-                    .update({
-                        completed: newCompleted,
-                        completed_at: newCompleted ? new Date().toISOString() : null
-                    })
-                    .eq('id', subTaskId);
+                const { error } = await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('subtasks') as any)
+                        .update({
+                            completed: newCompleted,
+                            completed_at: newCompleted ? new Date().toISOString() : null
+                        })
+                        .eq('id', subTaskId);
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (error) throw error;
 
@@ -605,9 +655,9 @@ export function useTasks() {
                     ? {
                         ...task,
                         subTasks: (task.subTasks || []).map(st =>
-                          st.id === subTaskId
-                            ? { ...st, completed: newCompleted, completedAt: newCompleted ? Date.now() : undefined }
-                            : st
+                            st.id === subTaskId
+                                ? { ...st, completed: newCompleted, completedAt: newCompleted ? Date.now() : undefined }
+                                : st
                         )
                     }
                     : task
@@ -620,10 +670,14 @@ export function useTasks() {
         if (userId) {
             // Delete from database
             try {
-                const { error } = await (supabase
-                    .from('subtasks') as any)
-                    .delete()
-                    .eq('id', subTaskId);
+                const { error } = await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('subtasks') as any)
+                        .delete()
+                        .eq('id', subTaskId);
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (error) throw error;
 
@@ -669,11 +723,15 @@ export function useTasks() {
                 // Update all tasks in parallel for better performance
                 await Promise.all(
                     updates.map(update =>
-                        (supabase
-                            .from('tasks') as any)
-                            .update({ order: update.order })
-                            .eq('id', update.id)
-                            .eq('user_id', userId)
+                        retryWithBackoff(async () => {
+                            const result = await (supabaseClient
+                                .from('tasks') as any)
+                                .update({ order: update.order })
+                                .eq('id', update.id)
+                                .eq('user_id', userId);
+                            if (result.error) throw result.error;
+                            return result;
+                        })
                     )
                 );
 

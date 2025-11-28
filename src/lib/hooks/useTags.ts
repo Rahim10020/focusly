@@ -8,7 +8,8 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Tag } from '@/types';
-import { supabase } from '@/lib/supabase';
+import { supabaseClient } from '@/lib/supabase/client';
+import { retryWithBackoff } from '@/lib/utils/retry';
 
 /**
  * Default tags provided for new users.
@@ -55,7 +56,7 @@ export function useTags() {
     // Set Supabase auth session when user logs in
     useEffect(() => {
         if (session?.accessToken && session?.refreshToken) {
-            supabase.auth.setSession({
+            supabaseClient.auth.setSession({
                 access_token: session.accessToken,
                 refresh_token: session.refreshToken,
             });
@@ -77,11 +78,15 @@ export function useTags() {
         if (!userId) return;
 
         try {
-            const { data, error } = await supabase
-                .from('tags')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: true });
+            const { data, error } = await retryWithBackoff(async () => {
+                const result = await supabaseClient
+                    .from('tags')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: true });
+                if (result.error) throw result.error;
+                return result;
+            });
 
             if (error) throw error;
 
@@ -115,17 +120,21 @@ export function useTags() {
         if (userId) {
             // Save to database
             try {
-                const { data, error } = await (supabase
-                    .from('tags') as any)
-                    .insert({
-                        id: newTag.id,
-                        user_id: userId,
-                        name: newTag.name,
-                        color: newTag.color,
-                        created_at: new Date(newTag.createdAt).toISOString(),
-                    })
-                    .select()
-                    .single();
+                const { data, error } = await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('tags') as any)
+                        .insert({
+                            id: newTag.id,
+                            user_id: userId,
+                            name: newTag.name,
+                            color: newTag.color,
+                            created_at: new Date(newTag.createdAt).toISOString(),
+                        })
+                        .select()
+                        .single();
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (error) throw error;
 
@@ -146,14 +155,18 @@ export function useTags() {
         if (userId) {
             // Update in database
             try {
-                const { error } = await (supabase
-                    .from('tags') as any)
-                    .update({
-                        name: updates.name,
-                        color: updates.color,
-                    })
-                    .eq('id', id)
-                    .eq('user_id', userId);
+                const { error } = await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('tags') as any)
+                        .update({
+                            name: updates.name,
+                            color: updates.color,
+                        })
+                        .eq('id', id)
+                        .eq('user_id', userId);
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (error) throw error;
 
@@ -172,11 +185,15 @@ export function useTags() {
         if (userId) {
             // Delete from database
             try {
-                const { error } = await (supabase
-                    .from('tags') as any)
-                    .delete()
-                    .eq('id', id)
-                    .eq('user_id', userId);
+                const { error } = await retryWithBackoff(async () => {
+                    const result = await (supabaseClient
+                        .from('tags') as any)
+                        .delete()
+                        .eq('id', id)
+                        .eq('user_id', userId);
+                    if (result.error) throw result.error;
+                    return result;
+                });
 
                 if (error) throw error;
 
