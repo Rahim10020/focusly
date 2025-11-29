@@ -88,6 +88,20 @@ export interface Task {
     /** Whether the reminder notification has been sent */
     reminderSent?: boolean;
 
+    // Recurrence fields
+    /** Whether the task repeats automatically */
+    isRecurring?: boolean;
+    /** Recurrence pattern: daily, weekly, monthly, or custom */
+    recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom';
+    /** Recurrence interval (e.g., every 2 days) */
+    recurrenceInterval?: number;
+    /** Days of the week for custom recurrence (0=Sunday, 6=Saturday) */
+    recurrenceDaysOfWeek?: number[];
+    /** End date for recurrence (optional) */
+    recurrenceEndDate?: string;
+    /** ID of the parent recurring task */
+    parentRecurringTaskId?: string;
+
     // Metadata for UI
     /** Quick check flag indicating if task has child tasks */
     hasChildren?: boolean;

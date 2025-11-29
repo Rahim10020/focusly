@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Header from '@/components/layout/Header';
-import TaskModal, { TaskFormData } from '@/components/tasks/TaskModal';
+import TaskModal, { TaskFormData } from '@/components/tasks/TaskModalRefactored';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useTags } from '@/lib/hooks/useTags';
 

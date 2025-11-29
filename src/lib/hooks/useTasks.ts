@@ -5,7 +5,7 @@
  * tags, and drag-and-drop reordering.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Task, SubTask, Priority, SubDomain } from '@/types';
@@ -16,6 +16,7 @@ import { retryWithBackoff } from '@/lib/utils/retry';
 import { dateUtils } from '@/lib/utils/dateUtils';
 import { useToastContext } from '@/components/providers/ToastProvider';
 import { logger } from '@/lib/logger';
+import { debounce } from '@/lib/utils/debounce';
 
 /**
  * Hook for managing tasks with full CRUD operations.
@@ -70,6 +71,10 @@ export function useTasks() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Refs pour le debouncing
+    const debouncedUpdateRef = useRef<any>(null);
+    const pendingUpdatesRef = useRef<Map<string, Partial<Task>>>(new Map());
+
     const getUserId = () => session?.user?.id;
 
     // Set Supabase auth session when user logs in
@@ -81,6 +86,62 @@ export function useTasks() {
             });
         }
     }, [session]);
+
+    // Créer la fonction debouncée pour les mises à jour
+    useEffect(() => {
+        debouncedUpdateRef.current = debounce(
+            async (taskId: string, updates: Partial<Task>) => {
+                const userId = getUserId();
+                if (!userId) return;
+
+                try {
+                    // Map camelCase fields to snake_case
+                    const fieldMapping: Record<string, string> = {
+                        completedAt: 'completed_at',
+                        pomodoroCount: 'pomodoro_count',
+                        dueDate: 'due_date',
+                        startDate: 'start_date',
+                        estimatedDuration: 'estimated_duration',
+                        startTime: 'start_time',
+                        endTime: 'end_time',
+                        subDomain: 'sub_domain',
+                    };
+
+                    const dbUpdates: any = {};
+                    for (const [key, value] of Object.entries(updates)) {
+                        if (key === 'status') continue; // Skip status field
+                        const dbKey = fieldMapping[key] || key;
+                        if (['completed_at', 'due_date', 'start_date'].includes(dbKey) && value !== null && value !== undefined) {
+                            dbUpdates[dbKey] = new Date(value as number).toISOString();
+                        } else {
+                            dbUpdates[dbKey] = value;
+                        }
+                    }
+
+                    const { error } = await (supabaseClient
+                        .from('tasks') as any)
+                        .update({ ...dbUpdates, updated_at: new Date().toISOString() })
+                        .eq('id', taskId)
+                        .eq('user_id', userId);
+
+                    if (error) throw error;
+
+                    // Supprimer des mises à jour en attente
+                    pendingUpdatesRef.current.delete(taskId);
+                } catch (err) {
+                    console.error('Error updating task:', err);
+                    // Rollback sur erreur
+                    loadTasksFromDB();
+                }
+            },
+            1000,
+            { leading: false, trailing: true }
+        );
+
+        return () => {
+            debouncedUpdateRef.current?.cancel();
+        };
+    }, [session?.user?.id]);
 
     const loadTasksFromDB = useCallback(async () => {
         const userId = getUserId();
@@ -254,41 +315,53 @@ export function useTasks() {
         maxRetries: number = 3
     ): Promise<void> => {
         const userId = getUserId();
+
+        // Optimistic update (mise à jour locale immédiate)
+        const oldTasks = currentTasks;
+        setCurrentTasks(prevTasks =>
+            prevTasks.map(t => t.id === taskId ? { ...t, ...updates } : t)
+        );
+
+        if (!userId) {
+            // Update local only
+            return;
+        }
+
+        // Sauvegarder les mises à jour en attente pour rollback potentiel
+        pendingUpdatesRef.current.set(taskId, { ...pendingUpdatesRef.current.get(taskId), ...updates });
+
+        // Appeler la version debouncée
+        try {
+            await debouncedUpdateRef.current?.(taskId, updates);
+        } catch (err) {
+            // Rollback en cas d'erreur
+            setCurrentTasks(oldTasks);
+            showErrorToast('Failed to save changes. Please try again.');
+            throw err;
+        }
+    };
+
+    /**
+     * Update multiple tasks in a single batch operation
+     * Resolves N+1 query problem by using upsert
+     * @param updates - Array of task updates with id and partial task data
+     */
+    const updateMultipleTasks = async (updates: Array<{ id: string; updates: Partial<Task> }>) => {
+        const userId = getUserId();
         if (!userId) {
             // Update local only
             setCurrentTasks(prevTasks =>
-                prevTasks.map(t => t.id === taskId ? { ...t, ...updates } : t)
+                prevTasks.map(task => {
+                    const update = updates.find(u => u.id === task.id);
+                    return update ? { ...task, ...update.updates } : task;
+                })
             );
             return;
         }
 
-        let attempt = 0;
-        let lastError: any;
-
-        while (attempt < maxRetries) {
-            try {
-                // 1. Fetch current version
-                const { data: currentTask, error: fetchError } = await retryWithBackoff(async () => {
-                    const result = await (supabaseClient
-                        .from('tasks') as any)
-                        .select('id, version')
-                        .eq('id', taskId)
-                        .eq('user_id', userId)
-                        .single();
-                    if (result.error) throw result.error;
-                    return result;
-                });
-
-                if (fetchError || !currentTask) {
-                    throw fetchError || new Error('Task not found');
-                }
-
-                const currentVersion = currentTask.version || 1;
-
-                // 2. Prepare updates - exclude status field and map camelCase to snake_case
-                const { status, ...updatesToMap } = updates;
-
-                // Map camelCase fields to snake_case for database
+        try {
+            // Map updates to database format
+            const dbUpdates = updates.map(({ id, updates: taskUpdates }) => {
                 const fieldMapping: Record<string, string> = {
                     completedAt: 'completed_at',
                     pomodoroCount: 'pomodoro_count',
@@ -300,106 +373,41 @@ export function useTasks() {
                     subDomain: 'sub_domain',
                 };
 
-                const dbUpdates: any = {};
-                for (const [key, value] of Object.entries(updatesToMap)) {
+                const dbUpdate: any = { id, user_id: userId };
+                for (const [key, value] of Object.entries(taskUpdates)) {
+                    if (key === 'status') continue;
                     const dbKey = fieldMapping[key] || key;
-                    // Convert timestamp fields to ISO strings for PostgreSQL
                     if (['completed_at', 'due_date', 'start_date'].includes(dbKey) && value !== null && value !== undefined) {
-                        dbUpdates[dbKey] = new Date(value as number).toISOString();
+                        dbUpdate[dbKey] = new Date(value as number).toISOString();
                     } else {
-                        dbUpdates[dbKey] = value;
+                        dbUpdate[dbKey] = value;
                     }
                 }
+                return dbUpdate;
+            });
 
-                const taskUpdates: any = {
-                    ...dbUpdates,
-                    version: currentVersion + 1,
-                    updated_at: new Date().toISOString(),
-                };
+            const { error } = await (supabaseClient
+                .from('tasks') as any)
+                .upsert(dbUpdates, { onConflict: 'id' });
 
-                // 3. Attempt update with version check
-                const { data: updatedTask, error: updateError } = await retryWithBackoff(async () => {
-                    const result = await (supabaseClient
-                        .from('tasks') as any)
-                        .update(taskUpdates)
-                        .eq('id', taskId)
-                        .eq('version', currentVersion)
-                        .select()
-                        .single();
-                    if (result.error) throw result.error;
-                    return result;
-                });
+            if (error) throw error;
 
-                if (updateError) {
-                    // Check if it's a version conflict
-                    if (updateError.code === 'PGRST116' || updateError.message?.includes('version')) {
-                        lastError = new Error('Version conflict');
-                        attempt++;
-                        logger.warn('Version conflict, retrying...', {
-                            action: 'updateTask',
-                            taskId,
-                            attempt,
-                            currentVersion
-                        });
-                        // Exponential backoff
-                        await new Promise(resolve => setTimeout(resolve, 100 * Math.pow(2, attempt)));
-                        continue;
-                    }
-                    throw updateError;
-                }
-
-                // Success - update local state
-                setCurrentTasks(prevTasks =>
-                    prevTasks.map(t => t.id === taskId ? {
-                        id: updatedTask.id,
-                        title: updatedTask.title,
-                        completed: updatedTask.completed,
-                        createdAt: dateUtils.toTimestamp(updatedTask.created_at),
-                        completedAt: updatedTask.completed_at ? dateUtils.toTimestamp(updatedTask.completed_at) : undefined,
-                        pomodoroCount: updatedTask.pomodoro_count,
-                        priority: updatedTask.priority as Priority,
-                        tags: updatedTask.tags || [],
-                        dueDate: updatedTask.due_date ? dateUtils.toTimestamp(updatedTask.due_date) : undefined,
-                        startDate: updatedTask.start_date ? dateUtils.toTimestamp(updatedTask.start_date) : undefined,
-                        startTime: updatedTask.start_time,
-                        endTime: updatedTask.end_time,
-                        estimatedDuration: updatedTask.estimated_duration,
-                        notes: updatedTask.notes,
-                        subTasks: t.subTasks || [], // keep existing subtasks
-                        order: updatedTask.order,
-                        subDomain: updatedTask.sub_domain as SubDomain,
-                        version: updatedTask.version,
-                    } : t)
-                );
-
-                logger.info('Task updated successfully', {
-                    action: 'updateTask',
-                    taskId,
-                    attempt: attempt + 1
-                });
-                return;
-
-            } catch (error: any) {
-                lastError = error;
-                attempt++;
-
-                if (attempt >= maxRetries) {
-                    break;
-                }
-            }
+            // Update local state
+            setCurrentTasks(prevTasks =>
+                prevTasks.map(task => {
+                    const update = updates.find(u => u.id === task.id);
+                    return update ? { ...task, ...update.updates } : task;
+                })
+            );
+        } catch (error: any) {
+            logger.error('Error batch updating tasks', error, {
+                action: 'updateMultipleTasks',
+                userId: getUserId(),
+                count: updates.length
+            });
+            showErrorToast('Failed to save changes');
+            throw error;
         }
-
-        // All retries failed
-        logger.error('Failed to update task after retries', lastError, {
-            action: 'updateTask',
-            taskId,
-            attempts: maxRetries
-        });
-
-        showErrorToast(
-            'Failed to save changes. The task may have been modified elsewhere. Please refresh.'
-        );
-        throw lastError;
     };
 
     const deleteTask = async (id: string) => {
@@ -842,6 +850,7 @@ export function useTasks() {
         error,
         addTask,
         updateTask,
+        updateMultipleTasks,
         deleteTask,
         toggleTask,
         incrementPomodoro,
