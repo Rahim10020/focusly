@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Task, Tag, DOMAINS, getDomainFromSubDomain } from '@/types';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
@@ -69,7 +69,7 @@ interface TaskItemProps {
  *   onDeleteSubTask={(taskId, subTaskId) => deleteSubTask(taskId, subTaskId)}
  * />
  */
-export default function TaskItem({
+function TaskItem({
     task,
     isActive,
     tags,
@@ -349,3 +349,6 @@ export default function TaskItem({
         </>
     );
 }
+
+// Export memoized version to prevent unnecessary re-renders
+export default memo(TaskItem);

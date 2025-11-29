@@ -4,7 +4,7 @@
  * @module lib/rateLimit
  */
 
-import { supabase } from './supabase';
+import { supabaseClient as supabase } from './supabase/client';
 import { logger } from './logger';
 
 /**

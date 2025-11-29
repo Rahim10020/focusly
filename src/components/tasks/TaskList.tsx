@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Task, Tag } from '@/types';
 import { isToday, isTomorrow } from '@/lib/utils/time';
 import Button from '@/components/ui/Button';
@@ -72,7 +72,7 @@ type SortType = 'default' | 'alphabetical' | 'createdAt' | 'priority';
  *   onReorder={handleReorder}
  * />
  */
-export default function TaskList({
+function TaskList({
     tasks,
     activeTaskId,
     tags,
@@ -232,3 +232,6 @@ export default function TaskList({
         </div>
     );
 }
+
+// Export memoized version to prevent unnecessary re-renders
+export default memo(TaskList);
