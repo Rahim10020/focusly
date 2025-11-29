@@ -285,9 +285,29 @@ export function useTasks() {
 
                 const currentVersion = currentTask.version || 1;
 
-                // 2. Prepare updates
+                // 2. Prepare updates - exclude status field and map camelCase to snake_case
+                const { status, ...updatesToMap } = updates;
+
+                // Map camelCase fields to snake_case for database
+                const fieldMapping: Record<string, string> = {
+                    completedAt: 'completed_at',
+                    pomodoroCount: 'pomodoro_count',
+                    dueDate: 'due_date',
+                    startDate: 'start_date',
+                    estimatedDuration: 'estimated_duration',
+                    startTime: 'start_time',
+                    endTime: 'end_time',
+                    subDomain: 'sub_domain',
+                };
+
+                const dbUpdates: any = {};
+                for (const [key, value] of Object.entries(updatesToMap)) {
+                    const dbKey = fieldMapping[key] || key;
+                    dbUpdates[dbKey] = value;
+                }
+
                 const taskUpdates: any = {
-                    ...updates,
+                    ...dbUpdates,
                     version: currentVersion + 1,
                     updated_at: new Date().toISOString(),
                 };
