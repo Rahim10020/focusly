@@ -114,34 +114,36 @@ async function getHandler(
 
         // If viewing own profile, show all stats
         if (viewerId === userId) {
-            const { data, error } = await supabaseAdmin
+            const { data: profileData, error: profileError } = await supabaseAdmin
                 .from('profiles')
-                .select(`
-                id,
-                username,
-                avatar_url,
-                stats (
-                  total_sessions,
-                  completed_tasks,
-                  total_tasks,
-                  streak,
-                  total_focus_time,
-                  longest_streak,
-                  tasks_completed_today
-                )
-              `)
+                .select('id, username, avatar_url')
                 .eq('id', userId)
                 .single();
 
-            if (error) {
-                logger.error('Error fetching user stats', error as Error, {
-                    action: 'getUserStatsOwn',
+            const { data: statsData, error: statsError } = await supabaseAdmin
+                .from('stats')
+                .select('total_sessions, completed_tasks, total_tasks, streak, total_focus_time, longest_streak, tasks_completed_today')
+                .eq('user_id', userId)
+                .single();
+
+            if (profileError || !profileData) {
+                logger.error('Error fetching user profile', profileError as Error, {
+                    action: 'getUserProfileOwn',
                     userId
                 });
                 return NextResponse.json({ error: 'User not found' }, { status: 404 });
             }
 
-            return NextResponse.json({ ...(data as any), isFriend: true }); // Own profile, consider as friend
+            if (statsError) {
+                logger.error('Error fetching user stats', statsError as Error, {
+                    action: 'getUserStatsOwn',
+                    userId
+                });
+                return NextResponse.json({ error: 'User stats not found' }, { status: 404 });
+            }
+
+            const data = { ...(profileData as any), stats: statsData };
+            return NextResponse.json({ ...data, isFriend: true }); // Own profile, consider as friend
         }
 
         // Check if viewer is a friend
@@ -167,35 +169,37 @@ async function getHandler(
         );
 
         // Get profile and stats
-        const { data, error } = await supabaseAdmin
+        const { data: profileData, error: profileError } = await supabaseAdmin
             .from('profiles')
-            .select(`
-            id,
-            username,
-            avatar_url,
-            stats (
-              total_sessions,
-              completed_tasks,
-              total_tasks,
-              streak,
-              total_focus_time,
-              longest_streak,
-              tasks_completed_today
-            )
-          `)
+            .select('id, username, avatar_url')
             .eq('id', userId)
             .single();
 
-        if (error || !data) {
-            logger.error('Error fetching user stats', error as Error, {
-                action: 'getUserStats',
+        const { data: statsData, error: statsError } = await supabaseAdmin
+            .from('stats')
+            .select('total_sessions, completed_tasks, total_tasks, streak, total_focus_time, longest_streak, tasks_completed_today')
+            .eq('user_id', userId)
+            .single();
+
+        if (profileError || !profileData) {
+            logger.error('Error fetching user profile', profileError as Error, {
+                action: 'getUserProfile',
                 userId,
                 viewerId
             });
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        const userData = data as { id: string; username: string | null; avatar_url: string | null; stats: Record<string, any> | null };
+        if (statsError) {
+            logger.error('Error fetching user stats', statsError as Error, {
+                action: 'getUserStats',
+                userId,
+                viewerId
+            });
+            return NextResponse.json({ error: 'User stats not found' }, { status: 404 });
+        }
+
+        const userData = { ...(profileData as any), stats: statsData } as { id: string; username: string | null; avatar_url: string | null; stats: Record<string, any> | null };
 
         // Filter stats based on visibility
         if (userData.stats && !isFriend) {
