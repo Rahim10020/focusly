@@ -66,6 +66,46 @@ export function usePomodoro(options: UsePomodoroOptions) {
     const [initialTimeLeft, setInitialTimeLeft] = useState(settings.workDuration);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+    const handleSessionComplete = useCallback(() => {
+        const completed = timeLeft === 0;
+        const session: PomodoroSession = {
+            id: `session-${Date.now()}`,
+            type: sessionType,
+            duration: initialTimeLeft,
+            completed,
+            startedAt: currentSessionStart || Date.now(),
+            completedAt: completed ? Date.now() : undefined,
+            taskId: activeTaskId || undefined,
+        };
+
+        onSessionComplete?.(session);
+
+        // Call specific callbacks
+        if (sessionType === 'work') {
+            onWorkComplete?.();
+        } else {
+            onBreakComplete?.();
+        }
+
+        setStatus('idle');
+        setCurrentSessionStart(null);
+
+        if (sessionType === 'work') {
+            const newCompletedCycles = completedCycles + 1;
+            setCompletedCycles(newCompletedCycles);
+
+            const isLongBreak = newCompletedCycles % settings.cyclesBeforeLongBreak === 0;
+            setSessionType('break');
+            const breakDuration = isLongBreak ? settings.longBreakDuration : settings.shortBreakDuration;
+            setTimeLeft(breakDuration);
+            setInitialTimeLeft(breakDuration);
+        } else {
+            setSessionType('work');
+            setTimeLeft(settings.workDuration);
+            setInitialTimeLeft(settings.workDuration);
+        }
+    }, [timeLeft, sessionType, initialTimeLeft, currentSessionStart, activeTaskId, onSessionComplete, onWorkComplete, onBreakComplete, settings, completedCycles]);
+
     // Update timeLeft when settings change and timer is idle
     useEffect(() => {
         if (status === 'idle') {
@@ -114,46 +154,6 @@ export function usePomodoro(options: UsePomodoroOptions) {
             return () => clearTimeout(timeoutId);
         }
     }, [status, sessionType, settings.autoStartBreaks, settings.autoStartPomodoros, completedCycles]);
-
-    const handleSessionComplete = useCallback(() => {
-        const completed = timeLeft === 0;
-        const session: PomodoroSession = {
-            id: `session-${Date.now()}`,
-            type: sessionType,
-            duration: initialTimeLeft,
-            completed,
-            startedAt: currentSessionStart || Date.now(),
-            completedAt: completed ? Date.now() : undefined,
-            taskId: activeTaskId || undefined,
-        };
-
-        onSessionComplete?.(session);
-
-        // Call specific callbacks
-        if (sessionType === 'work') {
-            onWorkComplete?.();
-        } else {
-            onBreakComplete?.();
-        }
-
-        setStatus('idle');
-        setCurrentSessionStart(null);
-
-        if (sessionType === 'work') {
-            const newCompletedCycles = completedCycles + 1;
-            setCompletedCycles(newCompletedCycles);
-
-            const isLongBreak = newCompletedCycles % settings.cyclesBeforeLongBreak === 0;
-            setSessionType('break');
-            const breakDuration = isLongBreak ? settings.longBreakDuration : settings.shortBreakDuration;
-            setTimeLeft(breakDuration);
-            setInitialTimeLeft(breakDuration);
-        } else {
-            setSessionType('work');
-            setTimeLeft(settings.workDuration);
-            setInitialTimeLeft(settings.workDuration);
-        }
-    }, [timeLeft, sessionType, initialTimeLeft, currentSessionStart, activeTaskId, onSessionComplete, onWorkComplete, onBreakComplete, settings, completedCycles]);
 
     const start = useCallback(() => {
         setStatus('running');
