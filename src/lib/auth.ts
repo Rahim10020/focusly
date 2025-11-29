@@ -121,7 +121,7 @@ export const authOptions: NextAuthOptions = {
                             token.accessToken = data.session.access_token;
                             token.refreshToken = data.session.refresh_token;
                             token.expiresAt = Date.now() + 60 * 60 * 1000;
-                            
+
                             logger.info('Token refreshed successfully', {
                                 action: 'tokenRefresh',
                                 userId: token.id
@@ -175,7 +175,7 @@ export const authOptions: NextAuthOptions = {
                             .eq('user_id', token.id)
                             .single();
 
-                        session.user.theme = prefData?.theme_preference || 'light';
+                        session.user.themePreference = prefData?.theme_preference || 'light';
                     } catch (error) {
                         console.error('Error fetching theme preference:', error);
                     }

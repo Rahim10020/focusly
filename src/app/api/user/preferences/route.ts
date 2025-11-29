@@ -89,8 +89,8 @@ export async function POST(request: Request) {
         const supabaseAdmin = supabaseServerPool.getAdminClient();
 
         // Double-check: only update for authenticated user (never trust client input)
-        const { error } = await supabaseAdmin
-            .from('user_preferences')
+        const { error } = await (supabaseAdmin
+            .from('user_preferences') as any)
             .upsert(
                 {
                     user_id: session.user.id, // Use session user ID, not request body
