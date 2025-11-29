@@ -303,7 +303,12 @@ export function useTasks() {
                 const dbUpdates: any = {};
                 for (const [key, value] of Object.entries(updatesToMap)) {
                     const dbKey = fieldMapping[key] || key;
-                    dbUpdates[dbKey] = value;
+                    // Convert timestamp fields to ISO strings for PostgreSQL
+                    if (['completed_at', 'due_date', 'start_date'].includes(dbKey) && value !== null && value !== undefined) {
+                        dbUpdates[dbKey] = new Date(value as number).toISOString();
+                    } else {
+                        dbUpdates[dbKey] = value;
+                    }
                 }
 
                 const taskUpdates: any = {
