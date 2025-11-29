@@ -10,12 +10,22 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
-import CalendarView from '@/components/calendar/CalendarView';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useTags } from '@/lib/hooks/useTags';
 import { Task } from '@/types';
 import TaskDetailsModal from '@/components/tasks/TaskDetailsModal';
+
+// Lazy load CalendarView for better performance
+const CalendarView = dynamic(() => import('@/components/calendar/CalendarView'), {
+    ssr: false,
+    loading: () => (
+        <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+    ),
+});
 
 /**
  * Calendar page component that displays tasks in a monthly calendar layout.

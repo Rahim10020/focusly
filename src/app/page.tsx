@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -196,26 +196,26 @@ export default function Home() {
     }
   }, [currentStats, checkAchievements]);
 
-  // Task handlers - redirect to dedicated task page
-  const handleQuickAddTask = (title: string) => {
+  // Task handlers - redirect to dedicated task page - Memoized to avoid re-renders
+  const handleQuickAddTask = useCallback((title: string) => {
     addTask({ title });
-  };
+  }, [addTask]);
 
-  const handleCreateTask = () => {
+  const handleCreateTask = useCallback(() => {
     router.push('/create-task');
-  };
+  }, [router]);
 
-  const handleEditTask = (task: Task) => {
+  const handleEditTask = useCallback((task: Task) => {
     router.push(`/task/${task.id}`);
-  };
+  }, [router]);
 
-  const handlePomodoroComplete = (taskId: string) => {
+  const handlePomodoroComplete = useCallback((taskId: string) => {
     incrementPomodoro(taskId);
     const hour = new Date().getHours();
     checkTimeBasedAchievements(hour);
-  };
+  }, [incrementPomodoro, checkTimeBasedAchievements]);
 
-  const handleSessionComplete = async (session: any) => {
+  const handleSessionComplete = useCallback(async (session: any) => {
     // Ajouter la session
     await addSession(session);
 
@@ -232,17 +232,21 @@ export default function Home() {
       streak: stats.streak,
       todayFocusMinutes,
     });
-  };
+  }, [addSession, refreshStats, getTodayFocusTime, checkAchievements, stats.totalSessions, stats.completedTasks, stats.streak]);
 
-  const imminentTasks = getImminentTasks(tasks);
-  const totalActiveTasks = tasks.filter(task => !task.completed).length;
+  // Memoize expensive computations
+  const imminentTasks = useMemo(() => getImminentTasks(tasks), [tasks]);
+  const totalActiveTasks = useMemo(() => tasks.filter(task => !task.completed).length, [tasks]);
   const hasMoreTasksThanDisplayed = totalActiveTasks > imminentTasks.length;
 
-  // Get recently completed tasks (last 5)
-  const completedTasks = tasks
-    .filter(task => task.completed)
-    .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0))
-    .slice(0, 5);
+  // Get recently completed tasks (last 5) - Memoized
+  const completedTasks = useMemo(() =>
+    tasks
+      .filter(task => task.completed)
+      .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0))
+      .slice(0, 5),
+    [tasks]
+  );
 
   // Use theme from context
   const { toggleTheme } = useTheme();

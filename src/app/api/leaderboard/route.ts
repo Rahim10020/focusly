@@ -9,7 +9,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { supabaseClient } from '@/lib/supabase/client';
 import { supabaseServerPool } from '@/lib/supabase/server';
 import { Database } from '@/lib/supabase/database.types';
 import { withRateLimit } from '@/lib/rateLimit';
@@ -146,7 +145,7 @@ async function getHandler(request: NextRequest) {
             const supabaseAdmin = supabaseServerPool.getAdminClient();
 
             // 1. Get total count
-            const { count: totalCount, error: countError } = await supabaseClient
+            const { count: totalCount, error: countError } = await supabaseAdmin
                 .from('stats')
                 .select('*', { count: 'exact', head: true });
 
@@ -158,7 +157,7 @@ async function getHandler(request: NextRequest) {
             }
 
             // 2. Fetch stats with pagination
-            const { data: statsData, error: statsError } = await supabaseClient
+            const { data: statsData, error: statsError } = await supabaseAdmin
                 .from('stats')
                 .select('user_id, total_sessions, completed_tasks, total_tasks, streak, total_focus_time, longest_streak')
                 .order('total_focus_time', { ascending: false })
@@ -189,7 +188,7 @@ async function getHandler(request: NextRequest) {
             const userIds = typedStatsData.map(stat => stat.user_id);
 
             // 3. Fetch profiles
-            const { data: profilesData, error: profilesError } = await supabaseClient
+            const { data: profilesData, error: profilesError } = await supabaseAdmin
                 .from('profiles')
                 .select('id, username, avatar_url')
                 .in('id', userIds);

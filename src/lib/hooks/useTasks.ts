@@ -5,7 +5,7 @@
  * tags, and drag-and-drop reordering.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Task, SubTask, Priority, SubDomain } from '@/types';
@@ -82,17 +82,7 @@ export function useTasks() {
         }
     }, [session]);
 
-    // Load tasks from database when user logs in
-    useEffect(() => {
-        const userId = getUserId();
-        if (userId) {
-            loadTasksFromDB();
-        } else {
-            setDbTasks([]);
-        }
-    }, [session?.user?.id]);
-
-    const loadTasksFromDB = async () => {
+    const loadTasksFromDB = useCallback(async () => {
         const userId = getUserId();
         if (!userId) return;
 
@@ -165,7 +155,17 @@ export function useTasks() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [showErrorToast]);
+
+    // Load tasks from database when user logs in
+    useEffect(() => {
+        const userId = getUserId();
+        if (userId) {
+            loadTasksFromDB();
+        } else {
+            setDbTasks([]);
+        }
+    }, [session?.user?.id, loadTasksFromDB]);
 
     const currentTasks = getUserId() ? dbTasks : tasks;
     const setCurrentTasks = getUserId() ? setDbTasks : setTasks;

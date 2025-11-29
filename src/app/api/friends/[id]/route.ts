@@ -128,20 +128,31 @@ export async function PUT(
             .eq('id', friendId);
 
         if (updateError) {
-            console.error('Error updating friend request:', updateError);
+            logger.error('Error updating friend request', updateError as Error, {
+                action: 'updateFriendRequest',
+                friendId
+            });
             return NextResponse.json({ error: 'Failed to accept friend request' }, { status: 500 });
         }
 
         // 2. Delete original friend request notification
-        await supabaseWithAuth
+        const { error: deleteNotifError } = await supabaseWithAuth
             .from('notifications')
             .delete()
             .eq('type', 'friend_request')
             .eq('data->friendshipId', friendId);
 
+        if (deleteNotifError) {
+            logger.error('Error deleting friend request notification', deleteNotifError as Error, {
+                action: 'deleteFriendRequestNotification',
+                friendId
+            });
+            // Continue anyway - this is not critical
+        }
+
         // 3. Create acceptance notification for sender if accepted
         if (action === 'accept') {
-            await supabaseWithAuth
+            const { error: notifError } = await supabaseWithAuth
                 .from('notifications')
                 .insert({
                     user_id: friendRequestData.sender_id,
@@ -150,6 +161,14 @@ export async function PUT(
                     message: `${session.user.name || session.user.email} accepted your friend request`,
                     data: { friendshipId: friendId }
                 });
+
+            if (notifError) {
+                logger.error('Error creating friend accept notification', notifError as Error, {
+                    action: 'createFriendAcceptNotification',
+                    friendId
+                });
+                // Continue anyway - this is not critical
+            }
         }
 
         logger.info(`Friend request ${action}ed`, {

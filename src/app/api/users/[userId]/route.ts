@@ -9,10 +9,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { supabase } from '@/lib/supabase';
+import { supabaseServerPool } from '@/lib/supabase/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { Database } from '@/lib/supabase';
+import { Database } from '@/lib/supabase/database.types';
 import { withRateLimit } from '@/lib/rateLimit';
 import { logger } from '@/lib/logger';
 
@@ -110,9 +110,11 @@ async function getHandler(
         const session = await getServerSession(authOptions);
         const viewerId = session?.user?.id;
 
+        const supabaseAdmin = supabaseServerPool.getAdminClient();
+
         // If viewing own profile, show all stats
         if (viewerId === userId) {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseAdmin
                 .from('profiles')
                 .select(`
                 id,
@@ -143,7 +145,7 @@ async function getHandler(
         }
 
         // Check if viewer is a friend
-        const { data: friendship } = await supabase
+        const { data: friendship } = await supabaseAdmin
             .from('friends')
             .select('id')
             .or(`and(sender_id.eq.${viewerId},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${viewerId})`)
@@ -153,7 +155,7 @@ async function getHandler(
         const isFriend = !!friendship;
 
         // Get visibility settings
-        const { data: visibilitySettings } = await supabase
+        const { data: visibilitySettings } = await supabaseAdmin
             .from('stat_visibility')
             .select('stat_field, visible_to_friends')
             .eq('user_id', userId);
@@ -165,7 +167,7 @@ async function getHandler(
         );
 
         // Get profile and stats
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
             .from('profiles')
             .select(`
             id,

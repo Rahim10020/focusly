@@ -95,7 +95,7 @@ export function usePomodoro(options: UsePomodoroOptions) {
                 clearInterval(intervalRef.current);
             }
         };
-    }, [status, timeLeft]);
+    }, [status, timeLeft, handleSessionComplete]);
 
     useEffect(() => {
         if (status === 'running' && !currentSessionStart) {
