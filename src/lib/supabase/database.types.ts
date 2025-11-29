@@ -341,6 +341,23 @@ export interface Database {
                     updated_at?: string;
                 };
             };
+            user_preferences: {
+                Row: {
+                    user_id: string;
+                    theme_preference: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    user_id: string;
+                    theme_preference?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    user_id?: string;
+                    theme_preference?: string;
+                    updated_at?: string;
+                };
+            };
         };
     };
 }
