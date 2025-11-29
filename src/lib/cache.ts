@@ -102,7 +102,7 @@ export class Cache {
             const sanitizedKey = this.sanitizeCacheKey(key);
 
             const { data, error } = await (supabaseServerPool.getAdminClient().from('cache') as any)
-                .select('cache_value, expires_at')
+                .select('data, expires_at')
                 .eq('cache_key', sanitizedKey)
                 .single();
 
@@ -124,7 +124,7 @@ export class Cache {
                 return null;
             }
 
-            return (data as any).cache_value as T;
+            return (data as any).data as T;
         } catch (error) {
             logger.error('Cache get exception', error as Error, {
                 action: 'cacheGet',
@@ -157,14 +157,14 @@ export class Cache {
         }
     }
 
-    private static async set(key: string, data: any, ttl: number): Promise<void> {
+    private static async set(key: string, value: any, ttl: number): Promise<void> {
         const sanitizedKey = this.sanitizeCacheKey(key);
         try {
             const expiresAt = new Date(Date.now() + ttl);
             const { error } = await (supabaseServerPool.getAdminClient().from('cache') as any)
                 .upsert({
                     cache_key: sanitizedKey,
-                    cache_value: data,
+                    data: value,
                     expires_at: expiresAt.toISOString()
                 }, {
                     onConflict: 'cache_key'
