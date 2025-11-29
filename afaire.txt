@@ -34,3 +34,9 @@ A FAIRE PROCHAINEMENT
     - il y a un truc que je veux pas: Quand un utilisateur envoi une friend request a un autre utilisateur,
     il est automatiquement ami avec la personne mais c'est pas normal. la personne doit accepter l'invitation
     avant d'etre ami avec la personne. donc on ne doit pas voir la personne dans la liste des amis.
+=========================================================================================================================
+
+- On devrais mettre les username des utilisateur au niveau du leaderboard mais on a player j'aime pas ca.
+- les notifications ne sont pas bien gere: quand j'envoi une friend request, la personne en question ne 
+    recoit pas de notification(dans la page des notifications et puis un il devrais aussi y avoir un badge 
+    de notification sur l'icone de notification du header)
