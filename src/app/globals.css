@@ -395,4 +395,52 @@ body {
 ::selection {
   background-color: var(--primary);
   color: var(--primary-foreground);
+}}
+
+/* Focus Mode Styles */
+.focus-mode {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.focus-mode-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.focus-mode-timer {
+  transform: scale(1.2);
+  animation: breathe 4s ease-in-out infinite;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes breathe {
+  0%, 100% { 
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  50% { 
+    opacity: 0.95;
+    transform: scale(1.25);
+  }
+}
+
+@media (max-width: 768px) {
+  .focus-mode-timer {
+    transform: scale(1);
+  }
+  
+  @keyframes breathe {
+    0%, 100% { 
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% { 
+      opacity: 0.95;
+      transform: scale(1.05);
+    }
+  }
 }

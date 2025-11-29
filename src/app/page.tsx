@@ -28,7 +28,7 @@ import AchievementNotification from '@/components/achievements/AchievementNotifi
 import KeyboardShortcutsModal from '@/components/ui/KeyboardShortcutsModal';
 import Button from '@/components/ui/Button';
 import { useTasks } from '@/lib/hooks/useTasks';
-import { useStats } from '@/lib/hooks/useStats';
+import { useCachedStats } from '@/lib/hooks/useCachedStats';
 import { useAchievements } from '@/lib/hooks/useAchievements';
 import { useTags } from '@/lib/hooks/useTags';
 import { useKeyboardShortcuts, GLOBAL_SHORTCUTS } from '@/lib/hooks/useKeyboardShortcuts';
@@ -106,6 +106,9 @@ export default function Home() {
   const taskInputRef = useRef<HTMLInputElement>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
+  const [showAllUpcomingTasks, setShowAllUpcomingTasks] = useState(false);
+  const [achievementCheckPending, setAchievementCheckPending] = useState(false);
   const [timerRef, setTimerRef] = useState<{
     start: () => void;
     pause: () => void;
@@ -131,7 +134,7 @@ export default function Home() {
     reorderTasks,
   } = useTasks();
 
-  const { updateTaskStats, addSession, getTodayFocusTime, stats, refreshStats } = useStats();
+  const { updateTaskStats, addSession, getTodayFocusTime, stats, refreshStats, invalidateCache } = useCachedStats();
   const { tags } = useTags();
   const {
     newlyUnlocked,
@@ -147,6 +150,15 @@ export default function Home() {
   });
 
   const { notifications, markAsRead } = useNotifications();
+
+  // Utiliser useRef pour les valeurs qui changent fréquemment (optimisation Pomodoro)
+  const statsRef = useRef(stats);
+  const tasksRef = useRef(tasks);
+
+  useEffect(() => {
+    statsRef.current = stats;
+    tasksRef.current = tasks;
+  }, [stats, tasks]);
 
   useEffect(() => {
     setMounted(true);
@@ -191,10 +203,27 @@ export default function Home() {
       prevStatsRef.current.todayFocusMinutes !== currentStats.todayFocusMinutes;
 
     if (hasChanged) {
-      checkAchievements(currentStats);
+      setAchievementCheckPending(true);
       prevStatsRef.current = currentStats;
     }
-  }, [currentStats, checkAchievements]);
+  }, [currentStats]);
+
+  // Debouncing/batching de checkAchievements pour éviter les appels répétés
+  useEffect(() => {
+    if (achievementCheckPending) {
+      const timer = setTimeout(async () => {
+        await checkAchievements(currentStats);
+        setAchievementCheckPending(false);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [achievementCheckPending, checkAchievements, currentStats]);
+
+  // Marquer comme pending au lieu d'appeler directement checkAchievements
+  const triggerAchievementCheck = useCallback(() => {
+    setAchievementCheckPending(true);
+  }, []);
 
   // Task handlers - redirect to dedicated task page - Memoized to avoid re-renders
   const handleQuickAddTask = useCallback((title: string) => {
@@ -219,25 +248,28 @@ export default function Home() {
     // Ajouter la session
     await addSession(session);
 
+    // Invalider le cache pour forcer le rechargement des stats
+    if (invalidateCache) {
+      invalidateCache();
+    }
+
     // Rafraîchir les stats immédiatement après
     if (refreshStats) {
       await refreshStats();
     }
 
-    // Vérifier les achievements avec les nouvelles stats
-    const todayFocusMinutes = Math.floor(getTodayFocusTime() / 60);
-    checkAchievements({
-      totalSessions: stats.totalSessions + 1,
-      completedTasks: stats.completedTasks,
-      streak: stats.streak,
-      todayFocusMinutes,
-    });
-  }, [addSession, refreshStats, getTodayFocusTime, checkAchievements, stats.totalSessions, stats.completedTasks, stats.streak]);
+    // Déclencher la vérification des achievements (debounced)
+    triggerAchievementCheck();
+  }, [addSession, invalidateCache, refreshStats, triggerAchievementCheck]);
 
   // Memoize expensive computations
-  const imminentTasks = useMemo(() => getImminentTasks(tasks), [tasks]);
+  const imminentTasks = useMemo(() => getImminentTasks(tasks, 100), [tasks]); // Get all tasks
+  const displayedTasks = useMemo(() =>
+    showAllUpcomingTasks ? imminentTasks : imminentTasks.slice(0, 5),
+    [imminentTasks, showAllUpcomingTasks]
+  );
   const totalActiveTasks = useMemo(() => tasks.filter(task => !task.completed).length, [tasks]);
-  const hasMoreTasksThanDisplayed = totalActiveTasks > imminentTasks.length;
+  const hasMoreTasksThanDisplayed = imminentTasks.length > 5;
 
   // Get recently completed tasks (last 5) - Memoized
   // ✅ Vérifier que completedAt existe
@@ -291,6 +323,11 @@ export default function Home() {
     {
       ...GLOBAL_SHORTCUTS.SHOW_SHORTCUTS,
       action: () => setShowShortcuts(true),
+    },
+    {
+      key: 'f',
+      description: 'Toggle Focus Mode',
+      action: () => setFocusMode(!focusMode),
     },
   ]);
 
@@ -501,57 +538,68 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className={`min-h-screen bg-background ${focusMode ? 'focus-mode' : ''}`}>
+      {!focusMode && <Header />}
 
-      <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
-        {mounted && <StatsOverview />}
+      <main className={`max-w-6xl mx-auto px-6 py-8 space-y-6 ${focusMode ? 'focus-mode-container' : ''}`}>
+        {!focusMode && mounted && <StatsOverview />}
 
         {/* Tasks Section - Full Width */}
-        <Card variant="elevated">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Tasks</CardTitle>
-              <Button onClick={handleCreateTask} size="sm" className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                New Task
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <QuickAddTask onAdd={handleQuickAddTask} />
+        {!focusMode && (
+          <Card variant="elevated">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Tasks</CardTitle>
+                <Button onClick={handleCreateTask} size="sm" className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  New Task
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <QuickAddTask onAdd={handleQuickAddTask} />
 
-              <TasksView
-                tasks={imminentTasks}
-                activeTaskId={activeTaskId}
-                tags={tags}
-                loading={loading}
-                error={error}
-                onToggle={toggleTask}
-                onDelete={deleteTask}
-                onSelectTask={setActiveTask}
-                onUpdate={updateTask}
-                onAddSubTask={addSubTask}
-                onToggleSubTask={toggleSubTask}
-                onDeleteSubTask={deleteSubTask}
-                onReorder={reorderTasks}
-                onEditTask={handleEditTask}
-                showSortOptions={false}
-              />
-              {hasMoreTasksThanDisplayed && (
-                <p className="text-xs text-muted-foreground text-center">
-                  Seules les 5 prochaines tâches imminentes sont affichées ici.
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                <TasksView
+                  tasks={displayedTasks}
+                  activeTaskId={activeTaskId}
+                  tags={tags}
+                  loading={loading}
+                  error={error}
+                  onToggle={toggleTask}
+                  onDelete={deleteTask}
+                  onSelectTask={setActiveTask}
+                  onUpdate={updateTask}
+                  onAddSubTask={addSubTask}
+                  onToggleSubTask={toggleSubTask}
+                  onDeleteSubTask={deleteSubTask}
+                  onReorder={reorderTasks}
+                  onEditTask={handleEditTask}
+                  showSortOptions={false}
+                />
+                {hasMoreTasksThanDisplayed && (
+                  <div className="text-center">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setShowAllUpcomingTasks(!showAllUpcomingTasks)}
+                      className="text-sm"
+                    >
+                      {showAllUpcomingTasks
+                        ? 'Voir moins'
+                        : `Voir ${imminentTasks.length - 5} tâche${imminentTasks.length - 5 > 1 ? 's' : ''} de plus`
+                      }
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Recently Completed Tasks */}
-        {completedTasks.length > 0 && (
+        {!focusMode && completedTasks.length > 0 && (
           <Card variant="elevated">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -613,7 +661,7 @@ export default function Home() {
         )}
 
         {/* Pomodoro Timer */}
-        <Card variant="elevated">
+        <Card variant="elevated" className={focusMode ? 'focus-mode-timer' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Pomodoro Timer</CardTitle>
@@ -640,7 +688,7 @@ export default function Home() {
         </Card>
 
         {/* Notifications */}
-        {notifications.length > 0 && (
+        {!focusMode && notifications.length > 0 && (
           <Card variant="elevated">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -709,35 +757,62 @@ export default function Home() {
         <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
       )}
 
-      {/* Keyboard shortcut hint */}
-      <button
-        onClick={() => setShowShortcuts(true)}
-        className="fixed bottom-6 right-6 p-3 bg-card border-2 border-border rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 cursor-pointer"
-        title="Keyboard shortcuts (Shift + ?)"
+      {/* Focus Mode Toggle Button */}
+      <Button
+        onClick={() => setFocusMode(!focusMode)}
+        className="fixed top-6 right-6 z-50 gap-2"
+        variant={focusMode ? 'primary' : 'outline'}
+        title="Toggle Focus Mode (F)"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="text-foreground"
+        {focusMode ? (
+          <>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Quitter Focus
+          </>
+        ) : (
+          <>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 1v6m0 6v6M1 12h6m6 0h6" />
+            </svg>
+            Mode Focus
+          </>
+        )}
+      </Button>
+
+      {/* Keyboard shortcut hint */}
+      {!focusMode && (
+        <button
+          onClick={() => setShowShortcuts(true)}
+          className="fixed bottom-6 right-6 p-3 bg-card border-2 border-border rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 cursor-pointer"
+          title="Keyboard shortcuts (Shift + ?)"
         >
-          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-          <path d="M6 8h.001"></path>
-          <path d="M10 8h.001"></path>
-          <path d="M14 8h.001"></path>
-          <path d="M18 8h.001"></path>
-          <path d="M8 12h.001"></path>
-          <path d="M12 12h.001"></path>
-          <path d="M16 12h.001"></path>
-          <path d="M7 16h10"></path>
-        </svg>
-      </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-foreground"
+          >
+            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+            <path d="M6 8h.001"></path>
+            <path d="M10 8h.001"></path>
+            <path d="M14 8h.001"></path>
+            <path d="M18 8h.001"></path>
+            <path d="M8 12h.001"></path>
+            <path d="M12 12h.001"></path>
+            <path d="M16 12h.001"></path>
+            <path d="M7 16h10"></path>
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
