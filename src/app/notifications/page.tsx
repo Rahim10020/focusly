@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Header from '@/components/layout/Header';
@@ -28,6 +28,12 @@ export default function NotificationsPage() {
     const { notifications, loading, error, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
     const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
+    useEffect(() => {
+        if (!session && status !== 'loading') {
+            router.push('/auth/signin');
+        }
+    }, [session, status, router]);
+
     if (status === 'loading' || loading) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
@@ -40,7 +46,6 @@ export default function NotificationsPage() {
     }
 
     if (!session) {
-        router.push('/auth/signin');
         return null;
     }
 
