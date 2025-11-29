@@ -33,7 +33,8 @@ export interface Notification {
 
 /**
  * Hook for managing user notifications.
- * Provides methods to fetch, mark as read, and delete notifications.
+ * Provides methods to fetch, mark as read, and delete notifications,
+ * as well as browser notification functionality.
  *
  * @returns {Object} Notification management functions and state
  * @property {Notification[]} notifications - Array of user notifications
@@ -45,6 +46,9 @@ export interface Notification {
  * @property {Function} markAllAsRead - Function to mark all notifications as read
  * @property {Function} deleteNotification - Function to delete a notification
  * @property {Function} createNotification - Function to create a new notification
+ * @property {Function} showNotification - Function to show a browser notification
+ * @property {NotificationPermission} permission - Current browser notification permission
+ * @property {Function} requestPermission - Function to request browser notification permission
  */
 export function useNotifications() {
     const { data: session } = useSession();
@@ -52,11 +56,14 @@ export function useNotifications() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Browser notification permission state
+    const [permission, setPermission] = useState<NotificationPermission>('default');
+
     /**
      * Fetches all notifications for the current user.
      */
     const fetchNotifications = useCallback(async () => {
-        if (!session?.user) return;
+        if (!session?.user || !session.accessToken) return;
 
         setLoading(true);
         setError(null);
@@ -74,7 +81,7 @@ export function useNotifications() {
         } finally {
             setLoading(false);
         }
-    }, [session?.user]);
+    }, [session?.user, session?.accessToken]);
 
     /**
      * Marks a specific notification as read or unread.
@@ -189,14 +196,49 @@ export function useNotifications() {
         }
     }, [session?.user?.id]);
 
+    /**
+     * Shows a browser notification if permissions are granted.
+     * @param {string} title - Notification title
+     * @param {object} options - Notification options
+     */
+    const showNotification = useCallback((title: string, options?: NotificationOptions) => {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            const notification = new Notification(title, options);
+            notification.onclick = () => {
+                window.focus();
+                notification.close();
+            };
+        }
+    }, []);
+
+    /**
+     * Requests permission for browser notifications.
+     * @returns {Promise<boolean>} Whether permission was granted
+     */
+    const requestPermission = useCallback(async () => {
+        if ('Notification' in window) {
+            const result = await Notification.requestPermission();
+            setPermission(result);
+            return result === 'granted';
+        }
+        return false;
+    }, []);
+
+    // Initialize permission state
+    useEffect(() => {
+        if ('Notification' in window) {
+            setPermission(Notification.permission);
+        }
+    }, []);
+
     // Fetch notifications when session changes
     useEffect(() => {
-        if (session?.user) {
+        if (session?.user && session.accessToken) {
             fetchNotifications();
         } else {
             setNotifications([]);
         }
-    }, [session?.user, fetchNotifications]);
+    }, [session?.user, session?.accessToken, fetchNotifications]);
 
     // Calculate unread count
     const unreadCount = notifications.filter(notification => !notification.read).length;
@@ -211,5 +253,8 @@ export function useNotifications() {
         markAllAsRead,
         deleteNotification,
         createNotification,
+        showNotification,
+        permission,
+        requestPermission,
     };
 }
