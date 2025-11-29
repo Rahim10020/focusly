@@ -9,7 +9,7 @@ import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Task, SubTask, Priority, SubDomain } from '@/types';
 import { STORAGE_KEYS } from '@/lib/constants';
-import { supabase } from '@/lib/supabase';
+import { supabaseClient as supabase } from '@/lib/supabase/client';
 import { useToastContext } from '@/components/providers/ToastProvider';
 
 /**

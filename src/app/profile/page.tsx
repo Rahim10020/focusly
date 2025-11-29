@@ -14,7 +14,7 @@ import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { supabase } from '@/lib/supabase';
+import { supabaseClient as supabase } from '@/lib/supabase/client';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useStats } from '@/lib/hooks/useStats';
 import { DOMAINS, getDomainFromSubDomain } from '@/types';

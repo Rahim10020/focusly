@@ -6,7 +6,7 @@
 
 import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { supabase } from '@/lib/supabase';
+import { supabaseClient as supabase } from '@/lib/supabase/client';
 
 /**
  * Hook for synchronizing NextAuth session with Supabase authentication.
