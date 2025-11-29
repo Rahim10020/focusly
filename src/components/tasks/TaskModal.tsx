@@ -469,7 +469,7 @@ export default function TaskModal({
                                                 onChange={(e) => setSearchQuery(e.target.value)}
                                             />
 
-                                            <div className="space-y-4">
+                                            <div className="space-y-4 mb-18">
                                                 {filteredDomains.map(([domainKey, domainInfo]) => (
                                                     <div key={domainKey} className="space-y-2">
                                                         <div className="flex items-center gap-2">
@@ -513,7 +513,7 @@ export default function TaskModal({
 
                                 {/* Subtasks Tab */}
                                 {activeTab === 'subtasks' && (
-                                    <div className="p-6 space-y-4">
+                                    <div className="p-6 space-y-4 mb-18">
                                         <div className="flex items-center gap-2">
                                             <Input
                                                 type="text"
@@ -539,7 +539,7 @@ export default function TaskModal({
                                                             type="checkbox"
                                                             checked={subTask.completed}
                                                             onChange={() => toggleSubTask(index)}
-                                                            className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
+                                                            className="w-4 h-4 text-primary border-border cursor-pointer rounded focus:ring-primary"
                                                         />
                                                         <span className={`flex-1 text-sm ${subTask.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                                                             {subTask.title}
