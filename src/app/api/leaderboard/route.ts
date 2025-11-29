@@ -224,8 +224,8 @@ async function getHandler(request: NextRequest) {
                 const profilesToInsert = profilesToCreate.filter((p: { id: string }) => !existingIds.has(p.id));
 
                 if (profilesToInsert.length > 0) {
-                    const { error: createError } = await supabaseAdmin
-                        .from('profiles')
+                    const { error: createError } = await (supabaseAdmin
+                        .from('profiles') as any)
                         .insert(profilesToInsert);
 
                     if (createError) {
