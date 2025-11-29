@@ -446,12 +446,14 @@ export function useTasks() {
         if (userId) {
             // Update in database with optimistic locking
             try {
+                const now = Date.now();
                 const { data, error } = await retryWithBackoff(async () => {
                     const result = await (supabaseClient
                         .from('tasks') as any)
                         .update({
                             completed: newCompleted,
-                            completed_at: newCompleted ? new Date().toISOString() : null
+                            // ✅ S'assurer que completed_at est défini quand completed = true
+                            completed_at: newCompleted ? new Date(now).toISOString() : null
                         })
                         .eq('id', id)
                         .eq('user_id', userId)
@@ -476,7 +478,8 @@ export function useTasks() {
                         ? {
                             ...t,
                             completed: newCompleted,
-                            completedAt: newCompleted ? Date.now() : undefined,
+                            // ✅ Utiliser le même timestamp pour cohérence
+                            completedAt: newCompleted ? now : undefined,
                             version: data.version
                         }
                         : t

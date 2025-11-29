@@ -109,6 +109,8 @@ export default function UserProfilePage() {
             }
 
             setHasPendingRequest(true);
+            // ✅ AJOUT: Notification de succès
+            alert('Friend request sent successfully!');
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to send friend request');
         } finally {

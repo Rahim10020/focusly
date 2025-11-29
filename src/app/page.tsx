@@ -240,9 +240,10 @@ export default function Home() {
   const hasMoreTasksThanDisplayed = totalActiveTasks > imminentTasks.length;
 
   // Get recently completed tasks (last 5) - Memoized
+  // ✅ Vérifier que completedAt existe
   const completedTasks = useMemo(() =>
     tasks
-      .filter(task => task.completed)
+      .filter(task => task.completed && task.completedAt)
       .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0))
       .slice(0, 5),
     [tasks]

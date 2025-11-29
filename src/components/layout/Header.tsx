@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import ThemeToggle from '../ui/ThemeToggle';
 import UserMenu from '../ui/UserMenu';
+import { useNotifications } from '@/lib/hooks/useNotifications';
 
 /**
  * Main header component that displays the application logo, navigation links,
@@ -37,6 +38,7 @@ export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const pathname = usePathname();
     const { data: session } = useSession();
+    const { unreadCount } = useNotifications();
 
     return (
         <header className="w-full bg-background/95 backdrop-blur-md sticky top-0 z-50 border-b border-border/50 shadow-sm">
@@ -114,6 +116,12 @@ export default function Header() {
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                             </svg>
+                            {/* ✅ AJOUT: Badge unread count */}
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
                         </Link>
                         <ThemeToggle />
                         <UserMenu />

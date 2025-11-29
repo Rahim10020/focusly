@@ -253,7 +253,8 @@ async function getHandler(request: NextRequest) {
                 const profile = profilesMap.get(stat.user_id);
                 return {
                     id: profile?.id || stat.user_id,
-                    username: profile?.username || null,
+                    // ✅ CORRECTION: Fallback avec un username généré
+                    username: profile?.username || `User ${stat.user_id.slice(0, 8)}`,
                     avatar_url: profile?.avatar_url || null,
                     stats: {
                         total_sessions: stat.total_sessions,

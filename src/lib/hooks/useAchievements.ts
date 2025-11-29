@@ -407,6 +407,11 @@ export function useAchievements() {
                 }
 
                 if (shouldUnlock && !achievement.unlockedAt) {
+                    // ✅ AJOUT: Ignorer si déjà notifié
+                    if (notifiedAchievements.includes(achievement.id)) {
+                        return achievement;
+                    }
+                    
                     hasChanges = true;
                     const unlockedAchievement = {
                         ...achievement,

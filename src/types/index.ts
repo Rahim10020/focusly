@@ -43,6 +43,8 @@ export interface Task {
     createdAt: number;
     /** Unix timestamp of when the task was completed */
     completedAt?: number;
+    /** Unix timestamp of when the task was marked as failed (overdue) */
+    failedAt?: number;
     /** Number of Pomodoro sessions completed for this task */
     pomodoroCount: number;
     /** Priority level of the task */

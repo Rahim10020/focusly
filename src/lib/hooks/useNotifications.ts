@@ -6,6 +6,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import { supabaseClient } from '@/lib/supabase/client';
+import { logger } from '@/lib/logger';
 
 /**
  * Represents a notification object.
@@ -235,10 +237,71 @@ export function useNotifications() {
     useEffect(() => {
         if (session?.user && session.accessToken) {
             fetchNotifications();
+            
+            // ✅ AJOUT: Set Supabase auth session
+            supabaseClient.auth.setSession({
+                access_token: session.accessToken,
+                refresh_token: session.refreshToken!,
+            });
         } else {
             setNotifications([]);
         }
     }, [session?.user, session?.accessToken, fetchNotifications]);
+
+    // ✅ AJOUT: Subscribe to real-time notifications
+    useEffect(() => {
+        const userId = session?.user?.id;
+        if (!userId) return;
+
+        const channel = supabaseClient
+            .channel(`notifications:${userId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${userId}`
+                },
+                (payload) => {
+                    const newNotification = payload.new as Notification;
+                    setNotifications(prev => [newNotification, ...prev]);
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${userId}`
+                },
+                (payload) => {
+                    const updatedNotification = payload.new as Notification;
+                    setNotifications(prev =>
+                        prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
+                    );
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'DELETE',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${userId}`
+                },
+                (payload) => {
+                    const deletedId = (payload.old as { id: string }).id;
+                    setNotifications(prev => prev.filter(n => n.id !== deletedId));
+                }
+            )
+            .subscribe();
+
+        return () => {
+            channel.unsubscribe();
+        };
+    }, [session?.user?.id]);
 
     // Calculate unread count
     const unreadCount = notifications.filter(notification => !notification.read).length;

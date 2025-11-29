@@ -235,7 +235,7 @@ async function postHandler(request: NextRequest) {
             .insert({
                 sender_id: userId,
                 receiver_id,
-                status: 'pending'
+                status: 'pending' // ✅ CRUCIAL: status pending
             })
             .select(`
                 *,

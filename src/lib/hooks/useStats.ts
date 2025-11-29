@@ -359,6 +359,9 @@ export function useStats() {
                         completedTasks,
                     };
                 });
+                
+                // ✅ AJOUT: Forcer un refresh des stats depuis la DB après update
+                await refreshStats();
             } catch (error) {
                 logger.error('Error updating task stats in DB', error as Error, {
                     action: 'updateTaskStats',
@@ -379,7 +382,7 @@ export function useStats() {
                 };
             });
         }
-    }, [getUserId, setCurrentStats, getAuthenticatedSupabaseClient]);
+    }, [getUserId, setCurrentStats, getAuthenticatedSupabaseClient, refreshStats]);
 
     const getTodaySessions = useCallback(() => {
         const today = new Date();
