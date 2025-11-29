@@ -5,7 +5,7 @@
 
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useTheme as useNextTheme } from '@/hooks/useTheme';
 
 /**
