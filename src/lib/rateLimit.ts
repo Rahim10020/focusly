@@ -4,7 +4,7 @@
  * @module lib/rateLimit
  */
 
-import { supabaseClient as supabase } from './supabase/client';
+import { supabaseServerPool } from './supabase/server';
 import { logger } from './logger';
 
 /**
@@ -40,7 +40,7 @@ export async function rateLimit(
 
     try {
         // Try to get existing rate limit entry
-        const { data, error: fetchError } = await supabase
+        const { data, error: fetchError } = await supabaseServerPool.getAdminClient()
             .from('rate_limits')
             .select('count, reset_time')
             .eq('identifier', identifier)
@@ -67,7 +67,7 @@ export async function rateLimit(
 
             // Increment counter
             const newCount = existingEntry.count + 1;
-            const { error: updateError } = await (supabase.from('rate_limits') as any)
+            const { error: updateError } = await (supabaseServerPool.getAdminClient().from('rate_limits') as any)
                 .update({ count: newCount })
                 .eq('identifier', identifier);
 
@@ -86,7 +86,7 @@ export async function rateLimit(
             };
         } else {
             // First request or window expired
-            const { error: upsertError } = await (supabase.from('rate_limits') as any)
+            const { error: upsertError } = await (supabaseServerPool.getAdminClient().from('rate_limits') as any)
                 .upsert({
                     identifier,
                     count: 1,
