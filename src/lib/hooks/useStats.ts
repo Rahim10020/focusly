@@ -210,6 +210,13 @@ export function useStats() {
             });
         }
     };
+    const refreshStats = useCallback(async () => {
+        const userId = getUserId();
+        if (userId) {
+            await loadStatsFromDB();
+            await loadSessionsFromDB();
+        }
+    }, [getUserId]);
 
     const currentStats = getUserId() ? dbStats : localStats;
     const currentSessions = getUserId() ? dbSessions : localSessions;
@@ -254,8 +261,8 @@ export function useStats() {
                             const result = await authenticatedClient
                                 .from('stats')
                                 .update({
-                                    total_focus_time: dbStats.totalFocusTime + Math.floor(session.duration / 60),
-                                    total_sessions: dbStats.totalSessions + 1,
+                                    total_focus_time: existingStats.total_focus_time + Math.floor(session.duration / 60),
+                                    total_sessions: existingStats.total_sessions + 1,
                                 })
                                 .eq('user_id', userId);
                             if (result.error) throw result.error;
@@ -265,8 +272,8 @@ export function useStats() {
                                 .from('stats')
                                 .insert({
                                     user_id: userId,
-                                    total_focus_time: dbStats.totalFocusTime + Math.floor(session.duration / 60),
-                                    total_sessions: dbStats.totalSessions + 1,
+                                    total_focus_time: Math.floor(session.duration / 60),
+                                    total_sessions: 1,
                                     total_tasks: 0,
                                     completed_tasks: 0,
                                     streak: 0,
@@ -359,7 +366,7 @@ export function useStats() {
                         completedTasks,
                     };
                 });
-                
+
                 // ✅ AJOUT: Forcer un refresh des stats depuis la DB après update
                 await refreshStats();
             } catch (error) {
@@ -456,14 +463,6 @@ export function useStats() {
         // +1 pour inclure le jour le plus récent
         return streak + 1;
     }, []);
-
-    const refreshStats = useCallback(async () => {
-        const userId = getUserId();
-        if (userId) {
-            await loadStatsFromDB();
-            await loadSessionsFromDB();
-        }
-    }, [getUserId]);
 
     return {
         stats: currentStats,

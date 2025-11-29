@@ -17,27 +17,4 @@ PROCHAINE VERSION
         notamment dans Completion Rate Breakdown, task completion by domain, Completed sessions
 
 A FAIRE PROCHAINEMENT
-    - j'ais remarque une anomalie: quand je marque une tache comme terminee en 
-        etant dans la page tasks, les achievements ne sont pas debloques, 
-    - j'ai des taches qui sont marques comme termines mais ils ne sont pas affiches dans la 
-        partie completed de la page d'accueil. de meme pour les stats.
-    - je veux savoir comment est gerer le fait qu'une tache echoue (quand est ce que une tache echoue ?)
-    - normalement sur la page de leaderboard, on devrais voir un bouton 'send friend request'
-         avec lequel on peut inviter un utilisateur a etre notre ami (la personne recevra une notification)
-    - et puis quand on clique sur un utilisateur depuis la page de leaderboard, on devrais afficher 
-        a la personner qu'il dois etre ami avec la personne avant de voir ses stats.
-    - un autre souci est que la notification de l'achievement vient 
-        a chaque fois que je quitte une autre page pour aller sur la page d'accueil. 
-    - quand je veux accepter une friend request on me dit : Friend request not found. trouver et regler le souci.
-    - normalement quand on envoi une friend request a un utilisateur ,on est pas encore tant que 
-    la personne n'a pas encore accepte l'invitation et puis l'utilisateur en question doit recevoir une notification.
-    - il y a un truc que je veux pas: Quand un utilisateur envoi une friend request a un autre utilisateur,
-    il est automatiquement ami avec la personne mais c'est pas normal. la personne doit accepter l'invitation
-    avant d'etre ami avec la personne. donc on ne doit pas voir la personne dans la liste des amis.
-=========================================================================================================================
-
-- On devrais mettre les username des utilisateur au niveau du leaderboard mais on a player j'aime pas ca.
-- les notifications ne sont pas bien gere: quand j'envoi une friend request, la personne en question ne 
-    recoit pas de notification(dans la page des notifications et puis un il devrais aussi y avoir un badge 
-    de notification sur l'icone de notification du header)
-- si la personne accepte l'invitation, l'autre devrais avoir une notification du genre demande d'amis accepte.
+    
