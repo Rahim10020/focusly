@@ -40,3 +40,4 @@ A FAIRE PROCHAINEMENT
 - les notifications ne sont pas bien gere: quand j'envoi une friend request, la personne en question ne 
     recoit pas de notification(dans la page des notifications et puis un il devrais aussi y avoir un badge 
     de notification sur l'icone de notification du header)
+- si la personne accepte l'invitation, l'autre devrais avoir une notification du genre demande d'amis accepte.
