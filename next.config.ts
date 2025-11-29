@@ -11,9 +11,6 @@ const nextConfig: NextConfig = {
   // Enable compression
   compress: true,
 
-  // Optimize production build
-  swcMinify: true,
-
   // Security headers
   async headers() {
     return [
