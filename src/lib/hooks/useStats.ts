@@ -9,7 +9,8 @@ import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Stats, PomodoroSession } from '@/types';
 import { STORAGE_KEYS } from '@/lib/constants';
-import { supabaseClient } from '@/lib/supabase/client';
+import { supabaseClient, getSupabaseClient } from '@/lib/supabase/client';
+import { createClient } from '@supabase/supabase-js';
 import { retryWithBackoff } from '@/lib/utils/retry';
 import { useToastContext } from '@/components/providers/ToastProvider';
 import { logger } from '@/lib/logger';
@@ -77,6 +78,23 @@ export function useStats() {
 
     const getUserId = () => session?.user?.id;
 
+    const getAuthenticatedSupabaseClient = useCallback(() => {
+        if (!session?.accessToken) {
+            throw new Error('No access token available');
+        }
+        return createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                global: {
+                    headers: {
+                        'Authorization': `Bearer ${session.accessToken}`
+                    }
+                }
+            }
+        );
+    }, [session?.accessToken]);
+
     // Set Supabase auth session when user logs in
     useEffect(() => {
         if (session?.accessToken && session?.refreshToken) {
@@ -113,7 +131,8 @@ export function useStats() {
         setError(null);
         try {
             const { data, error } = await retryWithBackoff(async () => {
-                const result = await supabaseClient
+                const authenticatedClient = getAuthenticatedSupabaseClient();
+                const result = await authenticatedClient
                     .from('stats')
                     .select('*')
                     .eq('user_id', userId)
@@ -161,7 +180,8 @@ export function useStats() {
 
         try {
             const { data, error } = await retryWithBackoff(async () => {
-                const result = await supabaseClient
+                const authenticatedClient = getAuthenticatedSupabaseClient();
+                const result = await authenticatedClient
                     .from('sessions')
                     .select('*')
                     .eq('user_id', userId)
@@ -202,7 +222,8 @@ export function useStats() {
             // Save to database
             try {
                 await retryWithBackoff(async () => {
-                    const result = await (supabaseClient
+                    const authenticatedClient = getAuthenticatedSupabaseClient();
+                    const result = await (authenticatedClient
                         .from('sessions') as any)
                         .insert({
                             user_id: userId,
@@ -219,15 +240,40 @@ export function useStats() {
                 // Update stats in database
                 if (session.completed && session.type === 'work') {
                     await retryWithBackoff(async () => {
-                        const result = await (supabaseClient
-                            .from('stats') as any)
-                            .upsert({
-                                user_id: userId,
-                                total_focus_time: dbStats.totalFocusTime + Math.floor(session.duration / 60),
-                                total_sessions: dbStats.totalSessions + 1,
-                            }, { onConflict: 'user_id' });
-                        if (result.error) throw result.error;
-                        return result;
+                        const authenticatedClient = getAuthenticatedSupabaseClient();
+
+                        // First check if stats row exists
+                        const { data: existingStats } = await authenticatedClient
+                            .from('stats')
+                            .select('*')
+                            .eq('user_id', userId)
+                            .single();
+
+                        if (existingStats) {
+                            // Update existing row
+                            const result = await authenticatedClient
+                                .from('stats')
+                                .update({
+                                    total_focus_time: dbStats.totalFocusTime + Math.floor(session.duration / 60),
+                                    total_sessions: dbStats.totalSessions + 1,
+                                })
+                                .eq('user_id', userId);
+                            if (result.error) throw result.error;
+                        } else {
+                            // Insert new row
+                            const result = await authenticatedClient
+                                .from('stats')
+                                .insert({
+                                    user_id: userId,
+                                    total_focus_time: dbStats.totalFocusTime + Math.floor(session.duration / 60),
+                                    total_sessions: dbStats.totalSessions + 1,
+                                    total_tasks: 0,
+                                    completed_tasks: 0,
+                                    streak: 0,
+                                });
+                            if (result.error) throw result.error;
+                        }
+                        return { success: true };
                     });
                 }
 
@@ -258,7 +304,7 @@ export function useStats() {
                 }));
             }
         }
-    }, [getUserId, dbStats, setCurrentSessions, setCurrentStats]);
+    }, [getUserId, dbStats, setCurrentSessions, setCurrentStats, getAuthenticatedSupabaseClient]);
 
     const updateTaskStats = useCallback(async (totalTasks: number, completedTasks: number) => {
         const userId = getUserId();
@@ -266,15 +312,40 @@ export function useStats() {
             // Update in database
             try {
                 await retryWithBackoff(async () => {
-                    const result = await (supabaseClient
-                        .from('stats') as any)
-                        .upsert({
-                            user_id: userId,
-                            total_tasks: totalTasks,
-                            completed_tasks: completedTasks,
-                        }, { onConflict: 'user_id' });
-                    if (result.error) throw result.error;
-                    return result;
+                    const authenticatedClient = getAuthenticatedSupabaseClient();
+
+                    // First check if stats row exists
+                    const { data: existingStats } = await authenticatedClient
+                        .from('stats')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .single();
+
+                    if (existingStats) {
+                        // Update existing row
+                        const result = await authenticatedClient
+                            .from('stats')
+                            .update({
+                                total_tasks: totalTasks,
+                                completed_tasks: completedTasks,
+                            })
+                            .eq('user_id', userId);
+                        if (result.error) throw result.error;
+                    } else {
+                        // Insert new row
+                        const result = await authenticatedClient
+                            .from('stats')
+                            .insert({
+                                user_id: userId,
+                                total_tasks: totalTasks,
+                                completed_tasks: completedTasks,
+                                total_focus_time: 0,
+                                total_sessions: 0,
+                                streak: 0,
+                            });
+                        if (result.error) throw result.error;
+                    }
+                    return { success: true };
                 });
 
                 setCurrentStats(prevStats => {
@@ -308,7 +379,7 @@ export function useStats() {
                 };
             });
         }
-    }, [getUserId, setCurrentStats]);
+    }, [getUserId, setCurrentStats, getAuthenticatedSupabaseClient]);
 
     const getTodaySessions = useCallback(() => {
         const today = new Date();
