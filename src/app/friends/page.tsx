@@ -80,7 +80,9 @@ export default function FriendsPage() {
             if (!response.ok) {
                 throw new Error('Failed to fetch friends');
             }
-            const data: Friend[] = await response.json();
+            const responseData = await response.json();
+            // Extract friends array from the API response wrapper
+            const data: Friend[] = responseData.data || [];
             // Filter to only accepted friends
             const acceptedFriends = data.filter(friend => friend.status === 'accepted');
             setFriends(acceptedFriends);
@@ -97,7 +99,9 @@ export default function FriendsPage() {
             if (!response.ok) {
                 throw new Error('Failed to fetch friend requests');
             }
-            const data: Friend[] = await response.json();
+            const responseData = await response.json();
+            // Extract friends array from the API response wrapper
+            const data: Friend[] = responseData.data || [];
             const userId = session?.user?.id;
             const pending = data.filter(friend =>
                 friend.status === 'pending' && friend.receiver_id === userId
@@ -189,7 +193,9 @@ export default function FriendsPage() {
             if (!response.ok) {
                 throw new Error('Failed to search users');
             }
-            const data = await response.json();
+            const responseData = await response.json();
+            // Extract users array from the API response wrapper
+            const data = responseData.data || [];
             // Filter out current user and existing friends
             const friendIds = friends.map(f =>
                 f.sender_id === session?.user?.id ? f.receiver_id : f.sender_id
