@@ -21,10 +21,8 @@ export function useStatsWithTimezone() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const getUserId = () => session?.user?.id;
-
     const fetchSessions = useCallback(async (): Promise<Session[]> => {
-        const userId = getUserId();
+        const userId = session?.user?.id;
         if (!userId) return [];
 
         const { data, error } = await supabaseClient
@@ -50,7 +48,7 @@ export function useStatsWithTimezone() {
     }, [session?.user?.id]);
 
     const refreshStats = useCallback(async () => {
-        const userId = getUserId();
+        const userId = session?.user?.id;
         if (!userId) {
             setLoading(false);
             return;
@@ -93,17 +91,24 @@ export function useStatsWithTimezone() {
         } catch (error: any) {
             logger.error('Error refreshing stats', error, {
                 action: 'refreshStats',
-                userId: getUserId()
+                userId: session?.user?.id
             });
             showErrorToast('Failed to load statistics', error.message);
         } finally {
             setLoading(false);
         }
-    }, [getUserId, fetchSessions, showErrorToast]);
+    }, [session?.user?.id, fetchSessions, showErrorToast]);
 
     useEffect(() => {
-        refreshStats();
-    }, [refreshStats]);
+        // Only refresh if we have a user session
+        if (session?.user?.id) {
+            refreshStats();
+        } else {
+            // Clear stats if no session
+            setStats(null);
+            setLoading(false);
+        }
+    }, [session?.user?.id, refreshStats]);
 
     return { stats, loading, refreshStats };
 }
