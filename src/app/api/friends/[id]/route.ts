@@ -12,6 +12,9 @@ import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { logger } from '@/lib/logger';
+import { compose, withErrorHandling, withLogging, withRateLimit, withValidation } from '@/lib/api/middleware';
+import { UpdateFriendRequestSchema } from '@/lib/api/schemas';
+import { successResponse, Errors } from '@/lib/api/utils/response';
 
 /**
  * Updated friend request data.
@@ -68,121 +71,113 @@ import { logger } from '@/lib/logger';
  * // 403: { "error": "Unauthorized to modify this request" }
  * // 404: { "error": "Friend request not found" }
  */
-export async function PUT(
+async function putHandler(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    context: { params: Promise<{ id: string }> },
+    validatedData: any
 ) {
-    try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user || !session.accessToken) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !session.accessToken) {
+        return Errors.unauthorized();
+    }
 
-        const userId = session.user.id;
-        const { id: friendId } = await params;
-        const { action } = await request.json(); // 'accept' or 'reject'
+    const userId = session.user.id;
+    const { id: friendId } = await context.params;
+    const { action } = validatedData;
 
-        if (!['accept', 'reject'].includes(action)) {
-            return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
-        }
-
-        // Create supabase client with user's access token for RLS
-        const supabaseWithAuth = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                global: {
-                    headers: {
-                        'Authorization': `Bearer ${session.accessToken}`
-                    }
+    // Create supabase client with user's access token for RLS
+    const supabaseWithAuth = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            global: {
+                headers: {
+                    'Authorization': `Bearer ${session.accessToken}`
                 }
             }
-        );
-
-        // Check if the user is the receiver of this friend request
-        const { data: friendRequestData, error: fetchError } = await supabaseWithAuth
-            .from('friends')
-            .select('sender_id, receiver_id, status')
-            .eq('id', friendId)
-            .single();
-
-        if (fetchError || !friendRequestData) {
-            return NextResponse.json({ error: 'Friend request not found' }, { status: 404 });
         }
+    );
 
-        const typedFriendRequestData = friendRequestData as { receiver_id: string; status: 'pending' | 'accepted' | 'rejected' };
+    // Check if the user is the receiver of this friend request
+    const { data: friendRequestData, error: fetchError } = await supabaseWithAuth
+        .from('friends')
+        .select('sender_id, receiver_id, status')
+        .eq('id', friendId)
+        .single();
 
-        if (typedFriendRequestData.receiver_id !== userId) {
-            return NextResponse.json({ error: 'Unauthorized to modify this request' }, { status: 403 });
-        }
+    if (fetchError || !friendRequestData) {
+        return Errors.notFound('Friend request not found');
+    }
 
-        if (typedFriendRequestData.status !== 'pending') {
-            return NextResponse.json({ error: 'Request already processed' }, { status: 400 });
-        }
+    const typedFriendRequestData = friendRequestData as { receiver_id: string; status: 'pending' | 'accepted' | 'rejected'; sender_id: string };
 
-        // 1. Update friendship status
-        const newStatus = action === 'accept' ? 'accepted' : 'rejected';
-        const { error: updateError } = await supabaseWithAuth
-            .from('friends')
-            .update({ status: newStatus })
-            .eq('id', friendId);
+    if (typedFriendRequestData.receiver_id !== userId) {
+        return Errors.forbidden('Unauthorized to modify this request');
+    }
 
-        if (updateError) {
-            logger.error('Error updating friend request', updateError as Error, {
-                action: 'updateFriendRequest',
-                friendId
-            });
-            return NextResponse.json({ error: 'Failed to accept friend request' }, { status: 500 });
-        }
+    if (typedFriendRequestData.status !== 'pending') {
+        return Errors.badRequest('Request already processed');
+    }
 
-        // 2. Delete original friend request notification
-        const { error: deleteNotifError } = await supabaseWithAuth
+    // 1. Update friendship status
+    const newStatus = action === 'accept' ? 'accepted' : 'rejected';
+    const { error: updateError } = await supabaseWithAuth
+        .from('friends')
+        .update({ status: newStatus })
+        .eq('id', friendId);
+
+    if (updateError) {
+        logger.error('Error updating friend request', updateError as Error, {
+            action: 'updateFriendRequest',
+            friendId
+        });
+        throw new Error('Failed to update friend request');
+    }
+
+    // 2. Delete original friend request notification
+    const { error: deleteNotifError } = await supabaseWithAuth
+        .from('notifications')
+        .delete()
+        .eq('type', 'friend_request')
+        .eq('data->friendshipId', friendId);
+
+    if (deleteNotifError) {
+        logger.error('Error deleting friend request notification', deleteNotifError as Error, {
+            action: 'deleteFriendRequestNotification',
+            friendId
+        });
+        // Continue anyway - this is not critical
+    }
+
+    // 3. Create acceptance notification for sender if accepted
+    if (action === 'accept') {
+        const { error: notifError } = await supabaseWithAuth
             .from('notifications')
-            .delete()
-            .eq('type', 'friend_request')
-            .eq('data->friendshipId', friendId);
+            .insert({
+                user_id: typedFriendRequestData.sender_id,
+                type: 'friend_request_accepted',
+                title: 'Friend Request Accepted',
+                message: `${session.user.name || session.user.email} accepted your friend request`,
+                data: { friendshipId: friendId }
+            });
 
-        if (deleteNotifError) {
-            logger.error('Error deleting friend request notification', deleteNotifError as Error, {
-                action: 'deleteFriendRequestNotification',
+        if (notifError) {
+            logger.error('Error creating friend accept notification', notifError as Error, {
+                action: 'createFriendAcceptNotification',
                 friendId
             });
             // Continue anyway - this is not critical
         }
-
-        // 3. Create acceptance notification for sender if accepted
-        if (action === 'accept') {
-            const { error: notifError } = await supabaseWithAuth
-                .from('notifications')
-                .insert({
-                    user_id: friendRequestData.sender_id,
-                    type: 'friend_request_accepted',
-                    title: 'Friend Request Accepted',
-                    message: `${session.user.name || session.user.email} accepted your friend request`,
-                    data: { friendshipId: friendId }
-                });
-
-            if (notifError) {
-                logger.error('Error creating friend accept notification', notifError as Error, {
-                    action: 'createFriendAcceptNotification',
-                    friendId
-                });
-                // Continue anyway - this is not critical
-            }
-        }
-
-        logger.info(`Friend request ${action}ed`, {
-            action: `${action}FriendRequest`,
-            friendId,
-            senderId: friendRequestData.sender_id,
-            receiverId: userId
-        });
-
-        return NextResponse.json({ message: `Friend request ${action}ed` });
-    } catch (error) {
-        console.error('Error in friends PUT API:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
+
+    logger.info(`Friend request ${action}ed`, {
+        action: `${action}FriendRequest`,
+        friendId,
+        senderId: typedFriendRequestData.sender_id,
+        receiverId: userId
+    });
+
+    return successResponse({ message: `Friend request ${action}ed` });
 }
 
 /**
@@ -212,71 +207,79 @@ export async function PUT(
  * // 403: { "error": "Unauthorized to remove this friendship" }
  * // 404: { "error": "Friendship not found" }
  */
-export async function DELETE(
+async function deleteHandler(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    context: { params: Promise<{ id: string }> }
 ) {
-    try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user || !session.accessToken) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !session.accessToken) {
+        return Errors.unauthorized();
+    }
 
-        const userId = session.user.id;
-        const { id: friendshipId } = await params;
+    const userId = session.user.id;
+    const { id: friendshipId } = await context.params;
 
-        // Create supabase client with user's access token for RLS
-        const supabaseWithAuth = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                global: {
-                    headers: {
-                        'Authorization': `Bearer ${session.accessToken}`
-                    }
+    // Create supabase client with user's access token for RLS
+    const supabaseWithAuth = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            global: {
+                headers: {
+                    'Authorization': `Bearer ${session.accessToken}`
                 }
             }
-        );
-
-        // Check if the user is part of this friendship
-        const { data: friendshipData, error: fetchError } = await supabaseWithAuth
-            .from('friends')
-            .select('sender_id, receiver_id, status')
-            .eq('id', friendshipId)
-            .single();
-
-        if (fetchError || !friendshipData) {
-            return NextResponse.json({ error: 'Friendship not found' }, { status: 404 });
         }
+    );
 
-        // Verify user is either sender or receiver
-        if (friendshipData.sender_id !== userId && friendshipData.receiver_id !== userId) {
-            return NextResponse.json({ error: 'Unauthorized to remove this friendship' }, { status: 403 });
-        }
+    // Check if the user is part of this friendship
+    const { data: friendshipData, error: fetchError } = await supabaseWithAuth
+        .from('friends')
+        .select('sender_id, receiver_id, status')
+        .eq('id', friendshipId)
+        .single();
 
-        // Delete the friendship
-        const { error: deleteError } = await supabaseWithAuth
-            .from('friends')
-            .delete()
-            .eq('id', friendshipId);
-
-        if (deleteError) {
-            logger.error('Error deleting friendship', deleteError as Error, {
-                action: 'deleteFriendship',
-                friendshipId
-            });
-            return NextResponse.json({ error: 'Failed to remove friend' }, { status: 500 });
-        }
-
-        logger.info('Friendship removed', {
-            action: 'removeFriend',
-            friendshipId,
-            userId
-        });
-
-        return NextResponse.json({ message: 'Friend removed successfully' });
-    } catch (error) {
-        console.error('Error in friends DELETE API:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    if (fetchError || !friendshipData) {
+        return Errors.notFound('Friendship not found');
     }
+
+    // Verify user is either sender or receiver
+    if (friendshipData.sender_id !== userId && friendshipData.receiver_id !== userId) {
+        return Errors.forbidden('Unauthorized to remove this friendship');
+    }
+
+    // Delete the friendship
+    const { error: deleteError } = await supabaseWithAuth
+        .from('friends')
+        .delete()
+        .eq('id', friendshipId);
+
+    if (deleteError) {
+        logger.error('Error deleting friendship', deleteError as Error, {
+            action: 'deleteFriendship',
+            friendshipId
+        });
+        throw new Error('Failed to remove friend');
+    }
+
+    logger.info('Friendship removed', {
+        action: 'removeFriend',
+        friendshipId,
+        userId
+    });
+
+    return successResponse({ message: 'Friend removed successfully' });
 }
+
+export const PUT = compose(
+    withErrorHandling(),
+    withLogging(),
+    withValidation(UpdateFriendRequestSchema),
+    withRateLimit('standard')
+)(putHandler);
+
+export const DELETE = compose(
+    withErrorHandling(),
+    withLogging(),
+    withRateLimit('standard')
+)(deleteHandler);

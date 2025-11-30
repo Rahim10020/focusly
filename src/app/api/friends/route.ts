@@ -12,7 +12,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { withRateLimit } from '@/lib/rateLimit';
+import { compose, withRateLimit, withValidation, withLogging, withErrorHandling } from '@/lib/api/middleware';
+import { CreateFriendRequestSchema } from '@/lib/api/schemas';
+import { successResponse, Errors } from '@/lib/api/utils/response';
 
 /**
  * Friend relationship data returned from the API.
@@ -61,30 +63,29 @@ import { withRateLimit } from '@/lib/rateLimit';
  * { "error": "Unauthorized" }
  */
 async function getHandler(request: NextRequest) {
-    try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user || !session.accessToken) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !session.accessToken) {
+        return Errors.unauthorized();
+    }
 
-        const userId = session.user.id;
+    const userId = session.user.id;
 
-        // Create supabase client with user's access token for RLS
-        const supabaseWithAuth = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                global: {
-                    headers: {
-                        'Authorization': `Bearer ${session.accessToken}`
-                    }
+    // Create supabase client with user's access token for RLS
+    const supabaseWithAuth = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            global: {
+                headers: {
+                    'Authorization': `Bearer ${session.accessToken}`
                 }
             }
-        );
+        }
+    );
 
-        const { data, error } = await supabaseWithAuth
-            .from('friends')
-            .select(`
+    const { data, error } = await supabaseWithAuth
+        .from('friends')
+        .select(`
         id,
         sender_id,
         receiver_id,
@@ -99,18 +100,13 @@ async function getHandler(request: NextRequest) {
             avatar_url
         )
       `)
-            .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
 
-        if (error) {
-            console.error('Error fetching friends:', error);
-            return NextResponse.json({ error: 'Failed to fetch friends' }, { status: 500 });
-        }
-
-        return NextResponse.json(data);
-    } catch (error) {
-        console.error('Error in friends API:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    if (error) {
+        throw new Error('Failed to fetch friends');
     }
+
+    return successResponse(data || []);
 }
 
 /**
@@ -148,96 +144,84 @@ async function getHandler(request: NextRequest) {
  * // 400: { "error": "Friend request already exists" }
  * // 401: { "error": "Unauthorized" }
  */
-async function postHandler(request: NextRequest) {
-    try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user || !session.accessToken) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+async function postHandler(request: NextRequest, context: any, validatedData: any) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !session.accessToken) {
+        return Errors.unauthorized();
+    }
 
-        const userId = session.user.id;
-        const { receiver_id } = await request.json();
+    const userId = session.user.id;
+    const { receiver_id } = validatedData;
 
-        if (!receiver_id) {
-            return NextResponse.json({ error: 'Receiver ID is required' }, { status: 400 });
-        }
+    if (receiver_id === userId) {
+        return Errors.badRequest('Cannot send friend request to yourself');
+    }
 
-        // Validate that receiver_id is a valid UUID
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (!uuidRegex.test(receiver_id)) {
-            return NextResponse.json({ error: 'Invalid receiver ID format' }, { status: 400 });
-        }
-
-        if (receiver_id === userId) {
-            return NextResponse.json({ error: 'Cannot send friend request to yourself' }, { status: 400 });
-        }
-
-        // Create supabase client with user's access token for RLS
-        const supabaseWithAuth = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                global: {
-                    headers: {
-                        'Authorization': `Bearer ${session.accessToken}`
-                    }
+    // Create supabase client with user's access token for RLS
+    const supabaseWithAuth = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            global: {
+                headers: {
+                    'Authorization': `Bearer ${session.accessToken}`
                 }
             }
-        );
+        }
+    );
 
-        // Ensure sender has a profile
-        const { data: senderProfile } = await supabaseWithAuth
+    // Ensure sender has a profile
+    const { data: senderProfile } = await supabaseWithAuth
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .single();
+
+    if (!senderProfile) {
+        // Create profile if it doesn't exist
+        const { error: profileError } = await supabaseWithAuth
             .from('profiles')
-            .select('id')
-            .eq('id', userId)
-            .single();
-
-        if (!senderProfile) {
-            // Create profile if it doesn't exist
-            const { error: profileError } = await supabaseWithAuth
-                .from('profiles')
-                .insert({
-                    id: userId,
-                    username: null,
-                    avatar_url: null
-                });
-
-            if (profileError) {
-                console.error('Error creating profile:', profileError);
-                return NextResponse.json({ error: 'Failed to create user profile' }, { status: 500 });
-            }
-        }
-
-        // Check if receiver has a profile
-        const { data: receiverProfile } = await supabaseWithAuth
-            .from('profiles')
-            .select('id')
-            .eq('id', receiver_id)
-            .single();
-
-        if (!receiverProfile) {
-            return NextResponse.json({ error: 'Cannot send friend request to this user' }, { status: 400 });
-        }
-
-        // Check if request already exists
-        const { data: existing } = await supabaseWithAuth
-            .from('friends')
-            .select('id')
-            .or(`and(sender_id.eq.${userId},receiver_id.eq.${receiver_id}),and(sender_id.eq.${receiver_id},receiver_id.eq.${userId})`)
-            .single();
-
-        if (existing) {
-            return NextResponse.json({ error: 'Friend request already exists' }, { status: 400 });
-        }
-
-        const { data, error } = await supabaseWithAuth
-            .from('friends')
             .insert({
-                sender_id: userId,
-                receiver_id,
-                status: 'pending' // ✅ CRUCIAL: status pending
-            })
-            .select(`
+                id: userId,
+                username: null,
+                avatar_url: null
+            });
+
+        if (profileError) {
+            throw new Error('Failed to create user profile');
+        }
+    }
+
+    // Check if receiver has a profile
+    const { data: receiverProfile } = await supabaseWithAuth
+        .from('profiles')
+        .select('id')
+        .eq('id', receiver_id)
+        .single();
+
+    if (!receiverProfile) {
+        return Errors.badRequest('Cannot send friend request to this user');
+    }
+
+    // Check if request already exists
+    const { data: existing } = await supabaseWithAuth
+        .from('friends')
+        .select('id')
+        .or(`and(sender_id.eq.${userId},receiver_id.eq.${receiver_id}),and(sender_id.eq.${receiver_id},receiver_id.eq.${userId})`)
+        .single();
+
+    if (existing) {
+        return Errors.badRequest('Friend request already exists');
+    }
+
+    const { data, error } = await supabaseWithAuth
+        .from('friends')
+        .insert({
+            sender_id: userId,
+            receiver_id,
+            status: 'pending' // ✅ CRUCIAL: status pending
+        })
+        .select(`
                 *,
                 sender:profiles!friends_sender_id_fkey (
                     username
@@ -246,37 +230,41 @@ async function postHandler(request: NextRequest) {
                     username
                 )
             `)
-            .single();
+        .single();
 
-        if (error) {
-            console.error('Error sending friend request:', error);
-            return NextResponse.json({ error: 'Failed to send friend request' }, { status: 500 });
-        }
-
-        // Create notification for the receiver
-        try {
-            const senderName = data.sender?.username || 'Someone';
-            await supabaseWithAuth
-                .from('notifications')
-                .insert({
-                    user_id: receiver_id,
-                    type: 'friend_request',
-                    title: 'New Friend Request',
-                    message: `${senderName} sent you a friend request`,
-                    data: { friend_request_id: data.id },
-                    read: false
-                });
-        } catch (notificationError) {
-            console.error('Error creating friend request notification:', notificationError);
-            // Don't fail the friend request if notification creation fails
-        }
-
-        return NextResponse.json(data);
-    } catch (error) {
-        console.error('Error in friends POST API:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    if (error) {
+        throw new Error('Failed to send friend request');
     }
+
+    // Create notification for the receiver
+    try {
+        const senderName = data.sender?.username || 'Someone';
+        await supabaseWithAuth
+            .from('notifications')
+            .insert({
+                user_id: receiver_id,
+                type: 'friend_request',
+                title: 'New Friend Request',
+                message: `${senderName} sent you a friend request`,
+                data: { friend_request_id: data.id },
+                read: false
+            });
+    } catch (notificationError) {
+        // Don't fail the friend request if notification creation fails
+    }
+
+    return successResponse(data, { status: 201 });
 }
 
-export const GET = withRateLimit(getHandler, { windowMs: 60 * 1000, maxRequests: 30 }); // 30 requests per minute
-export const POST = withRateLimit(postHandler, { windowMs: 60 * 1000, maxRequests: 10 }); // 10 requests per minute for friend requests
+export const GET = compose(
+    withErrorHandling(),
+    withLogging(),
+    withRateLimit('generous')
+)(getHandler);
+
+export const POST = compose(
+    withErrorHandling(),
+    withLogging(),
+    withValidation(CreateFriendRequestSchema),
+    withRateLimit('standard')
+)(postHandler);

@@ -8,11 +8,14 @@
  */
 
 import { getServerSession } from 'next-auth/next';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/lib/auth';
 import { supabaseServerPool } from '@/lib/supabase/server';
 import { logger } from '@/lib/logger';
 import { Cache } from '@/lib/cache';
+import { compose, withRateLimit, withValidation, withLogging, withErrorHandling } from '@/lib/api/middleware';
+import { UpdateUserPreferencesSchema } from '@/lib/api/schemas';
+import { successResponse, Errors } from '@/lib/api/utils/response';
 
 /**
  * User preferences request body.
@@ -63,62 +66,53 @@ import { Cache } from '@/lib/cache';
  * // 401: { "error": "Unauthorized" }
  * // 500: { "error": "Failed to update preferences" }
  */
-export async function POST(request: Request) {
+async function postHandler(request: NextRequest, context: any, validatedData: any) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-        return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-            status: 401,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        return Errors.unauthorized();
     }
 
-    try {
-        const { theme } = await request.json();
+    // Use pooled server-side admin client with strict user validation
+    const supabaseAdmin = supabaseServerPool.getAdminClient();
 
-        if (theme !== 'light' && theme !== 'dark') {
-            return new NextResponse(
-                JSON.stringify({ error: 'Invalid theme value. Must be "light" or "dark".' }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
+    // Get current preferences to merge with updates
+    const { data: currentPrefs } = await supabaseAdmin
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single();
 
-        // Use pooled server-side admin client with strict user validation
-        const supabaseAdmin = supabaseServerPool.getAdminClient();
+    // Merge validated data with current preferences
+    const updatedPrefs = {
+        ...currentPrefs,
+        ...validatedData,
+        user_id: session.user.id, // Use session user ID, not request body
+        updated_at: new Date().toISOString()
+    };
 
-        // Double-check: only update for authenticated user (never trust client input)
-        const { error } = await (supabaseAdmin
-            .from('user_preferences') as any)
-            .upsert(
-                {
-                    user_id: session.user.id, // Use session user ID, not request body
-                    theme_preference: theme,
-                    updated_at: new Date().toISOString()
-                },
-                { onConflict: 'user_id' }
-            );
+    const { error } = await (supabaseAdmin
+        .from('user_preferences') as any)
+        .upsert(updatedPrefs, { onConflict: 'user_id' });
 
-        if (error) {
-            logger.error('Error updating theme preference', error as Error, {
-                action: 'updateThemePreference',
-                userId: session.user.id
-            });
-            throw error;
-        }
-
-        // Invalidate cache for this user's preferences
-        await Cache.invalidate(`theme-preference:${session.user.id}`);
-
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        logger.error('Error in preferences API', error as Error, {
-            action: 'preferencesAPI'
+    if (error) {
+        logger.error('Error updating user preferences', error as Error, {
+            action: 'updateUserPreferences',
+            userId: session.user.id
         });
-        return new NextResponse(
-            JSON.stringify({ error: 'Failed to update preferences' }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
-        );
+        throw new Error('Failed to update preferences');
     }
+
+    // Invalidate cache for this user's preferences
+    await Cache.invalidate(`theme-preference:${session.user.id}`);
+    await Cache.invalidate(`user-preferences:${session.user.id}`);
+
+    return successResponse({ success: true });
 }
+
+export const POST = compose(
+    withErrorHandling(),
+    withLogging(),
+    withValidation(UpdateUserPreferencesSchema),
+    withRateLimit('standard')
+)(postHandler);

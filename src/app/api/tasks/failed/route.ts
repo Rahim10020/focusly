@@ -9,6 +9,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { supabaseServerPool } from '@/lib/supabase/server';
 import { logger } from '@/lib/logger';
+import { compose, withRateLimit, withLogging, withErrorHandling } from '@/lib/api/middleware';
+import { successResponse, Errors } from '@/lib/api/utils/response';
 
 /**
  * Retrieves all failed (overdue) tasks for the authenticated user.
@@ -35,43 +37,36 @@ import { logger } from '@/lib/logger';
  *   }
  * ]
  */
-export async function GET(request: NextRequest) {
-    try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user?.id) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const supabaseAdmin = supabaseServerPool.getAdminClient();
-
-        // Récupérer les tâches overdue (failed)
-        const { data, error } = await supabaseAdmin
-            .from('tasks')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .eq('completed', false)
-            .not('due_date', 'is', null)
-            .lt('due_date', new Date().toISOString());
-
-        if (error) {
-            logger.error('Error fetching failed tasks', error as Error, {
-                action: 'getFailedTasks',
-                userId: session.user.id
-            });
-            return NextResponse.json(
-                { error: 'Failed to fetch failed tasks' },
-                { status: 500 }
-            );
-        }
-
-        return NextResponse.json(data || []);
-    } catch (error) {
-        logger.error('Error in failed tasks API', error as Error, {
-            action: 'failedTasksAPI'
-        });
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
+async function getHandler(request: NextRequest) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+        return Errors.unauthorized();
     }
+
+    const supabaseAdmin = supabaseServerPool.getAdminClient();
+
+    // Récupérer les tâches overdue (failed)
+    const { data, error } = await supabaseAdmin
+        .from('tasks')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .eq('completed', false)
+        .not('due_date', 'is', null)
+        .lt('due_date', new Date().toISOString());
+
+    if (error) {
+        logger.error('Error fetching failed tasks', error as Error, {
+            action: 'getFailedTasks',
+            userId: session.user.id
+        });
+        throw new Error('Failed to fetch failed tasks');
+    }
+
+    return successResponse(data || []);
 }
+
+export const GET = compose(
+    withErrorHandling(),
+    withLogging(),
+    withRateLimit('standard')
+)(getHandler);

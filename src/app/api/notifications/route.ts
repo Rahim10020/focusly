@@ -13,7 +13,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { withRateLimit } from '@/lib/rateLimit';
+import { compose, withRateLimit, withLogging, withErrorHandling } from '@/lib/api/middleware';
+import { successResponse, Errors } from '@/lib/api/utils/response';
 
 /**
  * Notification data returned from the API.
@@ -61,43 +62,37 @@ import { withRateLimit } from '@/lib/rateLimit';
  * { "error": "Unauthorized" }
  */
 async function getHandler(request: NextRequest) {
-    try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user || !session.accessToken) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !session.accessToken) {
+        return Errors.unauthorized();
+    }
 
-        const userId = session.user.id;
+    const userId = session.user.id;
 
-        // Create supabase client with user's access token for RLS
-        const supabaseWithAuth = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                global: {
-                    headers: {
-                        'Authorization': `Bearer ${session.accessToken}`
-                    }
+    // Create supabase client with user's access token for RLS
+    const supabaseWithAuth = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            global: {
+                headers: {
+                    'Authorization': `Bearer ${session.accessToken}`
                 }
             }
-        );
-
-        const { data, error } = await supabaseWithAuth
-            .from('notifications')
-            .select('*')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error('Error fetching notifications:', error);
-            return NextResponse.json({ error: 'Failed to fetch notifications' }, { status: 500 });
         }
+    );
 
-        return NextResponse.json(data);
-    } catch (error) {
-        console.error('Error in notifications API:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const { data, error } = await supabaseWithAuth
+        .from('notifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        throw new Error('Failed to fetch notifications');
     }
+
+    return successResponse(data || []);
 }
 
 /**
@@ -132,61 +127,64 @@ async function getHandler(request: NextRequest) {
  * }
  */
 async function postHandler(request: NextRequest) {
-    try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user || !session.accessToken) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !session.accessToken) {
+        return Errors.unauthorized();
+    }
 
-        const { user_id, type, title, message, data } = await request.json();
+    const { user_id, type, title, message, data } = await request.json();
 
-        if (!user_id || !type || !title || !message) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-        }
+    if (!user_id || !type || !title || !message) {
+        return Errors.badRequest('Missing required fields');
+    }
 
-        // Validate notification type
-        const validTypes = ['friend_request', 'friend_request_accepted', 'task_completed', 'task_overdue', 'achievement', 'info'];
-        if (!validTypes.includes(type)) {
-            return NextResponse.json({ error: 'Invalid notification type' }, { status: 400 });
-        }
+    // Validate notification type
+    const validTypes = ['friend_request', 'friend_request_accepted', 'task_completed', 'task_overdue', 'achievement', 'info'];
+    if (!validTypes.includes(type)) {
+        return Errors.badRequest('Invalid notification type');
+    }
 
-        // Create supabase client with user's access token for RLS
-        const supabaseWithAuth = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                global: {
-                    headers: {
-                        'Authorization': `Bearer ${session.accessToken}`
-                    }
+    // Create supabase client with user's access token for RLS
+    const supabaseWithAuth = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            global: {
+                headers: {
+                    'Authorization': `Bearer ${session.accessToken}`
                 }
             }
-        );
-
-        const { data: notification, error } = await supabaseWithAuth
-            .from('notifications')
-            .insert({
-                user_id,
-                type,
-                title,
-                message,
-                data: data || null,
-                read: false
-            })
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Error creating notification:', error);
-            return NextResponse.json({ error: 'Failed to create notification' }, { status: 500 });
         }
+    );
 
-        return NextResponse.json(notification, { status: 201 });
-    } catch (error) {
-        console.error('Error in notifications POST API:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const { data: notification, error } = await supabaseWithAuth
+        .from('notifications')
+        .insert({
+            user_id,
+            type,
+            title,
+            message,
+            data: data || null,
+            read: false
+        })
+        .select()
+        .single();
+
+    if (error) {
+        throw new Error('Failed to create notification');
     }
+
+    return successResponse(notification, { status: 201 });
 }
 
-export const GET = withRateLimit(getHandler, { windowMs: 60 * 1000, maxRequests: 30 }); // 30 requests per minute
-export const POST = withRateLimit(postHandler, { windowMs: 60 * 1000, maxRequests: 10 }); // 10 requests per minute for creating notifications
+export const GET = compose(
+    withErrorHandling(),
+    withLogging(),
+    withRateLimit('generous')
+)(getHandler);
+
+export const POST = compose(
+    withErrorHandling(),
+    withLogging(),
+    withRateLimit('standard')
+)(postHandler);
