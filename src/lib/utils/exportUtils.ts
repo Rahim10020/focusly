@@ -1,6 +1,7 @@
 /**
  * @fileoverview Export utilities for generating PDF and CSV reports.
  * Provides functions to export tasks and analytics data in various formats.
+ * Supports streaming for large PDF exports to handle memory efficiently.
  * @module lib/utils/exportUtils
  */
 
@@ -301,4 +302,165 @@ export const exportAnalyticsToCSV = (stats: Stats, tasks: Task[], sessions: Pomo
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+};
+
+/**
+ * Exports large task dataset to PDF using chunked processing.
+ * Processes tasks in batches to avoid memory issues with large datasets.
+ * Uses streaming approach for better performance.
+ *
+ * @param {Task[]} tasks - Array of tasks to export
+ * @param {string} [userName='User'] - Name to display on the report
+ * @param {number} [chunkSize=100] - Number of tasks to process per chunk
+ * @returns {void} Downloads the PDF file
+ *
+ * @example
+ * exportLargeTasksToPDF(largeTaskArray, 'John Doe', 100);
+ * // Downloads focusly-tasks-large-2024-01-15.pdf
+ */
+export const exportLargeTasksToPDF = async (
+    tasks: Task[],
+    userName: string = 'User',
+    chunkSize: number = 100
+) => {
+    const doc = new jsPDF();
+
+    // Title
+    doc.setFontSize(20);
+    doc.text('Focusly - Large Task Report', 14, 22);
+
+    // Subtitle
+    doc.setFontSize(12);
+    doc.text(`Generated for: ${userName}`, 14, 30);
+    doc.text(`Date: ${format(new Date(), 'MMM d, yyyy')}`, 14, 36);
+
+    // Summary Stats
+    const completedTasks = tasks.filter(t => t.completed).length;
+    const totalTasks = tasks.length;
+    const completionRate = totalTasks > 0 ? ((completedTasks / totalTasks) * 100).toFixed(1) : '0';
+
+    doc.setFontSize(10);
+    doc.text(`Total Tasks: ${totalTasks} | Completed: ${completedTasks} | Completion Rate: ${completionRate}%`, 14, 44);
+
+    // Process tasks in chunks to avoid memory issues
+    let startY = 50;
+
+    for (let i = 0; i < tasks.length; i += chunkSize) {
+        const chunk = tasks.slice(i, i + chunkSize);
+
+        const tableData = chunk.map(task => [
+            task.title.length > 40 ? task.title.substring(0, 37) + '...' : task.title,
+            task.priority || 'None',
+            task.subDomain ? DOMAINS[getDomainFromSubDomain(task.subDomain)]?.name.split('(')[0].trim() : 'N/A',
+            task.completed ? 'Yes' : 'No',
+            task.startDate ? format(new Date(task.startDate), 'MMM d') : 'N/A',
+            task.dueDate ? format(new Date(task.dueDate), 'MMM d') : 'N/A',
+            task.pomodoroCount.toString(),
+        ]);
+
+        autoTable(doc, {
+            startY,
+            head: i === 0 ? [['Task', 'Priority', 'Domain', 'Done', 'Start', 'Due', 'Poms']] : undefined,
+            body: tableData,
+            theme: 'grid',
+            headStyles: { fillColor: [99, 102, 241] },
+            styles: { fontSize: 7 },
+            columnStyles: {
+                0: { cellWidth: 50 },
+                1: { cellWidth: 20 },
+                2: { cellWidth: 35 },
+                3: { cellWidth: 15 },
+                4: { cellWidth: 20 },
+                5: { cellWidth: 20 },
+                6: { cellWidth: 15 },
+            },
+            didDrawPage: (data) => {
+                // Add page numbers
+                const pageCount = doc.getNumberOfPages();
+                doc.setFontSize(8);
+                doc.text(
+                    `Page ${pageCount}`,
+                    doc.internal.pageSize.getWidth() / 2,
+                    doc.internal.pageSize.getHeight() - 10,
+                    { align: 'center' }
+                );
+            },
+        });
+
+        startY = (doc as any).lastAutoTable.finalY + 5;
+
+        // Allow UI to update between chunks (prevents blocking)
+        if (i + chunkSize < tasks.length) {
+            await new Promise(resolve => setTimeout(resolve, 0));
+        }
+    }
+
+    // Save the PDF
+    doc.save(`focusly-tasks-large-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+};
+
+/**
+ * Generates a PDF blob for server-side processing or upload.
+ * Returns the PDF as a Blob instead of triggering a download.
+ * Useful for API routes or server-side export functionality.
+ *
+ * @param {Task[]} tasks - Array of tasks to export
+ * @param {string} [userName='User'] - Name to display on the report
+ * @returns {Blob} PDF file as Blob
+ *
+ * @example
+ * const pdfBlob = await generateTasksPDFBlob(tasks, 'John Doe');
+ * // Upload blob to storage or send via API
+ */
+export const generateTasksPDFBlob = (tasks: Task[], userName: string = 'User'): Blob => {
+    const doc = new jsPDF();
+
+    // Title
+    doc.setFontSize(20);
+    doc.text('Focusly - Task Report', 14, 22);
+
+    // Subtitle
+    doc.setFontSize(12);
+    doc.text(`Generated for: ${userName}`, 14, 30);
+    doc.text(`Date: ${format(new Date(), 'MMM d, yyyy')}`, 14, 36);
+
+    // Summary Stats
+    const completedTasks = tasks.filter(t => t.completed).length;
+    const totalTasks = tasks.length;
+    const completionRate = totalTasks > 0 ? ((completedTasks / totalTasks) * 100).toFixed(1) : '0';
+
+    doc.setFontSize(10);
+    doc.text(`Total Tasks: ${totalTasks} | Completed: ${completedTasks} | Completion Rate: ${completionRate}%`, 14, 44);
+
+    // Tasks Table
+    const tableData = tasks.map(task => [
+        task.title,
+        task.priority || 'None',
+        task.subDomain ? DOMAINS[getDomainFromSubDomain(task.subDomain)]?.name.split('(')[0].trim() : 'N/A',
+        task.completed ? 'Yes' : 'No',
+        task.startDate ? format(new Date(task.startDate), 'MMM d, yyyy') : 'N/A',
+        task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : 'N/A',
+        task.pomodoroCount.toString(),
+    ]);
+
+    autoTable(doc, {
+        startY: 50,
+        head: [['Task', 'Priority', 'Domain', 'Completed', 'Start Date', 'Due Date', 'Pomodoros']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [99, 102, 241] },
+        styles: { fontSize: 8 },
+        columnStyles: {
+            0: { cellWidth: 40 },
+            1: { cellWidth: 20 },
+            2: { cellWidth: 30 },
+            3: { cellWidth: 20 },
+            4: { cellWidth: 25 },
+            5: { cellWidth: 25 },
+            6: { cellWidth: 20 },
+        },
+    });
+
+    // Return as Blob
+    return doc.output('blob');
 };

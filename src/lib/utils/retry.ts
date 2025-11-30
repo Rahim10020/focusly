@@ -25,10 +25,12 @@ const NON_RETRYABLE_ERROR_CODES = [
 export interface RetryOptions {
     /** Maximum number of retry attempts (default: 3) */
     maxRetries?: number;
-    /** Base delay in milliseconds (default: 1000) */
-    baseDelay?: number;
+    /** Initial delay in milliseconds (default: 1000) */
+    initialDelay?: number;
     /** Maximum delay in milliseconds (default: 10000) */
     maxDelay?: number;
+    /** Backoff multiplier factor (default: 2 for exponential backoff) */
+    factor?: number;
     /** Whether to use exponential backoff (default: true) */
     exponentialBackoff?: boolean;
     /** Custom function to determine if error should be retried */
@@ -45,13 +47,13 @@ export interface RetryOptions {
  */
 function isNonRetryableError(error: any): boolean {
     if (!error) return false;
-    
+
     // Check error code
     const code = error.code || error.status || error.statusCode;
     if (code && NON_RETRYABLE_ERROR_CODES.some(c => String(code).startsWith(c))) {
         return true;
     }
-    
+
     // Check error message for specific patterns
     const message = error.message || String(error);
     if (
@@ -62,13 +64,14 @@ function isNonRetryableError(error: any): boolean {
     ) {
         return true;
     }
-    
+
     return false;
 }
 
 /**
  * Executes a function with retry logic and exponential backoff.
  * Automatically retries on transient errors while respecting non-retryable errors.
+ * Implements jitter to prevent thundering herd problem.
  * 
  * @template T - The return type of the function
  * @param fn - The async function to execute with retry logic
@@ -85,7 +88,7 @@ function isNonRetryableError(error: any): boolean {
  * });
  * 
  * @example
- * // With custom options
+ * // With custom options and exponential backoff
  * const data = await retryWithBackoff(
  *   async () => {
  *     const response = await fetch('/api/data');
@@ -94,7 +97,9 @@ function isNonRetryableError(error: any): boolean {
  *   },
  *   {
  *     maxRetries: 5,
- *     baseDelay: 2000,
+ *     initialDelay: 2000,
+ *     maxDelay: 30000,
+ *     factor: 2,
  *     onRetry: (attempt, error, delay) => {
  *       console.log(`Retry ${attempt} after ${delay}ms: ${error.message}`);
  *     }
@@ -107,8 +112,9 @@ export async function retryWithBackoff<T>(
 ): Promise<T> {
     const {
         maxRetries = 3,
-        baseDelay = 1000,
+        initialDelay = 1000,
         maxDelay = 10000,
+        factor = 2,
         exponentialBackoff = true,
         shouldRetry: customShouldRetry,
         onRetry
@@ -141,26 +147,32 @@ export async function retryWithBackoff<T>(
                 throw lastError;
             }
 
-            // Calculate delay with exponential backoff
-            let delay = exponentialBackoff 
-                ? Math.min(baseDelay * Math.pow(2, attempt - 1), maxDelay)
-                : baseDelay;
+            // Calculate delay with exponential backoff and jitter
+            let delay: number;
+            if (exponentialBackoff) {
+                // Exponential backoff: initialDelay * (factor ^ attempt)
+                delay = Math.min(initialDelay * Math.pow(factor, attempt - 1), maxDelay);
+            } else {
+                // Linear backoff: initialDelay * attempt
+                delay = Math.min(initialDelay * attempt, maxDelay);
+            }
 
-            // Add jitter to prevent thundering herd
-            delay = delay + Math.random() * 1000;
+            // Add jitter (±25% randomization) to prevent thundering herd
+            const jitter = delay * 0.25 * (Math.random() * 2 - 1);
+            delay = Math.max(0, delay + jitter);
 
             // Log retry attempt
             logger.warn(`Retry attempt ${attempt}/${maxRetries}`, {
                 action: 'retryWithBackoff',
                 attempt,
                 maxRetries,
-                delay,
+                delay: Math.round(delay),
                 error: lastError.message
             });
 
             // Call retry callback if provided
             if (onRetry) {
-                onRetry(attempt, lastError, delay);
+                onRetry(attempt, lastError, Math.round(delay));
             }
 
             // Wait before retrying

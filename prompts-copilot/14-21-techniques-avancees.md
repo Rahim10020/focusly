@@ -150,9 +150,6 @@ import { format, addDays } from 'date-fns';
 - Considérer alternative: pdfmake (plus légère)
 - Ou: génération côté serveur
 
-**NextAuth:**
-- Mettre à jour vers v5 (alpha stable)
-- Meilleure intégration Edge Runtime
 
 **Priorité:** Moyenne | **Effort:** 3 jours
 

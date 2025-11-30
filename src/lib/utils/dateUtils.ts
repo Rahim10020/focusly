@@ -1,9 +1,12 @@
 /**
  * @fileoverview Date utility functions for consistent date handling.
  * Provides standardized conversions between timestamps and ISO strings.
+ * Includes timezone-aware formatting and user timezone detection.
  * 
  * @module lib/utils/dateUtils
  */
+
+import { formatInTimeZone } from 'date-fns-tz';
 
 /**
  * Date utilities for consistent date handling across the application.
@@ -108,7 +111,7 @@ export const dateUtils = {
         const timestamp = typeof date === 'string' ? dateUtils.toTimestamp(date) : date;
         const checkDate = new Date(timestamp);
         const today = new Date();
-        
+
         return (
             checkDate.getDate() === today.getDate() &&
             checkDate.getMonth() === today.getMonth() &&
@@ -127,7 +130,7 @@ export const dateUtils = {
      * // Returns timestamp for today at 00:00:00
      */
     startOfDay: (date?: number | string): number => {
-        const timestamp = date 
+        const timestamp = date
             ? (typeof date === 'string' ? dateUtils.toTimestamp(date) : date)
             : Date.now();
         const d = new Date(timestamp);
@@ -146,7 +149,7 @@ export const dateUtils = {
      * // Returns timestamp for today at 23:59:59.999
      */
     endOfDay: (date?: number | string): number => {
-        const timestamp = date 
+        const timestamp = date
             ? (typeof date === 'string' ? dateUtils.toTimestamp(date) : date)
             : Date.now();
         const d = new Date(timestamp);
@@ -251,5 +254,139 @@ export const dateUtils = {
     isValidISO: (dateString: string): boolean => {
         const date = new Date(dateString);
         return !isNaN(date.getTime()) && date.toISOString() === dateString;
+    },
+
+    /**
+     * Gets the user's timezone from browser or system settings.
+     * Falls back to 'UTC' if timezone cannot be determined.
+     * 
+     * @returns User's timezone string (IANA timezone identifier)
+     * 
+     * @example
+     * const tz = dateUtils.getUserTimezone();
+     * // Returns: "America/New_York" or "Europe/Paris" or "UTC"
+     */
+    getUserTimezone: (): string => {
+        try {
+            return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+        } catch {
+            return 'UTC';
+        }
+    },
+
+    /**
+     * Formats a date in the user's timezone with a custom format.
+     * Uses date-fns-tz for accurate timezone handling.
+     * 
+     * @param date - Date to format (timestamp or ISO string)
+     * @param formatStr - Format string (date-fns format tokens)
+     * @param timezone - Optional timezone override (defaults to user's timezone)
+     * @returns Formatted date string in the specified timezone
+     * 
+     * @example
+     * const formatted = dateUtils.formatInUserTZ(Date.now(), 'yyyy-MM-dd HH:mm:ss zzz');
+     * // Returns: "2024-01-15 10:30:00 EST"
+     * 
+     * @example
+     * // With specific timezone
+     * const tokyo = dateUtils.formatInUserTZ(Date.now(), 'PPpp', 'Asia/Tokyo');
+     * // Returns: "Jan 15, 2024, 11:30:00 PM"
+     */
+    formatInUserTZ: (
+        date: number | string,
+        formatStr: string = 'yyyy-MM-dd HH:mm:ss zzz',
+        timezone?: string
+    ): string => {
+        const timestamp = typeof date === 'string' ? dateUtils.toTimestamp(date) : date;
+        const tz = timezone || dateUtils.getUserTimezone();
+
+        try {
+            return formatInTimeZone(new Date(timestamp), tz, formatStr);
+        } catch (error) {
+            // Fallback to regular format if timezone formatting fails
+            console.error('Error formatting in timezone:', error);
+            return dateUtils.format(timestamp, { dateStyle: 'medium', timeStyle: 'medium' });
+        }
+    },
+
+    /**
+     * Converts a date from one timezone to another.
+     * Returns the equivalent timestamp in the target timezone.
+     * 
+     * @param date - Date to convert (timestamp or ISO string)
+     * @param fromTimezone - Source timezone (IANA identifier)
+     * @param toTimezone - Target timezone (IANA identifier)
+     * @returns Timestamp in target timezone
+     * 
+     * @example
+     * const nyTime = Date.now(); // Current time in New York
+     * const tokyoTime = dateUtils.convertTimezone(nyTime, 'America/New_York', 'Asia/Tokyo');
+     */
+    convertTimezone: (
+        date: number | string,
+        fromTimezone: string,
+        toTimezone: string
+    ): number => {
+        const timestamp = typeof date === 'string' ? dateUtils.toTimestamp(date) : date;
+
+        // Create date strings in both timezones
+        const fromStr = formatInTimeZone(new Date(timestamp), fromTimezone, "yyyy-MM-dd'T'HH:mm:ss");
+        const toStr = formatInTimeZone(new Date(timestamp), toTimezone, "yyyy-MM-dd'T'HH:mm:ss");
+
+        // Calculate the offset difference
+        const fromTime = new Date(fromStr).getTime();
+        const toTime = new Date(toStr).getTime();
+        const offset = toTime - fromTime;
+
+        return timestamp + offset;
+    },
+
+    /**
+     * Gets the timezone offset in minutes for a specific timezone.
+     * 
+     * @param timezone - Timezone to get offset for (IANA identifier)
+     * @param date - Optional date to check offset at (defaults to now)
+     * @returns Offset in minutes
+     * 
+     * @example
+     * const offset = dateUtils.getTimezoneOffset('America/New_York');
+     * // Returns: -300 (for EST, which is UTC-5)
+     */
+    getTimezoneOffset: (timezone: string, date?: number | string): number => {
+        const timestamp = date
+            ? (typeof date === 'string' ? dateUtils.toTimestamp(date) : date)
+            : Date.now();
+
+        const utcDate = new Date(timestamp);
+        const tzDate = new Date(formatInTimeZone(utcDate, timezone, "yyyy-MM-dd'T'HH:mm:ss"));
+
+        return (tzDate.getTime() - utcDate.getTime()) / (60 * 1000);
+    },
+
+    /**
+     * Checks if a timezone observes daylight saving time at a given date.
+     * 
+     * @param timezone - Timezone to check (IANA identifier)
+     * @param date - Optional date to check at (defaults to now)
+     * @returns true if DST is in effect
+     * 
+     * @example
+     * const isDST = dateUtils.isDaylightSavingTime('America/New_York', Date.now());
+     */
+    isDaylightSavingTime: (timezone: string, date?: number | string): boolean => {
+        const timestamp = date
+            ? (typeof date === 'string' ? dateUtils.toTimestamp(date) : date)
+            : Date.now();
+
+        // Get offset in January (winter) and July (summer)
+        const jan = new Date(new Date(timestamp).getFullYear(), 0, 1);
+        const jul = new Date(new Date(timestamp).getFullYear(), 6, 1);
+
+        const janOffset = dateUtils.getTimezoneOffset(timezone, jan.getTime());
+        const julOffset = dateUtils.getTimezoneOffset(timezone, jul.getTime());
+        const currentOffset = dateUtils.getTimezoneOffset(timezone, timestamp);
+
+        const dstOffset = Math.max(janOffset, julOffset);
+        return currentOffset === dstOffset;
     },
 };

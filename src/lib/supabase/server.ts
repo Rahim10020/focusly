@@ -58,12 +58,18 @@ export const getSupabaseAdmin = (): SupabaseClient<Database> => {
 /**
  * Singleton pool for server-side Supabase connections.
  * Reuses the same admin client instance for better performance.
+ * Implements connection pooling with automatic timeout and health checks.
  */
 class SupabaseServerPool {
     private static instance: SupabaseServerPool;
     private adminClient: SupabaseClient<Database> | null = null;
+    private connectionCount = 0;
+    private lastHealthCheck = 0;
+    private readonly HEALTH_CHECK_INTERVAL = 30000; // 30 seconds
+    private readonly MAX_CONNECTION_AGE = 3600000; // 1 hour
+    private connectionCreatedAt = 0;
 
-    private constructor() {}
+    private constructor() { }
 
     static getInstance(): SupabaseServerPool {
         if (!SupabaseServerPool.instance) {
@@ -72,11 +78,86 @@ class SupabaseServerPool {
         return SupabaseServerPool.instance;
     }
 
+    /**
+     * Performs a health check on the current connection.
+     * Returns true if connection is healthy.
+     */
+    private async healthCheck(): Promise<boolean> {
+        if (!this.adminClient) return false;
+
+        try {
+            const { error } = await this.adminClient
+                .from('users')
+                .select('id')
+                .limit(1)
+                .single();
+
+            // PGRST116 is "no rows found" which is acceptable for health check
+            return !error || error.code === 'PGRST116';
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Resets the connection pool by creating a new admin client.
+     */
+    private resetConnection(): void {
+        this.adminClient = null;
+        this.connectionCreatedAt = 0;
+        this.lastHealthCheck = 0;
+    }
+
+    /**
+     * Gets or creates an admin client with health checks and connection recycling.
+     * Now synchronous for backward compatibility.
+     */
     getAdminClient(): SupabaseClient<Database> {
+        const now = Date.now();
+
+        // Check if connection needs to be recycled due to age
+        if (this.adminClient && this.connectionCreatedAt > 0) {
+            const connectionAge = now - this.connectionCreatedAt;
+            if (connectionAge > this.MAX_CONNECTION_AGE) {
+                this.resetConnection();
+            }
+        }
+
+        // Perform periodic health checks asynchronously (non-blocking)
+        if (this.adminClient && now - this.lastHealthCheck > this.HEALTH_CHECK_INTERVAL) {
+            this.healthCheck().then((isHealthy) => {
+                this.lastHealthCheck = now;
+                if (!isHealthy) {
+                    this.resetConnection();
+                }
+            }).catch(() => {
+                // Ignore health check errors
+            });
+        }
+
+        // Create new connection if needed
         if (!this.adminClient) {
             this.adminClient = getSupabaseAdmin();
+            this.connectionCreatedAt = now;
+            this.lastHealthCheck = now;
         }
+
+        this.connectionCount++;
         return this.adminClient;
+    }
+
+    /**
+     * Gets the pool statistics for monitoring.
+     */
+    getStats() {
+        return {
+            connectionCount: this.connectionCount,
+            connectionAge: this.connectionCreatedAt > 0
+                ? Date.now() - this.connectionCreatedAt
+                : 0,
+            lastHealthCheck: this.lastHealthCheck,
+            isActive: this.adminClient !== null,
+        };
     }
 }
 

@@ -26,6 +26,7 @@ interface LogContext {
 /**
  * Structured logging class with support for different log levels.
  * Outputs formatted messages in development and can be extended for production monitoring.
+ * Supports child loggers with inherited context for better traceability.
  *
  * @class Logger
  *
@@ -35,18 +36,47 @@ interface LogContext {
  * logger.info('Task created', { action: 'createTask', userId: '123' });
  * logger.error('Failed to save', error, { action: 'saveTask' });
  * logger.debug('Debug info', { data: someData }); // Only in development
+ *
+ * @example
+ * // Using child logger with inherited context
+ * const userLogger = logger.child({ userId: '123', sessionId: 'abc' });
+ * userLogger.info('Action completed'); // Automatically includes userId and sessionId
  */
 class Logger {
     private isDevelopment = process.env.NODE_ENV === 'development';
+    private baseContext: LogContext = {};
+
+    constructor(baseContext: LogContext = {}) {
+        this.baseContext = baseContext;
+    }
+
+    /**
+     * Creates a child logger with additional context.
+     * The child logger will include both the parent's context and the new context.
+     *
+     * @param context - Additional context to include in all log messages
+     * @returns A new Logger instance with combined context
+     *
+     * @example
+     * const userLogger = logger.child({ userId: '123', sessionId: 'abc' });
+     * userLogger.info('User logged in'); // Includes userId and sessionId
+     *
+     * const requestLogger = userLogger.child({ requestId: 'xyz' });
+     * requestLogger.info('Processing request'); // Includes userId, sessionId, and requestId
+     */
+    child(context: LogContext): Logger {
+        return new Logger({ ...this.baseContext, ...context });
+    }
 
     private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
         const timestamp = new Date().toISOString();
+        const mergedContext = { ...this.baseContext, ...context };
         let contextStr = '';
-        if (context) {
+        if (Object.keys(mergedContext).length > 0) {
             try {
-                contextStr = ` | ${JSON.stringify(context)}`;
+                contextStr = ` | ${JSON.stringify(mergedContext)}`;
             } catch {
-                contextStr = ` | ${String(context)}`;
+                contextStr = ` | ${String(mergedContext)}`;
             }
         }
         return `[${timestamp}] [${level.toUpperCase()}] ${message}${contextStr}`;
