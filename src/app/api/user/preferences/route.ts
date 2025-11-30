@@ -73,41 +73,62 @@ async function postHandler(request: NextRequest, context: any, validatedData: an
         return Errors.unauthorized();
     }
 
-    // Use pooled server-side admin client with strict user validation
-    const supabaseAdmin = supabaseServerPool.getAdminClient();
+    try {
+        // Use pooled server-side admin client with strict user validation
+        const supabaseAdmin = supabaseServerPool.getAdminClient();
 
-    // Get current preferences to merge with updates
-    const { data: currentPrefs } = await supabaseAdmin
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .single();
+        // Get current preferences to merge with updates
+        const { data: currentPrefs, error: fetchError } = await supabaseAdmin
+            .from('user_preferences')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .single();
 
-    // Merge validated data with current preferences
-    const updatedPrefs = {
-        ...(currentPrefs || {}),
-        ...validatedData,
-        user_id: session.user.id, // Use session user ID, not request body
-        updated_at: new Date().toISOString()
-    };
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            logger.error('Error fetching current preferences', fetchError as Error, {
+                action: 'postHandler - fetchPreferences',
+                userId: session.user.id,
+                errorCode: fetchError.code,
+                errorMessage: fetchError.message
+            });
+        }
 
-    const { error } = await (supabaseAdmin
-        .from('user_preferences') as any)
-        .upsert(updatedPrefs, { onConflict: 'user_id' });
+        // Merge validated data with current preferences
+        const updatedPrefs = {
+            ...(currentPrefs || {}),
+            ...validatedData,
+            user_id: session.user.id, // Use session user ID, not request body
+            updated_at: new Date().toISOString()
+        };
 
-    if (error) {
-        logger.error('Error updating user preferences', error as Error, {
-            action: 'updateUserPreferences',
-            userId: session.user.id
+        const { error: upsertError } = await (supabaseAdmin
+            .from('user_preferences') as any)
+            .upsert(updatedPrefs, { onConflict: 'user_id' });
+
+        if (upsertError) {
+            logger.error('Error upserting user preferences', upsertError as Error, {
+                action: 'postHandler - upsert',
+                userId: session.user.id,
+                errorCode: (upsertError as any)?.code,
+                errorMessage: (upsertError as any)?.message,
+                data: JSON.stringify(updatedPrefs)
+            });
+            throw new Error(`Failed to update preferences: ${upsertError.message}`);
+        }
+
+        // Invalidate cache for this user's preferences
+        await Cache.invalidate(`theme-preference:${session.user.id}`);
+        await Cache.invalidate(`user-preferences:${session.user.id}`);
+
+        return successResponse({ success: true });
+    } catch (error) {
+        logger.error('Error in preferences handler', error as Error, {
+            action: 'postHandler',
+            userId: session?.user?.id,
+            errorMessage: (error as any)?.message
         });
-        throw new Error('Failed to update preferences');
+        throw error;
     }
-
-    // Invalidate cache for this user's preferences
-    await Cache.invalidate(`theme-preference:${session.user.id}`);
-    await Cache.invalidate(`user-preferences:${session.user.id}`);
-
-    return successResponse({ success: true });
 }
 
 export const POST = compose(

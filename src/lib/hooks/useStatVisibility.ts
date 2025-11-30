@@ -62,12 +62,14 @@ export function useStatVisibility() {
     useEffect(() => {
         if (session?.user?.id) {
             fetchVisibilitySettings();
+        } else {
+            setLoading(false);
         }
-    }, [session]);
+    }, [session?.user?.id]);
 
     const fetchVisibilitySettings = async () => {
         try {
-            const userId = (session?.user as any)?.id;
+            const userId = session?.user?.id;
             if (!userId) return;
 
             const { data, error } = await supabase
@@ -94,10 +96,13 @@ export function useStatVisibility() {
 
     const updateVisibility = async (statField: string, visible: boolean) => {
         try {
+            const userId = session?.user?.id;
+            if (!userId) return;
+
             const { error } = await (supabase
                 .from('stat_visibility') as any)
                 .upsert({
-                    user_id: (session?.user as any)?.id,
+                    user_id: userId,
                     stat_field: statField,
                     visible_to_friends: visible
                 });

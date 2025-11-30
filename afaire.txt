@@ -2,19 +2,9 @@ QUI SERAIT COOL
     - coder une version mobile (avec flutter) de cette application.
     - coder une affichage unique pour la version mobile web 
         (quand la personne y accede via le web avec un telehone mobile)
-
-PROCHAINE VERSION
-    - changer weekly activity en un heat Map (comme sur github)
-    - gerer la derniere section des insights dans le dashboard 
-    - permettre le partage des taches via les reseaux sociaux (demander a l'ia de me proposer ces reseaux)
-    - ameliorer le ui (pages de creation de taches et autres..)
-    - ajoute la langue francaise (voir avec l'ia la meilleure option a adopter)
-    - reflechir a statistics et dashboard (ce que je peux modifier)
-    - trouver de bonnes images et mettre dans how to use (pour encourager la personne a ne pas abandonner la lecture)
-    - Dans life Balance Radar (dashboard), les traits du pentagone ne sont pas tres visibles en light mode. (regler ca)
-        faire remonter un peut 'Health' de tel sorte que ca ne se condonde plus avec le 100
-    - dans les parties graphiques de dashboard, je ne veux plus voir les hover derriere (ca casse la beaute du site)
-        notamment dans Completion Rate Breakdown, task completion by domain, Completed sessions
-
-A FAIRE PROCHAINEMENT
-    
+A Faire PROCHAINEMENT
+    - Dans la page tasks/ on devrait barrer 
+    les taches quand ils sont completed au niveau de l'affichage board
+    - le theme ne fonctionne pas bien. quand je recharge la page le theme disparait
+    - dans create-task/ il n'y a rien dans les section categories et subtasks
+    - 
