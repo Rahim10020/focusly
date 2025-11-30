@@ -25,26 +25,41 @@ export function useStatsWithTimezone() {
         const userId = session?.user?.id;
         if (!userId) return [];
 
-        const { data, error } = await supabaseClient
-            .from('sessions')
-            .select('*')
-            .eq('user_id', userId)
-            .eq('completed', true)
-            .order('created_at', { ascending: false });
+        try {
+            const { data, error } = await supabaseClient
+                .from('sessions')
+                .select('*')
+                .eq('user_id', userId)
+                .eq('completed', true)
+                .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching sessions:', error);
+            if (error) {
+                console.error('Error fetching sessions:', error);
+                logger.error('Supabase sessions query failed', error, {
+                    action: 'fetchSessions',
+                    userId,
+                    errorCode: (error as any)?.code,
+                    errorMessage: (error as any)?.message
+                });
+                return [];
+            }
+
+            return (data || []).map((s: any) => ({
+                id: s.id,
+                user_id: s.user_id,
+                completed_at: s.completed_at || s.created_at,
+                duration: s.duration,
+                type: s.type,
+                completed: s.completed
+            }));
+        } catch (err) {
+            console.error('Exception while fetching sessions:', err);
+            logger.error('Exception during fetchSessions', err, {
+                action: 'fetchSessions',
+                userId
+            });
             return [];
         }
-
-        return (data || []).map((s: any) => ({
-            id: s.id,
-            user_id: s.user_id,
-            completed_at: s.created_at,
-            duration: s.duration,
-            type: s.type,
-            completed: s.completed
-        }));
     }, [session?.user?.id]);
 
     const refreshStats = useCallback(async () => {
@@ -68,7 +83,15 @@ export function useStatsWithTimezone() {
                 .eq('user_id', userId)
                 .single();
 
-            if (error && error.code !== 'PGRST116') throw error;
+            if (error && error.code !== 'PGRST116') {
+                logger.error('Stats query error', error, {
+                    action: 'refreshStats - fetch stats',
+                    userId,
+                    errorCode: (error as any)?.code,
+                    errorMessage: (error as any)?.message
+                });
+                throw error;
+            }
 
             setStats({
                 totalSessions: (statsData as any)?.total_sessions || 0,
@@ -80,7 +103,7 @@ export function useStatsWithTimezone() {
             });
 
             // Update streaks in database
-            await supabaseClient
+            const { error: upsertError } = await supabaseClient
                 .from('stats')
                 .upsert({
                     user_id: userId,
@@ -88,12 +111,21 @@ export function useStatsWithTimezone() {
                     longest_streak: streakData.longest
                 } as any, { onConflict: 'user_id' });
 
+            if (upsertError) {
+                logger.error('Stats upsert error', upsertError, {
+                    action: 'refreshStats - upsert stats',
+                    userId
+                });
+            }
+
         } catch (error: any) {
             logger.error('Error refreshing stats', error, {
                 action: 'refreshStats',
-                userId: session?.user?.id
+                userId: session?.user?.id,
+                errorMessage: error?.message,
+                errorCode: error?.code
             });
-            showErrorToast('Failed to load statistics', error.message);
+            showErrorToast('Failed to load statistics', error?.message || 'Unknown error');
         } finally {
             setLoading(false);
         }
