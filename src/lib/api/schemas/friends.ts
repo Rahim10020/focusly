@@ -18,11 +18,7 @@ export const CreateFriendRequestSchema = z.object({
  * PUT /api/friends/[id]
  */
 export const UpdateFriendRequestSchema = z.object({
-    action: z.enum(['accept', 'reject'], {
-        errorMap: () => ({
-            message: 'action must be either "accept" or "reject"',
-        }),
-    }),
+    action: z.enum(['accept', 'reject']).describe('action must be either "accept" or "reject"'),
 });
 
 /**

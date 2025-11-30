@@ -139,7 +139,7 @@ export function usePomodoro(options: UsePomodoroOptions) {
 
     // Restore running timer on mount
     useEffect(() => {
-        if (persistedState && persistedState.status === 'running' && persistedState.currentSessionStart) {
+        if (persistedState && persistedState.status === 'running' && persistedState.currentSessionStart && persistedState.timeLeft !== undefined) {
             const elapsed = Math.floor((Date.now() - persistedState.currentSessionStart) / 1000);
             const remaining = persistedState.timeLeft - elapsed;
 

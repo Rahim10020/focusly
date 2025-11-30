@@ -128,8 +128,8 @@ export default function CalendarView({ tasks, onTaskClick, onCreateTask }: Calen
         try {
             await onCreateTask({
                 title: newTaskTitle,
-                startDate: quickAddDate.toISOString(),
-                dueDate: quickAddDate.toISOString(),
+                startDate: quickAddDate.getTime(),
+                dueDate: quickAddDate.getTime(),
             });
             setNewTaskTitle('');
             setShowQuickAdd(false);
