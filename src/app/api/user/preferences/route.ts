@@ -85,7 +85,7 @@ async function postHandler(request: NextRequest, context: any, validatedData: an
 
     // Merge validated data with current preferences
     const updatedPrefs = {
-        ...currentPrefs,
+        ...(currentPrefs || {}),
         ...validatedData,
         user_id: session.user.id, // Use session user ID, not request body
         updated_at: new Date().toISOString()
