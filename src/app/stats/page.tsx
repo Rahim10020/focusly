@@ -36,7 +36,7 @@ const AchievementsList = dynamic(() => import('@/components/achievements/Achieve
     loading: () => <div className="animate-pulse bg-muted/30 h-48 rounded-lg" />
 });
 
-const TaskHistoryList = dynamic(() => import('@/components/stats/TaskHistoryList'), {
+const TaskHistoryList = dynamic(() => import('@/components/stats/TaskHistoryList').then(mod => ({ default: mod.TaskHistoryList })), {
     ssr: false,
     loading: () => <div className="animate-pulse bg-muted/30 h-48 rounded-lg" />
 });
