@@ -10,6 +10,7 @@ import { useLocalStorage } from './useLocalStorage';
 import { Achievement } from '@/types';
 import { supabaseClient } from '@/lib/supabase/client';
 import { retryWithBackoff } from '@/lib/utils/retry';
+import { logger } from '@/lib/logger';
 
 /**
  * Predefined achievement definitions with targets and metadata.
@@ -407,11 +408,17 @@ export function useAchievements() {
                 }
 
                 if (shouldUnlock && !achievement.unlockedAt) {
-                    // ✅ AJOUT: Ignorer si déjà notifié
+                    // ✅ Ignore if already notified to prevent duplicates
                     if (notifiedAchievements.includes(achievement.id)) {
-                        return achievement;
+                        logger.debug('Achievement already notified, skipping', {
+                            achievementId: achievement.id
+                        });
+                        return {
+                            ...achievement,
+                            progress: currentProgress,
+                        };
                     }
-                    
+
                     hasChanges = true;
                     const unlockedAchievement = {
                         ...achievement,
@@ -615,6 +622,11 @@ export function useAchievements() {
         setNewlyUnlocked([]);
     }, []);
 
+    const resetNotifications = useCallback(() => {
+        setNotifiedAchievements([]);
+        logger.info('Achievement notifications reset');
+    }, [setNotifiedAchievements]);
+
     const unlockedAchievements = currentAchievements.filter((a: Achievement) => a.unlockedAt);
     const lockedAchievements = currentAchievements.filter((a: Achievement) => !a.unlockedAt);
 
@@ -626,5 +638,6 @@ export function useAchievements() {
         checkAchievements,
         checkTimeBasedAchievements,
         clearNewlyUnlocked,
+        resetNotifications,
     };
 }

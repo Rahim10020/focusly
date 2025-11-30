@@ -7,6 +7,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TimerStatus, PomodoroSession } from '@/types';
 import { TimerSettings } from './useSettings';
+import { logger } from '@/lib/logger';
 
 /**
  * Configuration options for the usePomodoro hook.
@@ -24,6 +25,22 @@ interface UsePomodoroOptions {
     /** ID of the currently active task being worked on */
     activeTaskId?: string | null;
 }
+
+/**
+ * Persisted state for the Pomodoro timer
+ * Saved to localStorage to restore state after page refresh
+ */
+interface PersistedTimerState {
+    timeLeft: number;
+    status: TimerStatus;
+    sessionType: 'work' | 'break';
+    completedCycles: number;
+    currentSessionStart: number | null;
+    initialTimeLeft: number;
+    savedAt: number;
+}
+
+const STORAGE_KEY = 'focusly_pomodoro_state';
 
 /**
  * Hook for managing Pomodoro timer state and controls.
@@ -58,13 +75,91 @@ interface UsePomodoroOptions {
 export function usePomodoro(options: UsePomodoroOptions) {
     const { settings, onSessionComplete, onWorkComplete, onBreakComplete, activeTaskId } = options;
 
-    const [timeLeft, setTimeLeft] = useState(settings.workDuration);
-    const [status, setStatus] = useState<TimerStatus>('idle');
-    const [sessionType, setSessionType] = useState<'work' | 'break'>('work');
-    const [completedCycles, setCompletedCycles] = useState(0);
-    const [currentSessionStart, setCurrentSessionStart] = useState<number | null>(null);
-    const [initialTimeLeft, setInitialTimeLeft] = useState(settings.workDuration);
+    // Load initial state from localStorage
+    const loadPersistedState = (): Partial<PersistedTimerState> | null => {
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (!stored) return null;
+
+            const state: PersistedTimerState = JSON.parse(stored);
+
+            // Check if state is stale (older than 24 hours)
+            const age = Date.now() - state.savedAt;
+            if (age > 24 * 60 * 60 * 1000) {
+                logger.info('Pomodoro state is stale, clearing', { age });
+                localStorage.removeItem(STORAGE_KEY);
+                return null;
+            }
+
+            // If state was idle, don't restore
+            if (state.status === 'idle') {
+                return null;
+            }
+
+            logger.info('Restoring pomodoro state from localStorage', {
+                status: state.status,
+                sessionType: state.sessionType,
+                timeLeft: state.timeLeft
+            });
+
+            return state;
+        } catch (error) {
+            logger.error('Error loading pomodoro state', error as Error);
+            return null;
+        }
+    };
+
+    const persistedState = loadPersistedState();
+
+    const [timeLeft, setTimeLeft] = useState(persistedState?.timeLeft ?? settings.workDuration);
+    const [status, setStatus] = useState<TimerStatus>(persistedState?.status ?? 'idle');
+    const [sessionType, setSessionType] = useState<'work' | 'break'>(persistedState?.sessionType ?? 'work');
+    const [completedCycles, setCompletedCycles] = useState(persistedState?.completedCycles ?? 0);
+    const [currentSessionStart, setCurrentSessionStart] = useState<number | null>(persistedState?.currentSessionStart ?? null);
+    const [initialTimeLeft, setInitialTimeLeft] = useState(persistedState?.initialTimeLeft ?? settings.workDuration);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Save state to localStorage whenever it changes
+    useEffect(() => {
+        try {
+            const state: PersistedTimerState = {
+                timeLeft,
+                status,
+                sessionType,
+                completedCycles,
+                currentSessionStart,
+                initialTimeLeft,
+                savedAt: Date.now()
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (error) {
+            logger.error('Error saving pomodoro state', error as Error);
+        }
+    }, [timeLeft, status, sessionType, completedCycles, currentSessionStart, initialTimeLeft]);
+
+    // Restore running timer on mount
+    useEffect(() => {
+        if (persistedState && persistedState.status === 'running' && persistedState.currentSessionStart) {
+            const elapsed = Math.floor((Date.now() - persistedState.currentSessionStart) / 1000);
+            const remaining = persistedState.timeLeft - elapsed;
+
+            if (remaining > 0) {
+                logger.info('Resuming pomodoro timer', {
+                    elapsed,
+                    remaining,
+                    sessionType: persistedState.sessionType
+                });
+                setTimeLeft(remaining);
+                setStatus('running');
+            } else {
+                logger.info('Pomodoro session completed while away', {
+                    sessionType: persistedState.sessionType
+                });
+                // Session completed while user was away
+                setTimeLeft(0);
+            }
+        }
+    }, []); // Run only on mount
 
     const handleSessionComplete = useCallback(() => {
         const completed = timeLeft === 0;
@@ -174,6 +269,13 @@ export function usePomodoro(options: UsePomodoroOptions) {
         setCurrentSessionStart(null);
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
+        }
+        // Clear persisted state
+        try {
+            localStorage.removeItem(STORAGE_KEY);
+            logger.info('Pomodoro state cleared from localStorage');
+        } catch (error) {
+            logger.error('Error clearing pomodoro state', error as Error);
         }
     }, [settings.workDuration]);
 

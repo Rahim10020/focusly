@@ -17,6 +17,7 @@ import { dateUtils } from '@/lib/utils/dateUtils';
 import { useToastContext } from '@/components/providers/ToastProvider';
 import { logger } from '@/lib/logger';
 import { debounce } from '@/lib/utils/debounce';
+import { performOptimisticUpdate, getUserMessage } from '@/lib/utils/hookHelpers';
 
 /**
  * Hook for managing tasks with full CRUD operations.
