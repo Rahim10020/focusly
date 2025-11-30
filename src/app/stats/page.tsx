@@ -11,10 +11,13 @@ import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { useStats } from '@/lib/hooks/useStats';
+import { useStatsWithTimezone } from '@/lib/hooks/useStatsWithTimezone';
+import { useCachedSessions } from '@/lib/hooks/useCachedSessions';
 import { useAchievements } from '@/lib/hooks/useAchievements';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useTags } from '@/lib/hooks/useTags';
 import { formatTime } from '@/lib/utils/time';
+import { TaskCategorizationService } from '@/lib/services/taskCategorizationService';
 import { useState, useMemo } from 'react';
 
 // Lazy load heavy chart components
@@ -33,7 +36,7 @@ const AchievementsList = dynamic(() => import('@/components/achievements/Achieve
     loading: () => <div className="animate-pulse bg-muted/30 h-48 rounded-lg" />
 });
 
-const TaskHistoryList = dynamic(() => import('@/components/tasks/TaskHistoryList'), {
+const TaskHistoryList = dynamic(() => import('@/components/stats/TaskHistoryList'), {
     ssr: false,
     loading: () => <div className="animate-pulse bg-muted/30 h-48 rounded-lg" />
 });
@@ -52,8 +55,10 @@ const DomainStats = dynamic(() => import('@/components/stats/DomainStats'), {
  */
 export default function StatsPage() {
     const { sessions } = useStats();
+    const { stats, loading: statsLoading } = useStatsWithTimezone();
+    const { sessions: cachedSessions, loading: sessionsLoading } = useCachedSessions(30);
     const { unlockedAchievements, lockedAchievements } = useAchievements();
-    const { tasks } = useTasks();
+    const { tasks, loading: tasksLoading } = useTasks();
     const { tags } = useTags();
     const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'tasks' | 'domains'>('overview');
 
@@ -66,13 +71,15 @@ export default function StatsPage() {
         [sessions]
     );
 
+    const categorizedTasks = useMemo(() => TaskCategorizationService.categorizeTasks(tasks), [tasks]);
+    const taskStats = useMemo(() => TaskCategorizationService.calculateAccurateStats(tasks), [tasks]);
+
     const { completedTasks, failedTasks } = useMemo(() => {
-        const completed = tasks.filter(task => task.completed);
-        const failed = tasks.filter(
-            task => !task.completed && task.dueDate && task.dueDate < Date.now()
-        );
-        return { completedTasks: completed, failedTasks: failed };
-    }, [tasks]);
+        return {
+            completedTasks: categorizedTasks.completed,
+            failedTasks: categorizedTasks.failed
+        };
+    }, [categorizedTasks]);
 
     return (
         <div className="min-h-screen bg-background">
@@ -221,23 +228,83 @@ export default function StatsPage() {
                 )}
 
                 {activeTab === 'tasks' && (
-                    <Card>
-                        <CardHeader>
-                            <div className="flex items-center space-x-8 justify-between">
-                                <CardTitle>Task History</CardTitle>
-                                <div className="text-sm text-muted-foreground">
-                                    {completedTasks.length} completed, {failedTasks.length} failed
+                    <div className="space-y-6">
+                        {/* Task Statistics Summary */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Statistiques Détaillées</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">Taux de complétion</p>
+                                        <p className="text-2xl font-bold">{taskStats.completionRate.toFixed(1)}%</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">Tâches reportées</p>
+                                        <p className="text-2xl font-bold">{taskStats.postponed}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">Tâches en retard</p>
+                                        <p className="text-2xl font-bold text-destructive">{taskStats.overdue}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">Taux d&apos;échec</p>
+                                        <p className="text-2xl font-bold">{taskStats.failureRate.toFixed(1)}%</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <TaskHistoryList
-                                completedTasks={completedTasks}
-                                failedTasks={failedTasks}
-                                tags={tags}
-                            />
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+
+                        {/* Completed Tasks */}
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center space-x-8 justify-between">
+                                    <CardTitle>Tâches Complétées</CardTitle>
+                                    <div className="text-sm text-muted-foreground">
+                                        {completedTasks.length} tâche(s) terminée(s)
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <TaskHistoryList tasks={completedTasks} type="completed" />
+                            </CardContent>
+                        </Card>
+
+                        {/* Failed Tasks */}
+                        {failedTasks.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <div className="flex items-center space-x-8 justify-between">
+                                        <CardTitle>Tâches Échouées</CardTitle>
+                                        <div className="text-sm text-muted-foreground">
+                                            {failedTasks.length} tâche(s) non terminée(s)
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <TaskHistoryList tasks={failedTasks} type="failed" />
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {/* Overdue Tasks */}
+                        {categorizedTasks.overdue.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <div className="flex items-center space-x-8 justify-between">
+                                        <CardTitle>Tâches en Retard</CardTitle>
+                                        <div className="text-sm text-muted-foreground">
+                                            {categorizedTasks.overdue.length} tâche(s) en retard
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <TaskHistoryList tasks={categorizedTasks.overdue} type="all" />
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
                 )}
 
                 {activeTab === 'domains' && (

@@ -38,7 +38,7 @@ export interface Task {
     /** Whether the task is completed (kept for backward compatibility) */
     completed: boolean;
     /** Current status of the task in the workflow */
-    status?: 'todo' | 'in-progress' | 'done';
+    status?: 'todo' | 'in-progress' | 'done' | 'postponed' | 'cancelled';
     /** Unix timestamp of when the task was created */
     createdAt: number;
     /** Unix timestamp of when the task was completed */
@@ -111,9 +111,9 @@ export interface Task {
 
 /**
  * Possible status values for a task in the workflow.
- * @typedef {'todo' | 'in-progress' | 'done'} TaskStatus
+ * @typedef {'todo' | 'in-progress' | 'done' | 'postponed' | 'cancelled'} TaskStatus
  */
-export type TaskStatus = 'todo' | 'in-progress' | 'done';
+export type TaskStatus = 'todo' | 'in-progress' | 'done' | 'postponed' | 'cancelled';
 
 /**
  * Represents a dependency relationship between tasks.
