@@ -3,8 +3,7 @@
  * Provides accurate streak calculation based on user's local timezone.
  */
 
-import { toZonedTime, fromZonedTime, format } from 'date-fns-tz';
-import { addDays, startOfDay } from 'date-fns';
+import { addDays } from 'date-fns';
 
 export interface Session {
     id: string;
@@ -37,24 +36,34 @@ export class StreakService {
     }
 
     /**
-     * Get today's date in user's timezone
+     * Format date as YYYY-MM-DD in user's timezone
      */
-    static getTodayInUserTimezone(): Date {
-        const timezone = this.getUserTimezone();
-        const zonedDate = toZonedTime(new Date(), timezone);
-        zonedDate.setHours(0, 0, 0, 0);
-        return zonedDate;
+    static formatDateInUserTimezone(date: Date): string {
+        const formatter = new Intl.DateTimeFormat('en-CA', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            timeZone: this.getUserTimezone()
+        });
+        return formatter.format(date);
     }
 
     /**
-     * Get start of day in user's timezone
+     * Get today's date as YYYY-MM-DD string in user's timezone
+     */
+    static getTodayInUserTimezone(): string {
+        return this.formatDateInUserTimezone(new Date());
+    }
+
+    /**
+     * Get start of day in user's timezone as a Date object
      */
     static getStartOfDayInUserTimezone(date?: Date): Date {
-        const timezone = this.getUserTimezone();
         const targetDate = date || new Date();
-        const zonedDate = toZonedTime(targetDate, timezone);
-        zonedDate.setHours(0, 0, 0, 0);
-        return fromZonedTime(zonedDate, timezone);
+        const dateString = this.formatDateInUserTimezone(targetDate);
+        // Parse the date string and create a date at midnight UTC
+        const [year, month, day] = dateString.split('-');
+        return new Date(`${year}-${month}-${day}T00:00:00Z`);
     }
 
     /**
@@ -65,14 +74,11 @@ export class StreakService {
             return { current: 0, longest: 0, lastActiveDate: null };
         }
 
-        const timezone = this.getUserTimezone();
-
         // Group sessions by day (in user timezone)
         const sessionsByDay = new Map<string, Session[]>();
 
         sessions.forEach(session => {
-            const zonedDate = toZonedTime(new Date(session.completed_at), timezone);
-            const dayKey = format(zonedDate, 'yyyy-MM-dd', { timeZone: timezone });
+            const dayKey = this.formatDateInUserTimezone(new Date(session.completed_at));
 
             if (!sessionsByDay.has(dayKey)) {
                 sessionsByDay.set(dayKey, []);
@@ -80,15 +86,16 @@ export class StreakService {
             sessionsByDay.get(dayKey)!.push(session);
         });
 
-        // Sort dates
+        // Sort dates in descending order
         const sortedDays = Array.from(sessionsByDay.keys()).sort().reverse();
+
+        if (sortedDays.length === 0) {
+            return { current: 0, longest: 0, lastActiveDate: null };
+        }
 
         // Calculate current streak
         let currentStreak = 0;
-        const today = format(this.getTodayInUserTimezone(), 'yyyy-MM-dd', {
-            timeZone: timezone
-        });
-
+        const today = this.getTodayInUserTimezone();
         let checkDate = today;
         let dayIndex = 0;
 
@@ -98,38 +105,32 @@ export class StreakService {
 
             // Move to previous day
             const prevDate = addDays(new Date(checkDate), -1);
-            checkDate = format(
-                toZonedTime(prevDate, timezone),
-                'yyyy-MM-dd',
-                { timeZone: timezone }
-            );
+            checkDate = this.formatDateInUserTimezone(prevDate);
         }
 
         // Calculate longest streak
         let longestStreak = 0;
-        let tempStreak = 0;
-        let expectedDate = sortedDays[0];
+        let tempStreak = 1;
 
-        for (const day of sortedDays) {
-            if (day === expectedDate) {
-                tempStreak++;
-                longestStreak = Math.max(longestStreak, tempStreak);
-
-                // Calculate expected previous date
-                const prevDate = addDays(new Date(day), -1);
-                expectedDate = format(
-                    toZonedTime(prevDate, timezone),
-                    'yyyy-MM-dd',
-                    { timeZone: timezone }
-                );
-            } else {
+        for (let i = 0; i < sortedDays.length; i++) {
+            if (i === 0) {
                 tempStreak = 1;
-                const prevDate = addDays(new Date(day), -1);
-                expectedDate = format(
-                    toZonedTime(prevDate, timezone),
-                    'yyyy-MM-dd',
-                    { timeZone: timezone }
-                );
+                longestStreak = 1;
+            } else {
+                const currentDay = new Date(sortedDays[i]);
+                const previousDay = new Date(sortedDays[i - 1]);
+
+                // Check if days are consecutive (differ by 1 day)
+                const diffTime = previousDay.getTime() - currentDay.getTime();
+                const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+                if (Math.abs(diffDays - 1) < 0.1) {
+                    tempStreak++;
+                } else {
+                    tempStreak = 1;
+                }
+
+                longestStreak = Math.max(longestStreak, tempStreak);
             }
         }
 
