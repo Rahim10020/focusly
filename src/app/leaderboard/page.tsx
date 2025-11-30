@@ -101,9 +101,11 @@ export default function LeaderboardPage() {
             if (!response.ok) {
                 throw new Error('Failed to fetch leaderboard');
             }
-            const data: LeaderboardResponse = await response.json();
-            setLeaderboard(data.data);
-            setPagination(data.pagination);
+            const responseData = await response.json();
+            // Extract data and pagination from the API response
+            const data: LeaderboardResponse = responseData.data || responseData;
+            setLeaderboard(Array.isArray(data) ? data : (data?.data || []));
+            setPagination(data?.pagination || responseData?.pagination || null);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
@@ -117,7 +119,9 @@ export default function LeaderboardPage() {
             if (!response.ok) {
                 throw new Error('Failed to fetch friends');
             }
-            const data = await response.json();
+            const responseData = await response.json();
+            // Extract friends array from the API response
+            const data = responseData.data || [];
             const userId = session?.user?.id;
 
             // Get friend IDs (accepted)
