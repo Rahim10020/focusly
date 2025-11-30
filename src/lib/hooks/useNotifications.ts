@@ -77,8 +77,10 @@ export function useNotifications() {
             if (!response.ok) {
                 throw new Error('Failed to fetch notifications');
             }
-            const data = await response.json();
-            setNotifications(data);
+            const responseData = await response.json();
+            // Extract the notifications array from the API response
+            const notifications = responseData.data || [];
+            setNotifications(notifications);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
             console.error('Error fetching notifications:', err);
@@ -185,7 +187,9 @@ export function useNotifications() {
                 throw new Error(errorData.error || 'Failed to create notification');
             }
 
-            const newNotification = await response.json();
+            const responseData = await response.json();
+            // Extract the notification from the API response
+            const newNotification = responseData.data;
 
             // If the notification is for the current user, add it to local state
             if (newNotification.user_id === session?.user?.id) {
