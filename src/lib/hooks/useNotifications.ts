@@ -8,6 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { supabaseClient } from '@/lib/supabase/client';
 import { logger } from '@/lib/logger';
+import { playNotificationSound, NotificationSoundType } from '@/lib/utils/notificationSounds';
 
 /**
  * Represents a notification object.
@@ -57,6 +58,7 @@ export function useNotifications() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [soundEnabled, setSoundEnabled] = useState(true);
 
     // Browser notification permission state
     const [permission, setPermission] = useState<NotificationPermission>('default');
@@ -202,8 +204,19 @@ export function useNotifications() {
      * Shows a browser notification if permissions are granted.
      * @param {string} title - Notification title
      * @param {object} options - Notification options
+     * @param {NotificationSoundType} soundType - Type of sound to play
      */
-    const showNotification = useCallback((title: string, options?: NotificationOptions) => {
+    const showNotification = useCallback((
+        title: string,
+        options?: NotificationOptions,
+        soundType: NotificationSoundType = 'default'
+    ) => {
+        // Play sound if enabled
+        if (soundEnabled) {
+            playNotificationSound(soundType);
+        }
+
+        // Show browser notification
         if ('Notification' in window && Notification.permission === 'granted') {
             const notification = new Notification(title, options);
             notification.onclick = () => {
@@ -211,7 +224,7 @@ export function useNotifications() {
                 notification.close();
             };
         }
-    }, []);
+    }, [soundEnabled]);
 
     /**
      * Requests permission for browser notifications.
@@ -226,10 +239,15 @@ export function useNotifications() {
         return false;
     }, []);
 
-    // Initialize permission state
+    // Initialize permission state and load sound preference
     useEffect(() => {
         if ('Notification' in window) {
             setPermission(Notification.permission);
+        }
+        // Load sound preference from localStorage
+        const savedSoundPref = localStorage.getItem('notification-sound-enabled');
+        if (savedSoundPref !== null) {
+            setSoundEnabled(savedSoundPref === 'true');
         }
     }, []);
 
@@ -237,7 +255,7 @@ export function useNotifications() {
     useEffect(() => {
         if (session?.user && session.accessToken) {
             fetchNotifications();
-            
+
             // ✅ AJOUT: Set Supabase auth session
             supabaseClient.auth.setSession({
                 access_token: session.accessToken,
@@ -306,6 +324,17 @@ export function useNotifications() {
     // Calculate unread count
     const unreadCount = notifications.filter(notification => !notification.read).length;
 
+    /**
+     * Toggles notification sounds on/off
+     */
+    const toggleSound = useCallback(() => {
+        setSoundEnabled(prev => {
+            const newValue = !prev;
+            localStorage.setItem('notification-sound-enabled', String(newValue));
+            return newValue;
+        });
+    }, []);
+
     return {
         notifications,
         loading,
@@ -319,5 +348,7 @@ export function useNotifications() {
         showNotification,
         permission,
         requestPermission,
+        soundEnabled,
+        toggleSound,
     };
 }

@@ -22,16 +22,19 @@ import {
 } from 'date-fns';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
+import Input from '@/components/ui/Input';
 
 /**
  * Props for the CalendarView component.
  * @interface CalendarViewProps
  * @property {Task[]} tasks - Array of tasks to display on the calendar
  * @property {(task: Task) => void} [onTaskClick] - Optional callback when a task is clicked
+ * @property {(taskData: Partial<Task>) => Promise<void>} [onCreateTask] - Optional callback for creating a new task
  */
 interface CalendarViewProps {
     tasks: Task[];
     onTaskClick?: (task: Task) => void;
+    onCreateTask?: (taskData: Partial<Task>) => Promise<void>;
 }
 
 /**
@@ -61,9 +64,13 @@ interface CalendarViewProps {
  *   );
  * }
  */
-export default function CalendarView({ tasks, onTaskClick }: CalendarViewProps) {
+export default function CalendarView({ tasks, onTaskClick, onCreateTask }: CalendarViewProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [showQuickAdd, setShowQuickAdd] = useState(false);
+    const [quickAddDate, setQuickAddDate] = useState<Date | null>(null);
+    const [newTaskTitle, setNewTaskTitle] = useState('');
+    const [creating, setCreating] = useState(false);
 
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
@@ -105,6 +112,34 @@ export default function CalendarView({ tasks, onTaskClick }: CalendarViewProps) 
     };
 
     const selectedDateTasks = selectedDate ? getTasksForDate(selectedDate) : [];
+
+    const handleDateClick = (date: Date) => {
+        setSelectedDate(date);
+        if (onCreateTask) {
+            setQuickAddDate(date);
+            setShowQuickAdd(true);
+        }
+    };
+
+    const handleQuickAddTask = async () => {
+        if (!newTaskTitle.trim() || !quickAddDate || !onCreateTask) return;
+
+        setCreating(true);
+        try {
+            await onCreateTask({
+                title: newTaskTitle,
+                startDate: quickAddDate.toISOString(),
+                dueDate: quickAddDate.toISOString(),
+            });
+            setNewTaskTitle('');
+            setShowQuickAdd(false);
+        } catch (error) {
+            console.error('Error creating task:', error);
+            alert('Failed to create task');
+        } finally {
+            setCreating(false);
+        }
+    };
 
     const getPriorityColor = (priority?: 'low' | 'medium' | 'high') => {
         switch (priority) {
@@ -174,7 +209,7 @@ export default function CalendarView({ tasks, onTaskClick }: CalendarViewProps) 
                                 return (
                                     <button
                                         key={index}
-                                        onClick={() => setSelectedDate(day)}
+                                        onClick={() => handleDateClick(day)}
                                         className={`
                                             min-h-[100px] p-2 rounded-lg border transition-all cursor-pointer
                                             ${isCurrentMonth ? 'bg-card' : 'bg-muted/30'}
@@ -294,6 +329,44 @@ export default function CalendarView({ tasks, onTaskClick }: CalendarViewProps) 
                     </Card>
                 </div>
             </div>
+
+            {/* Quick Add Task Modal */}
+            {showQuickAdd && quickAddDate && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <Card className="w-full max-w-md mx-4 p-6">
+                        <h3 className="text-lg font-semibold mb-4">
+                            Add Task for {format(quickAddDate, 'MMM d, yyyy')}
+                        </h3>
+                        <Input
+                            placeholder="Task title..."
+                            value={newTaskTitle}
+                            onChange={(e) => setNewTaskTitle(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleQuickAddTask();
+                                if (e.key === 'Escape') setShowQuickAdd(false);
+                            }}
+                            autoFocus
+                        />
+                        <div className="flex gap-2 mt-4">
+                            <Button
+                                onClick={handleQuickAddTask}
+                                disabled={!newTaskTitle.trim() || creating}
+                            >
+                                {creating ? 'Creating...' : 'Create Task'}
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                onClick={() => {
+                                    setShowQuickAdd(false);
+                                    setNewTaskTitle('');
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
+                    </Card>
+                </div>
+            )}
         </div>
     );
 }

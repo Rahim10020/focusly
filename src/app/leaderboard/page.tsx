@@ -10,6 +10,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { startOfWeek, startOfMonth } from 'date-fns';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -68,6 +69,7 @@ export default function LeaderboardPage() {
     const [error, setError] = useState<string | null>(null);
     const [selectedTab, setSelectedTab] = useState<'tasks' | 'time' | 'streak'>('tasks');
     const [currentPage, setCurrentPage] = useState(1);
+    const [timeFilter, setTimeFilter] = useState<'all' | 'month' | 'week'>('all');
     const [friendRequestStatuses, setFriendRequestStatuses] = useState<Map<string, 'none' | 'pending' | 'sent' | 'friends'>>(new Map());
     const [friends, setFriends] = useState<string[]>([]);
     const [pendingRequests, setPendingRequests] = useState<string[]>([]);
@@ -82,13 +84,20 @@ export default function LeaderboardPage() {
 
         fetchLeaderboard(currentPage);
         fetchFriendsAndRequests();
-    }, [session, status, router, currentPage]);
+    }, [session, status, router, currentPage, timeFilter]);
 
     const fetchLeaderboard = async (page: number = 1) => {
         try {
             setLoading(true);
             setError(null);
-            const response = await fetch(`/api/leaderboard?page=${page}&limit=20`);
+            const params = new URLSearchParams({
+                page: page.toString(),
+                limit: '20'
+            });
+            if (timeFilter !== 'all') {
+                params.append('timeFilter', timeFilter);
+            }
+            const response = await fetch(`/api/leaderboard?${params}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch leaderboard');
             }
@@ -301,6 +310,31 @@ export default function LeaderboardPage() {
                     </Card>
                 )}
 
+                {/* Time Filter */}
+                <div className="flex gap-2 mb-4 flex-wrap">
+                    <Button
+                        variant={timeFilter === 'all' ? 'primary' : 'outline'}
+                        onClick={() => setTimeFilter('all')}
+                        size="sm"
+                    >
+                        All Time
+                    </Button>
+                    <Button
+                        variant={timeFilter === 'month' ? 'primary' : 'outline'}
+                        onClick={() => setTimeFilter('month')}
+                        size="sm"
+                    >
+                        This Month
+                    </Button>
+                    <Button
+                        variant={timeFilter === 'week' ? 'primary' : 'outline'}
+                        onClick={() => setTimeFilter('week')}
+                        size="sm"
+                    >
+                        This Week
+                    </Button>
+                </div>
+
                 {/* Tabs */}
                 <div className="flex gap-2 mb-6 bg-muted p-1 rounded-lg max-w-md mx-auto">
                     <button
@@ -334,9 +368,9 @@ export default function LeaderboardPage() {
 
                 {/* Podium - Top 3 */}
                 {sortedLeaderboard.length >= 3 && (
-                    <div className="grid grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
                         {/* Second Place */}
-                        <div className="flex flex-col items-center order-1 mt-8">
+                        <div className="flex flex-col items-center md:order-1 md:mt-8">
                             <Card variant="elevated" className="w-full overflow-hidden">
                                 <div className={`h-2 bg-gradient-to-r ${getRankColor(1)}`}></div>
                                 <CardContent className="pt-6 pb-4 text-center">
@@ -364,8 +398,8 @@ export default function LeaderboardPage() {
                         </div>
 
                         {/* First Place */}
-                        <div className="flex flex-col items-center order-0 col-span-1">
-                            <Card variant="elevated" className="w-full overflow-hidden transform scale-110">
+                        <div className="flex flex-col items-center md:order-0 col-span-1">
+                            <Card variant="elevated" className="w-full overflow-hidden md:transform md:scale-110">
                                 <div className={`h-2 bg-gradient-to-r ${getRankColor(0)}`}></div>
                                 <CardContent className="pt-6 pb-4 text-center">
                                     <div className="text-5xl mb-2">{getRankIcon(0)}</div>
@@ -392,7 +426,7 @@ export default function LeaderboardPage() {
                         </div>
 
                         {/* Third Place */}
-                        <div className="flex flex-col items-center order-2 mt-12">
+                        <div className="flex flex-col items-center md:order-2 md:mt-12">
                             <Card variant="elevated" className="w-full overflow-hidden">
                                 <div className={`h-2 bg-gradient-to-r ${getRankColor(2)}`}></div>
                                 <CardContent className="pt-6 pb-4 text-center">

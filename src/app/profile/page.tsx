@@ -18,6 +18,7 @@ import { supabaseClient as supabase } from '@/lib/supabase/client';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useStats } from '@/lib/hooks/useStats';
 import { DOMAINS, getDomainFromSubDomain } from '@/types';
+import { compressImage, isValidImageFile, formatFileSize } from '@/lib/utils/imageCompression';
 
 /**
  * Profile page component displaying user information and statistics.
@@ -34,6 +35,7 @@ export default function ProfilePage() {
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [emailVerificationSent, setEmailVerificationSent] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { tasks } = useTasks();
     const { stats, sessions } = useStats();
@@ -53,25 +55,55 @@ export default function ProfilePage() {
         redirect('/auth/signin');
     }
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setImagePreview(e.target?.result as string);
-            };
-            reader.readAsDataURL(file);
+            // Validate file type
+            if (!isValidImageFile(file)) {
+                alert('Please select a valid image file (JPEG, PNG, WebP, or GIF)');
+                return;
+            }
+
+            // Check file size before compression
+            const fileSizeMB = file.size / 1024 / 1024;
+            if (fileSizeMB > 10) {
+                alert('Image file is too large. Please select an image smaller than 10MB.');
+                return;
+            }
+
+            try {
+                // Compress the image
+                const compressedFile = await compressImage(file, {
+                    maxWidthOrHeight: 400,
+                    maxSizeMB: 0.5,
+                    quality: 0.8,
+                });
+
+                console.log(`Original size: ${formatFileSize(file.size)}`);
+                console.log(`Compressed size: ${formatFileSize(compressedFile.size)}`);
+
+                setImageFile(compressedFile);
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    setImagePreview(e.target?.result as string);
+                };
+                reader.readAsDataURL(compressedFile);
+            } catch (error) {
+                console.error('Error compressing image:', error);
+                alert('Failed to process image. Please try another image.');
+            }
         }
     };
 
     const handleSave = async () => {
         setIsLoading(true);
+        setEmailVerificationSent(false);
         try {
             let imageUrl = session.user?.image;
 
+            // Upload compressed image if changed
             if (imageFile) {
-                const fileExt = imageFile.name.split('.').pop();
+                const fileExt = 'jpg'; // Always use jpg since we compress to JPEG
                 const fileName = `${session.user?.id}_${Date.now()}.${fileExt}`;
                 const { data, error } = await supabase.storage
                     .from('avatars')
@@ -87,12 +119,36 @@ export default function ProfilePage() {
             }
 
             const updates: any = {};
-            if (name !== session.user?.name) updates.data = { ...updates.data, name };
-            if (email !== session.user?.email) updates.email = email;
-            if (imageUrl !== session.user?.image) updates.data = { ...updates.data, image: imageUrl };
+            const emailChanged = email !== session.user?.email;
 
-            if (Object.keys(updates).length > 0) {
-                const { data, error } = await supabase.auth.updateUser(updates);
+            // Handle name update
+            if (name !== session.user?.name) {
+                updates.data = { ...updates.data, name };
+            }
+
+            // Handle email update with verification
+            if (emailChanged) {
+                const { error } = await supabase.auth.updateUser(
+                    { email: email },
+                    {
+                        emailRedirectTo: `${window.location.origin}/auth/verify-email`
+                    }
+                );
+
+                if (error) throw error;
+
+                setEmailVerificationSent(true);
+                alert(`Verification email sent to ${email}. Please check your inbox to confirm the change.`);
+            }
+
+            // Handle image update
+            if (imageUrl !== session.user?.image) {
+                updates.data = { ...updates.data, image: imageUrl };
+            }
+
+            // Update name/image if changed (email already updated above)
+            if (Object.keys(updates).length > 0 && !emailChanged) {
+                const { error } = await supabase.auth.updateUser(updates);
                 if (error) throw error;
 
                 await update({
@@ -100,13 +156,25 @@ export default function ProfilePage() {
                     user: {
                         ...session.user,
                         name: name,
-                        email: email,
+                        email: emailChanged ? email : session.user?.email,
+                        image: imageUrl,
+                    },
+                });
+            } else if (Object.keys(updates).length > 0) {
+                // Just update name/image in session
+                await update({
+                    ...session,
+                    user: {
+                        ...session.user,
+                        name: name,
                         image: imageUrl,
                     },
                 });
             }
 
-            setIsEditing(false);
+            if (!emailChanged) {
+                setIsEditing(false);
+            }
             setImageFile(null);
             setImagePreview(null);
         } catch (error) {

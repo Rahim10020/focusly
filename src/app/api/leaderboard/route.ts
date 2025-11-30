@@ -55,6 +55,7 @@ const LeaderboardQuerySchema = z.object({
         .refine(val => val >= 1 && val <= 100, {
             message: 'Limit must be between 1 and 100'
         }),
+    timeFilter: z.enum(['all', 'month', 'week']).optional().default('all'),
 });
 
 /**
@@ -113,7 +114,8 @@ async function getHandler(request: NextRequest) {
         // Validate query parameters
         const validationResult = LeaderboardQuerySchema.safeParse({
             page: searchParams.get('page'),
-            limit: searchParams.get('limit')
+            limit: searchParams.get('limit'),
+            timeFilter: searchParams.get('timeFilter')
         });
 
         if (!validationResult.success) {
@@ -127,7 +129,7 @@ async function getHandler(request: NextRequest) {
             }, { status: 400 });
         }
 
-        const { page, limit } = validationResult.data;
+        const { page, limit, timeFilter } = validationResult.data;
 
         // S'assurer que page * limit ne dépasse pas un seuil
         if (page * limit > 10000) {
@@ -138,11 +140,25 @@ async function getHandler(request: NextRequest) {
 
         const offset = (page - 1) * limit;
 
-        const cacheKey = `leaderboard:${page}:${limit}`;
+        const cacheKey = `leaderboard:${page}:${limit}:${timeFilter}`;
 
         const result = await Cache.getOrSet(cacheKey, async () => {
             // Use pooled server admin client for better performance
             const supabaseAdmin = supabaseServerPool.getAdminClient();
+
+            // Calculate date threshold for time filtering
+            let dateThreshold: string | null = null;
+            if (timeFilter === 'week') {
+                const weekStart = new Date();
+                weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+                weekStart.setHours(0, 0, 0, 0);
+                dateThreshold = weekStart.toISOString();
+            } else if (timeFilter === 'month') {
+                const monthStart = new Date();
+                monthStart.setDate(1);
+                monthStart.setHours(0, 0, 0, 0);
+                dateThreshold = monthStart.toISOString();
+            }
 
             // 1. Get total count
             const { count: totalCount, error: countError } = await supabaseAdmin

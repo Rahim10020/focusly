@@ -36,7 +36,7 @@ const CalendarView = dynamic(() => import('@/components/calendar/CalendarView'),
 export default function CalendarPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const { tasks, updateTask, addSubTask, toggleSubTask, deleteSubTask } = useTasks();
+    const { tasks, updateTask, addSubTask, toggleSubTask, deleteSubTask, addTask } = useTasks();
     const { tags } = useTags();
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
@@ -72,6 +72,9 @@ export default function CalendarPage() {
                 <CalendarView
                     tasks={tasks}
                     onTaskClick={(task) => setSelectedTask(task)}
+                    onCreateTask={async (taskData) => {
+                        await addTask(taskData as Omit<Task, 'id' | 'userId' | 'createdAt'>);
+                    }}
                 />
             </main>
 

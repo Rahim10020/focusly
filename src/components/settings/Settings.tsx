@@ -14,6 +14,44 @@ import { TimerSettings } from '@/lib/hooks/useSettings';
 import { useStatVisibility } from '@/lib/hooks/useStatVisibility';
 
 /**
+ * Predefined timer profiles for common Pomodoro techniques
+ */
+const PRESET_PROFILES = {
+    classic: {
+        name: 'Classic Pomodoro',
+        description: '25 min work, 5 min break',
+        workDuration: 1500, // 25 min
+        shortBreakDuration: 300, // 5 min
+        longBreakDuration: 900, // 15 min
+        cyclesBeforeLongBreak: 4,
+    },
+    ultraFocus: {
+        name: 'Ultra Focus',
+        description: '45 min work, 10 min break',
+        workDuration: 2700, // 45 min
+        shortBreakDuration: 600, // 10 min
+        longBreakDuration: 1800, // 30 min
+        cyclesBeforeLongBreak: 3,
+    },
+    sprints: {
+        name: 'Quick Sprints',
+        description: '15 min work, 3 min break',
+        workDuration: 900, // 15 min
+        shortBreakDuration: 180, // 3 min
+        longBreakDuration: 600, // 10 min
+        cyclesBeforeLongBreak: 4,
+    },
+    deepWork: {
+        name: 'Deep Work',
+        description: '90 min work, 20 min break',
+        workDuration: 5400, // 90 min
+        shortBreakDuration: 1200, // 20 min
+        longBreakDuration: 3600, // 60 min
+        cyclesBeforeLongBreak: 2,
+    },
+};
+
+/**
  * Props for the Settings component.
  * @interface SettingsProps
  */
@@ -82,11 +120,56 @@ export default function Settings({
         });
     };
 
+    const applyPreset = (presetKey: keyof typeof PRESET_PROFILES) => {
+        const preset = PRESET_PROFILES[presetKey];
+        setWorkMinutes(Math.floor(preset.workDuration / 60));
+        setShortBreakMinutes(Math.floor(preset.shortBreakDuration / 60));
+        setLongBreakMinutes(Math.floor(preset.longBreakDuration / 60));
+        setCycles(preset.cyclesBeforeLongBreak);
+
+        // Immediately apply the preset
+        onUpdateSettings({
+            workDuration: preset.workDuration,
+            shortBreakDuration: preset.shortBreakDuration,
+            longBreakDuration: preset.longBreakDuration,
+            cyclesBeforeLongBreak: preset.cyclesBeforeLongBreak,
+        });
+    };
+
     return (
         <div className="space-y-6">
+            {/* Preset Profiles */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Timer Settings</CardTitle>
+                    <CardTitle>Preset Profiles</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Quick setup with popular Pomodoro techniques
+                    </p>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {Object.entries(PRESET_PROFILES).map(([key, profile]) => (
+                            <button
+                                key={key}
+                                onClick={() => applyPreset(key as keyof typeof PRESET_PROFILES)}
+                                className="p-4 text-left border border-border rounded-lg hover:bg-accent transition-colors cursor-pointer group"
+                            >
+                                <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">
+                                    {profile.name}
+                                </h3>
+                                <p className="text-sm text-muted-foreground">
+                                    {profile.description}
+                                </p>
+                            </button>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Custom Timer Settings */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Custom Timer Settings</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">

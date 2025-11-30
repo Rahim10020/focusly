@@ -25,7 +25,19 @@ import { useNotifications } from '@/lib/hooks/useNotifications';
 export default function NotificationsPage() {
     const router = useRouter();
     const { data: session, status } = useSession();
-    const { notifications, loading, error, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
+    const {
+        notifications,
+        loading,
+        error,
+        unreadCount,
+        markAsRead,
+        markAllAsRead,
+        deleteNotification,
+        permission,
+        requestPermission,
+        soundEnabled,
+        toggleSound
+    } = useNotifications();
     const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
     useEffect(() => {
@@ -97,19 +109,65 @@ export default function NotificationsPage() {
 
             <main className="max-w-4xl mx-auto px-6 py-8">
                 {/* Page Header */}
-                <div className="mb-8 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-4xl font-bold mb-2">Notifications</h1>
-                        <p className="text-muted-foreground">
-                            Stay updated with friend requests, tasks, and achievements
-                        </p>
+                <div className="mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                        <h1 className="text-4xl font-bold">Notifications</h1>
+                        {unreadCount > 0 && (
+                            <Button variant="outline" onClick={markAllAsRead}>
+                                Mark all as read
+                            </Button>
+                        )}
                     </div>
-                    {unreadCount > 0 && (
-                        <Button variant="outline" onClick={markAllAsRead}>
-                            Mark all as read
-                        </Button>
-                    )}
+                    <p className="text-muted-foreground">
+                        Stay updated with friend requests, tasks, and achievements
+                    </p>
                 </div>
+
+                {/* Notification Settings */}
+                <Card className="mb-6">
+                    <CardHeader>
+                        <CardTitle>Notification Settings</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {/* Browser Notifications */}
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="font-medium">Browser Notifications</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {permission === 'granted' ? 'Enabled' : 'Not enabled'}
+                                    </p>
+                                </div>
+                                {permission !== 'granted' && (
+                                    <Button onClick={requestPermission} size="sm">
+                                        Enable
+                                    </Button>
+                                )}
+                                {permission === 'granted' && (
+                                    <span className="text-green-500">✓ Enabled</span>
+                                )}
+                            </div>
+
+                            {/* Notification Sounds */}
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="font-medium">Notification Sounds</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Play sounds when you receive notifications
+                                    </p>
+                                </div>
+                                <label className="flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={soundEnabled}
+                                        onChange={toggleSound}
+                                        className="w-5 h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary cursor-pointer"
+                                    />
+                                </label>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 {/* Error Message */}
                 {error && (

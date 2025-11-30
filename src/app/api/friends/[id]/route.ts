@@ -184,3 +184,99 @@ export async function PUT(
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+
+/**
+ * Deletes (removes) a friendship.
+ *
+ * Either user in the friendship can delete it. This permanently removes
+ * the friendship record from the database.
+ *
+ * @param {NextRequest} request - The incoming request object
+ * @param {Object} context - Route context
+ * @param {Promise<{id: string}>} context.params - Route parameters containing the friendship ID
+ * @returns {Promise<NextResponse>} JSON response confirming deletion
+ *
+ * @example
+ * // Delete a friendship
+ * // DELETE /api/friends/friendship-uuid
+ *
+ * @example
+ * // Successful response (200 OK)
+ * {
+ *   "message": "Friend removed successfully"
+ * }
+ *
+ * @example
+ * // Error responses
+ * // 401: { "error": "Unauthorized" }
+ * // 403: { "error": "Unauthorized to remove this friendship" }
+ * // 404: { "error": "Friendship not found" }
+ */
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user || !session.accessToken) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const userId = session.user.id;
+        const { id: friendshipId } = await params;
+
+        // Create supabase client with user's access token for RLS
+        const supabaseWithAuth = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                global: {
+                    headers: {
+                        'Authorization': `Bearer ${session.accessToken}`
+                    }
+                }
+            }
+        );
+
+        // Check if the user is part of this friendship
+        const { data: friendshipData, error: fetchError } = await supabaseWithAuth
+            .from('friends')
+            .select('sender_id, receiver_id, status')
+            .eq('id', friendshipId)
+            .single();
+
+        if (fetchError || !friendshipData) {
+            return NextResponse.json({ error: 'Friendship not found' }, { status: 404 });
+        }
+
+        // Verify user is either sender or receiver
+        if (friendshipData.sender_id !== userId && friendshipData.receiver_id !== userId) {
+            return NextResponse.json({ error: 'Unauthorized to remove this friendship' }, { status: 403 });
+        }
+
+        // Delete the friendship
+        const { error: deleteError } = await supabaseWithAuth
+            .from('friends')
+            .delete()
+            .eq('id', friendshipId);
+
+        if (deleteError) {
+            logger.error('Error deleting friendship', deleteError as Error, {
+                action: 'deleteFriendship',
+                friendshipId
+            });
+            return NextResponse.json({ error: 'Failed to remove friend' }, { status: 500 });
+        }
+
+        logger.info('Friendship removed', {
+            action: 'removeFriend',
+            friendshipId,
+            userId
+        });
+
+        return NextResponse.json({ message: 'Friend removed successfully' });
+    } catch (error) {
+        console.error('Error in friends DELETE API:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}

@@ -1,0 +1,2 @@
+This is a placeholder file for the default notification sound.
+In production, replace this with an actual MP3 audio file.
