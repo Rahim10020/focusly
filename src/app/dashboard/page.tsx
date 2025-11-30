@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
@@ -18,6 +18,11 @@ import { useTasks } from '@/lib/hooks/useTasks';
 import { useStats } from '@/lib/hooks/useStats';
 import { exportTasksToPDF, exportAnalyticsToPDF, exportTasksToCSV, exportAnalyticsToCSV } from '@/lib/utils/exportUtils';
 import { exportTasksToICS } from '@/lib/utils/calendarIntegration';
+import { generateDynamicInsights } from '@/lib/utils/insightGenerator';
+import { exportCustomAnalyticsToPDF } from '@/lib/utils/customPDFExport';
+import DynamicInsights from '@/components/stats/DynamicInsights';
+import ProductivityHeatmap from '@/components/stats/ProductivityHeatmap';
+import ExportPDFModal, { ExportOptions } from '@/components/dashboard/ExportPDFModal';
 
 // Lazy load heavy chart components
 const AdvancedProductivityChart = dynamic(
@@ -49,12 +54,62 @@ export default function DashboardPage() {
     const { tasks } = useTasks();
     const { sessions, stats } = useStats();
     const [timeRange, setTimeRange] = useState<7 | 30>(7);
+    const [showExportModal, setShowExportModal] = useState(false);
+    const chartRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.replace('/auth/signin');
         }
     }, [status, router]);
+
+    // Generate dynamic insights
+    const dynamicInsights = useMemo(() => {
+        if (!stats || !sessions || !tasks) return [];
+        // Transform sessions to match the expected Session interface
+        const transformedSessions = sessions.map(session => ({
+            started_at: new Date(session.startedAt).toISOString(),
+            duration: session.duration,
+        }));
+        // Transform tasks to match the expected Task interface
+        const transformedTasks = tasks.map(task => ({
+            id: task.id,
+            status: task.status || 'todo',
+            sub_domain: task.subDomain,
+            completed_at: task.completedAt ? new Date(task.completedAt).toISOString() : undefined,
+        }));
+        return generateDynamicInsights(stats, transformedSessions, transformedTasks);
+    }, [stats, sessions, tasks]);
+
+    // Handle custom PDF export
+    const handleCustomPDFExport = async (options: ExportOptions) => {
+        if (!stats || !tasks || !sessions) return;
+
+        // Transform sessions to match the expected Session interface
+        const transformedSessions = sessions.map(session => ({
+            started_at: new Date(session.startedAt).toISOString(),
+            duration: session.duration,
+        }));
+
+        // Transform tasks to match the expected Task interface
+        const transformedTasks = tasks.map(task => ({
+            id: task.id,
+            title: task.title,
+            status: task.status || 'todo',
+            completed_at: task.completedAt ? new Date(task.completedAt).toISOString() : undefined,
+            created_at: new Date(task.createdAt).toISOString(),
+        }));
+
+        await exportCustomAnalyticsToPDF(
+            stats,
+            transformedTasks,
+            transformedSessions,
+            session?.user?.name || 'User',
+            options,
+            dynamicInsights,
+            chartRef.current
+        );
+    };
 
     if (status === 'loading') {
         return (
@@ -133,25 +188,14 @@ export default function DashboardPage() {
                     </Button>
                     <Button
                         variant="outline"
-                        onClick={() => exportAnalyticsToPDF(
-                            stats || {
-                                totalFocusTime: 0,
-                                totalTasks,
-                                completedTasks,
-                                totalSessions: 0,
-                                streak: 0,
-                            },
-                            tasks,
-                            sessions,
-                            session?.user?.name || 'User'
-                        )}
+                        onClick={() => setShowExportModal(true)}
                         className="text-sm"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
                             <line x1="12" y1="1" x2="12" y2="23"></line>
                             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                         </svg>
-                        Analytics (PDF)
+                        Analytics (PDF Custom)
                     </Button>
                     <Button
                         variant="outline"
@@ -257,10 +301,23 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Productivity Charts */}
+                {/* Dynamic Insights */}
                 <div className="mb-8">
+                    <DynamicInsights insights={dynamicInsights} />
+                </div>
+
+                {/* Productivity Charts */}
+                <div className="mb-8" ref={chartRef}>
                     <h2 className="text-2xl font-bold mb-4">Productivity Trends</h2>
                     <AdvancedProductivityChart sessions={sessions} days={timeRange} />
+                </div>
+
+                {/* Productivity Heatmap */}
+                <div className="mb-8">
+                    <ProductivityHeatmap sessions={sessions.map(session => ({
+                        started_at: new Date(session.startedAt).toISOString(),
+                        duration: session.duration,
+                    }))} />
                 </div>
 
                 {/* Domain Evolution */}
@@ -269,51 +326,12 @@ export default function DashboardPage() {
                     <DomainEvolutionChart tasks={tasks} />
                 </div>
 
-                {/* Insights Section */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Productivity Insights (Beta)</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {/* Most Productive Day */}
-                            <div className="p-4 bg-muted rounded-lg">
-                                <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                        {/* ...existing icon... */}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold mb-1">Peak Performance</h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            You're most productive during morning sessions. In future updates, this tip will adapt based on your actual focus history.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Completion Trend */}
-                            <div className="p-4 bg-muted rounded-lg">
-                                {/* ...existing Great Progress block (unchanged)... */}
-                            </div>
-
-                            {/* Recommendation */}
-                            <div className="p-4 bg-muted rounded-lg">
-                                <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                                        {/* ...existing icon... */}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold mb-1">Balance Suggestion</h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            Consider spending more time on underrepresented domains to achieve a more balanced lifestyle.
-                                            Soon, this will be based directly on how you distribute your tasks across life domains.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                {/* Export PDF Modal */}
+                <ExportPDFModal
+                    open={showExportModal}
+                    onClose={() => setShowExportModal(false)}
+                    onExport={handleCustomPDFExport}
+                />
             </main>
         </div>
     );
