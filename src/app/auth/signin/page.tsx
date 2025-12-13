@@ -8,7 +8,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn, getSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
@@ -107,7 +107,7 @@ export default function SignIn() {
                     </form>
                     <div className="mt-4 text-center">
                         <p className="text-sm text-muted-foreground">
-                            Don't have an account?{' '}
+                            Don&apos;t have an account?{' '}
                             <Link href="/auth/signup" className="text-brand-accent hover:underline">
                                 Sign Up
                             </Link>

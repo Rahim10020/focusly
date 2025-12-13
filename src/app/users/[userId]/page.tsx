@@ -279,7 +279,7 @@ export default function UserProfilePage() {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Today's Tasks</CardTitle>
+                                <CardTitle>Today&apos;s Tasks</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-3xl font-bold text-primary">

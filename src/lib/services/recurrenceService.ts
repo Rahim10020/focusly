@@ -24,7 +24,7 @@ export class RecurrenceService {
         // Calculer la prochaine date
         const baseDate = task.dueDate || task.startDate || Date.now();
         const currentDate = new Date(baseDate);
-        let nextDate = new Date(currentDate);
+        const nextDate = new Date(currentDate);
 
         switch (task.recurrencePattern) {
             case 'daily':

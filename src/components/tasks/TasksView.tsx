@@ -81,16 +81,14 @@ type ViewType = 'list' | 'board';
  */
 export default function TasksView(props: TasksViewProps) {
     const [view, setView] = useState<ViewType>('list');
-    const [sortType, setSortType] = useState<SortType>('default');
-    const showSortOptions = props.showSortOptions ?? true;
-
-    // Load sort preference from localStorage
-    useEffect(() => {
+    const [sortType, setSortType] = useState<SortType>(() => {
+        if (typeof window === 'undefined') return 'default';
         const savedSort = localStorage.getItem('taskSortType') as SortType;
-        if (savedSort && ['default', 'alphabetical', 'createdAt', 'priority'].includes(savedSort)) {
-            setSortType(savedSort);
-        }
-    }, []);
+        return (savedSort && ['default', 'alphabetical', 'createdAt', 'priority'].includes(savedSort))
+            ? savedSort
+            : 'default';
+    });
+    const showSortOptions = props.showSortOptions ?? true;
 
     // Save sort preference to localStorage
     useEffect(() => {

@@ -123,7 +123,7 @@ export default function TaskModal({
                 const startDate = new Date();
                 startDate.setHours(startHours, startMinutes, 0, 0);
 
-                let endDate = new Date();
+                const endDate = new Date();
                 endDate.setHours(endHours, endMinutes, 0, 0);
 
                 // Handle case where end time is on the next day
@@ -150,7 +150,10 @@ export default function TaskModal({
     }, [startTime, endTime]);
 
     // Populate form with initial data
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => {
+        // This effect synchronizes form state with external data (initialData prop)
+        // It's necessary to update form when editing different tasks
         if (initialData) {
             setTitle(initialData.title || '');
             setPriority(initialData.priority);

@@ -16,7 +16,6 @@ import {
     YAxis,
     CartesianGrid,
     Tooltip,
-    Legend,
     ResponsiveContainer,
     Area,
     AreaChart,
@@ -32,6 +31,46 @@ interface AdvancedProductivityChartProps {
     /** Number of days to display (7 or 30). Defaults to 7 */
     days?: number;
 }
+
+/**
+ * Custom tooltip component for recharts
+ */
+interface TooltipProps {
+    active?: boolean;
+    payload?: Array<{
+        payload: {
+            fullDate: string;
+            minutes: number;
+            sessions: number;
+            focusScore: number;
+        };
+    }>;
+}
+
+const CustomTooltip = ({ active, payload }: TooltipProps) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
+                <p className="text-sm font-medium mb-2">{payload[0].payload.fullDate}</p>
+                <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-primary"></div>
+                        <span className="text-xs">Focus Time: {payload[0].payload.minutes} min</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span className="text-xs">Sessions: {payload[0].payload.sessions}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                        <span className="text-xs">Focus Score: {payload[0].payload.focusScore}%</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    return null;
+};
 
 /**
  * Displays advanced productivity analytics with multiple visualizations.
@@ -143,31 +182,6 @@ export default function AdvancedProductivityChart({
     const avgMinutes = Math.round(
         chartData.reduce((sum, d) => sum + d.minutes, 0) / chartData.length
     );
-
-    const CustomTooltip = ({ active, payload }: any) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
-                    <p className="text-sm font-medium mb-2">{payload[0].payload.fullDate}</p>
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-primary"></div>
-                            <span className="text-xs">Focus Time: {payload[0].payload.minutes} min</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                            <span className="text-xs">Sessions: {payload[0].payload.sessions}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                            <span className="text-xs">Focus Score: {payload[0].payload.focusScore}%</span>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-        return null;
-    };
 
     return (
         <div className="space-y-4">

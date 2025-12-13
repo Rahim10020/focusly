@@ -5,6 +5,8 @@
 
 'use client';
 
+import { useId } from 'react';
+
 /**
  * Props for the ProgressRing component.
  * @interface ProgressRingProps
@@ -52,7 +54,8 @@ export default function ProgressRing({
     const offset = circumference - (progress / 100) * circumference;
 
     // Gradient ID unique pour éviter les conflits
-    const gradientId = `progress-gradient-${Math.random().toString(36).substr(2, 9)}`;
+    const uniqueId = useId();
+    const gradientId = `progress-gradient-${uniqueId}`;
 
     return (
         <div className="relative" style={{ width: size, height: size }}>

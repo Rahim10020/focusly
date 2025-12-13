@@ -66,7 +66,10 @@ export default function TaskModalRefactored({
     const [isSubTasksOpen, setIsSubTasksOpen] = useState(false);
 
     // Populate form with initial data when modal opens or initialData changes while open
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => {
+        // This effect synchronizes form state with external data (initialData prop)
+        // It's necessary to update form when editing different tasks
         if (!isOpen) return;
 
         if (initialData) {

@@ -60,7 +60,11 @@ const createBeepSound = (frequency: number = 800, duration: number = 200) => {
  * };
  */
 export function useSound() {
-    const [soundEnabled, setSoundEnabled] = useState(true);
+    const [soundEnabled, setSoundEnabled] = useState(() => {
+        if (typeof window === 'undefined') return true;
+        const saved = localStorage.getItem('focusly_sound_enabled');
+        return saved !== null ? JSON.parse(saved) : true;
+    });
 
     // Précharger les fichiers audio WAV
     const workStartAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -68,11 +72,6 @@ export function useSound() {
     const workEndAudioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
-        const saved = localStorage.getItem('focusly_sound_enabled');
-        if (saved !== null) {
-            setSoundEnabled(JSON.parse(saved));
-        }
-
         // Précharger les sons
         workStartAudioRef.current = new Audio('/sounds/work-start.wav');
         workPauseAudioRef.current = new Audio('/sounds/work-pause.wav');
