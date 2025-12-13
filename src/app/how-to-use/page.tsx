@@ -74,10 +74,10 @@ export default function HowToUsePage() {
                                     <div>
                                         <h3 className="text-lg font-semibold mb-3">Create a Task</h3>
                                         <p className="text-muted-foreground mb-3">
-                                            Start by creating your first task. Click the "Add Task" button and give it a clear, actionable title.
+                                            Start by creating your first task. Click the &quot;Add Task&quot; button and give it a clear, actionable title.
                                         </p>
                                         <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                                            <li>Use specific titles like "Write project proposal" instead of "Work"</li>
+                                            <li>Use specific titles like &quot;Write project proposal&quot; instead of &quot;Work&quot;</li>
                                             <li>Add priority levels to organize your work</li>
                                             <li>Set due dates to create urgency</li>
                                             <li>Use tags to categorize tasks by project or type</li>
@@ -91,7 +91,7 @@ export default function HowToUsePage() {
                                         </p>
                                         <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                                             <li>The timer will run for 25 minutes of focused work</li>
-                                            <li>You'll hear a notification when the work session ends</li>
+                                            <li>You&apos;ll hear a notification when the work session ends</li>
                                             <li>Take a 5-minute break before starting the next Pomodoro</li>
                                             <li>After 4 Pomodoros, take a longer 15-30 minute break</li>
                                         </ul>
@@ -333,7 +333,7 @@ export default function HowToUsePage() {
                                         <li>Group similar tasks together to maintain focus</li>
                                         <li>Use breaks to stretch, hydrate, or do quick exercises</li>
                                         <li>Review your completed Pomodoros at the end of each day</li>
-                                        <li>Don't multitask during a Pomodoro - focus on one thing</li>
+                                        <li>Don&apos;t multitask during a Pomodoro - focus on one thing</li>
                                         <li>Adjust timer lengths if 25 minutes feels too long or short</li>
                                         <li>Celebrate small wins and completed tasks</li>
                                         <li>Be consistent - even 2-3 Pomodoros per day can make a difference</li>

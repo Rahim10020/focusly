@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -97,7 +97,7 @@ export default function SignUp() {
                         </p>
                         <div className="mt-4">
                             <p className="text-sm text-muted-foreground">
-                                Didn't receive the email?{' '}
+                                Didn&apos;t receive the email?{' '}
                                 <button
                                     onClick={async () => {
                                         try {

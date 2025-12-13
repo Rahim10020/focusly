@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Task, Tag, DOMAINS, getDomainFromSubDomain, Priority, SubDomain } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -80,7 +80,7 @@ export default function TaskDetailsModal({
                 const startDate = new Date();
                 startDate.setHours(startHours, startMinutes, 0, 0);
 
-                let endDate = new Date();
+                const endDate = new Date();
                 endDate.setHours(endHours, endMinutes, 0, 0);
 
                 if (endDate <= startDate) {
@@ -104,8 +104,9 @@ export default function TaskDetailsModal({
     }, [startTime, endTime]);
 
     const taskTags = tags.filter(tag => selectedTags.includes(tag.id));
-    const isOverdue = task.dueDate && task.dueDate < Date.now() && !task.completed;
-    const isDueToday = task.dueDate && new Date(task.dueDate).toDateString() === new Date().toDateString();
+    const now = useMemo(() => Date.now(), []);
+    const isOverdue = task.dueDate && task.dueDate < now && !task.completed;
+    const isDueToday = task.dueDate && new Date(task.dueDate).toDateString() === new Date(now).toDateString();
 
     const handleSave = () => {
         onUpdate({

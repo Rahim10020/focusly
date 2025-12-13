@@ -68,7 +68,7 @@ export const TaskModalDates = ({ task, onChange, onDurationChange, errors }: Tas
             const startDate = new Date();
             startDate.setHours(startHours, startMinutes, 0, 0);
 
-            let endDate = new Date();
+            const endDate = new Date();
             endDate.setHours(endHours, endMinutes, 0, 0);
 
             if (endDate <= startDate) {

@@ -5,8 +5,10 @@
  * Checks that all required environment variables are set
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 const path = require('path');
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 // Required environment variables
 const REQUIRED_ENV_VARS = {

@@ -20,20 +20,23 @@ import { useState, useEffect, useCallback } from 'react';
  * const [token, setToken] = useSecureStorage('auth_token', null);
  */
 export function useSecureStorage<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
-    const [storedValue, setStoredValue] = useState<T>(initialValue);
-    const [isClient, setIsClient] = useState(false);
-
-    useEffect(() => {
-        setIsClient(true);
+    const [storedValue, setStoredValue] = useState<T>(() => {
+        if (typeof window === 'undefined') return initialValue;
         try {
             const item = window.sessionStorage.getItem(key);
-            if (item) {
-                setStoredValue(JSON.parse(item));
-            }
+            return item ? JSON.parse(item) : initialValue;
         } catch (error) {
             console.error(`Error loading ${key} from sessionStorage:`, error);
+            return initialValue;
         }
-    }, [key]);
+    });
+    const [isClient, setIsClient] = useState(() => typeof window !== 'undefined');
+
+    useEffect(() => {
+        if (!isClient) {
+            setIsClient(true);
+        }
+    }, [isClient, key]);
 
     const setValue = useCallback((value: T | ((val: T) => T)) => {
         try {

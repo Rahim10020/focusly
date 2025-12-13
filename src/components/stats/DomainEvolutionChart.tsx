@@ -33,6 +33,41 @@ interface DomainEvolutionChartProps {
 }
 
 /**
+ * Custom tooltip component for domain charts
+ */
+interface DomainTooltipProps {
+    active?: boolean;
+    payload?: Array<{
+        payload: {
+            fullDomain: string;
+            completionRate: number;
+            completed: number;
+            total: number;
+            pomodoros: number;
+            score: number;
+        };
+    }>;
+}
+
+const CustomTooltip = ({ active, payload }: DomainTooltipProps) => {
+    if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        return (
+            <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
+                <p className="text-sm font-medium mb-2">{data.fullDomain}</p>
+                <div className="space-y-1 text-xs">
+                    <div>Completion Rate: {data.completionRate}%</div>
+                    <div>Tasks: {data.completed}/{data.total}</div>
+                    <div>Pomodoros: {data.pomodoros}</div>
+                    <div>Overall Score: {data.score}</div>
+                </div>
+            </div>
+        );
+    }
+    return null;
+};
+
+/**
  * Displays domain-specific progress using multiple chart visualizations.
  * Includes a radar chart for life balance overview, bar charts for task
  * completion by domain, and summary cards with detailed statistics.
@@ -102,32 +137,6 @@ export default function DomainEvolutionChart({ tasks }: DomainEvolutionChartProp
         };
     });
 
-    // Domain colors
-    const domainColors = {
-        'Health': '#10b981',
-        'Career\n& Skills': '#3b82f6',
-        'Finance\n& Business': '#f59e0b',
-        'Relationships\n& Social Life': '#ec4899',
-        'Personal Development\n& Lifestyle': '#8b5cf6',
-    };
-
-    const CustomTooltip = ({ active, payload }: any) => {
-        if (active && payload && payload.length) {
-            const data = payload[0].payload;
-            return (
-                <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
-                    <p className="text-sm font-medium mb-2">{data.fullDomain}</p>
-                    <div className="space-y-1 text-xs">
-                        <div>Completion Rate: {data.completionRate}%</div>
-                        <div>Tasks: {data.completed}/{data.total}</div>
-                        <div>Pomodoros: {data.pomodoros}</div>
-                        <div>Overall Score: {data.score}</div>
-                    </div>
-                </div>
-            );
-        }
-        return null;
-    };
 
     return (
         <div className="space-y-6">

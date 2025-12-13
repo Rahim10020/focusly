@@ -234,7 +234,7 @@ export function calculateDuration(startTime: string, endTime: string): number {
     const start = new Date();
     start.setHours(startHour, startMin, 0, 0);
 
-    let end = new Date();
+    const end = new Date();
     end.setHours(endHour, endMin, 0, 0);
 
     // Handle case where end time is on the next day

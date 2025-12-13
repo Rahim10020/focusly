@@ -4,7 +4,7 @@
  * automatic session transitions, and cycle tracking for the Pomodoro technique.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { TimerStatus, PomodoroSession } from '@/types';
 import { TimerSettings } from './useSettings';
 import { logger } from '@/lib/logger';
@@ -109,7 +109,8 @@ export function usePomodoro(options: UsePomodoroOptions) {
         }
     };
 
-    const persistedState = loadPersistedState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const persistedState = useMemo(() => loadPersistedState(), []);
 
     const [timeLeft, setTimeLeft] = useState(persistedState?.timeLeft ?? settings.workDuration);
     const [status, setStatus] = useState<TimerStatus>(persistedState?.status ?? 'idle');

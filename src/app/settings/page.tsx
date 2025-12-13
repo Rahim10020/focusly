@@ -20,13 +20,15 @@ import { useSound } from '@/lib/hooks/useSound';
  * @returns {JSX.Element} The rendered settings page
  */
 export default function SettingsPage() {
-    const [isClient, setIsClient] = useState(false);
+    const [isClient, setIsClient] = useState(() => typeof window !== 'undefined');
     const { settings, updateSettings, resetSettings } = useSettings();
     const { soundEnabled, toggleSound } = useSound();
 
     useEffect(() => {
-        setIsClient(true);
-    }, []);
+        if (!isClient) {
+            setIsClient(true);
+        }
+    }, [isClient]);
 
     if (!isClient) {
         return (

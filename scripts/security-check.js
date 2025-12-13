@@ -9,8 +9,10 @@
  * - Hardcoded secrets
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 const path = require('path');
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 const DANGEROUS_PATTERNS = [
     {
