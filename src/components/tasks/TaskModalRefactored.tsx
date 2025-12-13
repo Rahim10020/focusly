@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import Button from '../ui/Button';
-import { Priority, SubDomain, DOMAINS, Domain, Tag } from '@/types';
+import { Priority, SubDomain, DOMAINS, Tag } from '@/types';
 import { TaskModalBasicInfo } from './TaskModalBasicInfo';
 import { TaskModalDates } from './TaskModalDates';
 import { TaskModalRecurrence } from './TaskModalRecurrence';
@@ -65,8 +65,10 @@ export default function TaskModalRefactored({
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isSubTasksOpen, setIsSubTasksOpen] = useState(false);
 
-    // Populate form with initial data
+    // Populate form with initial data when modal opens or initialData changes while open
     useEffect(() => {
+        if (!isOpen) return;
+
         if (initialData) {
             setFormData({
                 title: initialData.title || '',
@@ -95,14 +97,16 @@ export default function TaskModalRefactored({
                 subTasks: [],
             });
         }
+
         setErrors({});
         setActiveTab('details');
         setNewSubTask('');
         setSearchQuery('');
     }, [initialData, isOpen]);
 
-    const handleChange = (field: string, value: any) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+    // Keep the signature compatible with child components: (field: string, value: any)
+    const handleChange = (field: string, value: unknown) => {
+        setFormData(prev => ({ ...(prev as any), [field as keyof TaskFormData]: value } as TaskFormData));
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }));
         }
@@ -120,15 +124,8 @@ export default function TaskModalRefactored({
         }
 
         // Validate dates
-        if (formData.startDate && formData.dueDate) {
-            const startDate = typeof formData.startDate === 'number'
-                ? formData.startDate
-                : new Date(formData.startDate).getTime();
-            const dueDate = typeof formData.dueDate === 'number'
-                ? formData.dueDate
-                : new Date(formData.dueDate).getTime();
-
-            if (startDate > dueDate) {
+        if (typeof formData.startDate === 'number' && typeof formData.dueDate === 'number') {
+            if (formData.startDate > formData.dueDate) {
                 newErrors.dates = 'Start date must be before due date';
             }
         }
@@ -197,7 +194,7 @@ export default function TaskModalRefactored({
         }));
     };
 
-    const filteredDomains = Object.entries(DOMAINS).filter(([domainKey, domainInfo]) => {
+    const filteredDomains = Object.entries(DOMAINS).filter(([_domainKey, domainInfo]) => {
         const domainMatch = domainInfo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             domainInfo.description.toLowerCase().includes(searchQuery.toLowerCase());
         const subDomainMatch = Object.values(domainInfo.subDomains).some(subName =>
@@ -211,6 +208,15 @@ export default function TaskModalRefactored({
         { value: 'medium' as Priority, label: 'Medium', color: 'bg-warning text-white' },
         { value: 'low' as Priority, label: 'Low', color: 'bg-info text-white' },
     ];
+
+    // Helper to get domain key from a subDomain value
+    const getDomainFromSubDomain = (sub?: SubDomain): string | undefined => {
+        if (!sub) return undefined;
+        const found = Object.entries(DOMAINS).find(([_domainKey, domainInfo]) =>
+            Object.keys(domainInfo.subDomains).includes(sub as string)
+        );
+        return found ? found[0] : undefined;
+    };
 
     if (!isOpen) return null;
 
@@ -262,15 +268,17 @@ export default function TaskModalRefactored({
                 {!isFullScreen && (
                     <div className="sticky top-[89px] bg-card border-b border-border px-6 z-10">
                         <div className="flex">
-                            {[
-                                { id: 'details', label: 'Details' },
-                                { id: 'categories', label: 'Categories', badge: formData.subDomain ? '1' : null },
-                                { id: 'subtasks', label: 'Subtasks', badge: formData.subTasks && formData.subTasks.length > 0 ? formData.subTasks.length.toString() : null },
-                                { id: 'recurrence', label: 'Recurrence', badge: formData.isRecurring ? '✓' : null }
-                            ].map((tab) => (
+                            {(
+                                [
+                                    { id: 'details', label: 'Details' as const },
+                                    { id: 'categories', label: 'Categories' as const, badge: formData.subDomain ? '1' : null },
+                                    { id: 'subtasks', label: 'Subtasks' as const, badge: formData.subTasks && formData.subTasks.length > 0 ? formData.subTasks.length.toString() : null },
+                                    { id: 'recurrence', label: 'Recurrence' as const, badge: formData.isRecurring ? '✓' : null }
+                                ] as { id: typeof activeTab; label: string; badge?: string | null }[]
+                            ).map((tab) => (
                                 <button
                                     key={tab.id}
-                                    onClick={() => setActiveTab(tab.id as any)}
+                                    onClick={() => setActiveTab(tab.id)}
                                     className={`flex-1 cursor-pointer flex items-center justify-center gap-2 py-2 text-sm font-medium transition-all border-b-2 ${activeTab === tab.id
                                         ? 'text-primary border-primary bg-primary/5'
                                         : 'text-muted-foreground border-transparent hover:text-foreground hover:bg-accent/50'
@@ -355,6 +363,108 @@ export default function TaskModalRefactored({
                                 </>
                             )}
 
+                            {/* Categories Tab */}
+                            {activeTab === 'categories' && (
+                                <div className="p-6 space-y-4">
+                                    <div className="space-y-4">
+                                        <input
+                                            type="text"
+                                            placeholder="Search categories..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            className="w-full px-3 py-2 bg-muted border border-border rounded-md"
+                                        />
+
+                                        <div className="space-y-4">
+                                            {filteredDomains.map(([domainKey, domainInfo]) => (
+                                                <div key={domainKey} className="space-y-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                                                            <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-sm font-semibold text-foreground">
+                                                                {domainInfo.name}
+                                                            </div>
+                                                            <div className="text-xs text-muted-foreground">
+                                                                {domainInfo.description}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 gap-2 ml-10">
+                                                        {Object.entries(domainInfo.subDomains).map(([subDomainKey, subDomainName]) => (
+                                                            <button
+                                                                key={subDomainKey}
+                                                                type="button"
+                                                                onClick={() => handleChange('subDomain', formData.subDomain === subDomainKey ? undefined : (subDomainKey as SubDomain))}
+                                                                className={`p-3 text-left text-sm rounded-lg transition-all cursor-pointer ${formData.subDomain === subDomainKey
+                                                                    ? 'bg-primary text-primary-foreground font-medium'
+                                                                    : 'bg-card hover:bg-accent text-foreground border border-border'
+                                                                    }`}
+                                                            >
+                                                                {subDomainName}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Subtasks Tab */}
+                            {activeTab === 'subtasks' && (
+                                <div className="p-6 space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Add a subtask..."
+                                            value={newSubTask}
+                                            onChange={(e) => setNewSubTask(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && addSubTask()}
+                                            className="flex-1 px-3 py-2 bg-muted border border-border rounded-md"
+                                        />
+                                        <Button onClick={addSubTask} size="sm" disabled={!newSubTask.trim()}>
+                                            Add
+                                        </Button>
+                                    </div>
+
+                                    {(formData.subTasks?.length || 0) > 0 ? (
+                                        <div className="space-y-2">
+                                            {(formData.subTasks || []).map((st, idx) => (
+                                                <div key={idx} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={st.completed}
+                                                        onChange={() => toggleSubTask(idx)}
+                                                        className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
+                                                    />
+                                                    <span className={`flex-1 text-sm ${st.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                                                        {st.title}
+                                                    </span>
+                                                    <button onClick={() => removeSubTask(idx)} className="text-muted-foreground hover:text-error transition-colors cursor-pointer">
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-8 text-muted-foreground">
+                                            <svg className="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                            </svg>
+                                            <p>No subtasks added yet</p>
+                                            <p className="text-sm">Break down your task into smaller steps</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {activeTab === 'recurrence' && (
                                 <TaskModalRecurrence
                                     task={{
@@ -407,8 +517,145 @@ export default function TaskModalRefactored({
                                 }}
                                 onChange={handleChange}
                             />
+
+                            {/* Fullscreen: Categories & Subtasks sections */}
+                            <div className="space-y-6">
+                                {/* Categories */}
+                                <div className="space-y-3">
+                                    <button
+                                        onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                                        className="w-full flex items-center justify-between p-2 cursor-pointer"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <svg className={`w-5 h-5 text-muted-foreground transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                            <span className="text-lg font-medium text-foreground">Categories</span>
+                                            {formData.subDomain && (() => {
+                                                const domainKey = getDomainFromSubDomain(formData.subDomain);
+                                                return (
+                                                    <span className="text-sm text-muted-foreground">
+                                                        {domainKey ? DOMAINS[domainKey as keyof typeof DOMAINS].subDomains[formData.subDomain as SubDomain] : ''}
+                                                    </span>
+                                                );
+                                            })()}
+                                        </div>
+                                    </button>
+
+                                    {isCategoriesOpen && (
+                                        <div className="space-y-4 animate-slide-down">
+                                            <input
+                                                type="text"
+                                                placeholder="Search categories..."
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="w-full px-3 py-2 bg-muted border border-border rounded-md"
+                                            />
+
+                                            <div className="max-h-52 overflow-y-auto space-y-4">
+                                                {filteredDomains.map(([domainKey, domainInfo]) => (
+                                                    <div key={domainKey} className="space-y-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                                                                <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                                                                </svg>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-sm font-semibold text-foreground">
+                                                                    {domainInfo.name}
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground">
+                                                                    {domainInfo.description}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="grid grid-cols-1 gap-2 ml-10">
+                                                            {Object.entries(domainInfo.subDomains).map(([subDomainKey, subDomainName]) => (
+                                                                <button
+                                                                    key={subDomainKey}
+                                                                    type="button"
+                                                                    onClick={() => handleChange('subDomain', formData.subDomain === subDomainKey ? undefined : (subDomainKey as SubDomain))}
+                                                                    className={`p-3 text-left text-sm rounded-lg transition-all cursor-pointer ${formData.subDomain === subDomainKey
+                                                                        ? 'bg-primary text-primary-foreground font-medium'
+                                                                        : 'bg-card hover:bg-accent text-foreground border border-border'
+                                                                        }`}
+                                                                >
+                                                                    {subDomainName}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Subtasks */}
+                                <div className="space-y-3">
+                                    <button
+                                        onClick={() => setIsSubTasksOpen(!isSubTasksOpen)}
+                                        className="w-full flex items-center justify-between p-2 cursor-pointer"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <svg className={`w-5 h-5 text-muted-foreground transition-transform ${isSubTasksOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                            <span className="text-lg font-medium text-foreground">Subtasks</span>
+                                            {(formData.subTasks?.length || 0) > 0 && (
+                                                <span className="text-sm text-muted-foreground">
+                                                    {formData.subTasks?.filter(t => t.completed).length}/{formData.subTasks?.length}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </button>
+
+                                    {isSubTasksOpen && (
+                                        <div className="space-y-4 animate-slide-down">
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Add a subtask..."
+                                                    value={newSubTask}
+                                                    onChange={(e) => setNewSubTask(e.target.value)}
+                                                    onKeyDown={(e) => e.key === 'Enter' && addSubTask()}
+                                                    className="flex-1 px-3 py-2 bg-muted border border-border rounded-md"
+                                                />
+                                                <Button onClick={addSubTask} size="sm" disabled={!newSubTask.trim()}>
+                                                    Add
+                                                </Button>
+                                            </div>
+
+                                            {(formData.subTasks?.length || 0) > 0 && (
+                                                <div className="space-y-2">
+                                                    {(formData.subTasks || []).map((st, idx) => (
+                                                        <div key={idx} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={st.completed}
+                                                                onChange={() => toggleSubTask(idx)}
+                                                                className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
+                                                            />
+                                                            <span className={`flex-1 text-sm ${st.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                                                                {st.title}
+                                                            </span>
+                                                            <button onClick={() => removeSubTask(idx)} className="text-muted-foreground hover:text-error transition-colors cursor-pointer">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     )}
+
                 </div>
 
                 {/* Footer */}
