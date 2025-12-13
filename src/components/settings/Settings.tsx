@@ -12,6 +12,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { TimerSettings } from '@/lib/hooks/useSettings';
 import { useStatVisibility } from '@/lib/hooks/useStatVisibility';
+import { useNotifications } from '@/lib/hooks/useNotifications';
 
 /**
  * Predefined timer profiles for common Pomodoro techniques
@@ -92,6 +93,7 @@ export default function Settings({
     soundEnabled,
     onToggleSound,
 }: SettingsProps) {
+    const { permission, requestPermission } = useNotifications();
     const [workMinutes, setWorkMinutes] = useState(Math.floor(settings.workDuration / 60));
     const [shortBreakMinutes, setShortBreakMinutes] = useState(Math.floor(settings.shortBreakDuration / 60));
     const [longBreakMinutes, setLongBreakMinutes] = useState(Math.floor(settings.longBreakDuration / 60));
@@ -257,17 +259,37 @@ export default function Settings({
                     <CardTitle>Sound & Notifications</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <label className="flex items-center justify-between cursor-pointer">
-                        <span className="text-sm text-foreground">
-                            Enable sound notifications
-                        </span>
-                        <input
-                            type="checkbox"
-                            checked={soundEnabled}
-                            onChange={onToggleSound}
-                            className="w-5 h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary cursor-pointer"
-                        />
-                    </label>
+                    <div className="space-y-4">
+                        <label className="flex items-center justify-between cursor-pointer">
+                            <span className="text-sm text-foreground">Enable sound notifications</span>
+                            <input
+                                type="checkbox"
+                                checked={soundEnabled}
+                                onChange={onToggleSound}
+                                className="w-5 h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary cursor-pointer"
+                            />
+                        </label>
+
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="font-medium">Browser Notifications</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    {permission === 'granted' ? 'Enabled' : 'Not enabled'}
+                                </p>
+                            </div>
+                            {permission !== 'granted' && (
+                                <button
+                                    onClick={requestPermission}
+                                    className="px-3 py-1 rounded-md bg-primary text-white text-sm"
+                                >
+                                    Enable
+                                </button>
+                            )}
+                            {permission === 'granted' && (
+                                <span className="text-green-500">✓ Enabled</span>
+                            )}
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
 
