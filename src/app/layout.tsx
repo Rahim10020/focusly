@@ -76,6 +76,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <title>Focusly – Focus & Productivity</title>
+        {/* Inline script to apply saved theme before React hydration to avoid flash */}
+        <script dangerouslySetInnerHTML={{ __html: `try {
+  var t = localStorage.getItem('focusly_theme');
+  if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+} catch (e) {}` }} />
+
         <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

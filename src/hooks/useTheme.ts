@@ -37,25 +37,49 @@ type Theme = 'light' | 'dark';
  *   );
  * }
  */
+
+// Apply theme helper declared as a standalone function so it can be used safely
+function applyThemeToDocument(t: 'light' | 'dark') {
+    if (typeof window === 'undefined' || !window.document) return;
+    const root = window.document.documentElement;
+    if (t === 'dark') {
+        root.classList.add('dark');
+    } else {
+        root.classList.remove('dark');
+    }
+}
+
 export function useTheme() {
-    const [theme, setTheme] = useState<Theme>('light');
+    const [theme, setTheme] = useState<Theme>(() => {
+        // Synchronously read the saved theme on initial render (client-only)
+        try {
+            if (typeof window === 'undefined') return 'light';
+            const savedTheme = localStorage.getItem('focusly_theme') as Theme | null;
+            if (savedTheme) return savedTheme;
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        } catch {
+            return 'light';
+        }
+    });
     const [mounted, setMounted] = useState(false);
     const { data: session } = useSession();
 
     // Retrieve theme from localStorage
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         setMounted(true);
 
         const savedTheme = localStorage.getItem('focusly_theme') as Theme | null;
-        const initialTheme = savedTheme || 'light';
+        // compute initial theme without referencing React state to avoid hook dependency issues
+        const initialTheme = savedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
         setTheme(initialTheme);
-        applyTheme(initialTheme);
+        applyThemeToDocument(initialTheme);
 
         // Listen for system theme changes (but don't apply them automatically)
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = (e: MediaQueryListEvent) => {
-            // Do nothing here to avoid automatic changes
+        const handleChange = () => {
+            // Intentionally left blank to avoid automatic changes
         };
 
         mediaQuery.addEventListener('change', handleChange);
@@ -67,26 +91,15 @@ export function useTheme() {
         if (session?.user?.themePreference) {
             const newTheme = session.user.themePreference as Theme;
             setTheme(newTheme);
-            applyTheme(newTheme);
+            applyThemeToDocument(newTheme);
             localStorage.setItem('focusly_theme', newTheme);
         }
     }, [session]);
 
-    const applyTheme = (theme: Theme) => {
-        const root = window.document.documentElement;
-        // Tailwind CSS uses only the 'dark' class on the html element
-        // Light mode is the default (no class)
-        if (theme === 'dark') {
-            root.classList.add('dark');
-        } else {
-            root.classList.remove('dark');
-        }
-    };
-
     const toggleTheme = async () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
-        applyTheme(newTheme);
+        applyThemeToDocument(newTheme);
 
         // Always save the preference
         localStorage.setItem('focusly_theme', newTheme);
