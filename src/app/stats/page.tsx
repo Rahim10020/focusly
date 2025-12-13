@@ -10,27 +10,12 @@
 import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import { useStats } from '@/lib/hooks/useStats';
-import { useStatsWithTimezone } from '@/lib/hooks/useStatsWithTimezone';
-import { useCachedSessions } from '@/lib/hooks/useCachedSessions';
 import { useAchievements } from '@/lib/hooks/useAchievements';
 import { useTasks } from '@/lib/hooks/useTasks';
-import { useTags } from '@/lib/hooks/useTags';
-import { formatTime } from '@/lib/utils/time';
 import { TaskCategorizationService } from '@/lib/services/taskCategorizationService';
 import { useState, useMemo } from 'react';
 
 // Lazy load heavy chart components
-const StatsOverview = dynamic(() => import('@/components/stats/StatsOverview'), {
-    ssr: false,
-    loading: () => <div className="animate-pulse bg-muted/30 h-32 rounded-lg" />
-});
-
-const ProductivityChart = dynamic(() => import('@/components/stats/ProductivityChart'), {
-    ssr: false,
-    loading: () => <div className="animate-pulse bg-muted/30 h-64 rounded-lg" />
-});
-
 const AchievementsList = dynamic(() => import('@/components/achievements/AchievementsList'), {
     ssr: false,
     loading: () => <div className="animate-pulse bg-muted/30 h-48 rounded-lg" />
@@ -54,22 +39,9 @@ const DomainStats = dynamic(() => import('@/components/stats/DomainStats'), {
  * @returns {JSX.Element} The rendered statistics page
  */
 export default function StatsPage() {
-    const { sessions } = useStats();
-    const { stats, loading: statsLoading } = useStatsWithTimezone();
-    const { sessions: cachedSessions, loading: sessionsLoading } = useCachedSessions(30);
     const { unlockedAchievements, lockedAchievements } = useAchievements();
-    const { tasks, loading: tasksLoading } = useTasks();
-    const { tags } = useTags();
-    const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'tasks' | 'domains'>('overview');
-
-    const recentSessions = useMemo(
-        () =>
-            sessions
-                .filter(session => session.completed)
-                .slice(-10)
-                .reverse(),
-        [sessions]
-    );
+    const { tasks } = useTasks();
+    const [activeTab, setActiveTab] = useState<'achievements' | 'tasks' | 'domains'>('achievements');
 
     const categorizedTasks = useMemo(() => TaskCategorizationService.categorizeTasks(tasks), [tasks]);
     const taskStats = useMemo(() => TaskCategorizationService.calculateAccurateStats(tasks), [tasks]);
@@ -91,22 +63,9 @@ export default function StatsPage() {
                     <p className="text-muted-foreground">Track your productivity and progress</p>
                 </div>
 
-                <StatsOverview />
 
-                {/* Tabs */}
+                {/* Tabs (Overview removed) */}
                 <div className="flex gap-2 border-b border-border">
-                    <button
-                        onClick={() => setActiveTab('overview')}
-                        className={`px-4 py-2 cursor-pointer font-medium transition-colors relative ${activeTab === 'overview'
-                            ? 'text-primary'
-                            : 'text-muted-foreground hover:text-foreground'
-                            }`}
-                    >
-                        Overview
-                        {activeTab === 'overview' && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-                        )}
-                    </button>
                     <button
                         onClick={() => setActiveTab('achievements')}
                         className={`px-4 py-2 cursor-pointer font-medium transition-colors relative ${activeTab === 'achievements'
@@ -150,63 +109,6 @@ export default function StatsPage() {
                         )}
                     </button>
                 </div>
-
-                {activeTab === 'overview' && (
-                    <div className="space-y-6">
-                        {/* Productivity Chart */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Weekly Activity</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <ProductivityChart sessions={sessions} />
-                            </CardContent>
-                        </Card>
-
-                        {/* Recent Sessions */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Recent Sessions</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {recentSessions.length === 0 ? (
-                                    <div className="text-center py-12 text-muted-foreground">
-                                        <p>No completed sessions yet. Start a Pomodoro timer to track your progress!</p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3">
-                                        {recentSessions.map((session) => (
-                                            <div
-                                                key={session.id}
-                                                className="flex items-center justify-between p-3 bg-muted rounded-lg"
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-2 h-2 rounded-full ${session.type === 'work' ? 'bg-primary' : 'bg-accent'
-                                                        }`} />
-                                                    <div>
-                                                        <p className="text-sm font-medium text-foreground">
-                                                            {session.type === 'work' ? 'Focus Session' : 'Break'}
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {new Date(session.startedAt).toLocaleDateString()} at{' '}
-                                                            {new Date(session.startedAt).toLocaleTimeString([], {
-                                                                hour: '2-digit',
-                                                                minute: '2-digit',
-                                                            })}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-sm font-medium text-foreground">
-                                                    {formatTime(session.duration)}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
-                )}
 
                 {activeTab === 'achievements' && (
                     <Card>

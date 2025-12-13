@@ -11,7 +11,6 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import TasksView from '@/components/tasks/TasksView';
@@ -19,10 +18,6 @@ import QuickAddTask from '@/components/tasks/QuickAddTask';
 import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
 
 // Lazy load heavy components with loading states
-const StatsOverview = dynamic(() => import('@/components/stats/StatsOverview'), {
-  ssr: false,
-  loading: () => <div className="animate-pulse bg-muted/30 h-32 rounded-lg" />
-});
 
 import AchievementNotification from '@/components/achievements/AchievementNotification';
 import KeyboardShortcutsModal from '@/components/ui/KeyboardShortcutsModal';
@@ -106,7 +101,6 @@ export default function Home() {
   const { data: session, status } = useSession();
   const taskInputRef = useRef<HTMLInputElement>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
   const [showAllUpcomingTasks, setShowAllUpcomingTasks] = useState(false);
   const [achievementCheckPending, setAchievementCheckPending] = useState(false);
@@ -160,12 +154,6 @@ export default function Home() {
     statsRef.current = stats;
     tasksRef.current = tasks;
   }, [stats, tasks]);
-
-  useEffect(() => {
-    // Defer mounting flag to avoid synchronous setState inside effect (avoids lint rule)
-    const id = window.setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(id);
-  }, []);
 
   // Mise à jour des stats de tâches
   useEffect(() => {
@@ -545,7 +533,7 @@ export default function Home() {
       {!focusMode && <Header />}
 
       <main className={`max-w-6xl mx-auto px-6 py-8 space-y-6 ${focusMode ? 'focus-mode-container' : ''}`}>
-        {!focusMode && mounted && <StatsOverview />}
+        {/* StatsOverview removed from home dashboard */}
 
         {/* Tasks Section - Full Width */}
         {!focusMode && (
