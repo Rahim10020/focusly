@@ -7,6 +7,7 @@
 
 import { Task, Tag, TaskStatus } from '@/types';
 import Button from '../ui/Button';
+import React from "react";
 
 /** Available sort types for task ordering */
 type SortType = 'default' | 'alphabetical' | 'createdAt' | 'priority';
@@ -160,7 +161,9 @@ export default function TaskBoardView({
                                                 <div className="flex items-start gap-3 mb-3">
                                                     <button
                                                         onClick={() => {
-                                                            if (task.status === 'done') {
+                                                            // Treat a task as done if status === 'done' or completed flag is set
+                                                            const isDone = task.status === 'done' || task.completed;
+                                                            if (isDone) {
                                                                 onStatusChange(task.id, 'todo');
                                                             } else {
                                                                 onStatusChange(task.id, 'done');
@@ -169,9 +172,9 @@ export default function TaskBoardView({
                                                         className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${task.status === 'done'
                                                             ? 'bg-success border-success'
                                                             : 'border-primary hover:bg-primary/10'
-                                                            }`}
+                                                        }`}
                                                     >
-                                                        {task.status === 'done' && (
+                                                        {(task.status === 'done' || task.completed) && (
                                                             <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                                             </svg>
@@ -180,7 +183,8 @@ export default function TaskBoardView({
 
                                                     <div className="flex-1 min-w-0">
                                                         <div>
-                                                            <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                                                            {/* Use computed done state so tasks with completed=true are struck-through */}
+                                                            <p className={`text-sm font-medium ${(task.status === 'done' || task.completed) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                                                                 {task.title}
                                                             </p>
                                                             {task.dueDate && (
@@ -194,7 +198,7 @@ export default function TaskBoardView({
                                                                             Today
                                                                         </span>
                                                                     )}
-                                                                    {task.dueDate < Date.now() && task.status !== 'done' && (
+                                                                    {task.dueDate < Date.now() && !(task.status === 'done' || task.completed) && (
                                                                         <span className="ml-1 px-1.5 py-0.5 rounded-full bg-error/10 text-error text-[10px] font-medium">
                                                                             Overdue
                                                                         </span>
@@ -262,7 +266,7 @@ export default function TaskBoardView({
                                                     >
                                                         Edit
                                                     </Button>
-                                                    {!isActive && task.status !== 'done' && (
+                                                    {!isActive && !(task.status === 'done' || task.completed) && (
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
