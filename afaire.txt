@@ -3,10 +3,8 @@ QUI SERAIT COOL
     - coder une affichage unique pour la version mobile web 
         (quand la personne y accede via le web avec un telehone mobile)
 A Faire PROCHAINEMENT
-    les taches quand ils sont completed au niveau de l'affichage board
-    - le theme ne fonctionne pas bien. quand je recharge la page le theme disparait
-    - dans create-task/ il n'y a rien dans les section categories et subtasks analyse
-    tout et corrige ca.
-    - Je veux comprendre comment les stats et les taches sont recuperees depuis
-    la bd et affichees dans la page d'acceuil et comment c'est fait
-    dans la page qui liste les taches.
+ - Supprimer la tab overview dans la page qui affiche les statistiques
+ - Enlever l'affichage des taches completes dans la page principale
+ - Dans la page Statistics, tab Taks, on
+ va afficher les taches completes, les taches en cours et les taches a
+ venir dans des sections differentes et aussi les taches echouees. en anglais bien sur.

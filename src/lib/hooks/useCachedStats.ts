@@ -3,7 +3,7 @@
  * @module lib/hooks/useCachedStats
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useStats } from './useStats';
 import type { Stats, PomodoroSession } from '@/types';
 
@@ -17,7 +17,7 @@ const CACHE_DURATION = 30000; // 30 secondes
  */
 export const useCachedStats = () => {
     const [cachedStats, setCachedStats] = useState<Stats | null>(null);
-    const [cacheTimestamp, setCacheTimestamp] = useState<number>(0);
+    const cacheTimestampRef = useRef<number>(0);
 
     type UseStatsReturn = {
         stats: Stats;
@@ -39,7 +39,7 @@ export const useCachedStats = () => {
         const now = Date.now();
 
         // Utiliser le cache si valide
-        if (cachedStats && (now - cacheTimestamp < CACHE_DURATION)) {
+        if (cachedStats && (now - cacheTimestampRef.current < CACHE_DURATION)) {
             return;
         }
 
@@ -48,19 +48,20 @@ export const useCachedStats = () => {
             // Defer state update to avoid synchronous setState-in-effect warnings
             const tid = window.setTimeout(() => {
                 setCachedStats(stats);
-                setCacheTimestamp(now);
+                cacheTimestampRef.current = now;
             }, 0);
 
             return () => clearTimeout(tid);
         }
-    }, [stats, cachedStats, cacheTimestamp]);
+    }, [stats, cachedStats]);
 
     /**
      * Manually invalidate the cache to force a refresh of statistics
      */
-    const invalidateCache = () => {
-        setCacheTimestamp(0);
-    };
+    const invalidateCache = useCallback(() => {
+        // Use a ref so invalidation does not trigger a re-render by itself.
+        cacheTimestampRef.current = 0;
+    }, []);
 
     // Instead of dynamically using `any`, explicitly create typed wrappers for
     // the known mutating functions coming from useStats.
@@ -74,19 +75,19 @@ export const useCachedStats = () => {
         invalidateCache();
         await addSession(session);
         invalidateCache();
-    }, [addSession]);
+    }, [addSession, invalidateCache]);
 
     const wrappedUpdateTaskStats = useCallback(async (totalTasks: number, completedTasks: number): Promise<void> => {
         invalidateCache();
         await updateTaskStats(totalTasks, completedTasks);
         invalidateCache();
-    }, [updateTaskStats]);
+    }, [updateTaskStats, invalidateCache]);
 
     const wrappedRefreshStats = useCallback(async (): Promise<void> => {
         invalidateCache();
         await refreshStats();
         invalidateCache();
-    }, [refreshStats]);
+    }, [refreshStats, invalidateCache]);
 
     const hookFns = useMemo(() => ({
         sessions: statsHook.sessions,
@@ -114,5 +115,5 @@ export const useCachedStats = () => {
         stats: cachedStats || stats,
         ...hookFns,
         invalidateCache
-    }), [cachedStats, stats, hookFns]);
+    }), [cachedStats, stats, hookFns, invalidateCache]);
 };
