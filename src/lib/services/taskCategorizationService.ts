@@ -5,10 +5,10 @@
 
 import { Task } from '@/types';
 
-export type TaskStatus = 'active' | 'completed' | 'failed' | 'postponed' | 'cancelled';
-
 export interface CategorizedTasks {
     active: Task[];
+    inProgress: Task[];
+    upcoming: Task[];
     completed: Task[];
     failed: Task[];
     overdue: Task[];
@@ -34,8 +34,21 @@ export class TaskCategorizationService {
     static categorizeTasks(tasks: Task[]): CategorizedTasks {
         const now = new Date();
 
+        // inProgress: tasks explicitly marked as in-progress (and not completed/failed)
+        const inProgress = tasks.filter(t => (t.status === 'in-progress') && !t.completed && !t.failedAt);
+
+        // upcoming: tasks with a dueDate in the future and not completed/failed
+        const upcoming = tasks.filter(t =>
+            !!t.dueDate &&
+            t.dueDate > now.getTime() &&
+            !t.completed &&
+            !t.failedAt
+        );
+
         return {
             active: tasks.filter(t => t.status === 'todo' || t.status === 'in-progress'),
+            inProgress,
+            upcoming,
             completed: tasks.filter(t => t.status === 'done' || t.completed),
             failed: tasks.filter(t => t.failedAt !== undefined),
             overdue: tasks.filter(t =>

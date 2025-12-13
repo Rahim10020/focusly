@@ -53,6 +53,8 @@ export default function StatsPage() {
         };
     }, [categorizedTasks]);
 
+    const totalVisibleTasks = tasks.length - (categorizedTasks.cancelled?.length || 0);
+
     return (
         <div className="min-h-screen bg-background">
             <Header />
@@ -93,7 +95,7 @@ export default function StatsPage() {
                             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
                         )}
                         <span className="ml-1 px-1 md:ml-2 md:px-2 py-0.5 text-xs rounded-full bg-primary text-primary-foreground">
-                            {completedTasks.length + failedTasks.length}
+                            {totalVisibleTasks}
                         </span>
                     </button>
                     <button
@@ -134,24 +136,24 @@ export default function StatsPage() {
                         {/* Task Statistics Summary */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Statistiques Détaillées</CardTitle>
+                                <CardTitle>Detailed Statistics</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div>
-                                        <p className="text-sm text-muted-foreground">Taux de complétion</p>
+                                        <p className="text-sm text-muted-foreground">Completion Rate</p>
                                         <p className="text-2xl font-bold">{taskStats.completionRate.toFixed(1)}%</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-muted-foreground">Tâches reportées</p>
+                                        <p className="text-sm text-muted-foreground">Postponed</p>
                                         <p className="text-2xl font-bold">{taskStats.postponed}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-muted-foreground">Tâches en retard</p>
+                                        <p className="text-sm text-muted-foreground">Overdue</p>
                                         <p className="text-2xl font-bold text-destructive">{taskStats.overdue}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-muted-foreground">Taux d&apos;échec</p>
+                                        <p className="text-sm text-muted-foreground">Failure Rate</p>
                                         <p className="text-2xl font-bold">{taskStats.failureRate.toFixed(1)}%</p>
                                     </div>
                                 </div>
@@ -162,9 +164,9 @@ export default function StatsPage() {
                         <Card>
                             <CardHeader>
                                 <div className="flex items-center space-x-8 justify-between">
-                                    <CardTitle>Tâches Complétées</CardTitle>
+                                    <CardTitle>Completed Tasks</CardTitle>
                                     <div className="text-sm text-muted-foreground">
-                                        {completedTasks.length} tâche(s) terminée(s)
+                                        {completedTasks.length} task(s) completed
                                     </div>
                                 </div>
                             </CardHeader>
@@ -173,14 +175,44 @@ export default function StatsPage() {
                             </CardContent>
                         </Card>
 
+                        {/* In-Progress Tasks */}
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center space-x-8 justify-between">
+                                    <CardTitle>In-Progress Tasks</CardTitle>
+                                    <div className="text-sm text-muted-foreground">
+                                        {categorizedTasks.inProgress.length} in progress
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <TaskHistoryList tasks={categorizedTasks.inProgress} type="in-progress" />
+                            </CardContent>
+                        </Card>
+
+                        {/* Upcoming Tasks */}
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center space-x-8 justify-between">
+                                    <CardTitle>Upcoming Tasks</CardTitle>
+                                    <div className="text-sm text-muted-foreground">
+                                        {categorizedTasks.upcoming.length} upcoming
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <TaskHistoryList tasks={categorizedTasks.upcoming} type="upcoming" />
+                            </CardContent>
+                        </Card>
+
                         {/* Failed Tasks */}
                         {failedTasks.length > 0 && (
                             <Card>
                                 <CardHeader>
                                     <div className="flex items-center space-x-8 justify-between">
-                                        <CardTitle>Tâches Échouées</CardTitle>
+                                        <CardTitle>Failed Tasks</CardTitle>
                                         <div className="text-sm text-muted-foreground">
-                                            {failedTasks.length} tâche(s) non terminée(s)
+                                            {failedTasks.length} task(s) not completed
                                         </div>
                                     </div>
                                 </CardHeader>
@@ -195,9 +227,9 @@ export default function StatsPage() {
                             <Card>
                                 <CardHeader>
                                     <div className="flex items-center space-x-8 justify-between">
-                                        <CardTitle>Tâches en Retard</CardTitle>
+                                        <CardTitle>Overdue Tasks</CardTitle>
                                         <div className="text-sm text-muted-foreground">
-                                            {categorizedTasks.overdue.length} tâche(s) en retard
+                                            {categorizedTasks.overdue.length} task(s) overdue
                                         </div>
                                     </div>
                                 </CardHeader>

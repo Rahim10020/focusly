@@ -5,15 +5,15 @@ import { Task } from '@/types';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 import { FailTaskModal } from './FailTaskModal';
 
 interface TaskHistoryListProps {
     tasks: Task[];
-    type?: 'completed' | 'failed' | 'all';
+    type?: 'completed' | 'failed' | 'all' | 'in-progress' | 'upcoming';
 }
 
-export function TaskHistoryList({ tasks, type = 'all' }: TaskHistoryListProps) {
+export function TaskHistoryList({ tasks, type: _type = 'all' }: TaskHistoryListProps) {
     const { updateTask, deleteTask } = useTasks();
     const router = useRouter();
     const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -24,21 +24,21 @@ export function TaskHistoryList({ tasks, type = 'all' }: TaskHistoryListProps) {
         if (task.completed) {
             return (
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
-                    ✓ Complétée
+                    ✓ Completed
                 </span>
             );
         }
         if (task.failedAt) {
             return (
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
-                    ✗ Échouée
+                    ✗ Failed
                 </span>
             );
         }
         if (task.dueDate && task.dueDate < Date.now()) {
             return (
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200">
-                    ⏰ En retard
+                    ⏰ Overdue
                 </span>
             );
         }
@@ -56,7 +56,7 @@ export function TaskHistoryList({ tasks, type = 'all' }: TaskHistoryListProps) {
                             completed: false
                         })}
                     >
-                        🔄 Réactiver
+                        🔄 Reactivate
                     </button>
 
                     <button
@@ -66,7 +66,7 @@ export function TaskHistoryList({ tasks, type = 'all' }: TaskHistoryListProps) {
                             setShowFailModal(true);
                         }}
                     >
-                        📅 Reporter
+                        📅 Postpone
                     </button>
                 </>
             )}
@@ -75,7 +75,7 @@ export function TaskHistoryList({ tasks, type = 'all' }: TaskHistoryListProps) {
                 className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
                 onClick={() => router.push(`/tasks?edit=${task.id}`)}
             >
-                ✏️ Éditer
+                ✏️ Edit
             </button>
 
             {task.completed && (
@@ -86,28 +86,28 @@ export function TaskHistoryList({ tasks, type = 'all' }: TaskHistoryListProps) {
                         completedAt: undefined
                     })}
                 >
-                    ↩️ Rouvrir
+                    ↩️ Reopen
                 </button>
             )}
 
             <button
                 className="px-2 py-1 text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800"
                 onClick={() => {
-                    if (confirm('Supprimer cette tâche définitivement ?')) {
+                    if (confirm('Delete this task permanently?')) {
                         setDeletingId(task.id);
                         deleteTask(task.id).finally(() => setDeletingId(null));
                     }
                 }}
                 disabled={deletingId === task.id}
             >
-                🗑️ Supprimer
+                🗑️ Delete
             </button>
         </div>
     );
 
     return (
         <>
-            <div className="space-y-4">
+            <div className="space-y-4" data-type={_type}>
                 {tasks.map((task) => (
                     <div
                         key={task.id}
@@ -122,7 +122,7 @@ export function TaskHistoryList({ tasks, type = 'all' }: TaskHistoryListProps) {
                                         {format(
                                             new Date(task.completedAt || task.failedAt || task.createdAt),
                                             'PPP',
-                                            { locale: fr }
+                                            { locale: enUS }
                                         )}
                                     </span>
                                     {task.tags && task.tags.length > 0 && (
@@ -155,7 +155,7 @@ export function TaskHistoryList({ tasks, type = 'all' }: TaskHistoryListProps) {
                 ))}
                 {tasks.length === 0 && (
                     <p className="text-center text-gray-500 dark:text-gray-400 py-8">
-                        Aucune tâche dans l&apos;historique
+                        No tasks in history
                     </p>
                 )}
             </div>
