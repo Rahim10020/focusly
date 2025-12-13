@@ -3,7 +3,6 @@ QUI SERAIT COOL
     - coder une affichage unique pour la version mobile web 
         (quand la personne y accede via le web avec un telehone mobile)
 A Faire PROCHAINEMENT
- - Supprimer la tab overview dans la page qui affiche les statistiques
  - Enlever l'affichage des taches completes dans la page principale
  - Dans la page Statistics, tab Taks, on
  va afficher les taches completes, les taches en cours et les taches a
