@@ -3,7 +3,7 @@
  * @module lib/hooks/useCachedStats
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useStats } from './useStats';
 import type { Stats, PomodoroSession } from '@/types';
 
@@ -70,26 +70,25 @@ export const useCachedStats = () => {
         refreshStats,
     } = statsHook;
 
-    const wrappedAddSession = async (session: PomodoroSession): Promise<void> => {
+    const wrappedAddSession = useCallback(async (session: PomodoroSession): Promise<void> => {
         invalidateCache();
         await addSession(session);
         invalidateCache();
-    };
+    }, [addSession]);
 
-    const wrappedUpdateTaskStats = async (totalTasks: number, completedTasks: number): Promise<void> => {
+    const wrappedUpdateTaskStats = useCallback(async (totalTasks: number, completedTasks: number): Promise<void> => {
         invalidateCache();
         await updateTaskStats(totalTasks, completedTasks);
         invalidateCache();
-    };
+    }, [updateTaskStats]);
 
-    const wrappedRefreshStats = async (): Promise<void> => {
+    const wrappedRefreshStats = useCallback(async (): Promise<void> => {
         invalidateCache();
         await refreshStats();
         invalidateCache();
-    };
+    }, [refreshStats]);
 
-    // Build a functions-only object (no `stats` property) to avoid duplicate keys
-    const hookFns = {
+    const hookFns = useMemo(() => ({
         sessions: statsHook.sessions,
         loading: statsHook.loading,
         error: statsHook.error,
@@ -99,11 +98,21 @@ export const useCachedStats = () => {
         getTodayFocusTime: statsHook.getTodayFocusTime,
         refreshStats: wrappedRefreshStats,
         calculateStreak: statsHook.calculateStreak,
-    } as Omit<UseStatsReturn, 'stats'>;
+    }) as Omit<UseStatsReturn, 'stats'>, [
+        statsHook.sessions,
+        statsHook.loading,
+        statsHook.error,
+        statsHook.getTodaySessions,
+        statsHook.getTodayFocusTime,
+        statsHook.calculateStreak,
+        wrappedAddSession,
+        wrappedUpdateTaskStats,
+        wrappedRefreshStats,
+    ]);
 
-    return {
+    return useMemo(() => ({
         stats: cachedStats || stats,
         ...hookFns,
         invalidateCache
-    };
+    }), [cachedStats, stats, hookFns]);
 };
