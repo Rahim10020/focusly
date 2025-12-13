@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { useStats } from './useStats';
+import type { Stats, PomodoroSession } from '@/types';
 
 const CACHE_DURATION = 30000; // 30 secondes
 
@@ -15,10 +16,24 @@ const CACHE_DURATION = 30000; // 30 secondes
  * @returns {Object} Contains cached stats, all stats hook methods, and invalidateCache function
  */
 export const useCachedStats = () => {
-    const [cachedStats, setCachedStats] = useState<any>(null);
-    const [cacheTimestamp, setCacheTimestamp] = useState(0);
+    const [cachedStats, setCachedStats] = useState<Stats | null>(null);
+    const [cacheTimestamp, setCacheTimestamp] = useState<number>(0);
 
-    const { stats, ...statsHook } = useStats();
+    type UseStatsReturn = {
+        stats: Stats;
+        sessions: PomodoroSession[];
+        loading: boolean;
+        error: string | null;
+        addSession: (session: PomodoroSession) => Promise<void>;
+        updateTaskStats: (totalTasks: number, completedTasks: number) => Promise<void>;
+        getTodaySessions: () => PomodoroSession[];
+        getTodayFocusTime: () => number;
+        refreshStats: () => Promise<void>;
+        calculateStreak: (sessions: PomodoroSession[]) => number;
+    };
+
+    const statsResult = useStats() as UseStatsReturn;
+    const { stats, ...statsHook } = statsResult;
 
     useEffect(() => {
         const now = Date.now();
@@ -30,8 +45,13 @@ export const useCachedStats = () => {
 
         // Sinon mettre à jour le cache
         if (stats) {
-            setCachedStats(stats);
-            setCacheTimestamp(now);
+            // Defer state update to avoid synchronous setState-in-effect warnings
+            const tid = window.setTimeout(() => {
+                setCachedStats(stats);
+                setCacheTimestamp(now);
+            }, 0);
+
+            return () => clearTimeout(tid);
         }
     }, [stats, cachedStats, cacheTimestamp]);
 
@@ -42,9 +62,48 @@ export const useCachedStats = () => {
         setCacheTimestamp(0);
     };
 
+    // Instead of dynamically using `any`, explicitly create typed wrappers for
+    // the known mutating functions coming from useStats.
+    const {
+        addSession,
+        updateTaskStats,
+        refreshStats,
+    } = statsHook;
+
+    const wrappedAddSession = async (session: PomodoroSession): Promise<void> => {
+        invalidateCache();
+        await addSession(session);
+        invalidateCache();
+    };
+
+    const wrappedUpdateTaskStats = async (totalTasks: number, completedTasks: number): Promise<void> => {
+        invalidateCache();
+        await updateTaskStats(totalTasks, completedTasks);
+        invalidateCache();
+    };
+
+    const wrappedRefreshStats = async (): Promise<void> => {
+        invalidateCache();
+        await refreshStats();
+        invalidateCache();
+    };
+
+    // Build a functions-only object (no `stats` property) to avoid duplicate keys
+    const hookFns = {
+        sessions: statsHook.sessions,
+        loading: statsHook.loading,
+        error: statsHook.error,
+        addSession: wrappedAddSession,
+        updateTaskStats: wrappedUpdateTaskStats,
+        getTodaySessions: statsHook.getTodaySessions,
+        getTodayFocusTime: statsHook.getTodayFocusTime,
+        refreshStats: wrappedRefreshStats,
+        calculateStreak: statsHook.calculateStreak,
+    } as Omit<UseStatsReturn, 'stats'>;
+
     return {
         stats: cachedStats || stats,
-        ...statsHook,
+        ...hookFns,
         invalidateCache
     };
 };
