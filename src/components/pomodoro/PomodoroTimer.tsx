@@ -9,13 +9,14 @@ import { useEffect } from 'react';
 import { usePomodoro } from '@/lib/hooks/usePomodoro';
 import { useSettings } from '@/lib/hooks/useSettings';
 import { useSound } from '@/lib/hooks/useSound';
-import { useNotifications } from '@/lib/hooks/useNotifications';
+import { useNotificationsContext } from '@/components/providers/NotificationsProvider';
 import { getProgress } from '@/lib/utils/time';
 import TimerDisplay from './TimerDisplay';
 import TimerControls from './TimerControls';
 import ProgressRing from './ProgressRing';
 import SessionIndicator from './SessionIndicator';
 import TaskSelector from '../tasks/TaskSelector';
+import type { PomodoroSession } from '@/types';
 import { Task } from '@/types';
 
 /**
@@ -32,7 +33,7 @@ interface PomodoroTimerProps {
     activeTaskId: string | null;
     tasks: Task[];
     onSelectTask: (taskId: string | null) => void;
-    onSessionComplete: (session: any) => void;
+    onSessionComplete: (session: PomodoroSession) => void;
     onPomodoroComplete: (taskId: string) => void;
     onTimerRefReady: (ref: { start: () => void; pause: () => void; reset: () => void; skip: () => void; status: 'idle' | 'running' | 'paused'; }) => void;
 }
@@ -65,7 +66,7 @@ export default function PomodoroTimer({
 }: PomodoroTimerProps) {
     const { settings } = useSettings();
     const { playWorkStart, playWorkPause, playWorkComplete, playBreakComplete } = useSound();
-    const { showNotification, permission, requestPermission } = useNotifications();
+    const { showNotification, permission, requestPermission } = useNotificationsContext();
 
     const {
         timeLeft,

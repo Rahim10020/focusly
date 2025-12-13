@@ -12,6 +12,7 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import KeyboardShortcutsProvider from "@/components/providers/KeyboardShortcutsProvider";
 import "./globals.css";
+import { NotificationsProvider } from '@/components/providers/NotificationsProvider';
 
 export const metadata: Metadata = {
   title: {
@@ -98,8 +99,10 @@ export default function RootLayout({
           <ThemeProvider>
             <ToastProvider>
               <KeyboardShortcutsProvider>
-                {children}
-              </KeyboardShortcutsProvider>
+                <NotificationsProvider>
+                  {children}
+                </NotificationsProvider>
+               </KeyboardShortcutsProvider>
             </ToastProvider>
           </ThemeProvider>
         </SessionProvider>

@@ -13,7 +13,7 @@ import { useSession } from 'next-auth/react';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { useNotifications } from '@/lib/hooks/useNotifications';
+import { useNotificationsContext } from '@/components/providers/NotificationsProvider';
 
 /**
  * Notifications page component displaying user notifications.
@@ -33,7 +33,7 @@ export default function NotificationsPage() {
         markAsRead,
         markAllAsRead,
         deleteNotification
-    } = useNotifications();
+    } = useNotificationsContext();
     const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
     useEffect(() => {

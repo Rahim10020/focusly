@@ -7,8 +7,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { supabaseClient } from '@/lib/supabase/client';
-import { logger } from '@/lib/logger';
 import { playNotificationSound, NotificationSoundType } from '@/lib/utils/notificationSounds';
+
+// Simple in-memory cache to reduce duplicate fetches during dev/hot-reload or multiple mounts
+const CACHE_TTL_MS = 30 * 1000; // 30 seconds
+const lastFetchByUser: Record<string, number> = {};
+const cacheByUser: Record<string, Notification[]> = {};
 
 /**
  * Represents a notification object.
@@ -25,7 +29,7 @@ export interface Notification {
     /** Detailed notification message */
     message: string;
     /** Additional notification data */
-    data: any | null;
+    data: unknown | null;
     /** Whether the notification has been read */
     read: boolean;
     /** Timestamp when the notification was created */
@@ -69,8 +73,16 @@ export function useNotifications() {
     const fetchNotifications = useCallback(async () => {
         if (!session?.user || !session.accessToken) return;
 
+        const userId = session.user.id;
+        const now = Date.now();
+
+        // If we have a fresh cache for this user, reuse it and avoid network call
+        if (userId && lastFetchByUser[userId] && (now - lastFetchByUser[userId] < CACHE_TTL_MS)) {
+            setNotifications(cacheByUser[userId] || []);
+            return;
+        }
+
         setLoading(true);
-        setError(null);
 
         try {
             const response = await fetch('/api/notifications');
@@ -81,6 +93,12 @@ export function useNotifications() {
             // Extract the notifications array from the API response
             const notifications = responseData.data || [];
             setNotifications(notifications);
+
+            // Update cache
+            if (userId) {
+                cacheByUser[userId] = notifications;
+                lastFetchByUser[userId] = Date.now();
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
             console.error('Error fetching notifications:', err);
@@ -171,7 +189,7 @@ export function useNotifications() {
         type: Notification['type'];
         title: string;
         message: string;
-        data?: any;
+        data?: unknown;
     }) => {
         try {
             const response = await fetch('/api/notifications', {
@@ -268,7 +286,7 @@ export function useNotifications() {
         } else {
             setNotifications([]);
         }
-    }, [session?.user, session?.accessToken, fetchNotifications]);
+    }, [session?.user, session?.accessToken, session?.refreshToken, fetchNotifications]);
 
     // ✅ AJOUT: Subscribe to real-time notifications
     useEffect(() => {

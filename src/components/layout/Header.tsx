@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import ThemeToggle from '../ui/ThemeToggle';
 import UserMenu from '../ui/UserMenu';
-import { useNotifications } from '@/lib/hooks/useNotifications';
+import { useNotificationsContext } from '@/components/providers/NotificationsProvider';
 
 /**
  * Main header component that displays the application logo, navigation links,
@@ -38,7 +38,7 @@ export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const pathname = usePathname();
     const { data: session } = useSession();
-    const { unreadCount } = useNotifications();
+    const { unreadCount } = useNotificationsContext();
 
     return (
         <header className="w-full bg-background/95 backdrop-blur-md sticky top-0 z-50 border-b border-border/50 shadow-sm">

@@ -12,7 +12,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { TimerSettings } from '@/lib/hooks/useSettings';
 import { useStatVisibility } from '@/lib/hooks/useStatVisibility';
-import { useNotifications } from '@/lib/hooks/useNotifications';
+import { useNotificationsContext } from '@/components/providers/NotificationsProvider';
 
 /**
  * Predefined timer profiles for common Pomodoro techniques
@@ -93,7 +93,7 @@ export default function Settings({
     soundEnabled,
     onToggleSound,
 }: SettingsProps) {
-    const { permission, requestPermission } = useNotifications();
+    const { permission, requestPermission } = useNotificationsContext();
     const [workMinutes, setWorkMinutes] = useState(Math.floor(settings.workDuration / 60));
     const [shortBreakMinutes, setShortBreakMinutes] = useState(Math.floor(settings.shortBreakDuration / 60));
     const [longBreakMinutes, setLongBreakMinutes] = useState(Math.floor(settings.longBreakDuration / 60));

@@ -33,7 +33,7 @@ import { useAchievements } from '@/lib/hooks/useAchievements';
 import { useTags } from '@/lib/hooks/useTags';
 import { useKeyboardShortcuts, GLOBAL_SHORTCUTS } from '@/lib/hooks/useKeyboardShortcuts';
 import { useTaskNotifications } from '@/lib/hooks/useTaskNotifications';
-import { useNotifications } from '@/lib/hooks/useNotifications';
+import { useNotificationsContext } from '@/components/providers/NotificationsProvider';
 import { Task } from '@/types';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import type { PomodoroSession } from '@/types';
@@ -150,7 +150,7 @@ export default function Home() {
     enabled: typeof window !== 'undefined' && session !== null,
   });
 
-  const { notifications, markAsRead } = useNotifications();
+  const { notifications, markAsRead } = useNotificationsContext();
 
   // Utiliser useRef pour les valeurs qui changent fréquemment (optimisation Pomodoro)
   const statsRef = useRef(stats);
