@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -58,7 +58,7 @@ export default function SignUp() {
         setError('');
 
         try {
-            const { data, error } = await supabase.auth.signUp({
+            const { error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
@@ -75,8 +75,8 @@ export default function SignUp() {
                 setSuccess(true);
                 setSuccessMessage('A verification email has been sent to your email address.');
             }
-        } catch (error: any) {
-            setError('An error occurred');
+        } catch (error: unknown) {
+            setError(error instanceof Error ? error.message : 'An error occurred');
         } finally {
             setLoading(false);
         }
@@ -111,7 +111,7 @@ export default function SignUp() {
                                             });
                                             if (error) throw error;
                                             setSuccessMessage('A new verification email has been sent!');
-                                        } catch (err) {
+                                        } catch {
                                             setError('Error sending email. Please try again.');
                                         } finally {
                                             setLoading(false);

@@ -14,7 +14,7 @@ import { useCallback, useRef, useState, useEffect } from 'react';
  * @param {number} duration - Sound duration in milliseconds (default: 200)
  */
 const createBeepSound = (frequency: number = 800, duration: number = 200) => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = new ((window as unknown as { AudioContext: typeof AudioContext }).AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
@@ -79,7 +79,7 @@ export function useSound() {
     }, []);
 
     const toggleSound = useCallback(() => {
-        setSoundEnabled(prev => {
+        setSoundEnabled((prev: boolean) => {
             const newValue = !prev;
             localStorage.setItem('focusly_sound_enabled', JSON.stringify(newValue));
             return newValue;
