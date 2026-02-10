@@ -29,7 +29,7 @@ export function useCachedSessions(timeRange: number = 30) {
     const [sessions, setSessions] = useState<PomodoroSession[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const getUserId = () => session?.user?.id;
+    const getUserId = useCallback(() => session?.user?.id, [session?.user?.id]);
     const cacheKey = `sessions_${getUserId()}_${timeRange}days`;
 
     const fetchWithCache = useCallback(async () => {
@@ -75,7 +75,7 @@ export function useCachedSessions(timeRange: number = 30) {
                 return;
             }
 
-            const formattedSessions: PomodoroSession[] = (freshData || []).map((s: SessionData) => ({
+            const formattedSessions: PomodoroSession[] = ((freshData || []) as SessionData[]).map((s: SessionData) => ({
                 id: s.id,
                 type: s.type as 'work' | 'break',
                 duration: s.duration,
@@ -96,7 +96,7 @@ export function useCachedSessions(timeRange: number = 30) {
         } finally {
             setLoading(false);
         }
-    }, [session?.user?.id, timeRange, cacheKey, sessions.length]);
+    }, [getUserId, timeRange, cacheKey, sessions.length]);
 
     const invalidateCache = useCallback(async () => {
         await CacheService.delete(cacheKey);
