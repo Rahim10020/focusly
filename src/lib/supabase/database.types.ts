@@ -73,6 +73,7 @@ export interface Database {
                     reminder?: string | null;
                     version?: number;
                 };
+                Relationships: [];
             };
             subtasks: {
                 Row: {
@@ -102,6 +103,7 @@ export interface Database {
                     updated_at?: string;
                     completed_at?: string | null;
                 };
+                Relationships: [];
             };
             stats: {
                 Row: {
@@ -143,6 +145,7 @@ export interface Database {
                     created_at?: string;
                     updated_at?: string;
                 };
+                Relationships: [];
             };
             sessions: {
                 Row: {
@@ -181,6 +184,7 @@ export interface Database {
                     created_at?: string;
                     updated_at?: string;
                 };
+                Relationships: [];
             };
             tags: {
                 Row: {
@@ -207,6 +211,7 @@ export interface Database {
                     created_at?: string;
                     updated_at?: string;
                 };
+                Relationships: [];
             };
             achievements: {
                 Row: {
@@ -230,6 +235,7 @@ export interface Database {
                     unlocked_at?: string;
                     updated_at?: string;
                 };
+                Relationships: [];
             };
             profiles: {
                 Row: {
@@ -253,6 +259,7 @@ export interface Database {
                     created_at?: string;
                     updated_at?: string;
                 };
+                Relationships: [];
             };
             friends: {
                 Row: {
@@ -279,6 +286,7 @@ export interface Database {
                     created_at?: string;
                     updated_at?: string;
                 };
+                Relationships: [];
             };
             notifications: {
                 Row: {
@@ -314,6 +322,7 @@ export interface Database {
                     created_at?: string;
                     updated_at?: string;
                 };
+                Relationships: [];
             };
             stat_visibility: {
                 Row: {
@@ -340,6 +349,7 @@ export interface Database {
                     created_at?: string;
                     updated_at?: string;
                 };
+                Relationships: [];
             };
             user_preferences: {
                 Row: {
@@ -357,7 +367,12 @@ export interface Database {
                     theme_preference?: string;
                     updated_at?: string;
                 };
+                Relationships: [];
             };
         };
+        Views: Record<string, never>;
+        Functions: Record<string, never>;
+        Enums: Record<string, never>;
+        CompositeTypes: Record<string, never>;
     };
 }
