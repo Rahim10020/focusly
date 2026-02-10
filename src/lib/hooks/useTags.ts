@@ -4,7 +4,7 @@
  * supporting both localStorage and Supabase persistence.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from './useLocalStorage';
 import { Tag } from '@/types';
@@ -51,7 +51,14 @@ export function useTags() {
     const [localTags, setLocalTags] = useLocalStorage<Tag[]>('focusly_tags', DEFAULT_TAGS);
     const [dbTags, setDbTags] = useState<Tag[]>(DEFAULT_TAGS);
 
-    const getUserId = () => session?.user?.id;
+    const getUserId = useCallback(() => session?.user?.id, [session]);
+
+    type DbTag = {
+        id: string;
+        name: string;
+        color: string;
+        created_at: string;
+    };
 
     // Set Supabase auth session when user logs in
     useEffect(() => {
@@ -64,16 +71,7 @@ export function useTags() {
     }, [session]);
 
     // Load tags from database when user logs in
-    useEffect(() => {
-        const userId = getUserId();
-        if (userId) {
-            loadTagsFromDB();
-        } else {
-            setDbTags(DEFAULT_TAGS);
-        }
-    }, [session?.user?.id]);
-
-    const loadTagsFromDB = async () => {
+    const loadTagsFromDB = useCallback(async () => {
         const userId = getUserId();
         if (!userId) return;
 
@@ -90,12 +88,12 @@ export function useTags() {
 
             if (error) throw error;
 
-            const formattedTags: Tag[] = data.map((dbTag: any) => ({
+            const formattedTags: Tag[] = (data as DbTag[] | null)?.map((dbTag) => ({
                 id: dbTag.id,
                 name: dbTag.name,
                 color: dbTag.color,
                 createdAt: new Date(dbTag.created_at).getTime(),
-            }));
+            })) || [];
 
             // Merge with default tags if no custom tags
             setDbTags(formattedTags.length > 0 ? formattedTags : DEFAULT_TAGS);
@@ -103,7 +101,16 @@ export function useTags() {
             console.error('Error loading tags from DB:', error);
             setDbTags(DEFAULT_TAGS);
         }
-    };
+    }, [getUserId]);
+
+    useEffect(() => {
+        const userId = getUserId();
+        if (userId) {
+            loadTagsFromDB();
+        } else {
+            setDbTags(DEFAULT_TAGS);
+        }
+    }, [getUserId, loadTagsFromDB]);
 
     const currentTags = getUserId() ? dbTags : localTags;
     const setCurrentTags = getUserId() ? setDbTags : setLocalTags;
@@ -120,9 +127,9 @@ export function useTags() {
         if (userId) {
             // Save to database
             try {
-                const { data, error } = await retryWithBackoff(async () => {
-                    const result = await (supabaseClient
-                        .from('tags') as any)
+                const { error } = await retryWithBackoff(async () => {
+                    const result = await supabaseClient
+                        .from('tags')
                         .insert({
                             id: newTag.id,
                             user_id: userId,
@@ -156,8 +163,8 @@ export function useTags() {
             // Update in database
             try {
                 const { error } = await retryWithBackoff(async () => {
-                    const result = await (supabaseClient
-                        .from('tags') as any)
+                    const result = await supabaseClient
+                        .from('tags')
                         .update({
                             name: updates.name,
                             color: updates.color,
@@ -186,8 +193,8 @@ export function useTags() {
             // Delete from database
             try {
                 const { error } = await retryWithBackoff(async () => {
-                    const result = await (supabaseClient
-                        .from('tags') as any)
+                    const result = await supabaseClient
+                        .from('tags')
                         .delete()
                         .eq('id', id)
                         .eq('user_id', userId);
