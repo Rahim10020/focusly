@@ -7,8 +7,109 @@
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Task, Stats, PomodoroSession, DOMAINS, getDomainFromSubDomain } from '@/types';
+import { Task, Stats, PomodoroSession, DOMAINS, getDomainFromSubDomain, SubDomain } from '@/types';
 import { format } from 'date-fns';
+
+// Import refactored helper modules
+import {
+    createPDFDocument,
+    addTasksTable,
+    addDomainStatsTable,
+    addSessionsTable,
+    addStatsText,
+    addSectionTitle,
+    downloadPDF,
+    generatePDFBlob,
+    getTableEndY,
+} from './pdf-helpers';
+import {
+    downloadCSV,
+    escapeCSVCell,
+} from './csv-helpers';
+
+// ============================================================================
+// Domain Helper
+// ============================================================================
+
+/**
+ * Gets domain name from subDomain.
+ *
+ * @param {string} subDomain - SubDomain identifier
+ * @returns {string} Domain name
+ */
+const getDomainName = (subDomain: string): string => {
+    try {
+        return DOMAINS[getDomainFromSubDomain(subDomain as SubDomain) as keyof typeof DOMAINS]?.name.split('(')[0].trim() ?? 'Unknown';
+    } catch {
+        return 'Unknown';
+    }
+};
+
+// ============================================================================
+// Task Data Transformation
+// ============================================================================
+
+/**
+ * Transforms task to table row for PDF export.
+ *
+ * @param {Task} task - Task to transform
+ * @returns {string[]} Table row data
+ */
+const taskToTableRow = (task: Task): string[] => {
+    return [
+        task.title,
+        task.priority || 'None',
+        task.subDomain ? getDomainName(task.subDomain) : 'N/A',
+        task.completed ? 'Yes' : 'No',
+        task.startDate ? format(new Date(task.startDate), 'MMM d, yyyy') : 'N/A',
+        task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : 'N/A',
+        task.pomodoroCount.toString(),
+    ];
+};
+
+/**
+ * Transforms task to compact table row for large PDF export.
+ *
+ * @param {Task} task - Task to transform
+ * @returns {string[]} Table row data
+ */
+const taskToCompactTableRow = (task: Task): string[] => {
+    return [
+        task.title.length > 40 ? task.title.substring(0, 37) + '...' : task.title,
+        task.priority || 'None',
+        task.subDomain ? getDomainName(task.subDomain) : 'N/A',
+        task.completed ? 'Yes' : 'No',
+        task.startDate ? format(new Date(task.startDate), 'MMM d') : 'N/A',
+        task.dueDate ? format(new Date(task.dueDate), 'MMM d') : 'N/A',
+        task.pomodoroCount.toString(),
+    ];
+};
+
+/**
+ * Transforms task to CSV row.
+ *
+ * @param {Task} task - Task to transform
+ * @returns {string[]} CSV row data
+ */
+const taskToCSVRow = (task: Task): string[] => {
+    return [
+        task.title,
+        task.priority || '',
+        task.subDomain ? getDomainName(task.subDomain) : '',
+        task.completed ? 'Yes' : 'No',
+        task.startDate ? format(new Date(task.startDate), 'yyyy-MM-dd') : '',
+        task.startTime || '',
+        task.dueDate ? format(new Date(task.dueDate), 'yyyy-MM-dd') : '',
+        task.endTime || '',
+        task.estimatedDuration?.toString() || '',
+        task.pomodoroCount.toString(),
+        task.notes || '',
+    ];
+};
+
+// ============================================================================
+// Task Export Functions
+// ============================================================================
 
 /**
  * Exports tasks to a formatted PDF document with summary statistics.
@@ -21,17 +122,8 @@ import { format } from 'date-fns';
  * @example
  * exportTasksToPDF(tasks, 'John Doe'); // Downloads focusly-tasks-2024-01-15.pdf
  */
-export const exportTasksToPDF = (tasks: Task[], userName: string = 'User') => {
-    const doc = new jsPDF();
-
-    // Title
-    doc.setFontSize(20);
-    doc.text('Focusly - Task Report', 14, 22);
-
-    // Subtitle
-    doc.setFontSize(12);
-    doc.text(`Generated for: ${userName}`, 14, 30);
-    doc.text(`Date: ${format(new Date(), 'MMM d, yyyy')}`, 14, 36);
+export const exportTasksToPDF = (tasks: Task[], userName: string = 'User'): void => {
+    const doc = createPDFDocument('Focusly - Task Report', userName);
 
     // Summary Stats
     const completedTasks = tasks.filter(t => t.completed).length;
@@ -42,37 +134,64 @@ export const exportTasksToPDF = (tasks: Task[], userName: string = 'User') => {
     doc.text(`Total Tasks: ${totalTasks} | Completed: ${completedTasks} | Completion Rate: ${completionRate}%`, 14, 44);
 
     // Tasks Table
-    const tableData = tasks.map(task => [
-        task.title,
-        task.priority || 'None',
-        task.subDomain ? DOMAINS[getDomainFromSubDomain(task.subDomain)]?.name.split('(')[0].trim() : 'N/A',
-        task.completed ? 'Yes' : 'No',
-        task.startDate ? format(new Date(task.startDate), 'MMM d, yyyy') : 'N/A',
-        task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : 'N/A',
-        task.pomodoroCount.toString(),
-    ]);
-
-    autoTable(doc, {
-        startY: 50,
-        head: [['Task', 'Priority', 'Domain', 'Completed', 'Start Date', 'Due Date', 'Pomodoros']],
-        body: tableData,
-        theme: 'grid',
-        headStyles: { fillColor: [99, 102, 241] }, // Primary color
-        styles: { fontSize: 8 },
-        columnStyles: {
-            0: { cellWidth: 40 },
-            1: { cellWidth: 20 },
-            2: { cellWidth: 30 },
-            3: { cellWidth: 20 },
-            4: { cellWidth: 25 },
-            5: { cellWidth: 25 },
-            6: { cellWidth: 20 },
-        },
-    });
+    const tableData = tasks.map(taskToTableRow);
+    addTasksTable(doc, tableData, 50);
 
     // Save the PDF
-    doc.save(`focusly-tasks-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+    downloadPDF(doc, 'focusly-tasks');
 };
+
+/**
+ * Exports tasks to a CSV file for spreadsheet applications.
+ * Includes all task fields: title, priority, dates, times, and notes.
+ *
+ * @param {Task[]} tasks - Array of tasks to export
+ * @returns {void} Downloads the CSV file
+ *
+ * @example
+ * exportTasksToCSV(tasks); // Downloads focusly-tasks-2024-01-15.csv
+ */
+export const exportTasksToCSV = (tasks: Task[]): void => {
+    const headers = ['Title', 'Priority', 'Domain', 'Completed', 'Start Date', 'Start Time', 'Due Date', 'End Time', 'Estimated Duration (min)', 'Pomodoros', 'Notes'];
+    const rows = [headers, ...tasks.map(taskToCSVRow)];
+    downloadCSV(rows, 'focusly-tasks');
+};
+
+/**
+ * Generates a PDF blob for server-side processing or upload.
+ * Returns the PDF as a Blob instead of triggering a download.
+ * Useful for API routes or server-side export functionality.
+ *
+ * @param {Task[]} tasks - Array of tasks to export
+ * @param {string} [userName='User'] - Name to display on the report
+ * @returns {Blob} PDF file as Blob
+ *
+ * @example
+ * const pdfBlob = await generateTasksPDFBlob(tasks, 'John Doe');
+ * // Upload blob to storage or send via API
+ */
+export const generateTasksPDFBlob = (tasks: Task[], userName: string = 'User'): Blob => {
+    const doc = createPDFDocument('Focusly - Task Report', userName);
+
+    // Summary Stats
+    const completedTasks = tasks.filter(t => t.completed).length;
+    const totalTasks = tasks.length;
+    const completionRate = totalTasks > 0 ? ((completedTasks / totalTasks) * 100).toFixed(1) : '0';
+
+    doc.setFontSize(10);
+    doc.text(`Total Tasks: ${totalTasks} | Completed: ${completedTasks} | Completion Rate: ${completionRate}%`, 14, 44);
+
+    // Tasks Table
+    const tableData = tasks.map(taskToTableRow);
+    addTasksTable(doc, tableData, 50);
+
+    // Return as Blob
+    return generatePDFBlob(doc);
+};
+
+// ============================================================================
+// Analytics Export Functions
+// ============================================================================
 
 /**
  * Exports comprehensive analytics report to PDF.
@@ -93,33 +212,22 @@ export const exportAnalyticsToPDF = (
     tasks: Task[],
     sessions: PomodoroSession[],
     userName: string = 'User'
-) => {
-    const doc = new jsPDF();
-
-    // Title
-    doc.setFontSize(20);
-    doc.text('Focusly - Analytics Report', 14, 22);
-
-    // Subtitle
-    doc.setFontSize(12);
-    doc.text(`Generated for: ${userName}`, 14, 30);
-    doc.text(`Date: ${format(new Date(), 'MMM d, yyyy')}`, 14, 36);
+): void => {
+    const doc = createPDFDocument('Focusly - Analytics Report', userName);
 
     // Overall Stats
-    doc.setFontSize(14);
-    doc.text('Overall Statistics', 14, 48);
-
-    doc.setFontSize(10);
-    const statsY = 56;
-    doc.text(`Total Focus Time: ${Math.round(stats.totalFocusTime / 3600)}h ${Math.round((stats.totalFocusTime % 3600) / 60)}m`, 14, statsY);
-    doc.text(`Total Sessions: ${stats.totalSessions}`, 14, statsY + 6);
-    doc.text(`Completed Tasks: ${stats.completedTasks} / ${stats.totalTasks}`, 14, statsY + 12);
-    doc.text(`Current Streak: ${stats.streak} days`, 14, statsY + 18);
-    doc.text(`Longest Streak: ${stats.longestStreak || 0} days`, 14, statsY + 24);
+    addSectionTitle(doc, 'Overall Statistics', 48);
+    const statsLines = [
+        `Total Focus Time: ${Math.round(stats.totalFocusTime / 3600)}h ${Math.round((stats.totalFocusTime % 3600) / 60)}m`,
+        `Total Sessions: ${stats.totalSessions}`,
+        `Completed Tasks: ${stats.completedTasks} / ${stats.totalTasks}`,
+        `Current Streak: ${stats.streak} days`,
+        `Longest Streak: ${stats.longestStreak || 0} days`,
+    ];
+    addStatsText(doc, statsLines, 56);
 
     // Domain Breakdown
-    doc.setFontSize(14);
-    doc.text('Domain Breakdown', 14, statsY + 36);
+    addSectionTitle(doc, 'Domain Breakdown', 90);
 
     const domainStats = Object.keys(DOMAINS).map((domainKey) => {
         const domainInfo = DOMAINS[domainKey as keyof typeof DOMAINS];
@@ -144,19 +252,11 @@ export const exportAnalyticsToPDF = (
         ];
     });
 
-    autoTable(doc, {
-        startY: statsY + 42,
-        head: [['Domain', 'Total Tasks', 'Completed', 'Completion Rate']],
-        body: domainStats,
-        theme: 'grid',
-        headStyles: { fillColor: [99, 102, 241] },
-        styles: { fontSize: 9 },
-    });
+    addDomainStatsTable(doc, domainStats, 96);
 
     // Recent Activity
-    const finalY = (doc as any).lastAutoTable.finalY || statsY + 100;
-    doc.setFontSize(14);
-    doc.text('Recent Activity (Last 10 Sessions)', 14, finalY + 10);
+    const finalY = getTableEndY(doc);
+    addSectionTitle(doc, 'Recent Activity (Last 10 Sessions)', finalY + 10);
 
     const recentSessions = sessions
         .filter(s => s.completed && s.type === 'work')
@@ -168,62 +268,10 @@ export const exportAnalyticsToPDF = (
             session.taskId ? tasks.find(t => t.id === session.taskId)?.title || 'Unknown' : 'No task'
         ]);
 
-    autoTable(doc, {
-        startY: finalY + 16,
-        head: [['Date & Time', 'Duration', 'Task']],
-        body: recentSessions,
-        theme: 'grid',
-        headStyles: { fillColor: [99, 102, 241] },
-        styles: { fontSize: 9 },
-    });
+    addSessionsTable(doc, recentSessions, finalY + 16);
 
     // Save the PDF
-    doc.save(`focusly-analytics-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-};
-
-/**
- * Exports tasks to a CSV file for spreadsheet applications.
- * Includes all task fields: title, priority, dates, times, and notes.
- *
- * @param {Task[]} tasks - Array of tasks to export
- * @returns {void} Downloads the CSV file
- *
- * @example
- * exportTasksToCSV(tasks); // Downloads focusly-tasks-2024-01-15.csv
- */
-export const exportTasksToCSV = (tasks: Task[]) => {
-    const headers = ['Title', 'Priority', 'Domain', 'Completed', 'Start Date', 'Start Time', 'Due Date', 'End Time', 'Estimated Duration (min)', 'Pomodoros', 'Notes'];
-
-    const rows = tasks.map(task => [
-        task.title,
-        task.priority || '',
-        task.subDomain ? DOMAINS[getDomainFromSubDomain(task.subDomain)]?.name : '',
-        task.completed ? 'Yes' : 'No',
-        task.startDate ? format(new Date(task.startDate), 'yyyy-MM-dd') : '',
-        task.startTime || '',
-        task.dueDate ? format(new Date(task.dueDate), 'yyyy-MM-dd') : '',
-        task.endTime || '',
-        task.estimatedDuration?.toString() || '',
-        task.pomodoroCount.toString(),
-        task.notes || '',
-    ]);
-
-    const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.map(cell => `"${cell.toString().replace(/"/g, '""')}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', `focusly-tasks-${format(new Date(), 'yyyy-MM-dd')}.csv`);
-    link.style.visibility = 'hidden';
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    downloadPDF(doc, 'focusly-analytics');
 };
 
 /**
@@ -239,7 +287,7 @@ export const exportTasksToCSV = (tasks: Task[]) => {
  * exportAnalyticsToCSV(stats, tasks, sessions);
  * // Downloads focusly-analytics-2024-01-15.csv
  */
-export const exportAnalyticsToCSV = (stats: Stats, tasks: Task[], sessions: PomodoroSession[]) => {
+export const exportAnalyticsToCSV = (stats: Stats, tasks: Task[], sessions: PomodoroSession[]): void => {
     const lines: string[] = [];
 
     // Overall Stats
@@ -272,7 +320,7 @@ export const exportAnalyticsToCSV = (stats: Stats, tasks: Task[], sessions: Pomo
         const total = domainTasks.length;
         const rate = total > 0 ? ((completed / total) * 100).toFixed(2) : '0';
 
-        lines.push(`"${domainInfo.name}",${total},${completed},${rate}`);
+        lines.push(`${escapeCSVCell(domainInfo.name)},${total},${completed},${rate}`);
     });
 
     lines.push('');
@@ -287,7 +335,7 @@ export const exportAnalyticsToCSV = (stats: Stats, tasks: Task[], sessions: Pomo
         .slice(0, 50)
         .forEach(session => {
             const taskTitle = session.taskId ? tasks.find(t => t.id === session.taskId)?.title || 'Unknown' : 'No task';
-            lines.push(`${format(new Date(session.startedAt), 'yyyy-MM-dd HH:mm')},${session.duration / 60},"${taskTitle}"`);
+            lines.push(`${format(new Date(session.startedAt), 'yyyy-MM-dd HH:mm')},${session.duration / 60},${escapeCSVCell(taskTitle)}`);
         });
 
     const csvContent = lines.join('\n');
@@ -303,6 +351,10 @@ export const exportAnalyticsToCSV = (stats: Stats, tasks: Task[], sessions: Pomo
     link.click();
     document.body.removeChild(link);
 };
+
+// ============================================================================
+// Large Dataset Export Functions
+// ============================================================================
 
 /**
  * Exports large task dataset to PDF using chunked processing.
@@ -322,7 +374,7 @@ export const exportLargeTasksToPDF = async (
     tasks: Task[],
     userName: string = 'User',
     chunkSize: number = 100
-) => {
+): Promise<void> => {
     const doc = new jsPDF();
 
     // Title
@@ -347,47 +399,43 @@ export const exportLargeTasksToPDF = async (
 
     for (let i = 0; i < tasks.length; i += chunkSize) {
         const chunk = tasks.slice(i, i + chunkSize);
+        const tableData = chunk.map(taskToCompactTableRow);
 
-        const tableData = chunk.map(task => [
-            task.title.length > 40 ? task.title.substring(0, 37) + '...' : task.title,
-            task.priority || 'None',
-            task.subDomain ? DOMAINS[getDomainFromSubDomain(task.subDomain)]?.name.split('(')[0].trim() : 'N/A',
-            task.completed ? 'Yes' : 'No',
-            task.startDate ? format(new Date(task.startDate), 'MMM d') : 'N/A',
-            task.dueDate ? format(new Date(task.dueDate), 'MMM d') : 'N/A',
-            task.pomodoroCount.toString(),
-        ]);
-
-        autoTable(doc, {
-            startY,
-            head: i === 0 ? [['Task', 'Priority', 'Domain', 'Done', 'Start', 'Due', 'Poms']] : undefined,
-            body: tableData,
-            theme: 'grid',
-            headStyles: { fillColor: [99, 102, 241] },
-            styles: { fontSize: 7 },
-            columnStyles: {
-                0: { cellWidth: 50 },
-                1: { cellWidth: 20 },
-                2: { cellWidth: 35 },
-                3: { cellWidth: 15 },
-                4: { cellWidth: 20 },
-                5: { cellWidth: 20 },
-                6: { cellWidth: 15 },
-            },
-            didDrawPage: (data) => {
-                // Add page numbers
-                const pageCount = doc.getNumberOfPages();
-                doc.setFontSize(8);
-                doc.text(
-                    `Page ${pageCount}`,
-                    doc.internal.pageSize.getWidth() / 2,
-                    doc.internal.pageSize.getHeight() - 10,
-                    { align: 'center' }
-                );
-            },
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise<void>(resolve => {
+            autoTable(doc, {
+                startY,
+                head: i === 0 ? [['Task', 'Priority', 'Domain', 'Done', 'Start', 'Due', 'Poms']] : undefined,
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [99, 102, 241] },
+                styles: { fontSize: 7 },
+                columnStyles: {
+                    0: { cellWidth: 50 },
+                    1: { cellWidth: 20 },
+                    2: { cellWidth: 35 },
+                    3: { cellWidth: 15 },
+                    4: { cellWidth: 20 },
+                    5: { cellWidth: 20 },
+                    6: { cellWidth: 15 },
+                },
+                didDrawPage: () => {
+                    // Add page numbers
+                    const pageCount = doc.getNumberOfPages();
+                    doc.setFontSize(8);
+                    doc.text(
+                        `Page ${pageCount}`,
+                        doc.internal.pageSize.getWidth() / 2,
+                        doc.internal.pageSize.getHeight() - 10,
+                        { align: 'center' }
+                    );
+                },
+            });
+            resolve();
         });
 
-        startY = (doc as any).lastAutoTable.finalY + 5;
+        startY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? startY;
+        startY += 5;
 
         // Allow UI to update between chunks (prevents blocking)
         if (i + chunkSize < tasks.length) {
@@ -396,71 +444,5 @@ export const exportLargeTasksToPDF = async (
     }
 
     // Save the PDF
-    doc.save(`focusly-tasks-large-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-};
-
-/**
- * Generates a PDF blob for server-side processing or upload.
- * Returns the PDF as a Blob instead of triggering a download.
- * Useful for API routes or server-side export functionality.
- *
- * @param {Task[]} tasks - Array of tasks to export
- * @param {string} [userName='User'] - Name to display on the report
- * @returns {Blob} PDF file as Blob
- *
- * @example
- * const pdfBlob = await generateTasksPDFBlob(tasks, 'John Doe');
- * // Upload blob to storage or send via API
- */
-export const generateTasksPDFBlob = (tasks: Task[], userName: string = 'User'): Blob => {
-    const doc = new jsPDF();
-
-    // Title
-    doc.setFontSize(20);
-    doc.text('Focusly - Task Report', 14, 22);
-
-    // Subtitle
-    doc.setFontSize(12);
-    doc.text(`Generated for: ${userName}`, 14, 30);
-    doc.text(`Date: ${format(new Date(), 'MMM d, yyyy')}`, 14, 36);
-
-    // Summary Stats
-    const completedTasks = tasks.filter(t => t.completed).length;
-    const totalTasks = tasks.length;
-    const completionRate = totalTasks > 0 ? ((completedTasks / totalTasks) * 100).toFixed(1) : '0';
-
-    doc.setFontSize(10);
-    doc.text(`Total Tasks: ${totalTasks} | Completed: ${completedTasks} | Completion Rate: ${completionRate}%`, 14, 44);
-
-    // Tasks Table
-    const tableData = tasks.map(task => [
-        task.title,
-        task.priority || 'None',
-        task.subDomain ? DOMAINS[getDomainFromSubDomain(task.subDomain)]?.name.split('(')[0].trim() : 'N/A',
-        task.completed ? 'Yes' : 'No',
-        task.startDate ? format(new Date(task.startDate), 'MMM d, yyyy') : 'N/A',
-        task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : 'N/A',
-        task.pomodoroCount.toString(),
-    ]);
-
-    autoTable(doc, {
-        startY: 50,
-        head: [['Task', 'Priority', 'Domain', 'Completed', 'Start Date', 'Due Date', 'Pomodoros']],
-        body: tableData,
-        theme: 'grid',
-        headStyles: { fillColor: [99, 102, 241] },
-        styles: { fontSize: 8 },
-        columnStyles: {
-            0: { cellWidth: 40 },
-            1: { cellWidth: 20 },
-            2: { cellWidth: 30 },
-            3: { cellWidth: 20 },
-            4: { cellWidth: 25 },
-            5: { cellWidth: 25 },
-            6: { cellWidth: 20 },
-        },
-    });
-
-    // Return as Blob
-    return doc.output('blob');
+    downloadPDF(doc, 'focusly-tasks-large');
 };
