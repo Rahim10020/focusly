@@ -11,10 +11,20 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
-import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
 import { debounce } from '@/lib/utils/debounce';
+import { FriendsHeader } from '@/components/friends/FriendsHeader';
+import { UserSearch } from '@/components/friends/UserSearch';
+import { PendingRequests } from '@/components/friends/PendingRequests';
+import { FriendsList } from '@/components/friends/FriendsList';
+
+interface User {
+    id: string;
+    username: string | null;
+    avatar_url?: string | null;
+    stats?: {
+        completed_tasks: number;
+    };
+}
 
 /**
  * Represents a friend relationship between users.
@@ -56,10 +66,9 @@ export default function FriendsPage() {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [pendingRequests, setPendingRequests] = useState<Friend[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set());
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<User[]>([]);
     const [searching, setSearching] = useState(false);
 
     useEffect(() => {
@@ -72,6 +81,7 @@ export default function FriendsPage() {
 
         fetchFriends();
         fetchPendingRequests();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [session, status, router]);
 
     const fetchFriends = async () => {
@@ -87,7 +97,7 @@ export default function FriendsPage() {
             const acceptedFriends = data.filter(friend => friend.status === 'accepted');
             setFriends(acceptedFriends);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
+            console.error('Error fetching friends:', err);
         }
     };
 
@@ -200,7 +210,7 @@ export default function FriendsPage() {
             const friendIds = friends.map(f =>
                 f.sender_id === session?.user?.id ? f.receiver_id : f.sender_id
             );
-            const filtered = data.filter((user: any) =>
+            const filtered = data.filter((user: User) =>
                 user.id !== session?.user?.id && !friendIds.includes(user.id)
             );
             setSearchResults(filtered);
@@ -274,215 +284,32 @@ export default function FriendsPage() {
         <div className="min-h-screen bg-background">
             <Header />
             <main className="max-w-4xl mx-auto px-6 py-8">
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold mb-2">Friends</h1>
-                    <p className="text-muted-foreground">
-                        Manage your friends and friend requests
-                    </p>
-                </div>
+                <FriendsHeader />
 
                 <div className="space-y-6">
-                    {/* Search Users */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Find Friends</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Input
-                                placeholder="Search users by username..."
-                                value={searchQuery}
-                                onChange={(e) => {
-                                    setSearchQuery(e.target.value);
-                                    searchUsers(e.target.value);
-                                }}
-                            />
-                            {searching && (
-                                <div className="mt-4 text-center text-muted-foreground">
-                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
-                                </div>
-                            )}
-                            {!searching && searchResults.length > 0 && (
-                                <div className="mt-4 space-y-2">
-                                    {searchResults.map((user) => (
-                                        <div
-                                            key={user.id}
-                                            className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                                    {user.avatar_url ? (
-                                                        <img
-                                                            src={user.avatar_url}
-                                                            alt={user.username || 'User'}
-                                                            className="w-10 h-10 rounded-full"
-                                                        />
-                                                    ) : (
-                                                        <span className="text-lg">
-                                                            {(user.username || 'A').charAt(0).toUpperCase()}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium">{user.username || 'Anonymous User'}</p>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        {user.stats?.completed_tasks || 0} tasks completed
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <Button
-                                                onClick={() => handleSendFriendRequest(user.id)}
-                                                size="sm"
-                                            >
-                                                Add Friend
-                                            </Button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            {!searching && searchQuery && searchResults.length === 0 && (
-                                <p className="mt-4 text-center text-muted-foreground">No users found</p>
-                            )}
-                        </CardContent>
-                    </Card>
+                    <UserSearch
+                        searchQuery={searchQuery}
+                        searching={searching}
+                        searchResults={searchResults}
+                        onSearchChange={(query) => {
+                            setSearchQuery(query);
+                            searchUsers(query);
+                        }}
+                        onSendFriendRequest={handleSendFriendRequest}
+                    />
 
-                    {/* Pending Requests */}
-                    {pendingRequests.length > 0 && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Friend Requests</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    {pendingRequests.map((request) => (
-                                        <div
-                                            key={request.id}
-                                            className="flex items-center justify-between p-4 rounded-lg border border-border"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                                    {request.sender?.avatar_url ? (
-                                                        <img
-                                                            src={request.sender.avatar_url}
-                                                            alt={request.sender.username || 'User'}
-                                                            className="w-10 h-10 rounded-full"
-                                                        />
-                                                    ) : (
-                                                        <span className="text-lg">
-                                                            {(request.sender?.username || 'Anonymous').charAt(0).toUpperCase()}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium">
-                                                        {request.sender?.username || 'Anonymous User'}
-                                                    </p>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        Sent you a friend request
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    onClick={() => handleAcceptRequest(request.id)}
-                                                    disabled={processingRequests.has(request.id)}
-                                                    size="sm"
-                                                >
-                                                    {processingRequests.has(request.id) ? 'Accepting...' : 'Accept'}
-                                                </Button>
-                                                <Button
-                                                    onClick={() => handleRejectRequest(request.id)}
-                                                    disabled={processingRequests.has(request.id)}
-                                                    variant="secondary"
-                                                    size="sm"
-                                                >
-                                                    {processingRequests.has(request.id) ? 'Rejecting...' : 'Reject'}
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
+                    <PendingRequests
+                        requests={pendingRequests}
+                        processingRequests={processingRequests}
+                        onAccept={handleAcceptRequest}
+                        onReject={handleRejectRequest}
+                    />
 
-                    {/* Friends List */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>My Friends ({friends.length})</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {friends.length === 0 ? (
-                                <p className="text-center text-muted-foreground py-8">
-                                    No friends yet. Visit the leaderboard to find and add friends!
-                                </p>
-                            ) : (
-                                <div className="space-y-4">
-                                    {friends.map((friend) => {
-                                        const friendUser = friend.sender_id === session?.user?.id
-                                            ? friend.receiver
-                                            : friend.sender;
-                                        const friendId = friend.sender_id === session?.user?.id
-                                            ? friend.receiver_id
-                                            : friend.sender_id;
-
-                                        return (
-                                            <div
-                                                key={friend.id}
-                                                className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
-                                                onClick={() => router.push(`/users/${friendId}`)}
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                                        {friendUser?.avatar_url ? (
-                                                            <img
-                                                                src={friendUser.avatar_url}
-                                                                alt={friendUser.username || 'User'}
-                                                                className="w-10 h-10 rounded-full"
-                                                            />
-                                                        ) : (
-                                                            <span className="text-lg">
-                                                                {(friendUser?.username || 'Anonymous').charAt(0).toUpperCase()}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium">
-                                                            {friendUser?.username || 'Anonymous User'}
-                                                        </p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            Friends since {new Date(friend.created_at).toLocaleDateString()}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                        }}
-                                                    >
-                                                        View Profile
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleRemoveFriend(friend.id);
-                                                        }}
-                                                        className="text-red-500 hover:text-red-600"
-                                                    >
-                                                        Remove
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                    <FriendsList
+                        friends={friends}
+                        currentUserId={session?.user?.id}
+                        onRemoveFriend={handleRemoveFriend}
+                    />
                 </div>
             </main>
         </div>

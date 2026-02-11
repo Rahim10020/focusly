@@ -10,47 +10,17 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { startOfWeek, startOfMonth } from 'date-fns';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import Image from 'next/image';
+import { LeaderboardUser, LeaderboardResponse } from '@/types/leaderboard';
 
-/**
- * Represents a user in the leaderboard with their stats.
- * @interface LeaderboardUser
- */
-interface LeaderboardUser {
-    /** Unique user identifier */
+interface FriendData {
     id: string;
-    /** User's display name */
-    username: string | null;
-    /** URL to user's avatar image */
-    avatar_url: string | null;
-    /** User's productivity statistics */
-    stats: {
-        total_sessions: number;
-        completed_tasks: number;
-        total_tasks: number;
-        streak: number;
-        total_focus_time: number;
-        longest_streak: number;
-    } | null;
-}
-
-/**
- * API response structure for leaderboard data.
- * @interface LeaderboardResponse
- */
-interface LeaderboardResponse {
-    /** Array of leaderboard users */
-    data: LeaderboardUser[];
-    /** Pagination information */
-    pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        totalPages: number;
-    };
+    sender_id: string;
+    receiver_id: string;
+    status: 'pending' | 'accepted';
 }
 
 /**
@@ -71,20 +41,6 @@ export default function LeaderboardPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [timeFilter, setTimeFilter] = useState<'all' | 'month' | 'week'>('all');
     const [friendRequestStatuses, setFriendRequestStatuses] = useState<Map<string, 'none' | 'pending' | 'sent' | 'friends'>>(new Map());
-    const [friends, setFriends] = useState<string[]>([]);
-    const [pendingRequests, setPendingRequests] = useState<string[]>([]);
-
-    useEffect(() => {
-        if (status === 'loading') return;
-
-        if (!session) {
-            router.push('/auth/signin');
-            return;
-        }
-
-        fetchLeaderboard(currentPage);
-        fetchFriendsAndRequests();
-    }, [session, status, router, currentPage, timeFilter]);
 
     const fetchLeaderboard = async (page: number = 1) => {
         try {
@@ -121,28 +77,12 @@ export default function LeaderboardPage() {
             }
             const responseData = await response.json();
             // Extract friends array from the API response
-            const data = responseData.data || [];
+            const data: FriendData[] = responseData.data || [];
             const userId = session?.user?.id;
-
-            // Get friend IDs (accepted)
-            const friendIds = data
-                .filter((friend: any) => friend.status === 'accepted')
-                .map((friend: any) =>
-                    friend.sender_id === userId ? friend.receiver_id : friend.sender_id
-                );
-            setFriends(friendIds);
-
-            // Get pending request IDs (sent by current user)
-            const pendingIds = data
-                .filter((friend: any) =>
-                    friend.status === 'pending' && friend.sender_id === userId
-                )
-                .map((friend: any) => friend.receiver_id);
-            setPendingRequests(pendingIds);
 
             // Update friend request statuses
             const statuses = new Map<string, 'none' | 'pending' | 'sent' | 'friends'>();
-            data.forEach((friend: any) => {
+            data.forEach((friend: FriendData) => {
                 const otherUserId = friend.sender_id === userId ? friend.receiver_id : friend.sender_id;
                 if (friend.status === 'accepted') {
                     statuses.set(otherUserId, 'friends');
@@ -157,6 +97,19 @@ export default function LeaderboardPage() {
             console.error('Error fetching friends:', err);
         }
     };
+
+    useEffect(() => {
+        if (status === 'loading') return;
+
+        if (!session) {
+            router.push('/auth/signin');
+            return;
+        }
+
+        fetchLeaderboard(currentPage);
+        fetchFriendsAndRequests();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [session, status, router, currentPage, timeFilter]);
 
     const formatTime = (seconds: number) => {
         const hours = Math.floor(seconds / 3600);
@@ -280,7 +233,7 @@ export default function LeaderboardPage() {
             <main className="max-w-6xl mx-auto px-6 py-8">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    <h1 className="text-4xl font-bold mb-2 bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                         Leaderboard
                     </h1>
                     <p className="text-muted-foreground text-lg">
@@ -291,7 +244,7 @@ export default function LeaderboardPage() {
                 {/* Your Rank Card */}
                 {currentUserRank >= 0 && (
                     <Card variant="default" className="mb-8 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-50"></div>
+                        <div className="absolute inset-0 bg-linear-to-r from-primary/10 to-transparent opacity-50"></div>
                         <CardContent className="relative py-6">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
@@ -376,13 +329,15 @@ export default function LeaderboardPage() {
                         {/* Second Place */}
                         <div className="flex flex-col items-center md:order-1 md:mt-8">
                             <Card variant="elevated" className="w-full overflow-hidden">
-                                <div className={`h-2 bg-gradient-to-r ${getRankColor(1)}`}></div>
+                                <div className={`h-2 bg-linear-to-r ${getRankColor(1)}`}></div>
                                 <CardContent className="pt-6 pb-4 text-center">
                                     <div className="text-4xl mb-2">{getRankIcon(1)}</div>
-                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-r from-gray-300 to-gray-500 p-1">
-                                        <img
+                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-linear-to-r from-gray-300 to-gray-500 p-1">
+                                        <Image
                                             src={sortedLeaderboard[1].avatar_url || '/default-avatar.svg'}
                                             alt={sortedLeaderboard[1].username || 'Player'}
+                                            width={64}
+                                            height={64}
                                             className="w-full h-full rounded-full object-cover"
                                         />
                                     </div>
@@ -404,13 +359,15 @@ export default function LeaderboardPage() {
                         {/* First Place */}
                         <div className="flex flex-col items-center md:order-0 col-span-1">
                             <Card variant="elevated" className="w-full overflow-hidden md:transform md:scale-110">
-                                <div className={`h-2 bg-gradient-to-r ${getRankColor(0)}`}></div>
+                                <div className={`h-2 bg-linear-to-r ${getRankColor(0)}`}></div>
                                 <CardContent className="pt-6 pb-4 text-center">
                                     <div className="text-5xl mb-2">{getRankIcon(0)}</div>
-                                    <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 p-1">
-                                        <img
+                                    <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-linear-to-r from-yellow-400 to-yellow-600 p-1">
+                                        <Image
                                             src={sortedLeaderboard[0].avatar_url || '/default-avatar.svg'}
                                             alt={sortedLeaderboard[0].username || 'Player'}
+                                            width={80}
+                                            height={80}
                                             className="w-full h-full rounded-full object-cover"
                                         />
                                     </div>
@@ -432,13 +389,15 @@ export default function LeaderboardPage() {
                         {/* Third Place */}
                         <div className="flex flex-col items-center md:order-2 md:mt-12">
                             <Card variant="elevated" className="w-full overflow-hidden">
-                                <div className={`h-2 bg-gradient-to-r ${getRankColor(2)}`}></div>
+                                <div className={`h-2 bg-linear-to-r ${getRankColor(2)}`}></div>
                                 <CardContent className="pt-6 pb-4 text-center">
                                     <div className="text-4xl mb-2">{getRankIcon(2)}</div>
-                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-r from-amber-600 to-amber-800 p-1">
-                                        <img
+                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-linear-to-r from-amber-600 to-amber-800 p-1">
+                                        <Image
                                             src={sortedLeaderboard[2].avatar_url || '/default-avatar.svg'}
                                             alt={sortedLeaderboard[2].username || 'Player'}
+                                            width={64}
+                                            height={64}
                                             className="w-full h-full rounded-full object-cover"
                                         />
                                     </div>
@@ -500,11 +459,13 @@ export default function LeaderboardPage() {
                                                     <span className="text-xl font-bold text-muted-foreground">#{index + 1}</span>
                                                 )}
                                             </div>
-                                            <div className="w-12 h-12 rounded-full bg-primary/10 overflow-hidden flex-shrink-0">
+                                            <div className="w-12 h-12 rounded-full bg-primary/10 overflow-hidden shrink-0">
                                                 {user.avatar_url ? (
-                                                    <img
+                                                    <Image
                                                         src={user.avatar_url}
                                                         alt={user.username || 'Player'}
+                                                        width={48}
+                                                        height={48}
                                                         className="w-full h-full object-cover"
                                                     />
                                                 ) : (
