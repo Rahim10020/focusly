@@ -7,7 +7,7 @@
 
 import { CacheOptions, CacheStats } from './cacheTypes';
 import { MemoryCache } from './memoryCache';
-import { SupabaseCache } from './supabaseCache';
+import { SupabaseCache } from './cache-components/supabaseCache';
 import { logger } from './logger';
 
 /**

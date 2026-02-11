@@ -2,8 +2,8 @@
  * @fileoverview Supabase L2 cache implementation.
  */
 
-import { supabaseServerPool } from './supabase/server';
-import { logger } from './logger';
+import { supabaseServerPool } from '../supabase/server';
+import { logger } from '../logger';
 
 /**
  * Sanitize cache key to prevent injection.
