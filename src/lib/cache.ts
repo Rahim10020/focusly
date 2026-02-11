@@ -5,8 +5,8 @@
  * @module lib/cache
  */
 
-import { CacheOptions, CacheStats } from './cacheTypes';
-import { MemoryCache } from './memoryCache';
+import { CacheOptions, CacheStats } from './cache-components/cacheTypes';
+import { MemoryCache } from './cache-components/memoryCache';
 import { SupabaseCache } from './cache-components/supabaseCache';
 import { logger } from './logger';
 
