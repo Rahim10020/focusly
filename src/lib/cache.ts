@@ -5,27 +5,10 @@
  * @module lib/cache
  */
 
-import { supabaseServerPool } from './supabase/server';
+import { CacheOptions, CacheStats } from './cacheTypes';
+import { MemoryCache } from './memoryCache';
+import { SupabaseCache } from './supabaseCache';
 import { logger } from './logger';
-
-/**
- * Options for cache operations.
- * @interface CacheOptions
- */
-interface CacheOptions {
-    /** Time to live in milliseconds before cache expires */
-    ttl: number;
-    /** Whether to use only in-memory cache (skip L2) */
-    memoryOnly?: boolean;
-}
-
-/**
- * In-memory cache entry with TTL support.
- */
-interface MemoryCacheEntry<T> {
-    data: T;
-    expiresAt: number;
-}
 
 /**
  * Multi-level cache utility class with L1 (memory) and L2 (Supabase) layers.
@@ -50,12 +33,14 @@ interface MemoryCacheEntry<T> {
  */
 export class Cache {
     private static invalidationPatterns = new Map<string, Set<string>>();
-    private static memoryCache = new Map<string, MemoryCacheEntry<any>>();
-    private static readonly MAX_MEMORY_CACHE_SIZE = 100;
-    private static readonly MEMORY_CACHE_TTL = 60000; // 1 minute default for L1
+    private static failureCount = 0;
+    private static readonly MAX_FAILURES = 5;
+    private static cacheDisabled = false;
 
+    /**
+     * Sanitize cache key to prevent injection.
+     */
     private static sanitizeCacheKey(key: string): string {
-        // Permettre uniquement alphanumeric, :, -, _
         const sanitized = key.replace(/[^a-zA-Z0-9:_-]/g, '');
         if (sanitized.length === 0 || sanitized.length > 255) {
             throw new Error('Invalid cache key format');
@@ -64,66 +49,11 @@ export class Cache {
     }
 
     /**
-     * Gets data from L1 (memory) cache.
-     * @private
-     */
-    private static getFromMemory<T>(key: string): T | null {
-        const entry = this.memoryCache.get(key);
-        if (!entry) return null;
-
-        if (Date.now() > entry.expiresAt) {
-            this.memoryCache.delete(key);
-            return null;
-        }
-
-        return entry.data as T;
-    }
-
-    /**
-     * Sets data in L1 (memory) cache with LRU eviction.
-     * @private
-     */
-    private static setInMemory<T>(key: string, data: T, ttl: number): void {
-        // Implement LRU: if cache is full, remove oldest entry
-        if (this.memoryCache.size >= this.MAX_MEMORY_CACHE_SIZE) {
-            const firstKey = this.memoryCache.keys().next().value;
-            if (firstKey) {
-                this.memoryCache.delete(firstKey);
-            }
-        }
-
-        this.memoryCache.set(key, {
-            data,
-            expiresAt: Date.now() + Math.min(ttl, this.MEMORY_CACHE_TTL),
-        });
-    }
-
-    /**
-     * Clears expired entries from memory cache.
-     */
-    private static cleanMemoryCache(): void {
-        const now = Date.now();
-        const keysToDelete: string[] = [];
-
-        for (const [key, entry] of this.memoryCache.entries()) {
-            if (now > entry.expiresAt) {
-                keysToDelete.push(key);
-            }
-        }
-
-        keysToDelete.forEach(key => this.memoryCache.delete(key));
-    }
-
-    /**
      * Register cache keys that should be invalidated when a pattern is matched.
      * This allows for automatic cascading invalidation of related cache entries.
-     * 
+     *
      * @param pattern - The pattern name to match
      * @param keys - Array of cache key patterns to invalidate
-     * 
-     * @example
-     * Cache.registerInvalidation('tasks', ['tasks:*', 'stats:*', 'leaderboard:*']);
-     * // When invalidating 'tasks' pattern, all registered patterns will be cleared
      */
     static registerInvalidation(pattern: string, keys: string[]): void {
         if (!this.invalidationPatterns.has(pattern)) {
@@ -133,155 +63,60 @@ export class Cache {
     }
 
     /**
-     * Get all cache keys matching a pattern.
-     * 
-     * @param pattern - Pattern to match (supports * wildcard)
-     * @returns Array of matching cache keys
+     * Gets data from cache (L1 then L2).
      */
-    private static async getKeysMatchingPattern(pattern: string): Promise<string[]> {
-        try {
-            const client = await supabaseServerPool.getAdminClient();
-            const { data, error } = await (client.from('cache') as any)
-                .select('cache_key')
-                .like('cache_key', pattern.replace('*', '%'));
-
-            if (error) {
-                logger.error('Error fetching keys by pattern', error as Error, {
-                    action: 'getKeysMatchingPattern',
-                    pattern
-                });
-                return [];
-            }
-
-            return data?.map((row: any) => row.cache_key) || [];
-        } catch (error) {
-            logger.error('Exception fetching keys by pattern', error as Error, {
-                action: 'getKeysMatchingPattern',
-                pattern
-            });
-            return [];
-        }
-    }
-
     private static async get<T>(key: string): Promise<T | null> {
-        try {
-            const sanitizedKey = this.sanitizeCacheKey(key);
+        const sanitizedKey = this.sanitizeCacheKey(key);
 
-            // Try L1 (memory) cache first
-            const memoryData = this.getFromMemory<T>(sanitizedKey);
-            if (memoryData !== null) {
-                return memoryData;
-            }
+        // Try L1 (memory) cache first
+        const memoryData = MemoryCache.get<T>(sanitizedKey);
+        if (memoryData !== null) {
+            return memoryData;
+        }
 
-            // Try L2 (Supabase) cache
-            const client = await supabaseServerPool.getAdminClient();
-            const { data, error } = await (client.from('cache') as any)
-                .select('data, expires_at')
-                .eq('cache_key', sanitizedKey)
-                .single();
-
-            if (error && error.code !== 'PGRST116') {
-                logger.error('Cache get failed', error as Error, {
-                    action: 'cacheGet',
-                    key: sanitizedKey
-                });
-                return null;
-            }
-
-            if (!data) return null;
-
-            // Vérifier expiration
-            const expiresAt = new Date((data as any).expires_at).getTime();
-            if (Date.now() > expiresAt) {
-                // Supprimer entrée expirée
-                await this.delete(sanitizedKey);
-                return null;
-            }
-
+        // Try L2 (Supabase) cache
+        const supabaseData = await SupabaseCache.get<T>(sanitizedKey);
+        if (supabaseData !== null) {
             // Store in L1 cache for faster subsequent access
-            const result = (data as any).data as T;
-            this.setInMemory(sanitizedKey, result, expiresAt - Date.now());
+            const expiresAt = Date.now() + 60000; // 1 minute default
+            MemoryCache.set(sanitizedKey, supabaseData, expiresAt - Date.now());
+            return supabaseData;
+        }
 
-            return result;
-        } catch (error) {
-            logger.error('Cache get exception', error as Error, {
-                action: 'cacheGet',
-                key
-            });
-            return null;
+        return null;
+    }
+
+    /**
+     * Sets data in cache (L1 and optionally L2).
+     */
+    private static async set(key: string, value: unknown, ttl: number, memoryOnly = false): Promise<void> {
+        const sanitizedKey = this.sanitizeCacheKey(key);
+
+        // Always set in L1 (memory) cache
+        MemoryCache.set(sanitizedKey, value, ttl);
+
+        // Set in L2 (Supabase) cache unless memoryOnly is true
+        if (!memoryOnly) {
+            await SupabaseCache.set(sanitizedKey, value, ttl);
         }
     }
 
+    /**
+     * Deletes data from cache (L1 and L2).
+     */
     private static async delete(key: string): Promise<void> {
         const sanitizedKey = this.sanitizeCacheKey(key);
 
         // Delete from L1 cache
-        this.memoryCache.delete(sanitizedKey);
+        MemoryCache.delete(sanitizedKey);
 
         // Delete from L2 cache
-        try {
-            const client = await supabaseServerPool.getAdminClient();
-            const { error } = await client
-                .from('cache')
-                .delete()
-                .eq('cache_key', sanitizedKey);
-
-            if (error) {
-                logger.error('Cache delete failed', error as Error, {
-                    action: 'cacheDelete',
-                    key
-                });
-            }
-        } catch (error) {
-            logger.error('Cache delete exception', error as Error, {
-                action: 'cacheDelete',
-                key
-            });
-            throw error;
-        }
+        await SupabaseCache.delete(sanitizedKey);
     }
 
-    private static async set(key: string, value: any, ttl: number, memoryOnly: boolean = false): Promise<void> {
-        const sanitizedKey = this.sanitizeCacheKey(key);
-        const expiresAt = new Date(Date.now() + ttl);
-
-        // Always set in L1 (memory) cache
-        this.setInMemory(sanitizedKey, value, ttl);
-
-        // Set in L2 (Supabase) cache unless memoryOnly is true
-        if (!memoryOnly) {
-            try {
-                const client = await supabaseServerPool.getAdminClient();
-                const { error } = await (client.from('cache') as any)
-                    .upsert({
-                        cache_key: sanitizedKey,
-                        data: value,
-                        expires_at: expiresAt.toISOString()
-                    }, {
-                        onConflict: 'cache_key'
-                    });
-
-                if (error) {
-                    logger.error('Cache set failed', error as Error, {
-                        action: 'cacheSet',
-                        key,
-                        ttl
-                    });
-                }
-            } catch (error) {
-                logger.error('Cache set exception', error as Error, {
-                    action: 'cacheSet',
-                    key
-                });
-                throw error;
-            }
-        }
-    }
-
-    private static cacheFailureCount = 0;
-    private static readonly MAX_FAILURES = 5;
-    private static cacheDisabled = false;
-
+    /**
+     * Get or set data in cache with automatic fetch.
+     */
     static async getOrSet<T>(
         key: string,
         fetcher: () => Promise<T>,
@@ -297,13 +132,13 @@ export class Cache {
 
         // Periodic cleanup of expired memory cache entries
         if (Math.random() < 0.1) { // 10% chance on each call
-            this.cleanMemoryCache();
+            MemoryCache.cleanExpired();
         }
 
         try {
             const cached = await this.get<T>(key);
             if (cached !== null) {
-                this.cacheFailureCount = 0; // Reset on success
+                this.failureCount = 0; // Reset on success
                 return cached;
             }
 
@@ -311,43 +146,41 @@ export class Cache {
             await this.set(key, data, options.ttl || 300000, options.memoryOnly);
             return data;
         } catch (error) {
-            this.cacheFailureCount++;
-            if (this.cacheFailureCount >= this.MAX_FAILURES) {
+            this.failureCount++;
+            if (this.failureCount >= this.MAX_FAILURES) {
                 this.cacheDisabled = true;
                 logger.error('Cache circuit breaker triggered', error as Error, {
                     action: 'cacheCircuitBreaker',
-                    failureCount: this.cacheFailureCount
+                    failureCount: this.failureCount
                 });
             }
             return fetcher(); // Fallback sans cache
         }
     }
 
+    /**
+     * Invalidate a specific cache entry.
+     */
     static async invalidate(key: string): Promise<void> {
         await this.delete(key);
     }
 
     /**
-     * Gets cache statistics for monitoring.
+     * Get cache statistics for monitoring.
      */
-    static getStats() {
+    static getStats(): CacheStats {
         return {
-            memorySize: this.memoryCache.size,
-            maxMemorySize: this.MAX_MEMORY_CACHE_SIZE,
-            failureCount: this.cacheFailureCount,
+            memorySize: MemoryCache.size(),
+            maxMemorySize: MemoryCache.maxSize(),
+            failureCount: this.failureCount,
             isDisabled: this.cacheDisabled,
         };
     }
 
     /**
      * Invalidate all cache keys matching a pattern and registered dependent patterns.
-     * 
+     *
      * @param pattern - Pattern to match and invalidate
-     * 
-     * @example
-     * // Invalidate all task-related caches
-     * await Cache.invalidatePattern('tasks');
-     * // This will also invalidate registered patterns like 'stats', 'achievements', etc.
      */
     static async invalidatePattern(pattern: string): Promise<void> {
         try {
@@ -358,8 +191,12 @@ export class Cache {
                 // Invalidate all registered patterns
                 await Promise.all(
                     Array.from(patternsToInvalidate).map(async (pat) => {
-                        const keys = await this.getKeysMatchingPattern(pat);
-                        await Promise.all(keys.map(key => this.delete(key)));
+                        const count = await SupabaseCache.deleteByPattern(pat);
+                        logger.info('Invalidated pattern', {
+                            action: 'invalidatePattern',
+                            pattern: pat,
+                            keysDeleted: count
+                        });
                     })
                 );
 
@@ -371,13 +208,11 @@ export class Cache {
             }
 
             // Also invalidate the pattern itself
-            const keys = await this.getKeysMatchingPattern(pattern);
-            await Promise.all(keys.map(key => this.delete(key)));
-
+            const count = await SupabaseCache.deleteByPattern(pattern);
             logger.info('Pattern invalidated', {
                 action: 'invalidatePattern',
                 pattern,
-                keysInvalidated: keys.length
+                keysInvalidated: count
             });
         } catch (error) {
             logger.error('Cache invalidate pattern error', error as Error, {
@@ -393,26 +228,6 @@ export class Cache {
      * L1 cache is cleaned automatically on access.
      */
     static async clearExpired(): Promise<void> {
-        try {
-            const client = await supabaseServerPool.getAdminClient();
-            const { error } = await client
-                .from('cache')
-                .delete()
-                .lt('expires_at', new Date().toISOString());
-
-            if (error) {
-                logger.error('Failed to clear expired cache', error as Error, {
-                    action: 'clearExpired'
-                });
-            } else {
-                logger.info('Expired cache cleared', {
-                    action: 'clearExpired'
-                });
-            }
-        } catch (error) {
-            logger.error('Exception clearing expired cache', error as Error, {
-                action: 'clearExpired'
-            });
-        }
+        await SupabaseCache.clearExpired();
     }
 }
