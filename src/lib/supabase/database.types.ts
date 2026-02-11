@@ -324,6 +324,33 @@ export interface Database {
                 };
                 Relationships: [];
             };
+            cache: {
+                Row: {
+                    id: string;
+                    cache_key: string;
+                    data: any;
+                    expires_at: string;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    cache_key: string;
+                    data: any;
+                    expires_at: string;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    cache_key?: string;
+                    data?: any;
+                    expires_at?: string;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Relationships: [];
+            };
             stat_visibility: {
                 Row: {
                     id: string;
