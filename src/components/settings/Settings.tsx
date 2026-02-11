@@ -13,6 +13,8 @@ import Input from '@/components/ui/Input';
 import { TimerSettings } from '@/lib/hooks/useSettings';
 import { useStatVisibility } from '@/lib/hooks/useStatVisibility';
 import { useNotificationsContext } from '@/components/providers/NotificationsProvider';
+import { PresetProfiles } from './PresetProfiles';
+import { AutoStartSettings } from './AutoStartSettings';
 
 /**
  * Predefined timer profiles for common Pomodoro techniques
@@ -140,33 +142,10 @@ export default function Settings({
 
     return (
         <div className="space-y-6">
-            {/* Preset Profiles */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Preset Profiles</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Quick setup with popular Pomodoro techniques
-                    </p>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {Object.entries(PRESET_PROFILES).map(([key, profile]) => (
-                            <button
-                                key={key}
-                                onClick={() => applyPreset(key as keyof typeof PRESET_PROFILES)}
-                                className="p-4 text-left border border-border rounded-lg hover:bg-accent transition-colors cursor-pointer group"
-                            >
-                                <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">
-                                    {profile.name}
-                                </h3>
-                                <p className="text-sm text-muted-foreground">
-                                    {profile.description}
-                                </p>
-                            </button>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
+            <PresetProfiles
+                presets={PRESET_PROFILES}
+                onApplyPreset={(key) => applyPreset(key as keyof typeof PRESET_PROFILES)}
+            />
 
             {/* Custom Timer Settings */}
             <Card>
@@ -221,38 +200,7 @@ export default function Settings({
                 </CardContent>
             </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Auto-Start</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-4">
-                        <label className="flex items-center justify-between cursor-pointer">
-                            <span className="text-sm text-foreground">
-                                Auto-start breaks
-                            </span>
-                            <input
-                                type="checkbox"
-                                checked={settings.autoStartBreaks}
-                                onChange={(e) => onUpdateSettings({ autoStartBreaks: e.target.checked })}
-                                className="w-5 h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary cursor-pointer"
-                            />
-                        </label>
-
-                        <label className="flex items-center justify-between cursor-pointer">
-                            <span className="text-sm text-foreground">
-                                Auto-start pomodoros
-                            </span>
-                            <input
-                                type="checkbox"
-                                checked={settings.autoStartPomodoros}
-                                onChange={(e) => onUpdateSettings({ autoStartPomodoros: e.target.checked })}
-                                className="w-5 h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary cursor-pointer"
-                            />
-                        </label>
-                    </div>
-                </CardContent>
-            </Card>
+            <AutoStartSettings settings={settings} onUpdateSettings={onUpdateSettings} />
 
             <Card>
                 <CardHeader>

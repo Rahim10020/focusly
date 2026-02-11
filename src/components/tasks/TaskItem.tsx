@@ -6,13 +6,13 @@
 
 'use client';
 
-import { useState, memo } from 'react';
+import { useState, memo, type HTMLAttributes } from 'react';
 import { Task, Tag, DOMAINS, getDomainFromSubDomain } from '@/types';
 import Button from '@/components/ui/Button';
-import Modal from '@/components/ui/Modal';
 import PriorityBadge from '@/components/ui/PriorityBadge';
 import TagBadge from '@/components/ui/TagBadge';
 import DueDateBadge from '@/components/ui/DueDateBadge';
+import { DeleteConfirmationModal } from '@/components/ui/DeleteConfirmationModal';
 import TaskDetailsModal from './TaskDetailsModal';
 import { useSound } from '@/lib/hooks/useSound';
 
@@ -33,7 +33,7 @@ interface TaskItemProps {
     /** Whether the task is currently being dragged */
     isDragging?: boolean;
     /** Props for the drag handle element */
-    dragHandleProps?: any;
+    dragHandleProps?: HTMLAttributes<HTMLDivElement>;
 }
 
 /**
@@ -102,7 +102,7 @@ function TaskItem({
                 {/* Drag Handle */}
                 <div
                     {...dragHandleProps}
-                    className="flex-shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/60 hover:text-primary transition-all mt-1"
+                    className="shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/60 hover:text-primary transition-all mt-1"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -133,7 +133,7 @@ function TaskItem({
                         }
                         onToggle(task.id);
                     }}
-                    className={`flex-shrink-0 w-6 h-6 rounded-full cursor-pointer border-2 flex items-center justify-center transition-all duration-300 mt-0.5 ${task.completed
+                    className={`shrink-0 w-6 h-6 rounded-full cursor-pointer border-2 flex items-center justify-center transition-all duration-300 mt-0.5 ${task.completed
                         ? 'bg-success border-success scale-110'
                         : 'border-primary hover:bg-primary/10 hover:scale-110'
                         }`}
@@ -310,42 +310,20 @@ function TaskItem({
             )}
 
             {/* Delete Confirmation Modal */}
-            <Modal
-                isOpen={showDeleteConfirm}
-                onClose={() => setShowDeleteConfirm(false)}
-                title="Delete Task"
-                description={`Are you sure you want to delete "${task.title}"? This action cannot be undone.`}
-                footer={
-                    <div className="flex gap-3 justify-end">
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowDeleteConfirm(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="danger"
-                            onClick={() => {
-                                onDelete(task.id);
-                                setShowDeleteConfirm(false);
-                            }}
-                        >
-                            Delete Task
-                        </Button>
-                    </div>
-                }
-            >
-                <div className="py-4">
-                    <p className="text-sm text-muted-foreground">
-                        This will permanently remove the task and all its subtasks.
-                        {task.pomodoroCount > 0 && (
-                            <span className="block mt-2 font-medium text-foreground">
-                                Note: This task has {task.pomodoroCount} completed pomodoro{task.pomodoroCount > 1 ? 's' : ''}.
-                            </span>
-                        )}
-                    </p>
-                </div>
-            </Modal>
+            <DeleteConfirmationModal
+              isOpen={showDeleteConfirm}
+              onClose={() => setShowDeleteConfirm(false)}
+              onConfirm={() => {
+                onDelete(task.id);
+                setShowDeleteConfirm(false);
+              }}
+              title="Delete Task"
+              itemName={task.title}
+              warningNote={task.pomodoroCount > 0
+                ? `Note: This task has ${task.pomodoroCount} completed pomodoro${task.pomodoroCount > 1 ? 's' : ''}.`
+                : undefined
+              }
+            />
         </>
     );
 }

@@ -5,7 +5,6 @@
 'use client';
 
 import { useRef, useEffect, useMemo, useCallback, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
@@ -15,6 +14,10 @@ import QuickAddTask from '@/components/tasks/QuickAddTask';
 import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
 import AchievementNotification from '@/components/achievements/AchievementNotification';
 import KeyboardShortcutsModal from '@/components/ui/KeyboardShortcutsModal';
+import { DashboardNotifications } from '@/components/dashboard/DashboardNotifications';
+import { FocusModeToggle } from '@/components/dashboard/FocusModeToggle';
+import { KeyboardShortcutHint } from '@/components/dashboard/KeyboardShortcutHint';
+import { TimerSettingsButton } from '@/components/dashboard/TimerSettingsButton';
 import { useTasks } from '@/lib/hooks/useTasks';
 import { useCachedStats } from '@/lib/hooks/useCachedStats';
 import { useAchievements } from '@/lib/hooks/useAchievements';
@@ -78,7 +81,7 @@ export function Dashboard({ session }: DashboardProps) {
     enabled: typeof window !== 'undefined' && session !== null,
   });
 
-  const { notifications, markAsRead } = useNotificationsContext();
+  const { notifications } = useNotificationsContext();
 
   // useRef for frequently changing values (Pomodoro optimization)
   const statsRef = useRef(stats);
@@ -292,14 +295,7 @@ export function Dashboard({ session }: DashboardProps) {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Pomodoro Timer</CardTitle>
-              <Link href="/settings">
-                <button className="p-2 rounded-lg cursor-pointer hover:bg-muted transition-colors" title="Timer Settings">
-                  <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </button>
-              </Link>
+              <TimerSettingsButton />
             </div>
           </CardHeader>
           <CardContent>
@@ -316,53 +312,7 @@ export function Dashboard({ session }: DashboardProps) {
 
         {/* Notifications */}
         {!focusMode && notifications.length > 0 && (
-          <Card variant="elevated">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Notifications</CardTitle>
-                <button
-                  onClick={() => notifications.forEach(n => markAsRead(n.id))}
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  Mark all read
-                </button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {notifications.slice(0, 5).map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`p-3 rounded-lg border ${notification.read ? 'border-border bg-card' : 'border-primary/20 bg-primary/5'
-                      }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{notification.title}</p>
-                        <p className="text-sm text-muted-foreground">{notification.message}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(notification.created_at).toLocaleString()}
-                        </p>
-                      </div>
-                      {!notification.read && (
-                        <button
-                          onClick={() => markAsRead(notification.id)}
-                          className="text-xs text-primary hover:underline"
-                        >
-                          Mark read
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {notifications.length > 5 && (
-                  <p className="text-xs text-muted-foreground text-center">
-                    And {notifications.length - 5} more...
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <DashboardNotifications />
         )}
       </main>
 
@@ -385,60 +335,11 @@ export function Dashboard({ session }: DashboardProps) {
       )}
 
       {/* Focus Mode Toggle Button */}
-      <Button
-        onClick={() => setFocusMode(!focusMode)}
-        className="fixed top-6 right-6 z-50 gap-2"
-        variant={focusMode ? 'primary' : 'outline'}
-        title="Toggle Focus Mode (F)"
-      >
-        {focusMode ? (
-          <>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            Quitter Focus
-          </>
-        ) : (
-          <>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="3" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 1v6m0 6v6M1 12h6m6 0h6" />
-            </svg>
-            Mode Focus
-          </>
-        )}
-      </Button>
+      <FocusModeToggle isFocusMode={focusMode} onToggle={() => setFocusMode(!focusMode)} />
 
       {/* Keyboard shortcut hint */}
       {!focusMode && (
-        <button
-          onClick={() => setShowShortcuts(true)}
-          className="fixed bottom-6 right-6 p-3 bg-card border-2 border-border rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 cursor-pointer"
-          title="Keyboard shortcuts (Shift + ?)"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-foreground"
-          >
-            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-            <path d="M6 8h.001"></path>
-            <path d="M10 8h.001"></path>
-            <path d="M14 8h.001"></path>
-            <path d="M18 8h.001"></path>
-            <path d="M8 12h.001"></path>
-            <path d="M12 12h.001"></path>
-            <path d="M16 12h.001"></path>
-            <path d="M7 16h10"></path>
-          </svg>
-        </button>
+        <KeyboardShortcutHint onClick={() => setShowShortcuts(true)} />
       )}
     </div>
   );
