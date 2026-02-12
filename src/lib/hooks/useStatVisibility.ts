@@ -4,7 +4,7 @@
  * to friends, with database persistence via Supabase.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabaseClient as supabase } from '@/lib/supabase/client';
 import { useSession } from 'next-auth/react';
 
@@ -18,6 +18,16 @@ export interface StatVisibility {
     /** Whether this stat is visible to friends */
     visible_to_friends: boolean;
 }
+
+const STAT_FIELDS = [
+    'total_sessions',
+    'completed_tasks',
+    'total_tasks',
+    'streak',
+    'total_focus_time',
+    'longest_streak',
+    'tasks_completed_today'
+] as const;
 
 /**
  * Hook for managing stat visibility preferences.
@@ -49,25 +59,7 @@ export function useStatVisibility() {
     const [visibilitySettings, setVisibilitySettings] = useState<StatVisibility[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const statFields = [
-        'total_sessions',
-        'completed_tasks',
-        'total_tasks',
-        'streak',
-        'total_focus_time',
-        'longest_streak',
-        'tasks_completed_today'
-    ];
-
-    useEffect(() => {
-        if (session?.user?.id) {
-            fetchVisibilitySettings();
-        } else {
-            setLoading(false);
-        }
-    }, [session?.user?.id]);
-
-    const fetchVisibilitySettings = async () => {
+    const fetchVisibilitySettings = useCallback(async () => {
         try {
             const userId = session?.user?.id;
             if (!userId) return;
@@ -80,8 +72,10 @@ export function useStatVisibility() {
             if (error) throw error;
 
             // Create default settings for missing fields
-            const existingSettings = new Map(data?.map((s: any) => [s.stat_field, s.visible_to_friends as boolean]) || []);
-            const allSettings = statFields.map(field => ({
+            const existingSettings = new Map(
+                data?.map((s) => [s.stat_field, s.visible_to_friends]) ?? []
+            );
+            const allSettings = STAT_FIELDS.map(field => ({
                 stat_field: field,
                 visible_to_friends: (existingSettings.get(field) ?? true) as boolean
             }));
@@ -92,15 +86,23 @@ export function useStatVisibility() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [session?.user?.id]);
+
+    useEffect(() => {
+        if (session?.user?.id) {
+            fetchVisibilitySettings();
+        } else {
+            setLoading(false);
+        }
+    }, [session?.user?.id, fetchVisibilitySettings]);
 
     const updateVisibility = async (statField: string, visible: boolean) => {
         try {
             const userId = session?.user?.id;
             if (!userId) return;
 
-            const { error } = await (supabase
-                .from('stat_visibility') as any)
+            const { error } = await supabase
+                .from('stat_visibility')
                 .upsert({
                     user_id: userId,
                     stat_field: statField,

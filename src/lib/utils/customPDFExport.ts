@@ -27,6 +27,12 @@ interface Session {
     duration: number;
 }
 
+interface JsPdfWithAutoTable extends jsPDF {
+    lastAutoTable?: {
+        finalY: number;
+    };
+}
+
 const formatDateRange = (range: string): string => {
     const now = new Date();
     switch (range) {
@@ -92,7 +98,7 @@ export const exportCustomAnalyticsToPDF = async (
             styles: { fontSize: 10 }
         });
 
-        yPosition = (doc as any).lastAutoTable.finalY + 15;
+        yPosition = ((doc as JsPdfWithAutoTable).lastAutoTable?.finalY ?? yPosition) + 15;
     }
 
     // Charts si sélectionné

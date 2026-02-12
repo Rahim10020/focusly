@@ -7,7 +7,7 @@
  * Route: /api/users/[userId]
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { supabaseServerPool } from '@/lib/supabase/server';
 import { getServerSession } from 'next-auth';
@@ -35,12 +35,26 @@ import { logger } from '@/lib/logger';
 
 // Validation schema for userId parameter
 const UserIdSchema = z.string().uuid('Invalid user ID format');
+type ProfileRow = Database['public']['Tables']['profiles']['Row'];
+type StatsRow = Database['public']['Tables']['stats']['Row'];
+type PublicProfile = Pick<ProfileRow, 'id' | 'username' | 'avatar_url'>;
+type PublicStats = Pick<
+    StatsRow,
+    | 'total_sessions'
+    | 'completed_tasks'
+    | 'total_tasks'
+    | 'streak'
+    | 'total_focus_time'
+    | 'longest_streak'
+    | 'tasks_completed_today'
+>;
 
 async function getHandler(
     request: NextRequest,
-    context: { params: Promise<{ userId: string }> }
+    context: unknown
 ) {
-    const { userId } = await context.params;
+    const routeContext = context as { params: Promise<{ userId: string }> };
+    const { userId } = await routeContext.params;
 
     // Validate userId format (UUID)
     const validationResult = UserIdSchema.safeParse(userId);
@@ -88,7 +102,10 @@ async function getHandler(
             return Errors.notFound('User stats not found');
         }
 
-        const data = { ...(profileData as any), stats: statsData };
+        const data: PublicProfile & { stats: PublicStats | null } = {
+            ...profileData,
+            stats: (statsData as PublicStats | null) ?? null,
+        };
         return successResponse({ ...data, isFriend: true }); // Own profile, consider as friend
     }
 
@@ -145,15 +162,18 @@ async function getHandler(
         return Errors.notFound('User stats not found');
     }
 
-    const userData = { ...(profileData as any), stats: statsData } as { id: string; username: string | null; avatar_url: string | null; stats: Record<string, any> | null };
+    const userData: PublicProfile & { stats: Partial<PublicStats> | null } = {
+        ...profileData,
+        stats: (statsData as PublicStats | null) ?? null,
+    };
 
     // Filter stats based on visibility
     if (userData.stats && !isFriend) {
-        const filteredStats: Record<string, any> = {};
+        const filteredStats: Partial<PublicStats> = {};
         for (const [key, value] of Object.entries(userData.stats)) {
             const visible = visibilityMap.get(key) ?? true; // Default to visible
             if (visible) {
-                filteredStats[key] = value;
+                filteredStats[key as keyof PublicStats] = value as PublicStats[keyof PublicStats];
             }
             // Don't add the key if not visible (better security - doesn't reveal which fields exist)
         }

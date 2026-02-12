@@ -2,7 +2,7 @@
  * @fileoverview Badge component for displaying task due dates with contextual styling.
  */
 
-import { useMemo } from 'react';
+const NOW_TIMESTAMP = Date.now();
 
 /**
  * Props for the DueDateBadge component.
@@ -37,7 +37,8 @@ interface DueDateBadgeProps {
  * <DueDateBadge dueDate={Date.now() - 86400000} />
  */
 export default function DueDateBadge({ dueDate, completed }: DueDateBadgeProps) {
-    const now = useMemo(() => Date.now(), []);
+    const now = NOW_TIMESTAMP;
+
     const isOverdue = dueDate < now && !completed;
     const isDueToday = new Date(dueDate).toDateString() === new Date(now).toDateString();
     const isTomorrow = new Date(dueDate).toDateString() === new Date(now + 24 * 60 * 60 * 1000).toDateString();

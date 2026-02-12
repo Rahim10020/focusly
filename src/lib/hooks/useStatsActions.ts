@@ -17,8 +17,6 @@ interface UseStatsActionsReturn {
 }
 
 interface UseStatsActionsProps {
-  stats: Stats;
-  sessions: PomodoroSession[];
   setStats: React.Dispatch<React.SetStateAction<Stats>>;
   setSessions: React.Dispatch<React.SetStateAction<PomodoroSession[]>>;
   loadStats: () => Promise<void>;
@@ -26,8 +24,6 @@ interface UseStatsActionsProps {
 }
 
 export function useStatsActions({
-  stats,
-  sessions,
   setStats,
   setSessions,
   loadStats,
@@ -52,7 +48,7 @@ export function useStatsActions({
         },
       }
     );
-  }, [session?.accessToken]);
+  }, [session]);
 
   const addSession = useCallback(async (newSession: PomodoroSession) => {
     const userId = getUserId();

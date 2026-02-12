@@ -8,7 +8,7 @@
  * All endpoints require authentication and are rate-limited.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -62,7 +62,7 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  * // Response: 401 Unauthorized
  * { "error": "Unauthorized" }
  */
-async function getHandler(request: NextRequest) {
+async function getHandler() {
     const session = await getServerSession(authOptions);
     if (!session?.user || !session.accessToken) {
         return Errors.unauthorized();
@@ -144,14 +144,20 @@ async function getHandler(request: NextRequest) {
  * // 400: { "error": "Friend request already exists" }
  * // 401: { "error": "Unauthorized" }
  */
-async function postHandler(request: NextRequest, context: any, validatedData: any) {
+async function postHandler(
+    request: NextRequest,
+    _context: unknown,
+    validatedData: unknown
+) {
+    void request;
+    const parsedData = CreateFriendRequestSchema.parse(validatedData);
     const session = await getServerSession(authOptions);
     if (!session?.user || !session.accessToken) {
         return Errors.unauthorized();
     }
 
     const userId = session.user.id;
-    const { receiver_id } = validatedData;
+    const { receiver_id } = parsedData;
 
     if (receiver_id === userId) {
         return Errors.badRequest('Cannot send friend request to yourself');
@@ -249,7 +255,7 @@ async function postHandler(request: NextRequest, context: any, validatedData: an
                 data: { friend_request_id: data.id },
                 read: false
             });
-    } catch (notificationError) {
+    } catch {
         // Don't fail the friend request if notification creation fails
     }
 

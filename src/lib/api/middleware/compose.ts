@@ -3,6 +3,10 @@ import { logger } from '@/lib/logger';
 import { Errors } from '../utils/response';
 import type { ApiHandler, ApiMiddleware } from './validation';
 
+interface RequestError extends Error {
+    requestId?: string;
+}
+
 /**
  * Compose multiple middlewares into a single middleware
  * Middlewares are applied from left to right (first middleware wraps the handler, then second, etc.)
@@ -33,12 +37,15 @@ export function compose(...middlewares: ApiMiddleware[]): ApiMiddleware {
  */
 export function withErrorHandling(): ApiMiddleware {
     return (handler: ApiHandler) => {
-        return async (req: NextRequest, context: any, validatedData?: any) => {
+        return async (req: NextRequest, context: unknown, validatedData?: unknown) => {
             try {
                 return await handler(req, context, validatedData);
             } catch (error) {
                 // Get request ID if available
-                const requestId = (error as any).requestId;
+                const requestId =
+                    error && typeof error === 'object' && 'requestId' in error
+                        ? (error as RequestError).requestId
+                        : undefined;
 
                 // Log the error
                 logger.error('Unhandled API Error', error as Error, {
@@ -93,7 +100,7 @@ export function withCors(options?: {
     };
 
     return (handler: ApiHandler) => {
-        return async (req: NextRequest, context: any, validatedData?: any) => {
+        return async (req: NextRequest, context: unknown, validatedData?: unknown) => {
             // Handle preflight requests
             if (req.method === 'OPTIONS') {
                 return new NextResponse(null, {
@@ -139,7 +146,7 @@ export function withCors(options?: {
  */
 export function withAuth(): ApiMiddleware {
     return (handler: ApiHandler) => {
-        return async (req: NextRequest, context: any, validatedData?: any) => {
+        return async (req: NextRequest, context: unknown, validatedData?: unknown) => {
             // TODO: Implement your authentication check here
             // This is just a placeholder example
 

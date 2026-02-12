@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 /**
  * Standard response format for successful API responses
  */
-export interface ApiSuccessResponse<T = any> {
+export interface ApiSuccessResponse<T = unknown> {
     data: T;
     pagination?: PaginationMeta;
     meta: ResponseMeta;
@@ -16,7 +16,7 @@ export interface ApiErrorResponse {
     error: {
         code: string;
         message: string;
-        details?: any[];
+        details?: unknown[];
     };
     meta: ResponseMeta;
 }
@@ -78,7 +78,7 @@ export function errorResponse(
     code: string,
     message: string,
     options?: {
-        details?: any[];
+        details?: unknown[];
         requestId?: string;
         status?: number;
         headers?: Record<string, string>;
@@ -119,7 +119,7 @@ export const ErrorCodes = {
  * Helper to create common error responses
  */
 export const Errors = {
-    validation: (details?: any[], requestId?: string) =>
+    validation: (details?: unknown[], requestId?: string) =>
         errorResponse(ErrorCodes.VALIDATION_ERROR, 'Validation failed', {
             details,
             requestId,

@@ -8,7 +8,7 @@
  */
 
 import { getServerSession } from 'next-auth/next';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { authOptions } from '@/lib/auth';
 import { supabaseServerPool } from '@/lib/supabase/server';
 import { logger } from '@/lib/logger';
@@ -66,7 +66,12 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  * // 401: { "error": "Unauthorized" }
  * // 500: { "error": "Failed to update preferences" }
  */
-async function postHandler(request: NextRequest, context: any, validatedData: any) {
+async function postHandler(
+    _request: NextRequest,
+    _context: unknown,
+    validatedData: unknown
+) {
+    const parsedData = UpdateUserPreferencesSchema.parse(validatedData);
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -96,21 +101,21 @@ async function postHandler(request: NextRequest, context: any, validatedData: an
         // Merge validated data with current preferences
         const updatedPrefs = {
             ...(currentPrefs || {}),
-            ...validatedData,
+            ...parsedData,
             user_id: session.user.id, // Use session user ID, not request body
             updated_at: new Date().toISOString()
         };
 
-        const { error: upsertError } = await (supabaseAdmin
-            .from('user_preferences') as any)
+        const { error: upsertError } = await supabaseAdmin
+            .from('user_preferences')
             .upsert(updatedPrefs, { onConflict: 'user_id' });
 
         if (upsertError) {
             logger.error('Error upserting user preferences', upsertError as Error, {
                 action: 'postHandler - upsert',
                 userId: session.user.id,
-                errorCode: (upsertError as any)?.code,
-                errorMessage: (upsertError as any)?.message,
+                errorCode: upsertError.code,
+                errorMessage: upsertError.message,
                 data: JSON.stringify(updatedPrefs)
             });
             throw new Error(`Failed to update preferences: ${upsertError.message}`);
@@ -122,10 +127,11 @@ async function postHandler(request: NextRequest, context: any, validatedData: an
 
         return successResponse({ success: true });
     } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         logger.error('Error in preferences handler', error as Error, {
             action: 'postHandler',
             userId: session?.user?.id,
-            errorMessage: (error as any)?.message
+            errorMessage
         });
         throw error;
     }

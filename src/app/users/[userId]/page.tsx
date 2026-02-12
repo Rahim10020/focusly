@@ -7,9 +7,10 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
+import Image from 'next/image';
 import Header from '@/components/layout/Header';
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -56,21 +57,9 @@ export default function UserProfilePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [sendingRequest, setSendingRequest] = useState(false);
-    const [isFriend, setIsFriend] = useState(false);
     const [hasPendingRequest, setHasPendingRequest] = useState(false);
 
-    useEffect(() => {
-        if (status === 'loading') return;
-
-        if (!session) {
-            router.push('/auth/signin');
-            return;
-        }
-
-        fetchUserStats();
-    }, [session, status, router, userId]);
-
-    const fetchUserStats = async () => {
+    const fetchUserStats = useCallback(async () => {
         try {
             const response = await fetch(`/api/users/${userId}`);
             if (!response.ok) {
@@ -81,14 +70,26 @@ export default function UserProfilePage() {
                 }
                 return;
             }
-            const data = await response.json();
-            setUserStats(data);
+
+            const payload = await response.json() as { data?: UserStats };
+            setUserStats(payload.data ?? null);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setLoading(false);
         }
-    };
+    }, [userId]);
+
+    useEffect(() => {
+        if (status === 'loading') return;
+
+        if (!session) {
+            router.push('/auth/signin');
+            return;
+        }
+
+        fetchUserStats();
+    }, [session, status, router, fetchUserStats]);
 
     const handleSendFriendRequest = async () => {
         if (!userStats) return;
@@ -104,8 +105,8 @@ export default function UserProfilePage() {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to send friend request');
+                const errorData = await response.json() as { error?: { message?: string } };
+                throw new Error(errorData.error?.message || 'Failed to send friend request');
             }
 
             setHasPendingRequest(true);
@@ -174,9 +175,11 @@ export default function UserProfilePage() {
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                             {userStats.avatar_url ? (
-                                <img
+                                <Image
                                     src={userStats.avatar_url}
                                     alt={userStats.username || 'User'}
+                                    width={64}
+                                    height={64}
                                     className="w-16 h-16 rounded-full"
                                 />
                             ) : (
@@ -193,7 +196,7 @@ export default function UserProfilePage() {
                                 <div className="mt-2">
                                     {hasPendingRequest ? (
                                         <Button disabled>Friend Request Sent</Button>
-                                    ) : isFriend ? (
+                                    ) : userStats.isFriend ? (
                                         <Button disabled>Friends</Button>
                                     ) : (
                                         <Button

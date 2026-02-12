@@ -1,5 +1,4 @@
-import { formatTime } from './time';
-import { startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
+import { startOfWeek, endOfWeek } from 'date-fns';
 
 export interface Insight {
     type: 'positive' | 'warning' | 'info' | 'achievement';

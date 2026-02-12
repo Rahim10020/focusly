@@ -3,6 +3,14 @@
  * Auto-generated types for all database tables.
  */
 
+export type Json =
+    | string
+    | number
+    | boolean
+    | null
+    | { [key: string]: Json | undefined }
+    | Json[];
+
 export interface Database {
     public: {
         Tables: {
@@ -295,7 +303,7 @@ export interface Database {
                     type: 'friend_request' | 'friend_request_accepted' | 'task_completed' | 'task_overdue' | 'achievement' | 'info';
                     title: string;
                     message: string;
-                    data: any | null;
+                    data: Json | null;
                     read: boolean;
                     created_at: string;
                     updated_at: string;
@@ -306,7 +314,7 @@ export interface Database {
                     type: 'friend_request' | 'friend_request_accepted' | 'task_completed' | 'task_overdue' | 'achievement' | 'info';
                     title: string;
                     message: string;
-                    data?: any | null;
+                    data?: Json | null;
                     read?: boolean;
                     created_at?: string;
                     updated_at?: string;
@@ -317,7 +325,7 @@ export interface Database {
                     type?: 'friend_request' | 'friend_request_accepted' | 'task_completed' | 'task_overdue' | 'achievement' | 'info';
                     title?: string;
                     message?: string;
-                    data?: any | null;
+                    data?: Json | null;
                     read?: boolean;
                     created_at?: string;
                     updated_at?: string;
@@ -328,7 +336,7 @@ export interface Database {
                 Row: {
                     id: string;
                     cache_key: string;
-                    data: any;
+                    data: Json;
                     expires_at: string;
                     created_at: string;
                     updated_at: string;
@@ -336,7 +344,7 @@ export interface Database {
                 Insert: {
                     id?: string;
                     cache_key: string;
-                    data: any;
+                    data: Json;
                     expires_at: string;
                     created_at?: string;
                     updated_at?: string;
@@ -344,8 +352,32 @@ export interface Database {
                 Update: {
                     id?: string;
                     cache_key?: string;
-                    data?: any;
+                    data?: Json;
                     expires_at?: string;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Relationships: [];
+            };
+            rate_limits: {
+                Row: {
+                    identifier: string;
+                    count: number;
+                    reset_time: string;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    identifier: string;
+                    count?: number;
+                    reset_time: string;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    identifier?: string;
+                    count?: number;
+                    reset_time?: string;
                     created_at?: string;
                     updated_at?: string;
                 };

@@ -1,9 +1,13 @@
-// @ts-ignore
+// @ts-expect-error Deno runtime URL import
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-// @ts-ignore
+// @ts-expect-error Deno runtime URL import
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-declare const Deno: any;
+declare const Deno: {
+    env: {
+        get: (key: string) => string | undefined;
+    };
+};
 
 /**
  * Supabase Edge Function to check and reset user streaks daily
@@ -11,7 +15,7 @@ declare const Deno: any;
  * Schedule: 0 0 * * * (midnight every day)
  */
 
-serve(async (req: Request) => {
+serve(async () => {
     try {
         const supabase = createClient(
             Deno.env.get('SUPABASE_URL') ?? '',

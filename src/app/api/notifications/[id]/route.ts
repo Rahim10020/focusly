@@ -7,7 +7,7 @@
  * Route: /api/notifications/[id]
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -52,18 +52,20 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  * // 404: { "error": "Notification not found" }
  */
 async function putHandler(
-    request: NextRequest,
-    context: { params: Promise<{ id: string }> },
-    validatedData: any
+    _request: NextRequest,
+    context: unknown,
+    validatedData: unknown
 ) {
+    const parsedData = UpdateNotificationSchema.parse(validatedData);
     const session = await getServerSession(authOptions);
     if (!session?.user || !session.accessToken) {
         return Errors.unauthorized();
     }
 
     const userId = session.user.id;
-    const { id: notificationId } = await context.params;
-    const { read } = validatedData;
+    const routeContext = context as { params: Promise<{ id: string }> };
+    const { id: notificationId } = await routeContext.params;
+    const { read } = parsedData;
 
     // Create supabase client with user's access token for RLS
     const supabaseWithAuth = createClient(
@@ -128,8 +130,8 @@ async function putHandler(
  * // 404: { "error": "Notification not found" }
  */
 async function deleteHandler(
-    request: NextRequest,
-    context: { params: Promise<{ id: string }> }
+    _request: NextRequest,
+    context: unknown
 ) {
     const session = await getServerSession(authOptions);
     if (!session?.user || !session.accessToken) {
@@ -137,7 +139,8 @@ async function deleteHandler(
     }
 
     const userId = session.user.id;
-    const { id: notificationId } = await context.params;
+    const routeContext = context as { params: Promise<{ id: string }> };
+    const { id: notificationId } = await routeContext.params;
 
     // Create supabase client with user's access token for RLS
     const supabaseWithAuth = createClient(

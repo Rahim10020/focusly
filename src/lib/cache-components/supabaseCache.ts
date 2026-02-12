@@ -5,11 +5,12 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/supabase/database.types';
+import type { Json } from '@/lib/supabase/database.types';
 import { supabaseServerPool } from '@/lib/supabase/server';
 
 interface CacheRow {
     cache_key: string;
-    data: unknown;
+    data: Json;
     expires_at: string;
 }
 
@@ -36,13 +37,13 @@ export class SupabaseCache {
 
         if (error || !data) return null;
 
-        return (data as { data: T }).data;
+        return (data as unknown as { data: T }).data;
     }
 
     /**
      * Set cached data with TTL.
      */
-    static async set(key: string, value: unknown, ttl: number): Promise<void> {
+    static async set(key: string, value: Json, ttl: number): Promise<void> {
         const supabase = getAdminClient();
         const expiresAt = new Date(Date.now() + ttl).toISOString();
 

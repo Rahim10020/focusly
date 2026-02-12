@@ -8,6 +8,7 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@supabase/supabase-js';
+import type { JWT } from 'next-auth/jwt';
 import { logger } from '@/lib/logger';
 
 /**
@@ -80,7 +81,7 @@ export const authOptions: NextAuthOptions = {
         strategy: 'jwt',
     },
     callbacks: {
-        async jwt({ token, user, trigger }) {
+        async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
                 token.accessToken = user.accessToken;
@@ -190,4 +191,4 @@ export const authOptions: NextAuthOptions = {
 };
 
 // Ajouter un simple flag de refresh en mémoire
-const refreshingTokens = new Map<string, Promise<any>>();
+const refreshingTokens = new Map<string, Promise<JWT>>();

@@ -401,7 +401,6 @@ export const exportLargeTasksToPDF = async (
         const chunk = tasks.slice(i, i + chunkSize);
         const tableData = chunk.map(taskToCompactTableRow);
 
-        // eslint-disable-next-line no-await-in-loop
         await new Promise<void>(resolve => {
             autoTable(doc, {
                 startY,

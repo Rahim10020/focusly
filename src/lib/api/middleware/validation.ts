@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Errors } from '../utils/response';
 
-export type ApiHandler<T = any> = (
+export type ApiHandler<T = unknown, C = unknown> = (
     req: NextRequest,
-    context: any,
+    context: C,
     validatedData?: T
 ) => Promise<NextResponse>;
 
@@ -17,7 +17,7 @@ export function withValidation<T extends z.ZodSchema>(
     schema: T
 ): ApiMiddleware {
     return (handler: ApiHandler) => {
-        return async (req: NextRequest, context: any) => {
+        return async (req: NextRequest, context: unknown) => {
             try {
                 // Parse request body
                 const body = await req.json();
@@ -58,13 +58,13 @@ export function withQueryValidation<T extends z.ZodSchema>(
     schema: T
 ): ApiMiddleware {
     return (handler: ApiHandler) => {
-        return async (req: NextRequest, context: any) => {
+        return async (req: NextRequest, context: unknown) => {
             try {
                 // Get search params
                 const { searchParams } = new URL(req.url);
 
                 // Convert to object
-                const queryObject: Record<string, any> = {};
+                const queryObject: Record<string, string> = {};
                 searchParams.forEach((value, key) => {
                     queryObject[key] = value;
                 });
@@ -101,7 +101,7 @@ export function withBodyAndQueryValidation<
     TQuery extends z.ZodSchema
 >(bodySchema: TBody, querySchema: TQuery): ApiMiddleware {
     return (handler: ApiHandler) => {
-        return async (req: NextRequest, context: any) => {
+        return async (req: NextRequest, context: unknown) => {
             try {
                 // Parse and validate body
                 const body = await req.json();
@@ -109,7 +109,7 @@ export function withBodyAndQueryValidation<
 
                 // Parse and validate query
                 const { searchParams } = new URL(req.url);
-                const queryObject: Record<string, any> = {};
+                const queryObject: Record<string, string> = {};
                 searchParams.forEach((value, key) => {
                     queryObject[key] = value;
                 });

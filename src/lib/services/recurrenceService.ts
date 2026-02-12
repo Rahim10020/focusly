@@ -14,9 +14,13 @@ export class RecurrenceService {
     static generateNextOccurrence(task: Task): Omit<Task, 'id'> | null {
         if (!task.isRecurring) return null;
 
-        const nextTask = { ...task };
-        delete (nextTask as any).id; // Nouvelle instance sans ID
-        (nextTask as any).parentRecurringTaskId = task.id;
+        const taskWithoutId = Object.fromEntries(
+            Object.entries(task).filter(([key]) => key !== 'id')
+        ) as Omit<Task, 'id'>;
+        const nextTask: Omit<Task, 'id'> = {
+            ...taskWithoutId,
+            parentRecurringTaskId: task.id,
+        };
         nextTask.completed = false;
         nextTask.completedAt = undefined;
         nextTask.status = 'todo';

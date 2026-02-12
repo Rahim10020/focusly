@@ -63,6 +63,10 @@ let toastIdCounter = 0;
 export function useToast() {
     const [toasts, setToasts] = useState<ToastProps[]>([]);
 
+    const removeToast = useCallback((id: string) => {
+        setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, []);
+
     const addToast = useCallback((options: ToastOptions) => {
         const id = `toast-${++toastIdCounter}`;
         const newToast: ToastProps = {
@@ -76,11 +80,7 @@ export function useToast() {
 
         setToasts((prev) => [...prev, newToast]);
         return id;
-    }, []);
-
-    const removeToast = useCallback((id: string) => {
-        setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, []);
+    }, [removeToast]);
 
     const success = useCallback(
         (title: string, description?: string, duration?: number) => {

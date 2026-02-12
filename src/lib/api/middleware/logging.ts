@@ -1,6 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
 import type { ApiHandler, ApiMiddleware } from './validation';
+
+interface RequestError extends Error {
+    requestId?: string;
+}
 
 /**
  * Generate a unique request ID
@@ -32,7 +36,7 @@ function getRequestMetadata(req: NextRequest) {
  */
 export function withLogging(): ApiMiddleware {
     return (handler: ApiHandler) => {
-        return async (req: NextRequest, context: any, validatedData?: any) => {
+        return async (req: NextRequest, context: unknown, validatedData?: unknown) => {
             const requestId = generateRequestId();
             const startTime = Date.now();
             const metadata = getRequestMetadata(req);
@@ -86,7 +90,7 @@ export function withLogging(): ApiMiddleware {
  */
 export function withRequestId(): ApiMiddleware {
     return (handler: ApiHandler) => {
-        return async (req: NextRequest, context: any, validatedData?: any) => {
+        return async (req: NextRequest, context: unknown, validatedData?: unknown) => {
             const requestId = generateRequestId();
 
             try {
@@ -96,7 +100,7 @@ export function withRequestId(): ApiMiddleware {
             } catch (error) {
                 // Add request ID to error context
                 if (error instanceof Error) {
-                    (error as any).requestId = requestId;
+                    (error as RequestError).requestId = requestId;
                 }
                 throw error;
             }
@@ -111,7 +115,7 @@ export function withPerformanceLogging(
     thresholdMs: number = 1000
 ): ApiMiddleware {
     return (handler: ApiHandler) => {
-        return async (req: NextRequest, context: any, validatedData?: any) => {
+        return async (req: NextRequest, context: unknown, validatedData?: unknown) => {
             const startTime = Date.now();
             const metadata = getRequestMetadata(req);
 

@@ -7,8 +7,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import ThemeToggle from '../ui/ThemeToggle';
 import UserMenu from '../ui/UserMenu';
 import { useNotificationsContext } from '@/components/providers/NotificationsProvider';
@@ -37,7 +37,6 @@ import { useNotificationsContext } from '@/components/providers/NotificationsPro
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const pathname = usePathname();
-    const { data: session } = useSession();
     const { unreadCount } = useNotificationsContext();
 
     return (
@@ -45,9 +44,11 @@ export default function Header() {
             <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-3 group transition-all">
                     <div className="relative">
-                        <img
+                        <Image
                             src="/apple-touch-icon.png"
                             alt="Focusly Logo"
+                            width={36}
+                            height={36}
                             className="w-9 h-9 rounded-full ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all"
                         />
                     </div>

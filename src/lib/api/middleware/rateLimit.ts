@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { rateLimit } from '@/lib/rateLimit';
 import { Errors } from '../utils/response';
 import type { ApiHandler, ApiMiddleware } from './validation';
@@ -53,7 +53,7 @@ export function withRateLimit(
     tier: RateLimitTier = 'standard'
 ): ApiMiddleware {
     return (handler: ApiHandler) => {
-        return async (req: NextRequest, context: any, validatedData?: any) => {
+        return async (req: NextRequest, context: unknown, validatedData?: unknown) => {
             const identifier = getClientIdentifier(req);
             const options = RateLimitTiers[tier];
 
@@ -113,7 +113,7 @@ export function withCustomRateLimit(options: {
     maxRequests: number;
 }): ApiMiddleware {
     return (handler: ApiHandler) => {
-        return async (req: NextRequest, context: any, validatedData?: any) => {
+        return async (req: NextRequest, context: unknown, validatedData?: unknown) => {
             const identifier = getClientIdentifier(req);
 
             const result = await rateLimit(identifier, options);

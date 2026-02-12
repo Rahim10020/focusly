@@ -78,8 +78,11 @@ function VerifyEmailContent() {
                         throw new Error('Verification failed');
                     }
                 }
-            } catch (error: any) {
-                setMessage(error?.message || 'Error verifying email. The link may have expired or is invalid.');
+            } catch (error: unknown) {
+                const errorMessage = error instanceof Error
+                    ? error.message
+                    : 'Error verifying email. The link may have expired or is invalid.';
+                setMessage(errorMessage);
                 console.error('Verification error:', error);
             } finally {
                 setIsLoading(false);
@@ -108,7 +111,7 @@ function VerifyEmailContent() {
 
             if (error) throw error;
             setMessage('A new verification email has been sent!');
-        } catch (error) {
+        } catch {
             setMessage('Error sending email. Please try again.');
         } finally {
             setIsLoading(false);

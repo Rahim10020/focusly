@@ -16,7 +16,7 @@
  * const debouncedSave = debounce(saveToServer, 1000);
  * debouncedSave(data); // Will execute after 1 second of inactivity
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: never[]) => unknown>(
     func: T,
     wait: number,
     options: { leading?: boolean; trailing?: boolean } = {}
@@ -26,7 +26,7 @@ export function debounce<T extends (...args: any[]) => any>(
     let lastCallTime: number | null = null;
     let lastInvokeTime = 0;
 
-    function debounced(this: any, ...args: Parameters<T>): void {
+    function debounced(this: ThisParameterType<T>, ...args: Parameters<T>): void {
         const time = Date.now();
         const isInvoking = shouldInvoke(time);
 
@@ -34,11 +34,11 @@ export function debounce<T extends (...args: any[]) => any>(
 
         if (isInvoking) {
             if (timeout === null) {
-                return leadingEdge(time, args);
+                return leadingEdge(time, args, this);
             }
         }
         if (timeout === null && trailing) {
-            timeout = setTimeout(() => trailingEdge(time, args), wait);
+            timeout = setTimeout(() => trailingEdge(args, this), wait);
         }
     }
 
@@ -54,24 +54,24 @@ export function debounce<T extends (...args: any[]) => any>(
         );
     }
 
-    function leadingEdge(time: number, args: Parameters<T>): void {
+    function leadingEdge(time: number, args: Parameters<T>, thisArg: ThisParameterType<T>): void {
         lastInvokeTime = time;
         if (leading) {
-            invokeFunc(args);
+            invokeFunc(thisArg, args);
         }
-        timeout = setTimeout(() => trailingEdge(time, args), wait);
+        timeout = setTimeout(() => trailingEdge(args, thisArg), wait);
     }
 
-    function trailingEdge(time: number, args: Parameters<T>): void {
+    function trailingEdge(args: Parameters<T>, thisArg: ThisParameterType<T>): void {
         timeout = null;
         if (trailing && lastCallTime !== null) {
-            invokeFunc(args);
+            invokeFunc(thisArg, args);
         }
         lastCallTime = null;
     }
 
-    function invokeFunc(this: any, args: Parameters<T>): void {
-        func.apply(this, args);
+    function invokeFunc(thisArg: ThisParameterType<T>, args: Parameters<T>): void {
+        func.apply(thisArg, args);
     }
 
     function cancel(): void {

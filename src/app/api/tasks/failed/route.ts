@@ -4,7 +4,6 @@
  * and it's not completed.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { supabaseServerPool } from '@/lib/supabase/server';
@@ -37,7 +36,7 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  *   }
  * ]
  */
-async function getHandler(request: NextRequest) {
+async function getHandler() {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
         return Errors.unauthorized();

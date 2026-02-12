@@ -5,7 +5,6 @@
 'use client';
 
 import { useEffect, ReactNode } from 'react';
-import Button from './Button';
 
 /**
  * Props for the Modal component.

@@ -7,7 +7,6 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import Settings from '@/components/settings/Settings';
 import { useSettings } from '@/lib/hooks/useSettings';
@@ -20,23 +19,8 @@ import { useSound } from '@/lib/hooks/useSound';
  * @returns {JSX.Element} The rendered settings page
  */
 export default function SettingsPage() {
-    const [isClient, setIsClient] = useState(() => typeof window !== 'undefined');
     const { settings, updateSettings, resetSettings } = useSettings();
     const { soundEnabled, toggleSound } = useSound();
-
-    useEffect(() => {
-        if (!isClient) {
-            setIsClient(true);
-        }
-    }, [isClient]);
-
-    if (!isClient) {
-        return (
-            <div className="min-h-screen bg-background">
-                <Header />
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-background">

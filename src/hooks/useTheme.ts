@@ -61,43 +61,19 @@ export function useTheme() {
             return 'light';
         }
     });
-    const [mounted, setMounted] = useState(false);
     const { data: session } = useSession();
+    const preferredTheme = session?.user?.themePreference as Theme | undefined;
+    const effectiveTheme = preferredTheme || theme;
 
-    // Retrieve theme from localStorage
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Keep DOM and localStorage in sync with the effective theme.
     useEffect(() => {
-        setMounted(true);
-
-        const savedTheme = localStorage.getItem('focusly_theme') as Theme | null;
-        // compute initial theme without referencing React state to avoid hook dependency issues
-        const initialTheme = savedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-
-        setTheme(initialTheme);
-        applyThemeToDocument(initialTheme);
-
-        // Listen for system theme changes (but don't apply them automatically)
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = () => {
-            // Intentionally left blank to avoid automatic changes
-        };
-
-        mediaQuery.addEventListener('change', handleChange);
-        return () => mediaQuery.removeEventListener('change', handleChange);
-    }, []);
-
-    // Synchronize with the logged-in user's theme
-    useEffect(() => {
-        if (session?.user?.themePreference) {
-            const newTheme = session.user.themePreference as Theme;
-            setTheme(newTheme);
-            applyThemeToDocument(newTheme);
-            localStorage.setItem('focusly_theme', newTheme);
-        }
-    }, [session]);
+        applyThemeToDocument(effectiveTheme);
+        localStorage.setItem('focusly_theme', effectiveTheme);
+    }, [effectiveTheme]);
 
     const toggleTheme = async () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
+        const currentTheme = effectiveTheme;
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
         applyThemeToDocument(newTheme);
 
@@ -120,5 +96,5 @@ export function useTheme() {
         }
     };
 
-    return { theme, toggleTheme, mounted };
+    return { theme: effectiveTheme, toggleTheme, mounted: true };
 }

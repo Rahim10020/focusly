@@ -23,8 +23,6 @@ export function useStats() {
     } = useStatsStorage();
 
     const { addSession, updateTaskStats, refreshStats } = useStatsActions({
-        stats,
-        sessions,
         setStats,
         setSessions,
         loadStats,

@@ -45,17 +45,22 @@ export interface RetryOptions {
  * @param error - The error to check
  * @returns true if the error should not be retried
  */
-function isNonRetryableError(error: any): boolean {
+function isNonRetryableError(error: unknown): boolean {
     if (!error) return false;
 
+    const normalizedError =
+        typeof error === 'object' && error !== null
+            ? error as { code?: string | number; status?: string | number; statusCode?: string | number; message?: string }
+            : {};
+
     // Check error code
-    const code = error.code || error.status || error.statusCode;
+    const code = normalizedError.code || normalizedError.status || normalizedError.statusCode;
     if (code && NON_RETRYABLE_ERROR_CODES.some(c => String(code).startsWith(c))) {
         return true;
     }
 
     // Check error message for specific patterns
-    const message = error.message || String(error);
+    const message = normalizedError.message || String(error);
     if (
         message.includes('validation') ||
         message.includes('invalid') ||
@@ -212,7 +217,7 @@ export async function retryWithBackoff<T>(
  * const user1 = await fetchUserData('user-1');
  * const user2 = await fetchUserData('user-2');
  */
-export function withRetry<T extends any[], R>(
+export function withRetry<T extends unknown[], R>(
     fn: (...args: T) => Promise<R>,
     options: RetryOptions = {}
 ): (...args: T) => Promise<R> {

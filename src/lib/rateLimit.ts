@@ -18,6 +18,11 @@ interface RateLimitOptions {
     maxRequests: number;
 }
 
+type RateLimitedHandler<TArgs extends unknown[] = unknown[]> = (
+    request: Request,
+    ...args: TArgs
+) => Promise<Response> | Response;
+
 /**
  * Checks and updates rate limit for a given identifier.
  * Uses Supabase to track request counts with automatic window expiration.
@@ -67,7 +72,9 @@ export async function rateLimit(
 
             // Increment counter
             const newCount = existingEntry.count + 1;
-            const { error: updateError } = await (supabaseServerPool.getAdminClient().from('rate_limits') as any)
+            const { error: updateError } = await supabaseServerPool
+                .getAdminClient()
+                .from('rate_limits')
                 .update({ count: newCount })
                 .eq('identifier', identifier);
 
@@ -86,7 +93,9 @@ export async function rateLimit(
             };
         } else {
             // First request or window expired
-            const { error: upsertError } = await (supabaseServerPool.getAdminClient().from('rate_limits') as any)
+            const { error: upsertError } = await supabaseServerPool
+                .getAdminClient()
+                .from('rate_limits')
                 .upsert({
                     identifier,
                     count: 1,
@@ -130,10 +139,10 @@ export async function rateLimit(
  * }, { windowMs: 60000, maxRequests: 30 });
  */
 export function withRateLimit(
-    handler: Function,
+    handler: RateLimitedHandler,
     options: RateLimitOptions = { windowMs: 15 * 60 * 1000, maxRequests: 100 }
 ) {
-    return async (request: Request, ...args: any[]) => {
+    return async (request: Request, ...args: unknown[]) => {
         // Get client IP (in production, use proper IP extraction)
         const ip = request.headers.get('x-forwarded-for') ||
             request.headers.get('x-real-ip') ||

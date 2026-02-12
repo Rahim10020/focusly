@@ -9,6 +9,7 @@ import { CacheOptions, CacheStats } from './cache-components/cacheTypes';
 import { MemoryCache } from './cache-components/memoryCache';
 import { SupabaseCache } from '@/lib/cache-components/supabaseCache';
 import { logger } from './logger';
+import type { Json } from '@/lib/supabase/database.types';
 
 /**
  * Multi-level cache utility class with L1 (memory) and L2 (Supabase) layers.
@@ -89,7 +90,7 @@ export class Cache {
     /**
      * Sets data in cache (L1 and optionally L2).
      */
-    private static async set(key: string, value: unknown, ttl: number, memoryOnly = false): Promise<void> {
+    private static async set(key: string, value: Json, ttl: number, memoryOnly = false): Promise<void> {
         const sanitizedKey = this.sanitizeCacheKey(key);
 
         // Always set in L1 (memory) cache
@@ -143,7 +144,7 @@ export class Cache {
             }
 
             const data = await fetcher();
-            await this.set(key, data, options.ttl || 300000, options.memoryOnly);
+            await this.set(key, data as Json, options.ttl || 300000, options.memoryOnly);
             return data;
         } catch (error) {
             this.failureCount++;

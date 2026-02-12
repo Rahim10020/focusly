@@ -9,7 +9,7 @@
  * All endpoints require authentication and are rate-limited.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -61,7 +61,7 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  * // Response: 401 Unauthorized
  * { "error": "Unauthorized" }
  */
-async function getHandler(request: NextRequest) {
+async function getHandler() {
     const session = await getServerSession(authOptions);
     if (!session?.user || !session.accessToken) {
         return Errors.unauthorized();

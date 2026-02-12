@@ -42,12 +42,14 @@ interface DomainStatsProps {
  * ```
  */
 export default function DomainStats({ tasks }: DomainStatsProps) {
+    type DomainStatMap = Record<Domain, {
+        total: number;
+        completed: number;
+        subDomains: Record<SubDomain, { total: number; completed: number }>;
+    }>;
+
     const domainStats = useMemo(() => {
-        const stats: Record<Domain, {
-            total: number;
-            completed: number;
-            subDomains: Record<SubDomain, { total: number; completed: number }>;
-        }> = {} as any;
+        const stats = {} as DomainStatMap;
 
         // Initialize stats
         Object.keys(DOMAINS).forEach(domain => {

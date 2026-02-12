@@ -7,8 +7,7 @@
  * Route: /api/leaderboard
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { NextRequest } from 'next/server';
 import { supabaseServerPool } from '@/lib/supabase/server';
 import { Database } from '@/lib/supabase/database.types';
 import { compose, withRateLimit, withLogging, withErrorHandling, withQueryValidation } from '@/lib/api/middleware';
@@ -43,8 +42,13 @@ import { logger } from '@/lib/logger';
  * @property {number} pagination.totalPages - Total number of pages
  */
 
-async function getHandler(request: NextRequest, context: any, validatedData: any) {
-    const { page, limit, timeframe } = validatedData;
+async function getHandler(
+    _request: NextRequest,
+    _context: unknown,
+    validatedData: unknown
+) {
+    const parsedData = LeaderboardQuerySchema.parse(validatedData);
+    const { page, limit, timeframe } = parsedData;
 
     // S'assurer que page * limit ne dépasse pas un seuil
     if (page * limit > 10000) {
@@ -59,19 +63,7 @@ async function getHandler(request: NextRequest, context: any, validatedData: any
         // Use pooled server admin client for better performance
         const supabaseAdmin = supabaseServerPool.getAdminClient();
 
-        // Calculate date threshold for time filtering
-        let dateThreshold: string | null = null;
-        if (timeframe === 'weekly') {
-            const weekStart = new Date();
-            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-            weekStart.setHours(0, 0, 0, 0);
-            dateThreshold = weekStart.toISOString();
-        } else if (timeframe === 'monthly') {
-            const monthStart = new Date();
-            monthStart.setDate(1);
-            monthStart.setHours(0, 0, 0, 0);
-            dateThreshold = monthStart.toISOString();
-        }
+        void timeframe;
 
         // 1. Get total count
         const { count: totalCount, error: countError } = await supabaseAdmin
@@ -155,8 +147,8 @@ async function getHandler(request: NextRequest, context: any, validatedData: any
             const profilesToInsert = profilesToCreate.filter((p: { id: string }) => !existingIds.has(p.id));
 
             if (profilesToInsert.length > 0) {
-                const { error: createError } = await (supabaseAdmin
-                    .from('profiles') as any)
+                const { error: createError } = await supabaseAdmin
+                    .from('profiles')
                     .insert(profilesToInsert);
 
                 if (createError) {

@@ -3,6 +3,7 @@
  * Provides complete timer functionality including work sessions, breaks,
  * automatic session transitions, and cycle tracking for the Pomodoro technique.
  */
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { TimerStatus, PomodoroSession } from '@/types';
@@ -41,6 +42,7 @@ interface PersistedTimerState {
 }
 
 const STORAGE_KEY = 'focusly_pomodoro_state';
+const STATE_RESTORE_TIME = Date.now();
 
 /**
  * Hook for managing Pomodoro timer state and controls.
@@ -84,7 +86,7 @@ export function usePomodoro(options: UsePomodoroOptions) {
             const state: PersistedTimerState = JSON.parse(stored);
 
             // Check if state is stale (older than 24 hours)
-            const age = Date.now() - state.savedAt;
+            const age = STATE_RESTORE_TIME - state.savedAt;
             if (age > 24 * 60 * 60 * 1000) {
                 logger.info('Pomodoro state is stale, clearing', { age });
                 localStorage.removeItem(STORAGE_KEY);
@@ -109,7 +111,6 @@ export function usePomodoro(options: UsePomodoroOptions) {
         }
     };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const persistedState = useMemo(() => loadPersistedState(), []);
 
     const [timeLeft, setTimeLeft] = useState(persistedState?.timeLeft ?? settings.workDuration);
@@ -160,7 +161,7 @@ export function usePomodoro(options: UsePomodoroOptions) {
                 setTimeLeft(0);
             }
         }
-    }, []); // Run only on mount
+    }, [persistedState]);
 
     const handleSessionComplete = useCallback(() => {
         const completed = timeLeft === 0;

@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Header from '@/components/layout/Header';
@@ -31,8 +31,7 @@ import AchievementNotification from '@/components/achievements/AchievementNotifi
  */
 export default function TasksPage() {
     const router = useRouter();
-    const { data: session, status } = useSession();
-    const taskInputRef = useRef<HTMLInputElement>(null);
+    const { status } = useSession();
 
     const {
         tasks,
@@ -56,7 +55,6 @@ export default function TasksPage() {
         newlyUnlocked,
         clearNewlyUnlocked,
         checkAchievements,
-        checkTimeBasedAchievements,
     } = useAchievements();
 
     // Mise à jour des stats de tâches

@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useEffect, memo } from 'react';
+import { useState, memo } from 'react';
 import { Task, Tag } from '@/types';
 import { isToday, isTomorrow } from '@/lib/utils/time';
 import Button from '@/components/ui/Button';
@@ -76,7 +76,6 @@ function TaskList({
     tasks,
     activeTaskId,
     tags,
-    sortType,
     sortTasks,
     onToggle,
     onDelete,
@@ -163,13 +162,6 @@ function TaskList({
         { id: 'tomorrow' as TabType, label: 'Tomorrow', count: tomorrowTasks.length },
         { id: 'others' as TabType, label: 'Others', count: otherTasks.length },
         { id: 'completed' as TabType, label: 'Completed', count: completedTasks.length },
-    ];
-
-    const sortOptions = [
-        { value: 'default' as SortType, label: 'Due Date & Priority', icon: '📅' },
-        { value: 'alphabetical' as SortType, label: 'Alphabetical', icon: '🔤' },
-        { value: 'createdAt' as SortType, label: 'Date Added', icon: '🕒' },
-        { value: 'priority' as SortType, label: 'Priority', icon: '⚡' },
     ];
 
     return (

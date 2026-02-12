@@ -27,7 +27,7 @@ export default function CreateTaskPage() {
     const { data: session, status } = useSession();
     const { addTask } = useTasks();
     const { tags } = useTags();
-    const [isModalOpen, setIsModalOpen] = useState(true);
+    const [isModalOpen] = useState(true);
 
     useEffect(() => {
         if (status === 'unauthenticated') {
