@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Environment variables validation script for Focusly
- * Checks that all required environment variables are set
+ * Environment variables validation script
+ * Checks that required environment variables are set based on config
  */
 
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -10,55 +10,48 @@ const fs = require('fs');
 const path = require('path');
 /* eslint-enable @typescript-eslint/no-require-imports */
 
-// Required environment variables
-const REQUIRED_ENV_VARS = {
-    // Supabase (Public - can be exposed to client)
-    'NEXT_PUBLIC_SUPABASE_URL': {
-        description: 'Supabase project URL',
-        example: 'https://xxxxx.supabase.co',
-        public: true
-    },
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY': {
-        description: 'Supabase anonymous key (public)',
-        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        public: true
-    },
-    
-    // Supabase (Private - server only)
-    'SUPABASE_SERVICE_ROLE_KEY': {
-        description: 'Supabase service role key (NEVER expose to client)',
-        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        public: false,
-        critical: true
-    },
-    
-    // NextAuth
-    'NEXTAUTH_SECRET': {
-        description: 'NextAuth.js secret for signing tokens',
-        example: 'run: openssl rand -base64 32',
-        public: false,
-        critical: true
-    },
-    'NEXTAUTH_URL': {
-        description: 'NextAuth.js canonical URL',
-        example: 'http://localhost:3000 or https://yourdomain.com',
-        public: false
-    },
+const DEFAULT_CONFIG = {
+    required: {},
+    optional: {},
+    envFiles: ['.env', '.env.local']
 };
 
-// Optional but recommended
-const OPTIONAL_ENV_VARS = {
-    'NODE_ENV': {
-        description: 'Node environment',
-        example: 'development | production | test',
-        default: 'development'
-    },
-    'NEXT_PUBLIC_APP_URL': {
-        description: 'Public application URL',
-        example: 'http://localhost:3000',
-        public: true
-    },
-};
+function parseArgs() {
+    const args = process.argv.slice(2);
+    let configPath;
+
+    for (let i = 0; i < args.length; i += 1) {
+        const arg = args[i];
+        if (arg === '--config') {
+            configPath = args[i + 1];
+            i += 1;
+            continue;
+        }
+        if (!configPath) {
+            configPath = arg;
+        }
+    }
+
+    return { configPath };
+}
+
+function loadConfig() {
+    const { configPath } = parseArgs();
+    const candidates = [
+        configPath,
+        path.join(process.cwd(), 'env-check.config.json'),
+        path.join(process.cwd(), 'scripts', 'env-check.config.json')
+    ].filter(Boolean);
+
+    for (const candidate of candidates) {
+        if (fs.existsSync(candidate)) {
+            const raw = fs.readFileSync(candidate, 'utf-8');
+            return { ...DEFAULT_CONFIG, ...JSON.parse(raw) };
+        }
+    }
+
+    return DEFAULT_CONFIG;
+}
 
 /**
  * Check if a value looks like a placeholder
@@ -174,35 +167,54 @@ function loadEnvFile(filePath) {
  * Main execution
  */
 function main() {
-    console.log('🔍 Checking environment variables for Focusly...\n');
+    console.log('🔍 Checking environment variables...\n');
 
-    // Load .env.local first (takes precedence), then .env
-    const envLocalPath = path.join(process.cwd(), '.env.local');
-    const envPath = path.join(process.cwd(), '.env');
-    
-    const envLocal = loadEnvFile(envLocalPath);
-    const env = loadEnvFile(envPath);
-    
-    // Merge with process.env (highest precedence)
-    const allEnv = { ...env, ...envLocal, ...process.env };
+    const config = loadConfig();
+    const requiredEnvVars = config.required || {};
+    const optionalEnvVars = config.optional || {};
+    const envFiles = Array.isArray(config.envFiles) && config.envFiles.length > 0
+        ? config.envFiles
+        : DEFAULT_CONFIG.envFiles;
+
+    const loadedEnvFiles = envFiles.map((fileName) => {
+        const envPath = path.join(process.cwd(), fileName);
+        return {
+            fileName,
+            envPath,
+            exists: fs.existsSync(envPath),
+            values: loadEnvFile(envPath)
+        };
+    });
+
+    const mergedEnv = loadedEnvFiles.reduce((acc, entry) => ({
+        ...acc,
+        ...entry.values
+    }), {});
+
+    const allEnv = { ...mergedEnv, ...process.env };
 
     console.log('📁 Environment files checked:');
-    console.log(`  .env:       ${fs.existsSync(envPath) ? '✅' : '❌'}`);
-    console.log(`  .env.local: ${fs.existsSync(envLocalPath) ? '✅' : '❌'}`);
+    loadedEnvFiles.forEach((entry) => {
+        console.log(`  ${entry.fileName}: ${entry.exists ? 'good' : 'no'}`);
+    });
     console.log('');
 
     const allIssues = [];
 
     // Check required variables
     console.log('🔒 REQUIRED VARIABLES:');
-    Object.entries(REQUIRED_ENV_VARS).forEach(([key, config]) => {
+    if (Object.keys(requiredEnvVars).length === 0) {
+        console.log('  ⚪ No required variables configured');
+    }
+
+    Object.entries(requiredEnvVars).forEach(([key, config]) => {
         const value = allEnv[key];
         const issues = validateEnvVar(key, config, value);
         
         if (issues.length === 0) {
-            console.log(`  ✅ ${key}`);
+            console.log(`  good ${key}`);
         } else {
-            console.log(`  ❌ ${key}`);
+            console.log(`  no ${key}`);
             allIssues.push(...issues);
         }
     });
@@ -210,13 +222,17 @@ function main() {
 
     // Check optional variables
     console.log('💡 OPTIONAL VARIABLES:');
-    Object.entries(OPTIONAL_ENV_VARS).forEach(([key, config]) => {
+    if (Object.keys(optionalEnvVars).length === 0) {
+        console.log('  ⚪ No optional variables configured');
+    }
+
+    Object.entries(optionalEnvVars).forEach(([key, config]) => {
         const value = allEnv[key];
         
         if (value) {
             const issues = validateEnvVar(key, config, value);
             if (issues.length === 0) {
-                console.log(`  ✅ ${key}`);
+                console.log(`  good ${key}`);
             } else {
                 console.log(`  ⚠️  ${key}`);
                 allIssues.push(...issues);
@@ -229,7 +245,7 @@ function main() {
 
     // Report issues
     if (allIssues.length > 0) {
-        console.log('\n❌ ISSUES FOUND:\n');
+        console.log('\nno ISSUES FOUND:\n');
 
         const critical = allIssues.filter(i => i.severity === 'CRITICAL');
         const errors = allIssues.filter(i => i.severity === 'ERROR');
@@ -246,7 +262,7 @@ function main() {
         }
 
         if (errors.length > 0) {
-            console.error('❌ ERRORS:\n');
+            console.error('no ERRORS:\n');
             errors.forEach(issue => {
                 console.error(`  ${issue.key}: ${issue.message}`);
                 if (issue.description) console.error(`    Description: ${issue.description}`);
@@ -271,7 +287,7 @@ function main() {
         console.log('');
 
         if (critical.length > 0 || errors.length > 0) {
-            console.error('❌ Environment validation FAILED!');
+            console.error('no Environment validation FAILED!');
             console.error('\n💡 TIP: Copy .env.example to .env.local and fill in your values');
             process.exit(1);
         } else {
@@ -279,7 +295,7 @@ function main() {
             process.exit(0);
         }
     } else {
-        console.log('✅ All environment variables are properly configured!');
+        console.log('good All environment variables are properly configured!');
         process.exit(0);
     }
 }

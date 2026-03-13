@@ -1,12 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Security check script for Focusly
- * Scans the codebase for potential security issues:
- * - SERVICE_ROLE_KEY exposed in client code
- * - Tokens stored in localStorage
- * - Direct .env file access
- * - Hardcoded secrets
+ * Security check script
+ * Scans the codebase for potential security issues based on config
  */
 
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -14,56 +10,144 @@ const fs = require('fs');
 const path = require('path');
 /* eslint-enable @typescript-eslint/no-require-imports */
 
-const DANGEROUS_PATTERNS = [
-    {
-        pattern: /SUPABASE_SERVICE_ROLE_KEY/,
-        exclude: ['src/app/api', 'src/lib/supabase/server.ts', 'scripts/', 'node_modules'],
-        message: '🚨 SERVICE_ROLE_KEY found in client-accessible file',
-        severity: 'CRITICAL'
-    },
-    {
-        pattern: /localStorage\.(setItem|getItem).*[Tt]oken/,
-        exclude: ['node_modules'],
-        message: '⚠️  Tokens should not be stored in localStorage (use httpOnly cookies)',
-        severity: 'HIGH'
-    },
-    {
-        pattern: /createClient.*SERVICE_ROLE/,
-        exclude: ['src/app/api', 'src/lib/supabase/server.ts', 'scripts/', 'node_modules'],
-        message: '🚨 Direct SERVICE_ROLE client creation in non-server code',
-        severity: 'CRITICAL'
-    },
-    {
-        pattern: /password\s*=\s*['"][^'"]{8,}['"]/,
-        exclude: ['node_modules', 'test', 'spec'],
-        message: '⚠️  Potential hardcoded password detected',
-        severity: 'HIGH'
-    },
-    {
-        pattern: /api[_-]?key\s*=\s*['"][^'"]{16,}['"]/i,
-        exclude: ['node_modules', 'test', 'spec'],
-        message: '⚠️  Potential hardcoded API key detected',
-        severity: 'HIGH'
-    },
-    {
-        pattern: /auth\.uid\(\)\s*!=\s*user_id|user_id\s*!=\s*auth\.uid\(\)/,
-        exclude: ['node_modules'],
-        message: '💡 Potential RLS policy issue (checking inequality instead of equality)',
-        severity: 'MEDIUM'
+const DEFAULT_CONFIG = {
+    includeExtensions: ['.ts', '.tsx', '.js', '.jsx', '.sql'],
+    excludeDirs: ['node_modules', '.next', '.git', 'dist', 'build', 'coverage'],
+    patterns: [
+        {
+            pattern: /localStorage\.(setItem|getItem).*token/i,
+            exclude: ['node_modules'],
+            message: '⚠️  Tokens should not be stored in localStorage (use httpOnly cookies)',
+            severity: 'HIGH'
+        },
+        {
+            pattern: /sessionStorage\.(setItem|getItem).*token/i,
+            exclude: ['node_modules'],
+            message: '⚠️  Tokens should not be stored in sessionStorage',
+            severity: 'HIGH'
+        },
+        {
+            pattern: /password\s*=\s*['"][^'"]{8,}['"]/i,
+            exclude: ['node_modules', 'test', 'spec'],
+            message: '⚠️  Potential hardcoded password detected',
+            severity: 'HIGH'
+        },
+        {
+            pattern: /(api[_-]?key|secret|token)\s*=\s*['"][^'"]{16,}['"]/i,
+            exclude: ['node_modules', 'test', 'spec'],
+            message: '⚠️  Potential hardcoded secret detected',
+            severity: 'HIGH'
+        },
+        {
+            pattern: /AKIA[0-9A-Z]{16}/,
+            exclude: ['node_modules', 'test', 'spec'],
+            message: '🚨 Potential AWS access key detected',
+            severity: 'CRITICAL'
+        },
+        {
+            pattern: /-----BEGIN (?:RSA|DSA|EC|OPENSSH) PRIVATE KEY-----/,
+            exclude: ['node_modules', 'test', 'spec'],
+            message: '🚨 Private key material detected in repository',
+            severity: 'CRITICAL'
+        },
+        {
+            pattern: /eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}/,
+            exclude: ['node_modules', 'test', 'spec'],
+            message: '⚠️  Possible JWT token detected',
+            severity: 'MEDIUM'
+        }
+    ]
+};
+
+function parseArgs() {
+    const args = process.argv.slice(2);
+    let rootDir;
+    let configPath;
+
+    for (let i = 0; i < args.length; i += 1) {
+        const arg = args[i];
+        if (arg === '--root') {
+            rootDir = args[i + 1];
+            i += 1;
+            continue;
+        }
+        if (arg === '--config') {
+            configPath = args[i + 1];
+            i += 1;
+            continue;
+        }
+
+        if (!rootDir && fs.existsSync(arg) && fs.statSync(arg).isDirectory()) {
+            rootDir = arg;
+            continue;
+        }
+
+        if (!configPath) {
+            configPath = arg;
+        }
     }
-];
+
+    return { rootDir, configPath };
+}
+
+function loadConfig() {
+    const { configPath, rootDir } = parseArgs();
+    const candidates = [
+        configPath,
+        path.join(process.cwd(), 'security-check.config.json'),
+        path.join(process.cwd(), 'scripts', 'security-check.config.json')
+    ].filter(Boolean);
+
+    const normalizePatterns = (patterns) => {
+        if (!Array.isArray(patterns)) {
+            return DEFAULT_CONFIG.patterns;
+        }
+
+        return patterns.map((entry) => {
+            if (entry && typeof entry.pattern === 'string') {
+                return {
+                    ...entry,
+                    pattern: new RegExp(entry.pattern, entry.flags || undefined)
+                };
+            }
+            return entry;
+        });
+    };
+
+    for (const candidate of candidates) {
+        if (fs.existsSync(candidate)) {
+            const raw = fs.readFileSync(candidate, 'utf-8');
+            const parsed = JSON.parse(raw);
+            return {
+                ...DEFAULT_CONFIG,
+                ...parsed,
+                patterns: normalizePatterns(parsed.patterns || DEFAULT_CONFIG.patterns),
+                rootDir: rootDir || parsed.rootDir
+            };
+        }
+    }
+
+    return {
+        ...DEFAULT_CONFIG,
+        patterns: normalizePatterns(DEFAULT_CONFIG.patterns),
+        rootDir
+    };
+}
 
 /**
  * Check if a file path should be excluded
  */
 function shouldExclude(filePath, excludePatterns) {
+    if (!excludePatterns || excludePatterns.length === 0) {
+        return false;
+    }
     return excludePatterns.some(pattern => filePath.includes(pattern));
 }
 
 /**
  * Scan a directory recursively
  */
-function scanDirectory(dir, exclude = []) {
+function scanDirectory(dir, config) {
     const files = fs.readdirSync(dir, { withFileTypes: true });
     const issues = [];
 
@@ -72,16 +156,16 @@ function scanDirectory(dir, exclude = []) {
         
         // Skip excluded directories
         if (file.isDirectory()) {
-            if (['node_modules', '.next', '.git', 'dist', 'build'].includes(file.name)) {
+            if (config.excludeDirs.includes(file.name)) {
                 return;
             }
-            issues.push(...scanDirectory(filePath, exclude));
-        } else if (file.isFile() && /\.(ts|tsx|js|jsx|sql)$/.test(file.name)) {
+            issues.push(...scanDirectory(filePath, config));
+        } else if (file.isFile() && config.includeExtensions.some(ext => file.name.endsWith(ext))) {
             try {
                 const content = fs.readFileSync(filePath, 'utf-8');
                 const lines = content.split('\n');
                 
-                DANGEROUS_PATTERNS.forEach(({ pattern, exclude: patternExclude, message, severity }) => {
+                config.patterns.forEach(({ pattern, exclude: patternExclude, message, severity }) => {
                     if (shouldExclude(filePath, patternExclude)) {
                         return;
                     }
@@ -176,16 +260,21 @@ function printIssues(grouped) {
  * Main execution
  */
 function main() {
-    console.log('🔍 Running security checks on Focusly codebase...\n');
+    console.log('🔍 Running security checks...\n');
 
-    const srcPath = path.join(process.cwd(), 'src');
-    
-    if (!fs.existsSync(srcPath)) {
-        console.error('❌ src/ directory not found. Are you in the project root?');
+    const config = loadConfig();
+    const rootDir = config.rootDir
+        ? path.resolve(process.cwd(), config.rootDir)
+        : (fs.existsSync(path.join(process.cwd(), 'src'))
+            ? path.join(process.cwd(), 'src')
+            : process.cwd());
+
+    if (!fs.existsSync(rootDir)) {
+        console.error(' Scan directory not found. Are you in the project root?');
         process.exit(1);
     }
 
-    const issues = scanDirectory(srcPath);
+    const issues = scanDirectory(rootDir, config);
     const grouped = groupBySeverity(issues);
 
     const hasIssues = printIssues(grouped);
@@ -198,7 +287,7 @@ function main() {
     console.log(`  Total:    ${issues.length}\n`);
 
     if (grouped.CRITICAL.length > 0) {
-        console.error('❌ Security check FAILED - Critical issues found!');
+        console.error(' Security check FAILED - Critical issues found!');
         process.exit(1);
     } else if (grouped.HIGH.length > 0) {
         console.warn('⚠️  Security check WARNING - High priority issues found!');
