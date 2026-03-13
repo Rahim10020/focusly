@@ -1,59 +1,40 @@
-/**
- * Global CSS Styles for the Focusly Application
- *
- * This file defines:
- * - CSS custom properties (variables) for theming
- * - Light and dark mode color schemes
- * - Brand colors (Pomodoro-themed reds, oranges, greens)
- * - Semantic colors for success, warning, error, info states
- * - Typography settings using Plus Jakarta Sans and Inter fonts
- * - Custom animations (float, slide, fade, glow, etc.)
- * - Utility classes for focus rings, interactive elements
- * - Mobile-responsive font size adjustments
- * - Custom scrollbar styling
- * - Selection highlighting
- *
- * Theme switching is handled via the .dark class on the html element.
- * All colors use CSS custom properties for dynamic theming support.
- */
-
 @import "tailwindcss";
 
 :root {
   /* Brand Colors - Pomodoro Theme */
-  --brand-primary: #EF4444;
+  --brand-primary: #ef4444;
   /* Rouge tomate */
-  --brand-primary-light: #F87171;
-  --brand-primary-dark: #DC2626;
-  --brand-secondary: #F59E0B;
+  --brand-primary-light: #f87171;
+  --brand-primary-dark: #dc2626;
+  --brand-secondary: #f59e0b;
   /* Orange énergique */
-  --brand-accent: #10B981;
+  --brand-accent: #10b981;
   /* Vert succès */
 
   /* Semantic Colors */
-  --success: #10B981;
-  --success-light: #34D399;
-  --warning: #F59E0B;
-  --warning-light: #FBBF24;
-  --error: #EF4444;
-  --error-light: #F87171;
-  --info: #3B82F6;
-  --info-light: #60A5FA;
+  --success: #10b981;
+  --success-light: #34d399;
+  --warning: #f59e0b;
+  --warning-light: #fbbf24;
+  --error: #ef4444;
+  --error-light: #f87171;
+  --info: #3b82f6;
+  --info-light: #60a5fa;
 
   /* Base Colors */
-  --background: #FAFAFA;
-  --foreground: #1F2937;
-  --card: #FFFFFF;
-  --card-foreground: #1F2937;
-  --primary: #EF4444;
-  --primary-foreground: #FFFFFF;
-  --muted: #F3F4F6;
-  --muted-foreground: #6B7280;
-  --accent: #FEF2F2;
-  --accent-foreground: #1F2937;
-  --border: #E5E7EB;
-  --input: #E5E7EB;
-  --ring: #EF4444;
+  --background: #fafafa;
+  --foreground: #1f2937;
+  --card: #ffffff;
+  --card-foreground: #1f2937;
+  --primary: #ef4444;
+  --primary-foreground: #ffffff;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --accent: #fef2f2;
+  --accent-foreground: #1f2937;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #ef4444;
 
   /* Radius */
   --radius-sm: 0.5rem;
@@ -65,49 +46,53 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
 .dark {
   /* Brand Colors - Adjusted for dark mode */
-  --brand-primary: #F87171;
-  --brand-primary-light: #FCA5A5;
-  --brand-primary-dark: #EF4444;
-  --brand-secondary: #FBBF24;
-  --brand-accent: #34D399;
+  --brand-primary: #f87171;
+  --brand-primary-light: #fca5a5;
+  --brand-primary-dark: #ef4444;
+  --brand-secondary: #fbbf24;
+  --brand-accent: #34d399;
 
   /* Semantic Colors */
-  --success: #34D399;
-  --success-light: #6EE7B7;
-  --warning: #FBBF24;
-  --warning-light: #FCD34D;
-  --error: #F87171;
-  --error-light: #FCA5A5;
-  --info: #60A5FA;
-  --info-light: #93C5FD;
+  --success: #34d399;
+  --success-light: #6ee7b7;
+  --warning: #fbbf24;
+  --warning-light: #fcd34d;
+  --error: #f87171;
+  --error-light: #fca5a5;
+  --info: #60a5fa;
+  --info-light: #93c5fd;
 
   /* Base Colors - Deep slate theme */
-  --background: #0F172A;
-  --foreground: #F1F5F9;
-  --card: #1E293B;
-  --card-foreground: #F1F5F9;
-  --primary: #F87171;
-  --primary-foreground: #0F172A;
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --primary: #f87171;
+  --primary-foreground: #0f172a;
   --muted: #334155;
-  --muted-foreground: #94A3B8;
-  --accent: #1E293B;
-  --accent-foreground: #F1F5F9;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f1f5f9;
   --border: #334155;
   --input: #334155;
-  --ring: #F87171;
+  --ring: #f87171;
 
   /* Shadows - Adjusted for dark mode */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
 }
 
 @theme {
@@ -138,8 +123,10 @@
   --color-info: var(--info);
 
   /* Typography */
-  --font-family-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
-  --font-family-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', monospace;
+  --font-family-sans:
+    "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --font-family-mono:
+    ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
 }
 
 /* Mobile font size adjustments */
@@ -196,7 +183,10 @@ body {
 }
 
 .smooth-transition {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 /* Utility Classes */
@@ -220,7 +210,6 @@ body {
 
 /* Animations */
 @keyframes pulse-soft {
-
   0%,
   100% {
     opacity: 1;
@@ -278,7 +267,6 @@ body {
 }
 
 @keyframes glow {
-
   0%,
   100% {
     filter: drop-shadow(0 0 8px var(--primary));
@@ -290,7 +278,6 @@ body {
 }
 
 @keyframes float {
-
   0%,
   100% {
     transform: translateY(0px) scale(0.9);
@@ -340,7 +327,6 @@ body {
 }
 
 @keyframes arrow-slide {
-
   0%,
   100% {
     transform: translateX(0px);
@@ -418,7 +404,6 @@ body {
 }
 
 @keyframes breathe {
-
   0%,
   100% {
     opacity: 1;
@@ -437,7 +422,6 @@ body {
   }
 
   @keyframes breathe {
-
     0%,
     100% {
       opacity: 1;
