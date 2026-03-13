@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { LandingPage } from "@/components/home/LandingPage";
 import { Dashboard } from "@/components/home/Dashboard";
+import { LoadingIcon } from "@/components/icons";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -10,9 +11,13 @@ export default function Home() {
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading...</p>
+        <div className="flex items-center gap-2">
+          <p className="text-base font-medium">Loading</p>
+          <LoadingIcon
+            className="mx-auto loading-icon-swing"
+            size={32}
+            color="var(--color-primary)"
+          />
         </div>
       </div>
     );
