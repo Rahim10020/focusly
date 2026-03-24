@@ -32,12 +32,6 @@ const CalendarView = dynamic(
   },
 );
 
-/**
- * Calendar page component that displays tasks in a monthly calendar layout.
- * Allows users to view task schedules and click on tasks to view/edit details.
- *
- * @returns {JSX.Element | null} The rendered calendar page or null during redirect
- */
 export default function CalendarPage() {
   const { data: session, status } = useSession();
   const router = useRouter();

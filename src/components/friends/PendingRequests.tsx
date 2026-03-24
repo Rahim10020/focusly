@@ -2,11 +2,12 @@
  * @fileoverview Pending friend requests component
  */
 
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import Image from "next/image";
+import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import { MyLoader } from "../ui/MyLoader";
 
 interface PendingRequest {
   id: string;
@@ -23,7 +24,12 @@ interface PendingRequestsProps {
   onReject: (requestId: string) => void;
 }
 
-export function PendingRequests({ requests, processingRequests, onAccept, onReject }: PendingRequestsProps) {
+export function PendingRequests({
+  requests,
+  processingRequests,
+  onAccept,
+  onReject,
+}: PendingRequestsProps) {
   if (requests.length === 0) return null;
 
   return (
@@ -43,20 +49,22 @@ export function PendingRequests({ requests, processingRequests, onAccept, onReje
                   {request.sender?.avatar_url ? (
                     <Image
                       src={request.sender.avatar_url}
-                      alt={request.sender.username || 'User'}
+                      alt={request.sender.username || "User"}
                       width={40}
                       height={40}
                       className="w-10 h-10 rounded-full"
                     />
                   ) : (
                     <span className="text-lg">
-                      {(request.sender?.username || 'A').charAt(0).toUpperCase()}
+                      {(request.sender?.username || "A")
+                        .charAt(0)
+                        .toUpperCase()}
                     </span>
                   )}
                 </div>
                 <div>
                   <p className="font-medium">
-                    {request.sender?.username || 'Anonymous User'}
+                    {request.sender?.username || "Anonymous User"}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Sent you a friend request
@@ -69,7 +77,11 @@ export function PendingRequests({ requests, processingRequests, onAccept, onReje
                   disabled={processingRequests.has(request.id)}
                   size="sm"
                 >
-                  {processingRequests.has(request.id) ? 'Accepting...' : 'Accept'}
+                  {processingRequests.has(request.id) ? (
+                    <MyLoader label="Accepting" />
+                  ) : (
+                    "Accept"
+                  )}
                 </Button>
                 <Button
                   onClick={() => onReject(request.id)}
@@ -77,7 +89,11 @@ export function PendingRequests({ requests, processingRequests, onAccept, onReje
                   variant="secondary"
                   size="sm"
                 >
-                  {processingRequests.has(request.id) ? 'Rejecting...' : 'Reject'}
+                  {processingRequests.has(request.id) ? (
+                    <MyLoader label="Rejecting" />
+                  ) : (
+                    "Reject"
+                  )}
                 </Button>
               </div>
             </div>

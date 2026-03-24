@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseClient as supabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
@@ -16,11 +16,6 @@ import Input from "@/components/ui/Input";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { ROUTES } from "@/components/shared/constants/routes";
 import { MyLoader } from "@/components/ui/MyLoader";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
 
 export default function SignUp() {
   const [email, setEmail] = useState("");

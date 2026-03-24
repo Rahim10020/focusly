@@ -2,36 +2,47 @@
  * @fileoverview Dashboard component for authenticated users.
  */
 
-'use client';
+"use client";
 
-import { useRef, useEffect, useMemo, useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Header from '@/components/layout/Header';
-import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import TasksView from '@/components/tasks/TasksView';
-import QuickAddTask from '@/components/tasks/QuickAddTask';
-import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
-import AchievementNotification from '@/components/achievements/AchievementNotification';
-import KeyboardShortcutsModal from '@/components/ui/KeyboardShortcutsModal';
-import { DashboardNotifications } from '@/components/dashboard/DashboardNotifications';
-import { FocusModeToggle } from '@/components/dashboard/FocusModeToggle';
-import { KeyboardShortcutHint } from '@/components/dashboard/KeyboardShortcutHint';
-import { TimerSettingsButton } from '@/components/dashboard/TimerSettingsButton';
-import { useTasks } from '@/lib/hooks/useTasks';
-import { useCachedStats } from '@/lib/hooks/useCachedStats';
-import { useAchievements } from '@/lib/hooks/useAchievements';
-import { useTags } from '@/lib/hooks/useTags';
-import { useKeyboardShortcuts, GLOBAL_SHORTCUTS } from '@/lib/hooks/useKeyboardShortcuts';
-import { useTaskNotifications } from '@/lib/hooks/useTaskNotifications';
-import { useNotificationsContext } from '@/components/providers/NotificationsProvider';
-import { useTheme } from '@/components/providers/ThemeProvider';
-import { Task } from '@/types';
-import type { PomodoroSession } from '@/types';
-import { getAllImminentTasks } from '@/lib/utils/taskUtils';
+import { useRef, useEffect, useMemo, useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import Header from "@/components/layout/Header";
+import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import TasksView from "@/components/tasks/TasksView";
+import QuickAddTask from "@/components/tasks/QuickAddTask";
+import PomodoroTimer from "@/components/pomodoro/PomodoroTimer";
+import AchievementNotification from "@/components/achievements/AchievementNotification";
+import KeyboardShortcutsModal from "@/components/ui/KeyboardShortcutsModal";
+import { DashboardNotifications } from "@/components/dashboard/DashboardNotifications";
+import { FocusModeToggle } from "@/components/dashboard/FocusModeToggle";
+import { KeyboardShortcutHint } from "@/components/dashboard/KeyboardShortcutHint";
+import { TimerSettingsButton } from "@/components/dashboard/TimerSettingsButton";
+import { useTasks } from "@/lib/hooks/useTasks";
+import { useCachedStats } from "@/lib/hooks/useCachedStats";
+import { useAchievements } from "@/lib/hooks/useAchievements";
+import { useTags } from "@/lib/hooks/useTags";
+import {
+  useKeyboardShortcuts,
+  GLOBAL_SHORTCUTS,
+} from "@/lib/hooks/useKeyboardShortcuts";
+import { useTaskNotifications } from "@/lib/hooks/useTaskNotifications";
+import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
+import { useTheme } from "@/components/providers/ThemeProvider";
+import { Task } from "@/types";
+import type { PomodoroSession } from "@/types";
+import { getAllImminentTasks } from "@/lib/utils/taskUtils";
+import { ROUTES } from "../shared/constants/routes";
 
 interface DashboardProps {
-  session: { user: { id: string; name?: string | null; email?: string | null; image?: string | null } } | null;
+  session: {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
+  } | null;
 }
 
 export function Dashboard({ session }: DashboardProps) {
@@ -46,7 +57,7 @@ export function Dashboard({ session }: DashboardProps) {
     pause: () => void;
     reset: () => void;
     skip: () => void;
-    status: 'idle' | 'running' | 'paused';
+    status: "idle" | "running" | "paused";
   } | null>(null);
 
   const {
@@ -66,7 +77,14 @@ export function Dashboard({ session }: DashboardProps) {
     reorderTasks,
   } = useTasks();
 
-  const { updateTaskStats, addSession, getTodayFocusTime, stats, refreshStats, invalidateCache } = useCachedStats();
+  const {
+    updateTaskStats,
+    addSession,
+    getTodayFocusTime,
+    stats,
+    refreshStats,
+    invalidateCache,
+  } = useCachedStats();
   const { tags } = useTags();
   const {
     newlyUnlocked,
@@ -78,7 +96,7 @@ export function Dashboard({ session }: DashboardProps) {
   // Enable task notifications
   useTaskNotifications({
     tasks,
-    enabled: typeof window !== 'undefined' && session !== null,
+    enabled: typeof window !== "undefined" && session !== null,
   });
 
   const { notifications } = useNotificationsContext();
@@ -94,7 +112,7 @@ export function Dashboard({ session }: DashboardProps) {
 
   // Update task stats
   useEffect(() => {
-    const completedTasks = tasks.filter(task => task.completed).length;
+    const completedTasks = tasks.filter((task) => task.completed).length;
     updateTaskStats(tasks.length, completedTasks);
   }, [tasks, updateTaskStats]);
 
@@ -106,22 +124,25 @@ export function Dashboard({ session }: DashboardProps) {
     todayFocusMinutes: 0,
   });
 
-  const todayFocusMinutes = useMemo(() =>
-    Math.floor(getTodayFocusTime() / 60),
-    [getTodayFocusTime]
+  const todayFocusMinutes = useMemo(
+    () => Math.floor(getTodayFocusTime() / 60),
+    [getTodayFocusTime],
   );
 
-  const currentStats = useMemo(() => ({
-    totalSessions: stats.totalSessions,
-    completedTasks: stats.completedTasks,
-    streak: stats.streak,
-    todayFocusMinutes,
-  }), [
-    stats.totalSessions,
-    stats.completedTasks,
-    stats.streak,
-    todayFocusMinutes
-  ]);
+  const currentStats = useMemo(
+    () => ({
+      totalSessions: stats.totalSessions,
+      completedTasks: stats.completedTasks,
+      streak: stats.streak,
+      todayFocusMinutes,
+    }),
+    [
+      stats.totalSessions,
+      stats.completedTasks,
+      stats.streak,
+      todayFocusMinutes,
+    ],
+  );
 
   useEffect(() => {
     const hasChanged =
@@ -153,36 +174,49 @@ export function Dashboard({ session }: DashboardProps) {
   }, []);
 
   // Task handlers
-  const handleQuickAddTask = useCallback((title: string) => {
-    addTask({ title });
-  }, [addTask]);
+  const handleQuickAddTask = useCallback(
+    (title: string) => {
+      addTask({ title });
+    },
+    [addTask],
+  );
 
   const handleCreateTask = useCallback(() => {
-    router.push('/create-task');
+    router.push(ROUTES.CREATE_TASK);
   }, [router]);
 
-  const handleEditTask = useCallback((task: Task) => {
-    router.push(`/task/${task.id}`);
-  }, [router]);
+  const handleEditTask = useCallback(
+    (task: Task) => {
+      router.push(`/task/${task.id}`);
+    },
+    [router],
+  );
 
-  const handlePomodoroComplete = useCallback((taskId: string) => {
-    incrementPomodoro(taskId);
-    const hour = new Date().getHours();
-    checkTimeBasedAchievements(hour);
-  }, [incrementPomodoro, checkTimeBasedAchievements]);
+  const handlePomodoroComplete = useCallback(
+    (taskId: string) => {
+      incrementPomodoro(taskId);
+      const hour = new Date().getHours();
+      checkTimeBasedAchievements(hour);
+    },
+    [incrementPomodoro, checkTimeBasedAchievements],
+  );
 
-  const handleSessionComplete = useCallback(async (pomodoroSession: PomodoroSession) => {
-    await addSession(pomodoroSession);
-    if (invalidateCache) invalidateCache();
-    if (refreshStats) await refreshStats();
-    triggerAchievementCheck();
-  }, [addSession, invalidateCache, refreshStats, triggerAchievementCheck]);
+  const handleSessionComplete = useCallback(
+    async (pomodoroSession: PomodoroSession) => {
+      await addSession(pomodoroSession);
+      if (invalidateCache) invalidateCache();
+      if (refreshStats) await refreshStats();
+      triggerAchievementCheck();
+    },
+    [addSession, invalidateCache, refreshStats, triggerAchievementCheck],
+  );
 
   // Memoize expensive computations
   const allImminentTasks = useMemo(() => getAllImminentTasks(tasks), [tasks]);
-  const displayedTasks = useMemo(() =>
-    showAllUpcomingTasks ? allImminentTasks : allImminentTasks.slice(0, 5),
-    [allImminentTasks, showAllUpcomingTasks]
+  const displayedTasks = useMemo(
+    () =>
+      showAllUpcomingTasks ? allImminentTasks : allImminentTasks.slice(0, 5),
+    [allImminentTasks, showAllUpcomingTasks],
   );
   const hasMoreTasksThanDisplayed = allImminentTasks.length > 5;
 
@@ -194,7 +228,7 @@ export function Dashboard({ session }: DashboardProps) {
       ...GLOBAL_SHORTCUTS.START_PAUSE_TIMER,
       action: () => {
         if (timerRef) {
-          if (timerRef.status === 'running') {
+          if (timerRef.status === "running") {
             timerRef.pause();
           } else {
             timerRef.start();
@@ -225,26 +259,44 @@ export function Dashboard({ session }: DashboardProps) {
       action: () => setShowShortcuts(true),
     },
     {
-      key: 'f',
-      description: 'Toggle Focus Mode',
+      key: "f",
+      description: "Toggle Focus Mode",
       action: () => setFocusMode(!focusMode),
     },
   ]);
 
   return (
-    <div className={`min-h-screen bg-background ${focusMode ? 'focus-mode' : ''}`}>
+    <div
+      className={`min-h-screen bg-background ${focusMode ? "focus-mode" : ""}`}
+    >
       {!focusMode && <Header />}
 
-      <main className={`max-w-6xl mx-auto px-6 py-8 space-y-6 ${focusMode ? 'focus-mode-container' : ''}`}>
+      <main
+        className={`max-w-6xl mx-auto px-6 py-8 space-y-6 ${focusMode ? "focus-mode-container" : ""}`}
+      >
         {/* Tasks Section - Full Width */}
         {!focusMode && (
           <Card variant="elevated">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Tasks</CardTitle>
-                <Button onClick={handleCreateTask} size="sm" className="flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <Button
+                  onClick={handleCreateTask}
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
                   </svg>
                   New Task
                 </Button>
@@ -275,13 +327,14 @@ export function Dashboard({ session }: DashboardProps) {
                   <div className="text-center">
                     <Button
                       variant="ghost"
-                      onClick={() => setShowAllUpcomingTasks(!showAllUpcomingTasks)}
+                      onClick={() =>
+                        setShowAllUpcomingTasks(!showAllUpcomingTasks)
+                      }
                       className="text-sm"
                     >
                       {showAllUpcomingTasks
-                        ? 'Voir moins'
-                        : `Voir ${allImminentTasks.length - 5} tâche${allImminentTasks.length - 5 > 1 ? 's' : ''} de plus`
-                      }
+                        ? "Voir moins"
+                        : `Voir ${allImminentTasks.length - 5} tâche${allImminentTasks.length - 5 > 1 ? "s" : ""} de plus`}
                     </Button>
                   </div>
                 )}
@@ -291,7 +344,10 @@ export function Dashboard({ session }: DashboardProps) {
         )}
 
         {/* Pomodoro Timer */}
-        <Card variant="elevated" className={focusMode ? 'focus-mode-timer' : ''}>
+        <Card
+          variant="elevated"
+          className={focusMode ? "focus-mode-timer" : ""}
+        >
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Pomodoro Timer</CardTitle>
@@ -311,9 +367,7 @@ export function Dashboard({ session }: DashboardProps) {
         </Card>
 
         {/* Notifications */}
-        {!focusMode && notifications.length > 0 && (
-          <DashboardNotifications />
-        )}
+        {!focusMode && notifications.length > 0 && <DashboardNotifications />}
       </main>
 
       {/* Achievement Notifications */}
@@ -335,7 +389,10 @@ export function Dashboard({ session }: DashboardProps) {
       )}
 
       {/* Focus Mode Toggle Button */}
-      <FocusModeToggle isFocusMode={focusMode} onToggle={() => setFocusMode(!focusMode)} />
+      <FocusModeToggle
+        isFocusMode={focusMode}
+        onToggle={() => setFocusMode(!focusMode)}
+      />
 
       {/* Keyboard shortcut hint */}
       {!focusMode && (

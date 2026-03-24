@@ -8,17 +8,12 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseClient as supabase } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { ROUTES } from "@/components/shared/constants/routes";
 import { MyLoader } from "@/components/ui/MyLoader";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
 
 function VerifyEmailContent() {
   const [message, setMessage] = useState("Verification in progress...");
