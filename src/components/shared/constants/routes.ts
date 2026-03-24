@@ -1,13 +1,29 @@
 export const ROUTES = {
+    // HOME
+    HOME: '/',
+    DASHBOARD: '/dashboard',
+    HOW_TO_USE: '/how-to-use',
+
     // AUTH
     SIGN_IN: '/auth/signin',
     SIGN_UP: '/auth/signup',
     VERIFY_EMAIL: '/auth/verify-email',
 
-    // TASKS
-    CREATE_TASK: '/create-task',
+    // PRODUCTIVITY
     TASKS: '/tasks',
+    CREATE_TASK: '/create-task',
+    CALENDAR: '/calendar',
+    STATS: '/stats',
 
-    //HOME
-    HOME: '/'
-}
+    // SOCIAL
+    FRIENDS: '/friends',
+    LEADERBOARD: '/leaderboard',
+    NOTIFICATIONS: '/notifications',
+    PROFILE: '/profile',
+    SETTINGS: '/settings',
+} as const;
+
+export const DYNAMIC_ROUTES = {
+    USER_PROFILE: (userId: string) => `/users/${userId}`,
+    TASKS_EDIT: (taskId: string) => `/tasks?edit=${taskId}`,
+} as const;

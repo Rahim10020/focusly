@@ -2,12 +2,13 @@
  * @fileoverview Friends list component
  */
 
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import { DYNAMIC_ROUTES } from "@/components/shared/constants/routes";
 
 interface Friend {
   id: string;
@@ -30,7 +31,11 @@ interface FriendsListProps {
   onRemoveFriend: (friendshipId: string) => void;
 }
 
-export function FriendsList({ friends, currentUserId, onRemoveFriend }: FriendsListProps) {
+export function FriendsList({
+  friends,
+  currentUserId,
+  onRemoveFriend,
+}: FriendsListProps) {
   const router = useRouter();
 
   if (friends.length === 0) {
@@ -56,41 +61,46 @@ export function FriendsList({ friends, currentUserId, onRemoveFriend }: FriendsL
       <CardContent>
         <div className="space-y-4">
           {friends.map((friend) => {
-            const friendUser = friend.sender_id === currentUserId
-              ? friend.receiver
-              : friend.sender;
-            const friendId = friend.sender_id === currentUserId
-              ? friend.receiver_id
-              : friend.sender_id;
+            const friendUser =
+              friend.sender_id === currentUserId
+                ? friend.receiver
+                : friend.sender;
+            const friendId =
+              friend.sender_id === currentUserId
+                ? friend.receiver_id
+                : friend.sender_id;
 
             return (
               <div
                 key={friend.id}
                 className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
-                onClick={() => router.push(`/users/${friendId}`)}
+                onClick={() =>
+                  router.push(DYNAMIC_ROUTES.USER_PROFILE(friendId))
+                }
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                     {friendUser?.avatar_url ? (
                       <Image
                         src={friendUser.avatar_url}
-                        alt={friendUser.username || 'User'}
+                        alt={friendUser.username || "User"}
                         width={40}
                         height={40}
                         className="w-10 h-10 rounded-full"
                       />
                     ) : (
                       <span className="text-lg">
-                        {(friendUser?.username || 'A').charAt(0).toUpperCase()}
+                        {(friendUser?.username || "A").charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
                   <div>
                     <p className="font-medium">
-                      {friendUser?.username || 'Anonymous User'}
+                      {friendUser?.username || "Anonymous User"}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Friends since {new Date(friend.created_at).toLocaleDateString()}
+                      Friends since{" "}
+                      {new Date(friend.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>

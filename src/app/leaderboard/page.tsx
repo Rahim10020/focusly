@@ -15,7 +15,7 @@ import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Image from "next/image";
 import { LeaderboardUser, LeaderboardResponse } from "@/types/leaderboard";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { DYNAMIC_ROUTES, ROUTES } from "@/components/shared/constants/routes";
 import { MyLoader } from "@/components/ui/MyLoader";
 
 interface FriendData {
@@ -526,7 +526,9 @@ export default function LeaderboardPage() {
                         ? "bg-primary/10 border-2 border-primary"
                         : "border border-border hover:bg-muted/50 hover:scale-[1.02]"
                     }`}
-                    onClick={() => router.push(`/users/${user.id}`)}
+                    onClick={() =>
+                      router.push(DYNAMIC_ROUTES.USER_PROFILE(user.id))
+                    }
                     style={{
                       animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`,
                     }}

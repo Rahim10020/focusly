@@ -4,6 +4,7 @@
 
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
+import { ROUTES } from "@/components/shared/constants/routes";
 
 export function LandingPage() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export function LandingPage() {
               style={{ animationDelay: "0.2s" }}
             >
               <Button
-                onClick={() => router.push("/auth/signup")}
+                onClick={() => router.push(ROUTES.SIGN_UP)}
                 size="lg"
                 className="min-w-[180px]"
               >
@@ -61,7 +62,7 @@ export function LandingPage() {
                 Get Started Free
               </Button>
               <Button
-                onClick={() => router.push("/auth/signin")}
+                onClick={() => router.push(ROUTES.SIGN_IN)}
                 variant="outline"
                 size="lg"
                 className="min-w-[180px]"

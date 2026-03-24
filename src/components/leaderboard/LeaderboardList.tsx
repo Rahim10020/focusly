@@ -2,21 +2,22 @@
  * @fileoverview Leaderboard list component
  */
 
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import { LeaderboardUser } from '@/types/leaderboard';
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import { LeaderboardUser } from "@/types/leaderboard";
+import { DYNAMIC_ROUTES } from "@/components/shared/constants/routes";
 
 interface LeaderboardListProps {
   leaderboard: LeaderboardUser[];
-  selectedTab: 'tasks' | 'time' | 'streak';
+  selectedTab: "tasks" | "time" | "streak";
   currentUserId?: string;
   formatTime: (seconds: number) => string;
   onSendFriendRequest?: (userId: string) => void;
-  friendRequestStatuses?: Map<string, 'none' | 'pending' | 'sent' | 'friends'>;
+  friendRequestStatuses?: Map<string, "none" | "pending" | "sent" | "friends">;
 }
 
 export function LeaderboardList({
@@ -31,19 +32,27 @@ export function LeaderboardList({
 
   const getRankIcon = (index: number) => {
     switch (index) {
-      case 0: return '🥇';
-      case 1: return '🥈';
-      case 2: return '🥉';
-      default: return null;
+      case 0:
+        return "🥇";
+      case 1:
+        return "🥈";
+      case 2:
+        return "🥉";
+      default:
+        return null;
     }
   };
 
   const getDisplayValue = (user: LeaderboardUser) => {
     switch (selectedTab) {
-      case 'tasks': return user.stats?.completed_tasks || 0;
-      case 'time': return formatTime(user.stats?.total_focus_time || 0);
-      case 'streak': return user.stats?.streak || 0;
-      default: return 0;
+      case "tasks":
+        return user.stats?.completed_tasks || 0;
+      case "time":
+        return formatTime(user.stats?.total_focus_time || 0);
+      case "streak":
+        return user.stats?.streak || 0;
+      default:
+        return 0;
     }
   };
 
@@ -56,7 +65,18 @@ export function LeaderboardList({
         <CardContent>
           <div className="text-center py-12">
             <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-muted-foreground"
+              >
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
                 <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
@@ -81,13 +101,14 @@ export function LeaderboardList({
           {leaderboard.map((user, index) => (
             <div
               key={user.id}
-              className={`flex items-center justify-between p-4 rounded-lg transition-all cursor-pointer ${user.id === currentUserId
-                ? 'bg-primary/10 border-2 border-primary'
-                : 'border border-border hover:bg-muted/50 hover:scale-[1.02]'
-                }`}
-              onClick={() => router.push(`/users/${user.id}`)}
+              className={`flex items-center justify-between p-4 rounded-lg transition-all cursor-pointer ${
+                user.id === currentUserId
+                  ? "bg-primary/10 border-2 border-primary"
+                  : "border border-border hover:bg-muted/50 hover:scale-[1.02]"
+              }`}
+              onClick={() => router.push(DYNAMIC_ROUTES.USER_PROFILE(user.id))}
               style={{
-                animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`
+                animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`,
               }}
             >
               <div className="flex items-center gap-4 flex-1">
@@ -95,27 +116,29 @@ export function LeaderboardList({
                   {getRankIcon(index) ? (
                     <span className="text-3xl">{getRankIcon(index)}</span>
                   ) : (
-                    <span className="text-xl font-bold text-muted-foreground">#{index + 1}</span>
+                    <span className="text-xl font-bold text-muted-foreground">
+                      #{index + 1}
+                    </span>
                   )}
                 </div>
                 <div className="w-12 h-12 rounded-full bg-primary/10 overflow-hidden shrink-0">
                   {user.avatar_url ? (
                     <Image
                       src={user.avatar_url}
-                      alt={user.username || 'Player'}
+                      alt={user.username || "Player"}
                       width={48}
                       height={48}
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-lg font-semibold">
-                      {(user.username || 'A').charAt(0).toUpperCase()}
+                      {(user.username || "A").charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold truncate">
-                    {user.username || 'Player'}
+                    {user.username || "Player"}
                     {user.id === currentUserId && (
                       <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
                         You
@@ -125,37 +148,43 @@ export function LeaderboardList({
                   <p className="text-sm text-muted-foreground">
                     {user.stats?.total_sessions || 0} sessions
                   </p>
-                  {user.id !== currentUserId && onSendFriendRequest && friendRequestStatuses && (
-                    <div className="mt-1">
-                      {friendRequestStatuses.get(user.id) === 'friends' ? (
-                        <Button size="sm" disabled variant="secondary">Friends</Button>
-                      ) : friendRequestStatuses.get(user.id) === 'sent' ? (
-                        <Button size="sm" disabled>Friend Request Sent</Button>
-                      ) : friendRequestStatuses.get(user.id) === 'pending' ? (
-                        <Button size="sm" disabled>Request Pending</Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onSendFriendRequest(user.id);
-                          }}
-                        >
-                          Send Friend Request
-                        </Button>
-                      )}
-                    </div>
-                  )}
+                  {user.id !== currentUserId &&
+                    onSendFriendRequest &&
+                    friendRequestStatuses && (
+                      <div className="mt-1">
+                        {friendRequestStatuses.get(user.id) === "friends" ? (
+                          <Button size="sm" disabled variant="secondary">
+                            Friends
+                          </Button>
+                        ) : friendRequestStatuses.get(user.id) === "sent" ? (
+                          <Button size="sm" disabled>
+                            Friend Request Sent
+                          </Button>
+                        ) : friendRequestStatuses.get(user.id) === "pending" ? (
+                          <Button size="sm" disabled>
+                            Request Pending
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSendFriendRequest(user.id);
+                            }}
+                          >
+                            Send Friend Request
+                          </Button>
+                        )}
+                      </div>
+                    )}
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xl font-bold">
-                  {getDisplayValue(user)}
-                </p>
+                <p className="text-xl font-bold">{getDisplayValue(user)}</p>
                 <p className="text-xs text-muted-foreground">
-                  {selectedTab === 'tasks' && 'tasks completed'}
-                  {selectedTab === 'time' && 'total focus'}
-                  {selectedTab === 'streak' && 'day streak'}
+                  {selectedTab === "tasks" && "tasks completed"}
+                  {selectedTab === "time" && "total focus"}
+                  {selectedTab === "streak" && "day streak"}
                 </p>
               </div>
             </div>
