@@ -1,4 +1,4 @@
-import { LoadingIcon } from "../icons";
+import { LoadingIcon } from "../shared/icons";
 
 export type LoaderProps = {
   label: string;
