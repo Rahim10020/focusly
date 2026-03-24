@@ -12,19 +12,14 @@ import { createClient } from "@supabase/supabase-js";
 import { useRouter, useSearchParams } from "next/navigation";
 import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import { ROUTES } from "@/components/shared/constants/routes";
+import { MyLoader } from "@/components/ui/MyLoader";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
 
-/**
- * Email Verification content component that processes verification tokens.
- * Automatically verifies OTP tokens from email links and provides
- * status feedback with auto-redirect to sign in on success.
- *
- * @returns {JSX.Element} The rendered verification status page
- */
 function VerifyEmailContent() {
   const [message, setMessage] = useState("Verification in progress...");
   const [isVerified, setIsVerified] = useState(false);
@@ -50,7 +45,7 @@ function VerifyEmailContent() {
               "Your email has been verified successfully! Redirecting to sign in page...",
             );
             setTimeout(() => {
-              router.push("/auth/signin");
+              router.push(ROUTES.SIGN_IN);
             }, 3000);
           } else {
             setMessage("No verification token found. Please check your email.");
@@ -78,7 +73,7 @@ function VerifyEmailContent() {
 
             // Auto-redirect après 3 secondes
             setTimeout(() => {
-              router.push("/auth/signin");
+              router.push(ROUTES.SIGN_IN);
             }, 3000);
           } else {
             throw new Error("Verification failed");
@@ -100,7 +95,7 @@ function VerifyEmailContent() {
   }, [token_hash, type, router]);
 
   const handleContinue = () => {
-    router.push("/auth/signin");
+    router.push(ROUTES.SIGN_IN);
   };
 
   const handleResend = async () => {
@@ -150,7 +145,7 @@ function VerifyEmailContent() {
                 variant="outline"
                 className="mt-4"
               >
-                {isLoading ? "Sending..." : "Resend Email"}
+                {isLoading ? <MyLoader label="Sending" /> : "Resend Email"}
               </Button>
             )
           )}
@@ -174,10 +169,7 @@ export default function VerifyEmail() {
           <Card className="w-full max-w-md bg-transparent" variant="none">
             <CardContent className="text-center py-8">
               <div className="text-4xl mb-4 text-yellow-500">⏳</div>
-              <h2 className="text-xl font-semibold mb-2 text-foreground">
-                Loading...
-              </h2>
-              <p className="text-muted-foreground">Verifying your email.</p>
+              <MyLoader label="Verifying your email" />
             </CardContent>
           </Card>
         </div>
