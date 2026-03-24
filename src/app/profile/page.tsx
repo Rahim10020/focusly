@@ -18,7 +18,11 @@ import { DomainDistribution } from "@/components/profile/DomainDistribution";
 import { supabaseClient as supabase } from "@/lib/supabase/client";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { useStats } from "@/lib/hooks/useStats";
-import { DOMAINS, getDomainFromSubDomain } from "@/types";
+import {
+  getDomainDistribution,
+  getFocusHours,
+  getTaskCompletionStats,
+} from "@/lib/utils/stats-calculations";
 import {
   compressImage,
   isValidImageFile,
@@ -26,12 +30,6 @@ import {
 } from "@/lib/utils/imageCompression";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { ROUTES } from "@/components/shared/constants/routes";
-
-interface DomainData {
-  domain: string;
-  count: number;
-  completed: number;
-}
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();
@@ -187,31 +185,10 @@ export default function ProfilePage() {
     setImagePreview(null);
   };
 
-  // Calculate stats
-  const completedTasks = tasks.filter((t) => t.completed).length;
-  const totalTasks = tasks.length;
-  const completionRate =
-    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-  const totalFocusHours = Math.round((stats?.totalFocusTime || 0) / 3600);
-
-  // Calculate domain distribution
-  const domainDistribution: DomainData[] = Object.keys(DOMAINS).map(
-    (domainKey) => {
-      const domainTasks = tasks.filter((task) => {
-        if (!task.subDomain) return false;
-        try {
-          return getDomainFromSubDomain(task.subDomain) === domainKey;
-        } catch {
-          return false;
-        }
-      });
-      return {
-        domain: DOMAINS[domainKey as keyof typeof DOMAINS].name,
-        count: domainTasks.length,
-        completed: domainTasks.filter((t) => t.completed).length,
-      };
-    },
-  );
+  const { completedTasks, totalTasks, completionRate, activeTasks } =
+    getTaskCompletionStats(tasks);
+  const totalFocusHours = getFocusHours(stats?.totalFocusTime);
+  const domainDistribution = getDomainDistribution(tasks);
 
   return (
     <div className="min-h-screen bg-background">
@@ -241,7 +218,7 @@ export default function ProfilePage() {
           <ActivityOverview
             completionRate={completionRate}
             longestStreak={stats?.longestStreak || 0}
-            activeTasks={totalTasks - completedTasks}
+            activeTasks={activeTasks}
           />
 
           <DomainDistribution domains={domainDistribution} />

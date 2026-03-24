@@ -21,6 +21,7 @@ import {
   API_ROUTES,
 } from "@/components/shared/constants/apiRoutes";
 import { MyLoader } from "@/components/ui/MyLoader";
+import { formatHoursMinutesFromSeconds } from "@/lib/utils/stats-calculations";
 
 interface FriendData {
   id: string;
@@ -125,11 +126,8 @@ export default function LeaderboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, status, router, currentPage, timeFilter]);
 
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${hours}h ${minutes}m`;
-  };
+  const formatTime = (seconds: number) =>
+    formatHoursMinutesFromSeconds(seconds);
 
   const getRankIcon = (index: number) => {
     switch (index) {

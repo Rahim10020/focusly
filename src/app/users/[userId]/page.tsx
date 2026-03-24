@@ -20,6 +20,7 @@ import {
   API_ROUTES,
 } from "@/components/shared/constants/apiRoutes";
 import { MyLoader } from "@/components/ui/MyLoader";
+import { formatHoursMinutesFromSeconds } from "@/lib/utils/stats-calculations";
 
 interface UserStats {
   /** Unique user identifier */
@@ -120,11 +121,8 @@ export default function UserProfilePage() {
     }
   };
 
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${hours}h ${minutes}m`;
-  };
+  const formatTime = (seconds: number) =>
+    formatHoursMinutesFromSeconds(seconds);
 
   if (status === "loading" || loading) {
     return (

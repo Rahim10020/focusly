@@ -31,6 +31,7 @@ import ExportPDFModal, {
 } from "@/components/dashboard/ExportPDFModal";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { ROUTES } from "@/components/shared/constants/routes";
+import { getTaskCompletionStats } from "@/lib/utils/stats-calculations";
 
 // Lazy load heavy chart components
 const AdvancedProductivityChart = dynamic(
@@ -132,10 +133,8 @@ export default function DashboardPage() {
     return null;
   }
 
-  const completedTasks = tasks.filter((t) => t.completed).length;
-  const totalTasks = tasks.length;
-  const completionRate =
-    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const { completedTasks, totalTasks, completionRate } =
+    getTaskCompletionStats(tasks);
 
   return (
     <div className="min-h-screen bg-background">
