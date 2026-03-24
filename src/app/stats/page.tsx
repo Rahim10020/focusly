@@ -14,15 +14,14 @@ import { useAchievements } from "@/lib/hooks/useAchievements";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { TaskCategorizationService } from "@/lib/services/taskCategorizationService";
 import { useState, useMemo } from "react";
+import { MyLoader } from "@/components/ui/MyLoader";
 
 // Lazy load heavy chart components
 const AchievementsList = dynamic(
   () => import("@/components/achievements/AchievementsList"),
   {
     ssr: false,
-    loading: () => (
-      <div className="animate-pulse bg-muted/30 h-48 rounded-lg" />
-    ),
+    loading: () => <MyLoader label="Loading" />,
   },
 );
 
@@ -33,15 +32,13 @@ const TaskHistoryList = dynamic(
     })),
   {
     ssr: false,
-    loading: () => (
-      <div className="animate-pulse bg-muted/30 h-48 rounded-lg" />
-    ),
+    loading: () => <MyLoader label="Loading" />,
   },
 );
 
 const DomainStats = dynamic(() => import("@/components/stats/DomainStats"), {
   ssr: false,
-  loading: () => <div className="animate-pulse bg-muted/30 h-48 rounded-lg" />,
+  loading: () => <MyLoader label="Loading" />,
 });
 
 export default function StatsPage() {
