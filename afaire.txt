@@ -9,3 +9,4 @@ A Faire PROCHAINEMENT
     que tout soit coherent partout
 - trouver les commentaires qui disent qu'il faut faire un truc apres dans 
     le projet ou qu'il faut changer un truc si on est dans un vrai projet (create-task, page)
+- creer un seul client supabase et reutiliser faut pas creer un client dans chaque page ou il faut l'utiliser
