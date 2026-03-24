@@ -4,3 +4,4 @@ QUI SERAIT COOL
         (quand la personne y accede via le web avec un telehone mobile)
 A Faire PROCHAINEMENT
 - remplacer toutes les loading par celui cree et ensuite remplacer les icones
+- page/friends ligne 103
