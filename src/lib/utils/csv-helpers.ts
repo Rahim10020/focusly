@@ -5,6 +5,7 @@
  */
 
 import { format } from 'date-fns';
+import { getTaskCompletionStats } from './stats-calculations';
 
 // ============================================================================
 // CSV Generation Helpers
@@ -193,6 +194,15 @@ export const analyticsToCSVRows = (
     getDomainName: (subDomain: string) => string
 ): string[][] => {
     const lines: string[][] = [];
+    const { completionRate } = getTaskCompletionStats(
+        tasks.map((task) => ({
+            id: task.id || task.title,
+            title: task.title,
+            completed: task.completed,
+            createdAt: 0,
+            pomodoroCount: 0,
+        }))
+    );
 
     // Overall Stats
     lines.push(['OVERALL STATISTICS']);
@@ -200,7 +210,7 @@ export const analyticsToCSVRows = (
     lines.push(['Total Sessions', stats.totalSessions.toString()]);
     lines.push(['Total Tasks', stats.totalTasks.toString()]);
     lines.push(['Completed Tasks', stats.completedTasks.toString()]);
-    lines.push(['Completion Rate (%)', stats.totalTasks > 0 ? ((stats.completedTasks / stats.totalTasks) * 100).toFixed(2) : '0']);
+    lines.push(['Completion Rate (%)', completionRate.toFixed(2)]);
     lines.push(['Current Streak (days)', stats.streak.toString()]);
     lines.push(['Longest Streak (days)', (stats.longestStreak || 0).toString()]);
     lines.push([]);

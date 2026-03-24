@@ -24,8 +24,12 @@ import {
 } from './pdf-helpers';
 import {
     downloadCSV,
-    escapeCSVCell,
+    analyticsToCSVRows,
 } from './csv-helpers';
+import {
+    formatHoursMinutesFromSeconds,
+    getTaskCompletionStats,
+} from './stats-calculations';
 
 // ============================================================================
 // Domain Helper
@@ -125,13 +129,10 @@ const taskToCSVRow = (task: Task): string[] => {
 export const exportTasksToPDF = (tasks: Task[], userName: string = 'User'): void => {
     const doc = createPDFDocument('Focusly - Task Report', userName);
 
-    // Summary Stats
-    const completedTasks = tasks.filter(t => t.completed).length;
-    const totalTasks = tasks.length;
-    const completionRate = totalTasks > 0 ? ((completedTasks / totalTasks) * 100).toFixed(1) : '0';
+    const { completedTasks, totalTasks, completionRate } = getTaskCompletionStats(tasks);
 
     doc.setFontSize(10);
-    doc.text(`Total Tasks: ${totalTasks} | Completed: ${completedTasks} | Completion Rate: ${completionRate}%`, 14, 44);
+    doc.text(`Total Tasks: ${totalTasks} | Completed: ${completedTasks} | Completion Rate: ${completionRate.toFixed(1)}%`, 14, 44);
 
     // Tasks Table
     const tableData = tasks.map(taskToTableRow);
@@ -173,13 +174,10 @@ export const exportTasksToCSV = (tasks: Task[]): void => {
 export const generateTasksPDFBlob = (tasks: Task[], userName: string = 'User'): Blob => {
     const doc = createPDFDocument('Focusly - Task Report', userName);
 
-    // Summary Stats
-    const completedTasks = tasks.filter(t => t.completed).length;
-    const totalTasks = tasks.length;
-    const completionRate = totalTasks > 0 ? ((completedTasks / totalTasks) * 100).toFixed(1) : '0';
+    const { completedTasks, totalTasks, completionRate } = getTaskCompletionStats(tasks);
 
     doc.setFontSize(10);
-    doc.text(`Total Tasks: ${totalTasks} | Completed: ${completedTasks} | Completion Rate: ${completionRate}%`, 14, 44);
+    doc.text(`Total Tasks: ${totalTasks} | Completed: ${completedTasks} | Completion Rate: ${completionRate.toFixed(1)}%`, 14, 44);
 
     // Tasks Table
     const tableData = tasks.map(taskToTableRow);
@@ -218,7 +216,7 @@ export const exportAnalyticsToPDF = (
     // Overall Stats
     addSectionTitle(doc, 'Overall Statistics', 48);
     const statsLines = [
-        `Total Focus Time: ${Math.round(stats.totalFocusTime / 3600)}h ${Math.round((stats.totalFocusTime % 3600) / 60)}m`,
+        `Total Focus Time: ${formatHoursMinutesFromSeconds(stats.totalFocusTime)}`,
         `Total Sessions: ${stats.totalSessions}`,
         `Completed Tasks: ${stats.completedTasks} / ${stats.totalTasks}`,
         `Current Streak: ${stats.streak} days`,
@@ -288,68 +286,8 @@ export const exportAnalyticsToPDF = (
  * // Downloads focusly-analytics-2024-01-15.csv
  */
 export const exportAnalyticsToCSV = (stats: Stats, tasks: Task[], sessions: PomodoroSession[]): void => {
-    const lines: string[] = [];
-
-    // Overall Stats
-    lines.push('OVERALL STATISTICS');
-    lines.push(`Total Focus Time (hours),${(stats.totalFocusTime / 3600).toFixed(2)}`);
-    lines.push(`Total Sessions,${stats.totalSessions}`);
-    lines.push(`Total Tasks,${stats.totalTasks}`);
-    lines.push(`Completed Tasks,${stats.completedTasks}`);
-    lines.push(`Completion Rate (%),${stats.totalTasks > 0 ? ((stats.completedTasks / stats.totalTasks) * 100).toFixed(2) : 0}`);
-    lines.push(`Current Streak (days),${stats.streak}`);
-    lines.push(`Longest Streak (days),${stats.longestStreak || 0}`);
-    lines.push('');
-
-    // Domain Stats
-    lines.push('DOMAIN STATISTICS');
-    lines.push('Domain,Total Tasks,Completed Tasks,Completion Rate (%)');
-
-    Object.keys(DOMAINS).forEach((domainKey) => {
-        const domainInfo = DOMAINS[domainKey as keyof typeof DOMAINS];
-        const domainTasks = tasks.filter((task) => {
-            if (!task.subDomain) return false;
-            try {
-                return getDomainFromSubDomain(task.subDomain) === domainKey;
-            } catch {
-                return false;
-            }
-        });
-
-        const completed = domainTasks.filter(t => t.completed).length;
-        const total = domainTasks.length;
-        const rate = total > 0 ? ((completed / total) * 100).toFixed(2) : '0';
-
-        lines.push(`${escapeCSVCell(domainInfo.name)},${total},${completed},${rate}`);
-    });
-
-    lines.push('');
-
-    // Recent Sessions
-    lines.push('RECENT SESSIONS');
-    lines.push('Date & Time,Duration (min),Task');
-
-    sessions
-        .filter(s => s.completed && s.type === 'work')
-        .sort((a, b) => b.startedAt - a.startedAt)
-        .slice(0, 50)
-        .forEach(session => {
-            const taskTitle = session.taskId ? tasks.find(t => t.id === session.taskId)?.title || 'Unknown' : 'No task';
-            lines.push(`${format(new Date(session.startedAt), 'yyyy-MM-dd HH:mm')},${session.duration / 60},${escapeCSVCell(taskTitle)}`);
-        });
-
-    const csvContent = lines.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', `focusly-analytics-${format(new Date(), 'yyyy-MM-dd')}.csv`);
-    link.style.visibility = 'hidden';
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const rows = analyticsToCSVRows(stats, sessions, tasks, getDomainName);
+    downloadCSV(rows, 'focusly-analytics');
 };
 
 // ============================================================================
@@ -386,13 +324,10 @@ export const exportLargeTasksToPDF = async (
     doc.text(`Generated for: ${userName}`, 14, 30);
     doc.text(`Date: ${format(new Date(), 'MMM d, yyyy')}`, 14, 36);
 
-    // Summary Stats
-    const completedTasks = tasks.filter(t => t.completed).length;
-    const totalTasks = tasks.length;
-    const completionRate = totalTasks > 0 ? ((completedTasks / totalTasks) * 100).toFixed(1) : '0';
+    const { completedTasks, totalTasks, completionRate } = getTaskCompletionStats(tasks);
 
     doc.setFontSize(10);
-    doc.text(`Total Tasks: ${totalTasks} | Completed: ${completedTasks} | Completion Rate: ${completionRate}%`, 14, 44);
+    doc.text(`Total Tasks: ${totalTasks} | Completed: ${completedTasks} | Completion Rate: ${completionRate.toFixed(1)}%`, 14, 44);
 
     // Process tasks in chunks to avoid memory issues
     let startY = 50;
