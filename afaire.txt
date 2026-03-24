@@ -5,3 +5,4 @@ QUI SERAIT COOL
 A Faire PROCHAINEMENT
 - remplacer toutes les loading par celui cree et ensuite remplacer les icones
 - page/friends ligne 103
+- regrouper les calculs des stats (si c'est regroupable afin de reutiliser) pour que tout soit coherent partout
