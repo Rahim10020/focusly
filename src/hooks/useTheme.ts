@@ -8,6 +8,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { API_ROUTES } from '@/components/shared/constants/apiRoutes';
 
 /**
  * Available theme options.
@@ -83,7 +84,7 @@ export function useTheme() {
         // Update server-side preference if logged in
         if (session) {
             try {
-                await fetch('/api/user/preferences', {
+                await fetch(API_ROUTES.USER_PREFERENCES, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

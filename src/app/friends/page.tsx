@@ -17,6 +17,10 @@ import { UserSearch } from "@/components/friends/UserSearch";
 import { PendingRequests } from "@/components/friends/PendingRequests";
 import { FriendsList } from "@/components/friends/FriendsList";
 import { ROUTES } from "@/components/shared/constants/routes";
+import {
+  API_DYNAMIC_ROUTES,
+  API_ROUTES,
+} from "@/components/shared/constants/apiRoutes";
 import { MyLoader } from "@/components/ui/MyLoader";
 
 interface User {
@@ -83,7 +87,7 @@ export default function FriendsPage() {
 
   const fetchFriends = async () => {
     try {
-      const response = await fetch("/api/friends");
+      const response = await fetch(API_ROUTES.FRIENDS);
       if (!response.ok) {
         throw new Error("Failed to fetch friends");
       }
@@ -104,7 +108,7 @@ export default function FriendsPage() {
     try {
       // For now, we'll fetch all friend relationships and filter client-side
       // In a real app, you'd want a separate endpoint for pending requests
-      const response = await fetch("/api/friends");
+      const response = await fetch(API_ROUTES.FRIENDS);
       if (!response.ok) {
         throw new Error("Failed to fetch friend requests");
       }
@@ -131,7 +135,7 @@ export default function FriendsPage() {
       return newSet;
     });
     try {
-      const response = await fetch(`/api/friends/${requestId}`, {
+      const response = await fetch(API_DYNAMIC_ROUTES.FRIEND_BY_ID(requestId), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -166,7 +170,7 @@ export default function FriendsPage() {
       return newSet;
     });
     try {
-      const response = await fetch(`/api/friends/${requestId}`, {
+      const response = await fetch(API_DYNAMIC_ROUTES.FRIEND_BY_ID(requestId), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -203,9 +207,7 @@ export default function FriendsPage() {
 
     setSearching(true);
     try {
-      const response = await fetch(
-        `/api/users?search=${encodeURIComponent(query)}`,
-      );
+      const response = await fetch(API_DYNAMIC_ROUTES.USERS_SEARCH(query));
       if (!response.ok) {
         throw new Error("Failed to search users");
       }
@@ -230,7 +232,7 @@ export default function FriendsPage() {
 
   const handleSendFriendRequest = async (userId: string) => {
     try {
-      const response = await fetch("/api/friends", {
+      const response = await fetch(API_ROUTES.FRIENDS, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -259,9 +261,12 @@ export default function FriendsPage() {
     }
 
     try {
-      const response = await fetch(`/api/friends/${friendshipId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        API_DYNAMIC_ROUTES.FRIEND_BY_ID(friendshipId),
+        {
+          method: "DELETE",
+        },
+      );
 
       if (!response.ok) {
         const errorData = await response.json();

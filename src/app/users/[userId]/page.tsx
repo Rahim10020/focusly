@@ -15,6 +15,10 @@ import Header from "@/components/layout/Header";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { ROUTES } from "@/components/shared/constants/routes";
+import {
+  API_DYNAMIC_ROUTES,
+  API_ROUTES,
+} from "@/components/shared/constants/apiRoutes";
 import { MyLoader } from "@/components/ui/MyLoader";
 
 interface UserStats {
@@ -52,7 +56,7 @@ export default function UserProfilePage() {
 
   const fetchUserStats = useCallback(async () => {
     try {
-      const response = await fetch(`/api/users/${userId}`);
+      const response = await fetch(API_DYNAMIC_ROUTES.USER_BY_ID(userId));
       if (!response.ok) {
         if (response.status === 404) {
           setError("User not found");
@@ -87,7 +91,7 @@ export default function UserProfilePage() {
 
     setSendingRequest(true);
     try {
-      const response = await fetch("/api/friends", {
+      const response = await fetch(API_ROUTES.FRIENDS, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -8,6 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { supabaseClient } from '@/lib/supabase/client';
 import { playNotificationSound, NotificationSoundType } from '@/lib/utils/notificationSounds';
+import { API_DYNAMIC_ROUTES, API_ROUTES } from '@/components/shared/constants/apiRoutes';
 
 // Simple in-memory cache to reduce duplicate fetches during dev/hot-reload or multiple mounts
 const CACHE_TTL_MS = 30 * 1000; // 30 seconds
@@ -85,7 +86,7 @@ export function useNotifications() {
         setLoading(true);
 
         try {
-            const response = await fetch('/api/notifications');
+            const response = await fetch(API_ROUTES.NOTIFICATIONS);
             if (!response.ok) {
                 throw new Error('Failed to fetch notifications');
             }
@@ -114,7 +115,7 @@ export function useNotifications() {
      */
     const markAsRead = useCallback(async (notificationId: string, read: boolean = true) => {
         try {
-            const response = await fetch(`/api/notifications/${notificationId}`, {
+            const response = await fetch(API_DYNAMIC_ROUTES.NOTIFICATION_BY_ID(notificationId), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ export function useNotifications() {
      */
     const deleteNotification = useCallback(async (notificationId: string) => {
         try {
-            const response = await fetch(`/api/notifications/${notificationId}`, {
+            const response = await fetch(API_DYNAMIC_ROUTES.NOTIFICATION_BY_ID(notificationId), {
                 method: 'DELETE',
             });
 
@@ -192,7 +193,7 @@ export function useNotifications() {
         data?: unknown;
     }) => {
         try {
-            const response = await fetch('/api/notifications', {
+            const response = await fetch(API_ROUTES.NOTIFICATIONS, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

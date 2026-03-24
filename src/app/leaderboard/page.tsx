@@ -16,6 +16,10 @@ import Button from "@/components/ui/Button";
 import Image from "next/image";
 import { LeaderboardUser, LeaderboardResponse } from "@/types/leaderboard";
 import { DYNAMIC_ROUTES, ROUTES } from "@/components/shared/constants/routes";
+import {
+  API_DYNAMIC_ROUTES,
+  API_ROUTES,
+} from "@/components/shared/constants/apiRoutes";
 import { MyLoader } from "@/components/ui/MyLoader";
 
 interface FriendData {
@@ -54,7 +58,9 @@ export default function LeaderboardPage() {
       if (timeFilter !== "all") {
         params.append("timeFilter", timeFilter);
       }
-      const response = await fetch(`/api/leaderboard?${params}`);
+      const response = await fetch(
+        API_DYNAMIC_ROUTES.LEADERBOARD_WITH_QUERY(params),
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch leaderboard");
       }
@@ -72,7 +78,7 @@ export default function LeaderboardPage() {
 
   const fetchFriendsAndRequests = async () => {
     try {
-      const response = await fetch("/api/friends");
+      const response = await fetch(API_ROUTES.FRIENDS);
       if (!response.ok) {
         throw new Error("Failed to fetch friends");
       }
@@ -184,7 +190,7 @@ export default function LeaderboardPage() {
   const handleSendFriendRequest = async (userId: string) => {
     setFriendRequestStatuses((prev) => new Map(prev.set(userId, "pending")));
     try {
-      const response = await fetch("/api/friends", {
+      const response = await fetch(API_ROUTES.FRIENDS, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
