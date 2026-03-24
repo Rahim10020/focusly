@@ -1,10 +1,10 @@
 import { LoadingIcon } from "../shared/icons";
 
-export type LoaderProps = {
+export type MyLoaderProps = {
   label: string;
 };
 
-export function Loader(props: LoaderProps) {
+export function MyLoader(props: MyLoaderProps) {
   const { label = "Loading" } = props;
   return (
     <div className="flex items-center gap-2">

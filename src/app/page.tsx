@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { LandingPage } from "@/components/home/LandingPage";
 import { Dashboard } from "@/components/home/Dashboard";
-import { Loader } from "@/components/ui/Loader";
+import { MyLoader } from "@/components/ui/MyLoader";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -11,7 +11,7 @@ export default function Home() {
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader label="Loading" />
+        <MyLoader label="Loading" />
       </div>
     );
   }

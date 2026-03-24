@@ -16,7 +16,7 @@ import { useTasks } from "@/lib/hooks/useTasks";
 import { useTags } from "@/lib/hooks/useTags";
 import { Task } from "@/types";
 import TaskDetailsModal from "@/components/tasks/TaskDetailsModal";
-import { Loader } from "@/components/ui/Loader";
+import { MyLoader } from "@/components/ui/MyLoader";
 import { ROUTES } from "@/components/shared/constants/routes";
 
 // Lazy load CalendarView for better performance
@@ -26,7 +26,7 @@ const CalendarView = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex items-center justify-center py-12">
-        <Loader label="Loading" />
+        <MyLoader label="Loading" />
       </div>
     ),
   },
@@ -55,7 +55,7 @@ export default function CalendarPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader label="Loading" />
+        <MyLoader label="Loading" />
       </div>
     );
   }
