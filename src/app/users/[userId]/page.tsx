@@ -5,303 +5,309 @@
  * @module app/users/[userId]/page
  */
 
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
-import Image from 'next/image';
-import Header from '@/components/layout/Header';
-import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import { useCallback, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
+import Header from "@/components/layout/Header";
+import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import { ROUTES } from "@/components/shared/constants/routes";
+import { MyLoader } from "@/components/ui/MyLoader";
 
-/**
- * Represents a user's public profile data with statistics.
- * @interface UserStats
- */
 interface UserStats {
-    /** Unique user identifier */
-    id: string;
-    /** User's display name */
-    username: string | null;
-    /** URL to user's avatar image */
-    avatar_url: string | null;
-    /** Whether the viewer is friends with this user */
-    isFriend: boolean;
-    /** User's productivity statistics (null values indicate hidden data) */
-    stats: {
-        total_sessions: number | null;
-        completed_tasks: number | null;
-        total_tasks: number | null;
-        streak: number | null;
-        total_focus_time: number | null;
-        longest_streak: number | null;
-        tasks_completed_today: number | null;
-    } | null;
+  /** Unique user identifier */
+  id: string;
+  /** User's display name */
+  username: string | null;
+  /** URL to user's avatar image */
+  avatar_url: string | null;
+  /** Whether the viewer is friends with this user */
+  isFriend: boolean;
+  /** User's productivity statistics (null values indicate hidden data) */
+  stats: {
+    total_sessions: number | null;
+    completed_tasks: number | null;
+    total_tasks: number | null;
+    streak: number | null;
+    total_focus_time: number | null;
+    longest_streak: number | null;
+    tasks_completed_today: number | null;
+  } | null;
 }
 
-/**
- * User Profile page component for viewing other users' public profiles.
- * Displays user stats, avatar, and provides friend request functionality.
- * Accessible via dynamic route parameter [userId].
- *
- * @returns {JSX.Element | null} The rendered user profile page or null during loading
- */
 export default function UserProfilePage() {
-    const { data: session, status } = useSession();
-    const router = useRouter();
-    const params = useParams();
-    const userId = params.userId as string;
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const params = useParams();
+  const userId = params.userId as string;
 
-    const [userStats, setUserStats] = useState<UserStats | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [sendingRequest, setSendingRequest] = useState(false);
-    const [hasPendingRequest, setHasPendingRequest] = useState(false);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [sendingRequest, setSendingRequest] = useState(false);
+  const [hasPendingRequest, setHasPendingRequest] = useState(false);
 
-    const fetchUserStats = useCallback(async () => {
-        try {
-            const response = await fetch(`/api/users/${userId}`);
-            if (!response.ok) {
-                if (response.status === 404) {
-                    setError('User not found');
-                } else {
-                    throw new Error('Failed to fetch user stats');
-                }
-                return;
-            }
-
-            const payload = await response.json() as { data?: UserStats };
-            setUserStats(payload.data ?? null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
-        } finally {
-            setLoading(false);
+  const fetchUserStats = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/users/${userId}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError("User not found");
+        } else {
+          throw new Error("Failed to fetch user stats");
         }
-    }, [userId]);
+        return;
+      }
 
-    useEffect(() => {
-        if (status === 'loading') return;
+      const payload = (await response.json()) as { data?: UserStats };
+      setUserStats(payload.data ?? null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
 
-        if (!session) {
-            router.push('/auth/signin');
-            return;
-        }
+  useEffect(() => {
+    if (status === "loading") return;
 
-        fetchUserStats();
-    }, [session, status, router, fetchUserStats]);
-
-    const handleSendFriendRequest = async () => {
-        if (!userStats) return;
-
-        setSendingRequest(true);
-        try {
-            const response = await fetch('/api/friends', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ receiver_id: userId }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json() as { error?: { message?: string } };
-                throw new Error(errorData.error?.message || 'Failed to send friend request');
-            }
-
-            setHasPendingRequest(true);
-            // ✅ AJOUT: Notification de succès
-            alert('Friend request sent successfully!');
-        } catch (err) {
-            alert(err instanceof Error ? err.message : 'Failed to send friend request');
-        } finally {
-            setSendingRequest(false);
-        }
-    };
-
-    const formatTime = (seconds: number) => {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        return `${hours}h ${minutes}m`;
-    };
-
-    if (status === 'loading' || loading) {
-        return (
-            <div className="min-h-screen bg-background">
-                <Header />
-                <div className="max-w-4xl mx-auto px-6 py-8">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                        <p>Loading user profile...</p>
-                    </div>
-                </div>
-            </div>
-        );
+    if (!session) {
+      router.push(ROUTES.SIGN_IN);
+      return;
     }
 
-    if (error) {
-        return (
-            <div className="min-h-screen bg-background">
-                <Header />
-                <div className="max-w-4xl mx-auto px-6 py-8">
-                    <Card>
-                        <CardContent className="p-6 text-center">
-                            <p className="text-red-500 mb-4">{error}</p>
-                            <Button onClick={() => router.back()}>Go Back</Button>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
+    fetchUserStats();
+  }, [session, status, router, fetchUserStats]);
+
+  const handleSendFriendRequest = async () => {
+    if (!userStats) return;
+
+    setSendingRequest(true);
+    try {
+      const response = await fetch("/api/friends", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ receiver_id: userId }),
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json()) as {
+          error?: { message?: string };
+        };
+        throw new Error(
+          errorData.error?.message || "Failed to send friend request",
         );
+      }
+
+      setHasPendingRequest(true);
+      // Notification de succès
+      alert("Friend request sent successfully!");
+    } catch (err) {
+      alert(
+        err instanceof Error ? err.message : "Failed to send friend request",
+      );
+    } finally {
+      setSendingRequest(false);
     }
+  };
 
-    if (!userStats) return null;
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+  };
 
-    const isOwnProfile = session?.user?.id === userStats?.id;
-
+  if (status === "loading" || loading) {
     return (
-        <div className="min-h-screen bg-background">
-            <Header />
-            <main className="max-w-4xl mx-auto px-6 py-8">
-                <div className="mb-8">
-                    <Button
-                        onClick={() => router.back()}
-                        variant="secondary"
-                        className="mb-4"
-                    >
-                        ← Back to Leaderboard
-                    </Button>
-
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                            {userStats.avatar_url ? (
-                                <Image
-                                    src={userStats.avatar_url}
-                                    alt={userStats.username || 'User'}
-                                    width={64}
-                                    height={64}
-                                    className="w-16 h-16 rounded-full"
-                                />
-                            ) : (
-                                <span className="text-2xl">
-                                    {(userStats.username || 'Player').charAt(0).toUpperCase()}
-                                </span>
-                            )}
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold">
-                                {userStats.username || 'Player'}
-                            </h1>
-                            {!isOwnProfile && (
-                                <div className="mt-2">
-                                    {hasPendingRequest ? (
-                                        <Button disabled>Friend Request Sent</Button>
-                                    ) : userStats.isFriend ? (
-                                        <Button disabled>Friends</Button>
-                                    ) : (
-                                        <Button
-                                            onClick={handleSendFriendRequest}
-                                            disabled={sendingRequest}
-                                        >
-                                            {sendingRequest ? 'Sending...' : 'Send Friend Request'}
-                                        </Button>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {!isOwnProfile && !userStats.isFriend ? (
-                    <div className="text-center py-8">
-                        <p className="text-muted-foreground text-lg">
-                            You must be friends with this person to see their stats.
-                        </p>
-                    </div>
-                ) : userStats.stats ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Total Focus Time</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-3xl font-bold text-primary">
-                                    {userStats.stats.total_focus_time !== null ? formatTime(userStats.stats.total_focus_time) : 'Hidden'}
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Total Sessions</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-3xl font-bold text-primary">
-                                    {userStats.stats.total_sessions !== null ? userStats.stats.total_sessions : 'Hidden'}
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Tasks Completed</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-3xl font-bold text-primary">
-                                    {userStats.stats.completed_tasks !== null ? userStats.stats.completed_tasks : 'Hidden'}
-                                </p>
-                                {userStats.stats.total_tasks !== null && (
-                                    <p className="text-sm text-muted-foreground">
-                                        of {userStats.stats.total_tasks} total
-                                    </p>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Current Streak</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-3xl font-bold text-primary">
-                                    {userStats.stats.streak !== null ? `${userStats.stats.streak} days` : 'Hidden'}
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Longest Streak</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-3xl font-bold text-primary">
-                                    {userStats.stats.longest_streak !== null ? `${userStats.stats.longest_streak} days` : 'Hidden'}
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Today&apos;s Tasks</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-3xl font-bold text-primary">
-                                    {userStats.stats.tasks_completed_today !== null ? userStats.stats.tasks_completed_today : 'Hidden'}
-                                </p>
-                                {userStats.stats.tasks_completed_today !== null && (
-                                    <p className="text-sm text-muted-foreground">
-                                        completed today
-                                    </p>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
-                ) : (
-                    <div className="text-center py-8">
-                        <p className="text-muted-foreground">No stats available</p>
-                    </div>
-                )}
-            </main>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <MyLoader label="Loading user profile" />
         </div>
+      </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <Card>
+            <CardContent className="p-6 text-center">
+              <p className="text-red-500 mb-4">{error}</p>
+              <Button onClick={() => router.back()}>Go Back</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userStats) return null;
+
+  const isOwnProfile = session?.user?.id === userStats?.id;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="max-w-6xl mx-auto px-6 py-8">
+        <div className="mb-8">
+          <Button
+            onClick={() => router.back()}
+            variant="secondary"
+            className="mb-4"
+          >
+            ← Back to Leaderboard
+          </Button>
+
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              {userStats.avatar_url ? (
+                <Image
+                  src={userStats.avatar_url}
+                  alt={userStats.username || "User"}
+                  width={64}
+                  height={64}
+                  className="w-16 h-16 rounded-full"
+                />
+              ) : (
+                <span className="text-2xl">
+                  {(userStats.username || "Player").charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold">
+                {userStats.username || "Player"}
+              </h1>
+              {!isOwnProfile && (
+                <div className="mt-2">
+                  {hasPendingRequest ? (
+                    <Button disabled>Friend Request Sent</Button>
+                  ) : userStats.isFriend ? (
+                    <Button disabled>Friends</Button>
+                  ) : (
+                    <Button
+                      onClick={handleSendFriendRequest}
+                      disabled={sendingRequest}
+                    >
+                      {sendingRequest ? "Sending..." : "Send Friend Request"}
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {!isOwnProfile && !userStats.isFriend ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground text-lg">
+              You must be friends with this person to see their stats.
+            </p>
+          </div>
+        ) : userStats.stats ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Focus Time</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-primary">
+                  {userStats.stats.total_focus_time !== null
+                    ? formatTime(userStats.stats.total_focus_time)
+                    : "Hidden"}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Sessions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-primary">
+                  {userStats.stats.total_sessions !== null
+                    ? userStats.stats.total_sessions
+                    : "Hidden"}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Tasks Completed</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-primary">
+                  {userStats.stats.completed_tasks !== null
+                    ? userStats.stats.completed_tasks
+                    : "Hidden"}
+                </p>
+                {userStats.stats.total_tasks !== null && (
+                  <p className="text-sm text-muted-foreground">
+                    of {userStats.stats.total_tasks} total
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Current Streak</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-primary">
+                  {userStats.stats.streak !== null
+                    ? `${userStats.stats.streak} days`
+                    : "Hidden"}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Longest Streak</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-primary">
+                  {userStats.stats.longest_streak !== null
+                    ? `${userStats.stats.longest_streak} days`
+                    : "Hidden"}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Today&apos;s Tasks</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-primary">
+                  {userStats.stats.tasks_completed_today !== null
+                    ? userStats.stats.tasks_completed_today
+                    : "Hidden"}
+                </p>
+                {userStats.stats.tasks_completed_today !== null && (
+                  <p className="text-sm text-muted-foreground">
+                    completed today
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No stats available</p>
+          </div>
+        )}
+      </main>
+    </div>
+  );
 }
