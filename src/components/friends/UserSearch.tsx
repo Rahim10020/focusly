@@ -2,12 +2,13 @@
  * @fileoverview User search component for finding friends
  */
 
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
+import Image from "next/image";
+import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import { MyLoader } from "../ui/MyLoader";
 
 interface UserSearchResult {
   id: string;
@@ -46,7 +47,7 @@ export function UserSearch({
         />
         {searching && (
           <div className="mt-4 text-center text-muted-foreground">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+            <MyLoader label="Searching" />
           </div>
         )}
         {!searching && searchResults.length > 0 && (
@@ -61,28 +62,27 @@ export function UserSearch({
                     {user.avatar_url ? (
                       <Image
                         src={user.avatar_url}
-                        alt={user.username || 'User'}
+                        alt={user.username || "User"}
                         width={40}
                         height={40}
                         className="w-10 h-10 rounded-full"
                       />
                     ) : (
                       <span className="text-lg">
-                        {(user.username || 'A').charAt(0).toUpperCase()}
+                        {(user.username || "A").charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
                   <div>
-                    <p className="font-medium">{user.username || 'Anonymous User'}</p>
+                    <p className="font-medium">
+                      {user.username || "Anonymous User"}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       {user.stats?.completed_tasks || 0} tasks completed
                     </p>
                   </div>
                 </div>
-                <Button
-                  onClick={() => onSendFriendRequest(user.id)}
-                  size="sm"
-                >
+                <Button onClick={() => onSendFriendRequest(user.id)} size="sm">
                   Add Friend
                 </Button>
               </div>
@@ -90,7 +90,9 @@ export function UserSearch({
           </div>
         )}
         {!searching && searchQuery && searchResults.length === 0 && (
-          <p className="mt-4 text-center text-muted-foreground">No users found</p>
+          <p className="mt-4 text-center text-muted-foreground">
+            No users found
+          </p>
         )}
       </CardContent>
     </Card>
