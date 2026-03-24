@@ -5,6 +5,6 @@ export const ROUTES = {
     VERIFY_EMAIL: '/auth/verify-email',
 
     // TASKS
-    CREATE_TASK: '/create-task'
-
+    CREATE_TASK: '/create-task',
+    TASKS: '/tasks'
 }
