@@ -1,10 +1,13 @@
 export const ROUTES = {
     // AUTH
     SIGN_IN: '/auth/signin',
-    SIGN_UP: '',
+    SIGN_UP: '/auth/signup',
     VERIFY_EMAIL: '/auth/verify-email',
 
     // TASKS
     CREATE_TASK: '/create-task',
-    TASKS: '/tasks'
+    TASKS: '/tasks',
+
+    //HOME
+    HOME: '/'
 }
