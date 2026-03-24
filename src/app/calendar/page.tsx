@@ -17,6 +17,7 @@ import { useTags } from "@/lib/hooks/useTags";
 import { Task } from "@/types";
 import TaskDetailsModal from "@/components/tasks/TaskDetailsModal";
 import { Loader } from "@/components/ui/Loader";
+import { ROUTES } from "@/components/shared/constants/routes";
 
 // Lazy load CalendarView for better performance
 const CalendarView = dynamic(
@@ -60,7 +61,7 @@ export default function CalendarPage() {
   }
 
   if (!session) {
-    router.push("/auth/signin");
+    router.push(ROUTES.SIGN_IN);
     return null;
   }
 
