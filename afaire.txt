@@ -11,3 +11,4 @@ A Faire PROCHAINEMENT
     le projet ou qu'il faut changer un truc si on est dans un vrai projet (create-task, page)
 - creer un seul client supabase et reutiliser faut pas creer un client dans chaque page ou il faut l'utiliser
 - fichiers principals dans lesquels ils faut changer les icones (toutes les pages auth)
+- revoir le loader de Button dans ui
