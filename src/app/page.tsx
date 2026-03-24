@@ -11,7 +11,7 @@ export default function Home() {
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader />
+        <Loader label="Loading" />
       </div>
     );
   }
