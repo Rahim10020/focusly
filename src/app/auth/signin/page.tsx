@@ -70,7 +70,7 @@ export default function SignIn() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-normal mb-1 text-black-50"
+                  className="block text-sm font-normal mb-1 text-black-40"
                 >
                   Email Address
                 </label>
@@ -86,7 +86,7 @@ export default function SignIn() {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium mb-1 text-foreground"
+                  className="block text-sm font-normal mb-1 text-black-40"
                 >
                   Password
                 </label>
