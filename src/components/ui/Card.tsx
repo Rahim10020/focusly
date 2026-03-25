@@ -2,19 +2,19 @@
  * @fileoverview Card component and sub-components for content containers.
  */
 
-import React from 'react';
+import React from "react";
 
 /**
  * Props for the Card component.
  * @interface CardProps
  */
 interface CardProps {
-    /** The content to display inside the card */
-    children: React.ReactNode;
-    /** Additional CSS classes */
-    className?: string;
-    /** The visual style variant of the card */
-    variant?: 'default' | 'elevated' | 'interactive' | 'outline' | 'none';
+  /** The content to display inside the card */
+  children: React.ReactNode;
+  /** Additional CSS classes */
+  className?: string;
+  /** The visual style variant of the card */
+  variant?: "default" | "elevated" | "interactive" | "outline" | "none";
 }
 
 /**
@@ -41,22 +41,28 @@ interface CardProps {
  *   Clickable content
  * </Card>
  */
-export default function Card({ children, className = '', variant = 'default' }: CardProps) {
-    const variants = {
-        default: 'shadow-sm rounded-2xl border border-border bg-card',
-        elevated: 'shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl border border-border bg-card',
-        interactive: 'shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer rounded-2xl border border-border bg-card',
-        outline: 'shadow-none border-2 rounded-2xl border border-border bg-card',
-        none: 'bg-transparent rounded-2xl',
-    };
+export default function Card({
+  children,
+  className = "",
+  variant = "default",
+}: CardProps) {
+  const variants = {
+    default: "shadow-sm rounded-2xl border border-border bg-card",
+    elevated:
+      "shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl border border-border bg-card",
+    interactive:
+      "shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer rounded-2xl border border-border bg-card",
+    outline: "shadow-none border-2 rounded-2xl border border-border bg-card",
+    none: "bg-transparent rounded-2xl",
+  };
 
-    return (
-        <div
-            className={`text-card-foreground  p-6 smooth-transition ${variants[variant]} ${className}`}
-        >
-            {children}
-        </div>
-    );
+  return (
+    <div
+      className={`text-card-foreground  p-6 smooth-transition ${variants[variant]} ${className}`}
+    >
+      {children}
+    </div>
+  );
 }
 
 /**
@@ -64,10 +70,10 @@ export default function Card({ children, className = '', variant = 'default' }: 
  * @interface CardSubComponentProps
  */
 interface CardSubComponentProps {
-    /** The content to display */
-    children: React.ReactNode;
-    /** Additional CSS classes */
-    className?: string;
+  /** The content to display */
+  children: React.ReactNode;
+  /** Additional CSS classes */
+  className?: string;
 }
 
 /**
@@ -76,8 +82,11 @@ interface CardSubComponentProps {
  * @param {CardSubComponentProps} props - The component props
  * @returns {JSX.Element} The rendered card header
  */
-export function CardHeader({ children, className = '' }: CardSubComponentProps) {
-    return <div className={`mb-4 ${className}`}>{children}</div>;
+export function CardHeader({
+  children,
+  className = "",
+}: CardSubComponentProps) {
+  return <div className={`mb-4 ${className}`}>{children}</div>;
 }
 
 /**
@@ -86,8 +95,12 @@ export function CardHeader({ children, className = '' }: CardSubComponentProps) 
  * @param {CardSubComponentProps} props - The component props
  * @returns {JSX.Element} The rendered card title
  */
-export function CardTitle({ children, className = '' }: CardSubComponentProps) {
-    return <h3 className={`text-xl font-semibold text-foreground ${className}`}>{children}</h3>;
+export function CardTitle({ children, className = "" }: CardSubComponentProps) {
+  return (
+    <h3 className={`text-3xl font-semibold text-foreground ${className}`}>
+      {children}
+    </h3>
+  );
 }
 
 /**
@@ -96,8 +109,11 @@ export function CardTitle({ children, className = '' }: CardSubComponentProps) {
  * @param {CardSubComponentProps} props - The component props
  * @returns {JSX.Element} The rendered card content
  */
-export function CardContent({ children, className = '' }: CardSubComponentProps) {
-    return <div className={className}>{children}</div>;
+export function CardContent({
+  children,
+  className = "",
+}: CardSubComponentProps) {
+  return <div className={className}>{children}</div>;
 }
 
 /**
@@ -106,8 +122,13 @@ export function CardContent({ children, className = '' }: CardSubComponentProps)
  * @param {CardSubComponentProps} props - The component props
  * @returns {JSX.Element} The rendered card description
  */
-export function CardDescription({ children, className = '' }: CardSubComponentProps) {
-    return <p className={`text-sm text-muted-foreground ${className}`}>{children}</p>;
+export function CardDescription({
+  children,
+  className = "",
+}: CardSubComponentProps) {
+  return (
+    <p className={`text-sm text-muted-foreground ${className}`}>{children}</p>
+  );
 }
 
 /**
@@ -116,6 +137,13 @@ export function CardDescription({ children, className = '' }: CardSubComponentPr
  * @param {CardSubComponentProps} props - The component props
  * @returns {JSX.Element} The rendered card footer
  */
-export function CardFooter({ children, className = '' }: CardSubComponentProps) {
-    return <div className={`mt-4 flex items-center gap-2 ${className}`}>{children}</div>;
+export function CardFooter({
+  children,
+  className = "",
+}: CardSubComponentProps) {
+  return (
+    <div className={`mt-4 flex items-center gap-2 ${className}`}>
+      {children}
+    </div>
+  );
 }
