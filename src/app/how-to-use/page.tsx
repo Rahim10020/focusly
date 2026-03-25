@@ -13,13 +13,6 @@ import Button from "@/components/ui/Button";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { ROUTES } from "@/components/shared/constants/routes";
 
-/**
- * How to Use page component providing comprehensive user documentation.
- * Includes sections on getting started, app tour, task management,
- * timer controls, calendar, analytics, achievements, and keyboard shortcuts.
- *
- * @returns {JSX.Element} The rendered documentation page
- */
 export default function HowToUsePage() {
   return (
     <div className="min-h-screen bg-background">
