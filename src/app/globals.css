@@ -1,6 +1,20 @@
 @import "tailwindcss";
 
 :root {
+  /* Figma Tokens - Black palette */
+  --primary: #ef4444;
+  --black: #161212;
+  --black-90: rgb(22 18 18 / 0.9);
+  --black-80: rgb(22 18 18 / 0.8);
+  --black-70: rgb(22 18 18 / 0.7);
+  --black-60: rgb(22 18 18 / 0.6);
+  --black-50: rgb(22 18 18 / 0.5);
+  --black-40: rgb(22 18 18 / 0.4);
+  --black-30: rgb(22 18 18 / 0.3);
+  --black-20: rgb(22 18 18 / 0.2);
+  --black-10: rgb(22 18 18 / 0.1);
+  --black-5: rgb(22 18 18 / 0.05);
+
   /* Brand Colors - Pomodoro Theme */
   --brand-primary: #ef4444;
   /* Rouge tomate */
@@ -23,17 +37,17 @@
 
   /* Base Colors */
   --background: #fafafa;
-  --foreground: #1f2937;
+  --foreground: var(--black-80);
   --card: #ffffff;
-  --card-foreground: #1f2937;
+  --card-foreground: var(--black-80);
   --primary: #ef4444;
   --primary-foreground: #ffffff;
   --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
+  --muted-foreground: var(--black-60);
   --accent: #fef2f2;
-  --accent-foreground: #1f2937;
-  --border: #e5e7eb;
-  --input: #e5e7eb;
+  --accent-foreground: var(--black-80);
+  --border: var(--black-10);
+  --input: var(--black-10);
   --ring: #ef4444;
 
   /* Radius */
@@ -43,16 +57,28 @@
   --radius-xl: 1.5rem;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg:
-    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-sm: 0 1px 2px 0 var(--black-5);
+  --shadow: 0 1px 3px 0 var(--black-10), 0 1px 2px -1px var(--black-10);
+  --shadow-md: 0 4px 6px -1px var(--black-10), 0 2px 4px -2px var(--black-10);
+  --shadow-lg: 0 10px 15px -3px var(--black-10), 0 4px 6px -4px var(--black-10);
   --shadow-xl:
-    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    0 20px 25px -5px var(--black-10), 0 8px 10px -6px var(--black-10);
 }
 
 .dark {
+  --primary: #ef4444;
+  --black: #161212;
+  --black-90: rgb(22 18 18 / 0.9);
+  --black-80: rgb(22 18 18 / 0.8);
+  --black-70: rgb(22 18 18 / 0.7);
+  --black-60: rgb(22 18 18 / 0.6);
+  --black-50: rgb(22 18 18 / 0.5);
+  --black-40: rgb(22 18 18 / 0.4);
+  --black-30: rgb(22 18 18 / 0.3);
+  --black-20: rgb(22 18 18 / 0.2);
+  --black-10: rgb(22 18 18 / 0.1);
+  --black-5: rgb(22 18 18 / 0.05);
+
   /* Brand Colors - Adjusted for dark mode */
   --brand-primary: #f87171;
   --brand-primary-light: #fca5a5;
@@ -71,7 +97,7 @@
   --info-light: #93c5fd;
 
   /* Base Colors - Deep slate theme */
-  --background: #0f172a;
+  --background: var(--black);
   --foreground: #f1f5f9;
   --card: #1e293b;
   --card-foreground: #f1f5f9;
@@ -86,13 +112,12 @@
   --ring: #f87171;
 
   /* Shadows - Adjusted for dark mode */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
-  --shadow-lg:
-    0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  --shadow-sm: 0 1px 2px 0 var(--black-30);
+  --shadow: 0 1px 3px 0 var(--black-40), 0 1px 2px -1px var(--black-40);
+  --shadow-md: 0 4px 6px -1px var(--black-40), 0 2px 4px -2px var(--black-40);
+  --shadow-lg: 0 10px 15px -3px var(--black-50), 0 4px 6px -4px var(--black-50);
   --shadow-xl:
-    0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+    0 20px 25px -5px var(--black-50), 0 8px 10px -6px var(--black-50);
 }
 
 @theme {
@@ -417,7 +442,7 @@ body {
 .focus-mode-timer {
   transform: scale(1.2);
   animation: breathe 4s ease-in-out infinite;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px var(--black-30);
 }
 
 @keyframes breathe {
