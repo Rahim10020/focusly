@@ -2,7 +2,7 @@
  * @fileoverview Email Verification page for the Focusly application.
  * Handles email verification tokens from Supabase and provides
  * feedback on verification status with resend functionality.
- * @module app/auth/verify-email/page
+ * @module app/verify-email/page
  */
 
 "use client";
@@ -98,11 +98,13 @@ function VerifyEmailContent() {
 
     setIsLoading(true);
     try {
+      const baseUrl = window.location.origin;
+      const emailRedirectTo = new URL(ROUTES.VERIFY_EMAIL, baseUrl).toString();
       const { error } = await supabase.auth.resend({
         type: "signup",
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/verify-email`,
+          emailRedirectTo,
         },
       });
 

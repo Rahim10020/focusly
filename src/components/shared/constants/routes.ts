@@ -7,7 +7,7 @@ export const ROUTES = {
   // AUTH
   SIGN_IN: "/signin",
   SIGN_UP: "/signup",
-  VERIFY_EMAIL: "/auth/verify-email",
+  VERIFY_EMAIL: "/verify-email",
 
   // PRODUCTIVITY
   TASKS: "/tasks",

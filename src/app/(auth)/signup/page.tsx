@@ -54,7 +54,7 @@ export default function SignUp() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/verify-email`,
+          emailRedirectTo: `${window.location.origin}/verify-email`,
           data: {
             username: username,
           },
@@ -103,7 +103,7 @@ export default function SignUp() {
                         type: "signup",
                         email,
                         options: {
-                          emailRedirectTo: `${window.location.origin}/auth/verify-email`,
+                          emailRedirectTo: `${window.location.origin}/verify-email`,
                         },
                       });
                       if (error) throw error;

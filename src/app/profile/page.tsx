@@ -125,7 +125,7 @@ export default function ProfilePage() {
         const { error } = await supabase.auth.updateUser(
           { email: email },
           {
-            emailRedirectTo: `${window.location.origin}/auth/verify-email`,
+            emailRedirectTo: `${window.location.origin}/verify-email`,
           },
         );
 
