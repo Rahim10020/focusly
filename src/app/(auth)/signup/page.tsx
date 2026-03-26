@@ -157,7 +157,7 @@ export default function SignUp() {
 
   return (
     <Card variant="none">
-      <CardHeader>
+      <CardHeader className="mb-8">
         <CardTitle className="text-start text-foreground">
           Create Account
         </CardTitle>

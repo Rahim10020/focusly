@@ -58,7 +58,7 @@ export default function SignIn() {
 
   return (
     <Card variant="none">
-      <CardHeader>
+      <CardHeader className="mb-8">
         <CardTitle className="text-start text-foreground">Sign In</CardTitle>
       </CardHeader>
       <CardContent>

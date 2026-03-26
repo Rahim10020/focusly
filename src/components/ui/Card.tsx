@@ -74,9 +74,6 @@ export function CardTitle({ children, className = "" }: CardSubComponentProps) {
 
 /**
  * Main content section of a Card component.
- *
- * @param {CardSubComponentProps} props - The component props
- * @returns {JSX.Element} The rendered card content
  */
 export function CardContent({
   children,
@@ -87,9 +84,6 @@ export function CardContent({
 
 /**
  * Description text for use within Card.
- *
- * @param {CardSubComponentProps} props - The component props
- * @returns {JSX.Element} The rendered card description
  */
 export function CardDescription({
   children,
@@ -102,9 +96,6 @@ export function CardDescription({
 
 /**
  * Footer section of a Card component.
- *
- * @param {CardSubComponentProps} props - The component props
- * @returns {JSX.Element} The rendered card footer
  */
 export function CardFooter({
   children,
