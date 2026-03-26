@@ -46,7 +46,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <div className="relative">
           <input
             ref={ref}
-            className={`w-full px-4 bg-black-5 py-2.5 text-foreground
+            className={`w-full px-4 bg-black-5 py-2 text-foreground
                         ${noBorder ? "border-0" : "rounded-sm"}
                         focus:outline-none focus:ring-2 focus:ring-offset-0
                         transition-all duration-300 ease-out

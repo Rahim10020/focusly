@@ -15,7 +15,9 @@ export default function AuthLayout(props: AuthLayoutProps) {
           <AppLogo iconSize={32} md={true} />
           <LanguageSwitcher />
         </header>
-        <div className="flex items-center justify-center p-6">{children}</div>
+        <div className="flex-1 flex items-center justify-center p-6">
+          {children}
+        </div>
       </div>
 
       <div className="hidden md:block bg-primary"></div>
