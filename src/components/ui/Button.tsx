@@ -40,7 +40,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ghost:
         "bg-transparent text-foreground hover:bg-muted active:scale-[0.98]",
       outline:
-        "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground active:scale-[0.98]",
+        "bg-transparent border-2 !border-primary text-primary hover:bg-primary hover:text-primary-foreground active:scale-[0.98]",
       danger:
         "bg-[var(--error)] text-white hover:bg-[var(--error-light)] active:scale-[0.98] shadow-sm hover:shadow-md",
       success:
