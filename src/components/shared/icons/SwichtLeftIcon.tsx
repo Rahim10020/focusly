@@ -1,5 +1,3 @@
-import * as React from "react";
-
 import type { IconProps } from "./types";
 
 const SwichtLeftIcon = ({
