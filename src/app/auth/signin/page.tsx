@@ -81,6 +81,7 @@ export default function SignIn() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder="your@email.com"
+                  className="placeholder:text-sm placeholder:text-black-40"
                 />
               </div>
               <div>
@@ -97,6 +98,7 @@ export default function SignIn() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="Your password"
+                  className="placeholder:text-sm placeholder:text-black-40"
                 />
               </div>
               {error && (
