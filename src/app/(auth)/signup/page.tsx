@@ -213,6 +213,7 @@ export default function SignUp() {
               required
               minLength={6}
               placeholder="Your password"
+              showPasswordToggle
               className="placeholder:text-sm placeholder:text-black-40"
             />
           </div>

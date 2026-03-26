@@ -94,6 +94,7 @@ export default function SignIn() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Your password"
+              showPasswordToggle
               className="placeholder:text-sm placeholder:text-black-40"
             />
           </div>

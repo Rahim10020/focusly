@@ -2,7 +2,7 @@
  * @fileoverview Card component and sub-components for content containers.
  */
 
-import React from "react";
+import { ReactNode } from "react";
 
 /**
  * Props for the Card component.
@@ -10,37 +10,13 @@ import React from "react";
  */
 interface CardProps {
   /** The content to display inside the card */
-  children: React.ReactNode;
+  children: ReactNode;
   /** Additional CSS classes */
   className?: string;
   /** The visual style variant of the card */
   variant?: "default" | "elevated" | "interactive" | "outline" | "none";
 }
 
-/**
- * A container component for grouping related content with various visual styles.
- *
- * @param {CardProps} props - The component props
- * @param {React.ReactNode} props.children - Card content
- * @param {string} [props.className=''] - Additional CSS classes
- * @param {('default'|'elevated'|'interactive'|'outline'|'none')} [props.variant='default'] - Visual style variant
- * @returns {JSX.Element} The rendered card element
- *
- * @example
- * // Basic card
- * <Card>
- *   <CardHeader>
- *     <CardTitle>Title</CardTitle>
- *   </CardHeader>
- *   <CardContent>Content here</CardContent>
- * </Card>
- *
- * @example
- * // Interactive card
- * <Card variant="interactive" onClick={handleClick}>
- *   Clickable content
- * </Card>
- */
 export default function Card({
   children,
   className = "",
@@ -53,7 +29,7 @@ export default function Card({
     interactive:
       "shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer rounded-2xl border border-border bg-card",
     outline: "shadow-none border-2 rounded-2xl border border-border bg-card",
-    none: "bg-transparent rounded-2xl",
+    none: "bg-transparent",
   };
 
   return (
@@ -67,20 +43,16 @@ export default function Card({
 
 /**
  * Props for Card sub-components.
- * @interface CardSubComponentProps
  */
 interface CardSubComponentProps {
   /** The content to display */
-  children: React.ReactNode;
+  children: ReactNode;
   /** Additional CSS classes */
   className?: string;
 }
 
 /**
  * Header section of a Card component.
- *
- * @param {CardSubComponentProps} props - The component props
- * @returns {JSX.Element} The rendered card header
  */
 export function CardHeader({
   children,
@@ -91,9 +63,6 @@ export function CardHeader({
 
 /**
  * Title element for use within CardHeader.
- *
- * @param {CardSubComponentProps} props - The component props
- * @returns {JSX.Element} The rendered card title
  */
 export function CardTitle({ children, className = "" }: CardSubComponentProps) {
   return (

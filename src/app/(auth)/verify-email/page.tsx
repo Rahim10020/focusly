@@ -102,7 +102,7 @@ function VerifyEmailContent() {
         type: "signup",
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/verify-email`,
+          emailRedirectTo: `${window.location.origin}/verify-email`,
         },
       });
 
@@ -116,37 +116,35 @@ function VerifyEmailContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 transition-colors duration-200">
-      <Card className="w-full max-w-md bg-transparent" variant="none">
-        <CardContent className="text-center py-8">
-          <div
-            className={`text-4xl mb-4 ${isVerified ? "text-green-500" : "text-yellow-500"}`}
-          >
-            {isVerified ? "✓" : "⏳"}
-          </div>
-          <h2 className="text-xl font-semibold mb-2 text-foreground">
-            {isVerified ? "Email Verified!" : "Verification in progress..."}
-          </h2>
-          <p className="text-muted-foreground mb-6">{message}</p>
-          {isVerified ? (
-            <Button onClick={handleContinue} disabled={isLoading}>
-              Sign In
+    <Card variant="none">
+      <CardContent className="text-center py-8">
+        <div
+          className={`text-4xl mb-4 ${isVerified ? "text-green-500" : "text-yellow-500"}`}
+        >
+          {isVerified ? "✓" : "⏳"}
+        </div>
+        <h2 className="text-xl font-semibold mb-2 text-foreground">
+          {isVerified ? "Email Verified!" : "Verification in progress..."}
+        </h2>
+        <p className="text-muted-foreground mb-6">{message}</p>
+        {isVerified ? (
+          <Button onClick={handleContinue} disabled={isLoading}>
+            Sign In
+          </Button>
+        ) : (
+          email && (
+            <Button
+              onClick={handleResend}
+              disabled={isLoading}
+              variant="outline"
+              className="mt-4"
+            >
+              {isLoading ? <MyLoader label="Sending" /> : "Resend Email"}
             </Button>
-          ) : (
-            email && (
-              <Button
-                onClick={handleResend}
-                disabled={isLoading}
-                variant="outline"
-                className="mt-4"
-              >
-                {isLoading ? <MyLoader label="Sending" /> : "Resend Email"}
-              </Button>
-            )
-          )}
-        </CardContent>
-      </Card>
-    </div>
+          )
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
