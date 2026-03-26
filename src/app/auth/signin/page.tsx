@@ -58,7 +58,7 @@ export default function SignIn() {
 
   return (
     <div className="min-h-screen grid grid-cols-2 transition-colors duration-200">
-      <div className="flex items-center justify-center">
+      <div className="flex items-center bg-white justify-center">
         <Card variant="none">
           <CardHeader>
             <CardTitle className="text-start text-foreground">
@@ -120,11 +120,11 @@ export default function SignIn() {
               </Button>
             </form>
             <div className="mt-4 text-center">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-black-40">
                 Don&apos;t have an account?{" "}
                 <Link
                   href={ROUTES.SIGN_UP}
-                  className="text-brand-accent hover:underline"
+                  className="text-primary hover:underline"
                 >
                   Sign Up
                 </Link>
