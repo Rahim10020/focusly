@@ -2,7 +2,7 @@
  * @fileoverview Sign Up page for the Focusly application.
  * Provides user registration form with email verification flow
  * using Supabase authentication.
- * @module app/auth/signup/page
+ * @module app/signup/page
  */
 
 "use client";

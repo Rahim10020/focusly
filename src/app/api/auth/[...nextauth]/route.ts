@@ -10,20 +10,20 @@
  * @see {@link https://next-auth.js.org/getting-started/rest-api} NextAuth REST API
  */
 
-import NextAuth from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import NextAuth from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 /**
  * NextAuth handler that processes all authentication requests.
  *
  * @description Handles various authentication endpoints:
- * - GET /api/auth/signin - Sign in page
+ * - GET /api/signin - Sign in page
  * - GET /api/auth/signout - Sign out page
  * - GET /api/auth/session - Get session data
  * - GET /api/auth/csrf - Get CSRF token
  * - GET /api/auth/providers - List available providers
  * - GET /api/auth/callback/:provider - OAuth callback
- * - POST /api/auth/signin/:provider - Initiate sign in
+ * - POST /api/signin/:provider - Initiate sign in
  * - POST /api/auth/signout - Process sign out
  * - POST /api/auth/callback/:provider - Process OAuth callback
  *
