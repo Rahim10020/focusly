@@ -38,4 +38,5 @@ export { default as TrashEmptyIcon } from "./TrashEmptyIcon";
 export { default as TrashFullIcon } from "./TrashFullIcon";
 export { default as User01Icon } from "./User01Icon";
 export { default as WavyCheckIcon } from "./WavyCheckIcon";
+export { default as GlobeIcon } from "./GlobeIcon";
 export type { IconProps } from "./types";
