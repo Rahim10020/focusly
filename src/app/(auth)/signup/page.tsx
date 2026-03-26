@@ -156,101 +156,102 @@ export default function SignUp() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 transition-colors duration-200">
-      <Card className="w-full max-w-md bg-transparent" variant="none">
-        <CardHeader>
-          <CardTitle className="text-start text-foreground">
-            Create Account
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium mb-1 text-foreground"
-              >
-                Username
-              </label>
-              <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                placeholder="Your username"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium mb-1 text-foreground"
-              >
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="your@email.com"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium mb-1 text-foreground"
-              >
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                placeholder="Your password"
-              />
-            </div>
-            {error && (
-              <div className="text-red-500 text-sm text-center">{error}</div>
-            )}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
-                <MyLoader label="Creating account" />
-              ) : (
-                "Create My Account"
-              )}
-              <svg
-                className="w-5 h-5 animate-arrow-slide"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </Button>
-          </form>
-          <div className="mt-4 text-center">
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link
-                href={ROUTES.SIGN_IN}
-                className="text-brand-accent hover:underline"
-              >
-                Sign In
-              </Link>
-            </p>
+    <Card variant="none">
+      <CardHeader>
+        <CardTitle className="text-start text-foreground">
+          Create Account
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-sm font-normal mb-1 text-black-40"
+            >
+              Username
+            </label>
+            <Input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              placeholder="Your username"
+              className="placeholder:text-sm placeholder:text-black-40"
+            />
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-normal mb-1 text-black-40"
+            >
+              Email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="your@email.com"
+              className="placeholder:text-sm placeholder:text-black-40"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-normal mb-1 text-black-40"
+            >
+              Password
+            </label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              placeholder="Your password"
+              className="placeholder:text-sm placeholder:text-black-40"
+            />
+          </div>
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? (
+              <MyLoader label="Creating account" />
+            ) : (
+              "Create My Account"
+            )}
+            <svg
+              className="w-5 h-5 animate-arrow-slide"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </Button>
+        </form>
+        <div className="mt-4 text-center">
+          <p className="text-sm text-black-40">
+            Already have an account?{" "}
+            <Link
+              href={ROUTES.SIGN_IN}
+              className="text-primary hover:underline"
+            >
+              Sign In
+            </Link>
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
