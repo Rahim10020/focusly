@@ -7,34 +7,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "../ui/ThemeToggle";
 import UserMenu from "../ui/UserMenu";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
 import { ROUTES } from "@/components/shared/constants/routes";
+import AppLogo from "../shared/AppLogo";
 
-/**
- * Main header component that displays the application logo, navigation links,
- * theme toggle, and user menu. Includes responsive design with a mobile hamburger menu.
- *
- * @returns {JSX.Element} The header component with navigation
- *
- * @example
- * // Use in a layout component
- * function Layout({ children }) {
- *   return (
- *     <>
- *       <Header />
- *       <main>{children}</main>
- *     </>
- *   );
- * }
- *
- * @example
- * // Header automatically handles active states based on current route
- * // Navigation includes: Dashboard, Tasks, Calendar, Statistics, Friends, Leaderboard
- */
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -43,24 +22,7 @@ export default function Header() {
   return (
     <header className="w-full bg-background/95 backdrop-blur-md sticky top-0 z-50 border-b border-border/50 shadow-sm">
       <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-        <Link
-          href={ROUTES.HOME}
-          className="flex items-center gap-3 group transition-all"
-        >
-          <div className="relative">
-            <Image
-              src="/apple-touch-icon.png"
-              alt="Focusly Logo"
-              width={36}
-              height={36}
-              className="w-9 h-9 rounded-full ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all"
-            />
-          </div>
-          <h1 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-            Focusly
-          </h1>
-        </Link>
-
+        <AppLogo />
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-2">
           <Link
