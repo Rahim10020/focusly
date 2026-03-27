@@ -85,25 +85,30 @@ export default function SignUp() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-muted-foreground mb-4">
+        <p className="text-black-60 text-base">
           {successMessage ||
             "A verification email has been sent to your email address."}
         </p>
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-base text-black-60 mb-12">
           Check your inbox and click the link to activate your account.
         </p>
         <div className="mt-4">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-black-50">
             Didn&apos;t receive the email?{" "}
             <button
               onClick={async () => {
                 try {
                   setLoading(true);
+                  const baseUrl = window.location.origin;
+                  const emailRedirectTo = new URL(
+                    ROUTES.VERIFY_EMAIL,
+                    baseUrl,
+                  ).toString();
                   const { error } = await supabase.auth.resend({
                     type: "signup",
                     email,
                     options: {
-                      emailRedirectTo: `${window.location.origin}/verify-email`,
+                      emailRedirectTo,
                     },
                   });
                   if (error) throw error;
@@ -114,18 +119,18 @@ export default function SignUp() {
                   setLoading(false);
                 }
               }}
-              className="text-primary hover:underline focus:outline-none"
+              className="text-primary cursor-pointer hover:underline focus:outline-none"
               disabled={loading}
             >
               {loading ? <MyLoader label="Verifying email" /> : "Resend Email"}
             </button>
           </p>
         </div>
-        <div className="mt-6 pt-4">
+        <div className="mt-6">
           <Button
-            variant="outline"
+            variant="primary"
             onClick={() => router.push(ROUTES.SIGN_IN)}
-            className="w-full"
+            className=""
           >
             <svg
               className="w-5 h-5 animate-arrow-slide"
