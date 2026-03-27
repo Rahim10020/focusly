@@ -39,4 +39,7 @@ export { default as TrashFullIcon } from "./TrashFullIcon";
 export { default as User01Icon } from "./User01Icon";
 export { default as WavyCheckIcon } from "./WavyCheckIcon";
 export { default as GlobeIcon } from "./GlobeIcon";
+export { default as FileDocumentIcon } from "./FileDocumentIcon";
+export { default as DownloadIcon } from "./DownloadIcon";
+export { default as CircleIcon } from "./CircleIcon";
 export type { IconProps } from "./types";
