@@ -16,6 +16,7 @@ import Input from "@/components/ui/Input";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { ROUTES } from "@/components/shared/constants/routes";
 import { MyLoader } from "@/components/ui/MyLoader";
+import { ArrowRightLgIcon } from "@/components/shared/icons";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -103,19 +104,7 @@ export default function SignIn() {
           )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? <MyLoader label="Signing in" /> : "Sign In"}
-            <svg
-              className="w-5 h-5 animate-arrow-slide"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 7l5 5m0 0l-5 5m5-5H6"
-              />
-            </svg>
+            <ArrowRightLgIcon className="w-5 h-5 animate-arrow-slide" />
           </Button>
         </form>
         <div className="mt-4 text-center">
