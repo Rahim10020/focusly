@@ -13,6 +13,7 @@ import UserMenu from "../ui/UserMenu";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
 import { ROUTES } from "@/components/shared/constants/routes";
 import AppLogo from "../shared/AppLogo";
+import { BellIcon } from "../shared/icons";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -68,21 +69,8 @@ export default function Header() {
               className={`p-2 rounded-full transition-colors relative ${pathname === ROUTES.NOTIFICATIONS ? "bg-accent" : "hover:bg-accent"}`}
               aria-label="Notifications"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-              </svg>
-              {/* ✅ AJOUT: Badge unread count */}
+              <BellIcon size={20} />
+              {/* Badge unread count */}
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
                   {unreadCount > 9 ? "9+" : unreadCount}
