@@ -14,6 +14,7 @@ import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { ROUTES } from "@/components/shared/constants/routes";
 import { MyLoader } from "@/components/ui/MyLoader";
+import { WavyCheckIcon } from "@/components/shared/icons";
 
 function VerifyEmailContent() {
   const [message, setMessage] = useState("Verification in progress...");
@@ -123,10 +124,10 @@ function VerifyEmailContent() {
         <div
           className={`text-4xl mb-4 ${isVerified ? "text-green-500" : "text-yellow-500"}`}
         >
-          {isVerified ? "✓" : <MyLoader label="" />}
+          {isVerified ? <WavyCheckIcon /> : <MyLoader label="" />}
         </div>
         <h2 className="text-2xl font-semibold mb-2 text-foreground">
-          {isVerified ? "Email Verified!" : "Verification in progress..."}
+          {isVerified ? "Email Verified!" : "Email Verification..."}
         </h2>
         <p className="text-muted-foreground mb-6">{message}</p>
         {isVerified ? (
@@ -138,7 +139,7 @@ function VerifyEmailContent() {
             <Button
               onClick={handleResend}
               disabled={isLoading}
-              variant="outline"
+              variant="primary"
               className="mt-4"
             >
               {isLoading ? <MyLoader label="Sending" /> : "Resend Email"}
@@ -154,14 +155,11 @@ export default function VerifyEmail() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-background px-4">
-          <Card className="w-full max-w-md bg-transparent" variant="none">
-            <CardContent className="text-center py-8">
-              <div className="text-4xl mb-4 text-yellow-500">⏳</div>
-              <MyLoader label="Verifying your email" />
-            </CardContent>
-          </Card>
-        </div>
+        <Card variant="none">
+          <CardContent className="text-center">
+            <MyLoader label="Verifying your email" />
+          </CardContent>
+        </Card>
       }
     >
       <VerifyEmailContent />
