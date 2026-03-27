@@ -76,62 +76,160 @@ export default function SignUp() {
     }
   };
 
-  // if (success) {
+  if (success) {
+    return (
+      <Card variant="none">
+        <CardHeader className="mb-8">
+          <CardTitle className="text-start text-foreground">
+            Registration Successful!
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-black-60 text-base">
+            {successMessage ||
+              "A verification email has been sent to your email address."}
+          </p>
+          <p className="text-base text-black-60 mb-12">
+            Check your inbox and click the link to activate your account.
+          </p>
+          <div className="mt-4">
+            <p className="text-sm text-black-50">
+              Didn&apos;t receive the email?{" "}
+              <button
+                onClick={async () => {
+                  try {
+                    setLoading(true);
+                    const baseUrl = window.location.origin;
+                    const emailRedirectTo = new URL(
+                      ROUTES.VERIFY_EMAIL,
+                      baseUrl,
+                    ).toString();
+                    const { error } = await supabase.auth.resend({
+                      type: "signup",
+                      email,
+                      options: {
+                        emailRedirectTo,
+                      },
+                    });
+                    if (error) throw error;
+                    setSuccessMessage(
+                      "A new verification email has been sent!",
+                    );
+                  } catch {
+                    setError("Error sending email. Please try again.");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                className="text-primary cursor-pointer hover:underline focus:outline-none"
+                disabled={loading}
+              >
+                {loading ? (
+                  <MyLoader label="Verifying email" />
+                ) : (
+                  "Resend Email"
+                )}
+              </button>
+            </p>
+          </div>
+          <div className="mt-6">
+            <Button
+              variant="primary"
+              onClick={() => router.push(ROUTES.SIGN_IN)}
+              className=""
+            >
+              <svg
+                className="w-5 h-5 animate-arrow-slide"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+              Back to Sign In
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card variant="none">
       <CardHeader className="mb-8">
         <CardTitle className="text-start text-foreground">
-          Registration Successful!
+          Create Account
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-black-60 text-base">
-          {successMessage ||
-            "A verification email has been sent to your email address."}
-        </p>
-        <p className="text-base text-black-60 mb-12">
-          Check your inbox and click the link to activate your account.
-        </p>
-        <div className="mt-4">
-          <p className="text-sm text-black-50">
-            Didn&apos;t receive the email?{" "}
-            <button
-              onClick={async () => {
-                try {
-                  setLoading(true);
-                  const baseUrl = window.location.origin;
-                  const emailRedirectTo = new URL(
-                    ROUTES.VERIFY_EMAIL,
-                    baseUrl,
-                  ).toString();
-                  const { error } = await supabase.auth.resend({
-                    type: "signup",
-                    email,
-                    options: {
-                      emailRedirectTo,
-                    },
-                  });
-                  if (error) throw error;
-                  setSuccessMessage("A new verification email has been sent!");
-                } catch {
-                  setError("Error sending email. Please try again.");
-                } finally {
-                  setLoading(false);
-                }
-              }}
-              className="text-primary cursor-pointer hover:underline focus:outline-none"
-              disabled={loading}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-sm font-normal mb-1 text-black-40"
             >
-              {loading ? <MyLoader label="Verifying email" /> : "Resend Email"}
-            </button>
-          </p>
-        </div>
-        <div className="mt-6">
-          <Button
-            variant="primary"
-            onClick={() => router.push(ROUTES.SIGN_IN)}
-            className=""
-          >
+              Username
+            </label>
+            <Input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              placeholder="Your username"
+              className="placeholder:text-sm placeholder:text-black-40"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-normal mb-1 text-black-40"
+            >
+              Email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="your@email.com"
+              className="placeholder:text-sm placeholder:text-black-40"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-normal mb-1 text-black-40"
+            >
+              Password
+            </label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              placeholder="Your password"
+              showPasswordToggle
+              className="placeholder:text-sm placeholder:text-black-40"
+            />
+          </div>
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? (
+              <MyLoader label="Creating account" />
+            ) : (
+              "Create My Account"
+            )}
             <svg
               className="w-5 h-5 animate-arrow-slide"
               fill="none"
@@ -145,112 +243,20 @@ export default function SignUp() {
                 d="M13 7l5 5m0 0l-5 5m5-5H6"
               />
             </svg>
-            Back to Sign In
           </Button>
+        </form>
+        <div className="mt-4 text-center">
+          <p className="text-sm text-black-40">
+            Already have an account?{" "}
+            <Link
+              href={ROUTES.SIGN_IN}
+              className="text-primary hover:underline"
+            >
+              Sign In
+            </Link>
+          </p>
         </div>
       </CardContent>
     </Card>
   );
-  // }
-
-  // return (
-  //   <Card variant="none">
-  //     <CardHeader className="mb-8">
-  //       <CardTitle className="text-start text-foreground">
-  //         Create Account
-  //       </CardTitle>
-  //     </CardHeader>
-  //     <CardContent>
-  //       <form onSubmit={handleSubmit} className="space-y-4">
-  //         <div>
-  //           <label
-  //             htmlFor="username"
-  //             className="block text-sm font-normal mb-1 text-black-40"
-  //           >
-  //             Username
-  //           </label>
-  //           <Input
-  //             id="username"
-  //             type="text"
-  //             value={username}
-  //             onChange={(e) => setUsername(e.target.value)}
-  //             required
-  //             placeholder="Your username"
-  //             className="placeholder:text-sm placeholder:text-black-40"
-  //           />
-  //         </div>
-  //         <div>
-  //           <label
-  //             htmlFor="email"
-  //             className="block text-sm font-normal mb-1 text-black-40"
-  //           >
-  //             Email
-  //           </label>
-  //           <Input
-  //             id="email"
-  //             type="email"
-  //             value={email}
-  //             onChange={(e) => setEmail(e.target.value)}
-  //             required
-  //             placeholder="your@email.com"
-  //             className="placeholder:text-sm placeholder:text-black-40"
-  //           />
-  //         </div>
-  //         <div>
-  //           <label
-  //             htmlFor="password"
-  //             className="block text-sm font-normal mb-1 text-black-40"
-  //           >
-  //             Password
-  //           </label>
-  //           <Input
-  //             id="password"
-  //             type="password"
-  //             value={password}
-  //             onChange={(e) => setPassword(e.target.value)}
-  //             required
-  //             minLength={6}
-  //             placeholder="Your password"
-  //             showPasswordToggle
-  //             className="placeholder:text-sm placeholder:text-black-40"
-  //           />
-  //         </div>
-  //         {error && (
-  //           <div className="text-red-500 text-sm text-center">{error}</div>
-  //         )}
-  //         <Button type="submit" className="w-full" disabled={loading}>
-  //           {loading ? (
-  //             <MyLoader label="Creating account" />
-  //           ) : (
-  //             "Create My Account"
-  //           )}
-  //           <svg
-  //             className="w-5 h-5 animate-arrow-slide"
-  //             fill="none"
-  //             stroke="currentColor"
-  //             viewBox="0 0 24 24"
-  //           >
-  //             <path
-  //               strokeLinecap="round"
-  //               strokeLinejoin="round"
-  //               strokeWidth={2}
-  //               d="M13 7l5 5m0 0l-5 5m5-5H6"
-  //             />
-  //           </svg>
-  //         </Button>
-  //       </form>
-  //       <div className="mt-4 text-center">
-  //         <p className="text-sm text-black-40">
-  //           Already have an account?{" "}
-  //           <Link
-  //             href={ROUTES.SIGN_IN}
-  //             className="text-primary hover:underline"
-  //           >
-  //             Sign In
-  //           </Link>
-  //         </p>
-  //       </div>
-  //     </CardContent>
-  //   </Card>
-  // );
 }
