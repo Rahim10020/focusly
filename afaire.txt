@@ -13,3 +13,5 @@ A Faire PROCHAINEMENT
 - revoir le loader de Button dans ui
 
 - A changer apres quand j'aurai une meilleure icone
+
+---- proch : TaskModalHeader.tsx:30: réduire/sortir du fullscreen.

@@ -3,31 +3,32 @@
  * Organizes tasks into columns by status (To Do, In Progress, Done) with drag-and-drop support.
  */
 
-'use client';
+"use client";
 
-import { Task, Tag, TaskStatus } from '@/types';
+import { Task, Tag, TaskStatus } from "@/types";
 import React from "react";
-import { TaskBoardCard } from './TaskBoardCard';
+import { TaskBoardCard } from "./TaskBoardCard";
+import { CircleIcon } from "../shared/icons";
 
 /** Available sort types for task ordering */
-type SortType = 'default' | 'alphabetical' | 'createdAt' | 'priority';
+type SortType = "default" | "alphabetical" | "createdAt" | "priority";
 
 /**
  * Props for the TaskBoardView component.
  */
 interface TaskBoardViewProps {
-    tasks: Task[];
-    activeTaskId: string | null;
-    tags: Tag[];
-    sortType: SortType;
-    sortTasks: (taskList: Task[]) => Task[];
-    onToggle: (id: string) => void;
-    onDelete: (id: string) => void;
-    onSelectTask: (id: string | null) => void;
-    onUpdate: (id: string, updates: Partial<Task>) => void;
-    onStatusChange: (id: string, status: TaskStatus) => void;
-    /** Callback when task edit is requested */
-    onEditTask: (task: Task) => void;
+  tasks: Task[];
+  activeTaskId: string | null;
+  tags: Tag[];
+  sortType: SortType;
+  sortTasks: (taskList: Task[]) => Task[];
+  onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
+  onSelectTask: (id: string | null) => void;
+  onUpdate: (id: string, updates: Partial<Task>) => void;
+  onStatusChange: (id: string, status: TaskStatus) => void;
+  /** Callback when task edit is requested */
+  onEditTask: (task: Task) => void;
 }
 
 /**
@@ -64,109 +65,121 @@ interface TaskBoardViewProps {
  * />
  */
 export default function TaskBoardView({
-    tasks,
-    activeTaskId,
-    tags,
-    sortTasks,
-    onDelete,
-    onSelectTask,
-    onStatusChange,
-    onEditTask,
+  tasks,
+  activeTaskId,
+  tags,
+  sortTasks,
+  onDelete,
+  onSelectTask,
+  onStatusChange,
+  onEditTask,
 }: TaskBoardViewProps) {
-    const columns: { id: TaskStatus; title: string; color: string }[] = [
-        { id: 'todo', title: 'To Do', color: 'bg-muted-foreground/10 border-muted-foreground/20' },
-        { id: 'in-progress', title: 'In Progress', color: 'bg-warning/10 border-warning/20' },
-        { id: 'done', title: 'Done', color: 'bg-success/10 border-success/20' },
-    ];
+  const columns: { id: TaskStatus; title: string; color: string }[] = [
+    {
+      id: "todo",
+      title: "To Do",
+      color: "bg-muted-foreground/10 border-muted-foreground/20",
+    },
+    {
+      id: "in-progress",
+      title: "In Progress",
+      color: "bg-warning/10 border-warning/20",
+    },
+    { id: "done", title: "Done", color: "bg-success/10 border-success/20" },
+  ];
 
-    const getTasksByStatus = (status: TaskStatus) => {
-        const filteredTasks = tasks.filter(task => {
-            const taskStatus = task.status || (task.completed ? 'done' : 'todo');
-            return taskStatus === status;
-        });
-        return sortTasks(filteredTasks);
-    };
+  const getTasksByStatus = (status: TaskStatus) => {
+    const filteredTasks = tasks.filter((task) => {
+      const taskStatus = task.status || (task.completed ? "done" : "todo");
+      return taskStatus === status;
+    });
+    return sortTasks(filteredTasks);
+  };
 
-    const handleDragStart = (e: React.DragEvent, taskId: string) => {
-        e.dataTransfer.setData('taskId', taskId);
-        e.dataTransfer.effectAllowed = 'move';
-    };
+  const handleDragStart = (e: React.DragEvent, taskId: string) => {
+    e.dataTransfer.setData("taskId", taskId);
+    e.dataTransfer.effectAllowed = "move";
+  };
 
-    const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-    };
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
 
-    const handleDrop = (e: React.DragEvent, targetStatus: TaskStatus) => {
-        e.preventDefault();
-        const taskId = e.dataTransfer.getData('taskId');
-        if (taskId) {
-            onStatusChange(taskId, targetStatus);
-        }
-    };
+  const handleDrop = (e: React.DragEvent, targetStatus: TaskStatus) => {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData("taskId");
+    if (taskId) {
+      onStatusChange(taskId, targetStatus);
+    }
+  };
 
-    const getTaskTags = (task: Task) => {
-        return tags.filter(tag => task.tags?.includes(tag.id));
-    };
+  const getTaskTags = (task: Task) => {
+    return tags.filter((tag) => task.tags?.includes(tag.id));
+  };
 
-    return (
-        <div className="h-full">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
-                {columns.map((column) => {
-                    const columnTasks = getTasksByStatus(column.id);
+  return (
+    <div className="h-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+        {columns.map((column) => {
+          const columnTasks = getTasksByStatus(column.id);
+
+          return (
+            <div
+              key={column.id}
+              className="flex flex-col min-h-[500px]"
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, column.id)}
+            >
+              {/* Column Header */}
+              <div
+                className={`flex items-center justify-between p-4 rounded-t-xl border-2 ${column.color}`}
+              >
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-foreground">
+                    {column.title}
+                  </h3>
+                  <span className="px-2 py-0.5 bg-background/50 rounded-full text-xs font-medium">
+                    {columnTasks.length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Column Body */}
+              <div className="flex-1 bg-card border-2 border-t-0 border-border rounded-b-xl p-4 space-y-3 overflow-y-auto">
+                {columnTasks.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
+                    <CircleIcon size={48} className="opacity-30" />
+                    <p className="text-sm">No tasks</p>
+                  </div>
+                ) : (
+                  columnTasks.map((task) => {
+                    const taskTags = getTaskTags(task);
+                    const isActive = activeTaskId === task.id;
 
                     return (
-                        <div
-                            key={column.id}
-                            className="flex flex-col min-h-[500px]"
-                            onDragOver={handleDragOver}
-                            onDrop={(e) => handleDrop(e, column.id)}
-                        >
-                            {/* Column Header */}
-                            <div className={`flex items-center justify-between p-4 rounded-t-xl border-2 ${column.color}`}>
-                                <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold text-foreground">{column.title}</h3>
-                                    <span className="px-2 py-0.5 bg-background/50 rounded-full text-xs font-medium">
-                                        {columnTasks.length}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Column Body */}
-                            <div className="flex-1 bg-card border-2 border-t-0 border-border rounded-b-xl p-4 space-y-3 overflow-y-auto">
-                                {columnTasks.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
-                                        <svg className="w-12 h-12 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                        </svg>
-                                        <p className="text-sm">No tasks</p>
-                                    </div>
-                                ) : (
-                                    columnTasks.map((task) => {
-                                        const taskTags = getTaskTags(task);
-                                        const isActive = activeTaskId === task.id;
-
-                                        return (
-                                            <TaskBoardCard
-                                                key={task.id}
-                                                task={task}
-                                                taskTags={taskTags}
-                                                isActive={isActive}
-                                                onDragStart={handleDragStart}
-                                                onStatusChange={(taskId, status) => onStatusChange(taskId, status as TaskStatus)}
-                                                onEdit={onEditTask}
-                                                onSelect={onSelectTask}
-                                                onUnselect={() => onSelectTask(null)}
-                                                onDelete={onDelete}
-                                            />
-                                        );
-                                    })
-                                )}
-                            </div>
-                        </div>
+                      <TaskBoardCard
+                        key={task.id}
+                        task={task}
+                        taskTags={taskTags}
+                        isActive={isActive}
+                        onDragStart={handleDragStart}
+                        onStatusChange={(taskId, status) =>
+                          onStatusChange(taskId, status as TaskStatus)
+                        }
+                        onEdit={onEditTask}
+                        onSelect={onSelectTask}
+                        onUnselect={() => onSelectTask(null)}
+                        onDelete={onDelete}
+                      />
                     );
-                })}
+                  })
+                )}
+              </div>
             </div>
-        </div>
-    );
+          );
+        })}
+      </div>
+    </div>
+  );
 }
