@@ -119,13 +119,13 @@ function VerifyEmailContent() {
 
   return (
     <Card variant="none">
-      <CardContent className="text-center py-8">
+      <CardContent className="text-center">
         <div
           className={`text-4xl mb-4 ${isVerified ? "text-green-500" : "text-yellow-500"}`}
         >
-          {isVerified ? "✓" : "⏳"}
+          {isVerified ? "✓" : <MyLoader label="" />}
         </div>
-        <h2 className="text-xl font-semibold mb-2 text-foreground">
+        <h2 className="text-2xl font-semibold mb-2 text-foreground">
           {isVerified ? "Email Verified!" : "Verification in progress..."}
         </h2>
         <p className="text-muted-foreground mb-6">{message}</p>
@@ -150,12 +150,6 @@ function VerifyEmailContent() {
   );
 }
 
-/**
- * Email Verification page component wrapped in Suspense boundary.
- * This prevents client-side rendering bailout when using useSearchParams.
- *
- * @returns {JSX.Element} The rendered verification status page with Suspense
- */
 export default function VerifyEmail() {
   return (
     <Suspense
