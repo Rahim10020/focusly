@@ -22,6 +22,8 @@ import {
 } from "@/components/shared/constants/apiRoutes";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { formatHoursMinutesFromSeconds } from "@/lib/utils/stats-calculations";
+import { InfoIcon } from "@/components/shared/icons";
+import UsersIcon from "@/components/shared/icons/UsersIcon";
 
 interface FriendData {
   id: string;
@@ -231,22 +233,7 @@ export default function LeaderboardPage() {
           <Card>
             <CardContent className="p-8 text-center">
               <div className="w-16 h-16 rounded-full bg-red-500/10 mx-auto mb-4 flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-red-500"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
+                <InfoIcon size={32} className="text-red-500" />
               </div>
               <p className="text-red-500 mb-4 text-lg">Error: {error}</p>
               <Button onClick={() => fetchLeaderboard()}>Try Again</Button>
@@ -499,22 +486,7 @@ export default function LeaderboardPage() {
             {sortedLeaderboard.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-muted-foreground"
-                  >
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
-                  </svg>
+                  <UsersIcon size={32} className="text-muted-foreground" />
                 </div>
                 <p className="text-muted-foreground text-lg">
                   No users found. Be the first to start focusing!
