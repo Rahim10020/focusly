@@ -24,6 +24,8 @@ import { MyLoader } from "@/components/ui/MyLoader";
 import { formatHoursMinutesFromSeconds } from "@/lib/utils/stats-calculations";
 import { InfoIcon } from "@/components/shared/icons";
 import UsersIcon from "@/components/shared/icons/UsersIcon";
+import ChevronLeftIcon from "@/components/shared/icons/ChevronLeftIcon";
+import ChevronRightIcon from "@/components/shared/icons/ChevronRightIcon";
 
 interface FriendData {
   id: string;
@@ -607,19 +609,7 @@ export default function LeaderboardPage() {
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1 || loading}
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <ChevronLeftIcon size={16} />
               Previous
             </Button>
 
@@ -660,19 +650,7 @@ export default function LeaderboardPage() {
               disabled={currentPage === pagination.totalPages || loading}
             >
               Next
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+              <ChevronRightIcon size={16} />
             </Button>
           </div>
         )}
