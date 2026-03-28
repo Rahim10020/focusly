@@ -4,7 +4,8 @@
  * @module lib/utils/date-comparison-helpers
  */
 
-import { toTimestamp } from './conversion-helpers';
+import { toTimestamp } from "./conversion-helpers";
+import { TIME_MS } from "@/lib/constants";
 
 /**
  * Type for dates that can be either timestamp or ISO string
@@ -22,8 +23,8 @@ export type DateInput = number | string;
  * // Returns: true (if current date is after 2024-01-01)
  */
 export const isPastDate = (date: DateInput): boolean => {
-    const timestamp = typeof date === 'string' ? toTimestamp(date) : date;
-    return timestamp < Date.now();
+  const timestamp = typeof date === "string" ? toTimestamp(date) : date;
+  return timestamp < Date.now();
 };
 
 /**
@@ -37,8 +38,8 @@ export const isPastDate = (date: DateInput): boolean => {
  * // Returns: true (if current date is before 2025-12-31)
  */
 export const isFutureDate = (date: DateInput): boolean => {
-    const timestamp = typeof date === 'string' ? toTimestamp(date) : date;
-    return timestamp > Date.now();
+  const timestamp = typeof date === "string" ? toTimestamp(date) : date;
+  return timestamp > Date.now();
 };
 
 /**
@@ -52,15 +53,15 @@ export const isFutureDate = (date: DateInput): boolean => {
  * // Returns: true
  */
 export const isTodayDate = (date: DateInput): boolean => {
-    const timestamp = typeof date === 'string' ? toTimestamp(date) : date;
-    const checkDate = new Date(timestamp);
-    const today = new Date();
+  const timestamp = typeof date === "string" ? toTimestamp(date) : date;
+  const checkDate = new Date(timestamp);
+  const today = new Date();
 
-    return (
-        checkDate.getDate() === today.getDate() &&
-        checkDate.getMonth() === today.getMonth() &&
-        checkDate.getFullYear() === today.getFullYear()
-    );
+  return (
+    checkDate.getDate() === today.getDate() &&
+    checkDate.getMonth() === today.getMonth() &&
+    checkDate.getFullYear() === today.getFullYear()
+  );
 };
 
 /**
@@ -75,10 +76,10 @@ export const isTodayDate = (date: DateInput): boolean => {
  * // Returns: 5
  */
 export const diffInDays = (date1: DateInput, date2: DateInput): number => {
-    const timestamp1 = typeof date1 === 'string' ? toTimestamp(date1) : date1;
-    const timestamp2 = typeof date2 === 'string' ? toTimestamp(date2) : date2;
-    const diffMs = timestamp1 - timestamp2;
-    return Math.floor(diffMs / (24 * 60 * 60 * 1000));
+  const timestamp1 = typeof date1 === "string" ? toTimestamp(date1) : date1;
+  const timestamp2 = typeof date2 === "string" ? toTimestamp(date2) : date2;
+  const diffMs = timestamp1 - timestamp2;
+  return Math.floor(diffMs / TIME_MS.DAY);
 };
 
 /**
@@ -98,13 +99,13 @@ export const diffInDays = (date1: DateInput, date2: DateInput): number => {
  * // Returns: true
  */
 export const isDateInRange = (
-    date: DateInput,
-    start: DateInput,
-    end: DateInput
+  date: DateInput,
+  start: DateInput,
+  end: DateInput,
 ): boolean => {
-    const dateTs = typeof date === 'string' ? toTimestamp(date) : date;
-    const startTs = typeof start === 'string' ? toTimestamp(start) : start;
-    const endTs = typeof end === 'string' ? toTimestamp(end) : end;
+  const dateTs = typeof date === "string" ? toTimestamp(date) : date;
+  const startTs = typeof start === "string" ? toTimestamp(start) : start;
+  const endTs = typeof end === "string" ? toTimestamp(end) : end;
 
-    return dateTs >= startTs && dateTs <= endTs;
+  return dateTs >= startTs && dateTs <= endTs;
 };

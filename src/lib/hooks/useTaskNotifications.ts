@@ -78,7 +78,7 @@ export function useTaskNotifications({
           if (timeUntilStart > 0 && timeUntilStart <= TIME_MS.HOUR) {
             showNotification(
               `Task starting soon: ${task.title}`,
-              `Starts in ${Math.round(timeUntilStart / 60000)} minutes`,
+              `Starts in ${Math.round(timeUntilStart / TIME_MS.MINUTE)} minutes`,
               task.id,
             );
           }

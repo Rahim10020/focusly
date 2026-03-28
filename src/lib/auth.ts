@@ -10,6 +10,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { createClient } from "@supabase/supabase-js";
 import type { JWT } from "next-auth/jwt";
 import { logger } from "@/lib/logger";
+import { TIME_MS } from "@/lib/constants";
 
 /**
  * NextAuth.js configuration options.
@@ -86,7 +87,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
-        token.expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
+        token.expiresAt = Date.now() + TIME_MS.HOUR;
       }
 
       const now = Date.now();
@@ -94,7 +95,7 @@ export const authOptions: NextAuthOptions = {
       const tokenId = token.id as string;
 
       // Refresh si expire dans 5 minutes
-      if (expiresAt - now < 5 * 60 * 1000 && token.refreshToken) {
+      if (expiresAt - now < 5 * TIME_MS.MINUTE && token.refreshToken) {
         // Vérifier si un refresh est déjà en cours pour ce token
         if (refreshingTokens.has(tokenId)) {
           try {
@@ -121,7 +122,7 @@ export const authOptions: NextAuthOptions = {
             if (!error && data.session) {
               token.accessToken = data.session.access_token;
               token.refreshToken = data.session.refresh_token;
-              token.expiresAt = Date.now() + 60 * 60 * 1000;
+              token.expiresAt = Date.now() + TIME_MS.HOUR;
 
               logger.info("Token refreshed successfully", {
                 action: "tokenRefresh",

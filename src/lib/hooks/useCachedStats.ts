@@ -7,8 +7,9 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useStats } from "./useStats";
 import type { Stats, PomodoroSession } from "@/types";
 import { CacheService } from "@/lib/services/cacheService";
+import { TIME_MS } from "@/lib/constants";
 
-const CACHE_DURATION = 30000; // 30 secondes
+const CACHE_DURATION = 30 * TIME_MS.SECOND;
 const STATS_CACHE_KEY = "focusly:stats:latest";
 
 /**
