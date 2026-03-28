@@ -250,7 +250,7 @@ async function getHandler(
             completed_at: session.completed_at,
             duration: session.duration || 0,
             type: session.type || "work",
-            completed: session.completed,
+            completed: session.completed ?? undefined,
           });
         });
 

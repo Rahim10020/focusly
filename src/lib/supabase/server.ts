@@ -90,7 +90,7 @@ class SupabaseServerPool {
 
     try {
       const { error } = await this.adminClient
-        .from("users")
+        .from("profiles")
         .select("id")
         .limit(1)
         .single();

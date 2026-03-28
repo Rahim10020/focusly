@@ -10,8 +10,8 @@ export interface Session {
   user_id: string;
   completed_at: string;
   duration: number;
-  type?: string;
-  completed?: boolean;
+  type?: string | null;
+  completed?: boolean | null;
 }
 
 export interface StreakData {
