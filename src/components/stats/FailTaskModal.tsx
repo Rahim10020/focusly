@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Task } from "@/types";
-import { useToastContext } from "@/components/providers/ToastProvider";
+import { useAppToast } from "@/lib/hooks/useAppToast";
 
 interface FailTaskModalProps {
   task: Task;
@@ -22,7 +22,7 @@ export function FailTaskModal({
   const [action, setAction] = useState<Action>("fail");
   const [reason, setReason] = useState("");
   const [newDate, setNewDate] = useState("");
-  const { warning: showWarningToast } = useToastContext();
+  const { validationError } = useAppToast();
 
   if (!isOpen) return null;
 
@@ -39,9 +39,9 @@ export function FailTaskModal({
 
       case "postpone":
         if (!newDate) {
-          showWarningToast(
-            "Date requise",
+          validationError(
             "Veuillez sélectionner une nouvelle date.",
+            "Date requise",
           );
           return;
         }

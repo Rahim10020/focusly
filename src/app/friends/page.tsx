@@ -22,7 +22,7 @@ import {
   API_ROUTES,
 } from "@/components/shared/constants/apiRoutes";
 import { MyLoader } from "@/components/ui/MyLoader";
-import { useToastContext } from "@/components/providers/ToastProvider";
+import { useAppToast } from "@/lib/hooks/useAppToast";
 
 interface User {
   id: string;
@@ -63,8 +63,7 @@ interface Friend {
 export default function FriendsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { success: showSuccessToast, error: showErrorToast } =
-    useToastContext();
+  const { actionSuccess, actionError } = useAppToast();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [pendingRequests, setPendingRequests] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(true);
@@ -154,10 +153,7 @@ export default function FriendsPage() {
       // Refresh data
       await Promise.all([fetchFriends(), fetchPendingRequests()]);
     } catch (err) {
-      showErrorToast(
-        "Failed to Accept Friend Request",
-        err instanceof Error ? err.message : "Failed to accept friend request",
-      );
+      actionError(err, "Failed to accept friend request.");
     } finally {
       setProcessingRequests((prev) => {
         const newSet = new Set(prev);
@@ -190,10 +186,7 @@ export default function FriendsPage() {
       // Refresh data
       await Promise.all([fetchFriends(), fetchPendingRequests()]);
     } catch (err) {
-      showErrorToast(
-        "Failed to Reject Friend Request",
-        err instanceof Error ? err.message : "Failed to reject friend request",
-      );
+      actionError(err, "Failed to reject friend request.");
     } finally {
       setProcessingRequests((prev) => {
         const newSet = new Set(prev);
@@ -252,12 +245,9 @@ export default function FriendsPage() {
 
       // Remove from search results
       setSearchResults((prev) => prev.filter((u) => u.id !== userId));
-      showSuccessToast("Friend Request Sent", "Your request was sent.");
+      actionSuccess("Friend request sent.");
     } catch (err) {
-      showErrorToast(
-        "Failed to Send Friend Request",
-        err instanceof Error ? err.message : "Failed to send friend request",
-      );
+      actionError(err, "Failed to send friend request.");
     }
   };
 
@@ -282,10 +272,7 @@ export default function FriendsPage() {
       // Refresh friends list
       await fetchFriends();
     } catch (err) {
-      showErrorToast(
-        "Failed to Remove Friend",
-        err instanceof Error ? err.message : "Failed to remove friend",
-      );
+      actionError(err, "Failed to remove friend.");
     }
   };
 

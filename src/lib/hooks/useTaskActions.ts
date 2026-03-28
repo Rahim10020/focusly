@@ -9,7 +9,7 @@ import { Task } from "@/types";
 import { CreateTaskInput } from "@/types/task-input";
 import { supabaseClient } from "@/lib/supabase/client";
 import { retryWithBackoff } from "@/lib/utils/retry";
-import { useToastContext } from "@/components/providers/ToastProvider";
+import { useAppToast } from "@/lib/hooks/useAppToast";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/lib/supabase/database.types";
 
@@ -33,7 +33,7 @@ export function useTaskActions({
   setTasks,
 }: UseTaskActionsProps): UseTaskActionsReturn {
   const { data: session } = useSession();
-  const { error: showErrorToast } = useToastContext();
+  const { actionError } = useAppToast();
 
   const getUserId = useCallback(() => session?.user?.id, [session]);
 
@@ -106,18 +106,14 @@ export function useTaskActions({
           setTasks([...tasks, newTask]);
         } catch (error: unknown) {
           console.error("Error adding task to DB:", error);
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "Failed to save task to database";
-          showErrorToast("Failed to Add Task", errorMessage);
+          actionError(error, "Failed to save task to database.");
           setTasks([...tasks, newTask]);
         }
       } else {
         setTasks([...tasks, newTask]);
       }
     },
-    [tasks, getUserId, showErrorToast, setTasks],
+    [tasks, getUserId, actionError, setTasks],
   );
 
   const updateTask = useCallback(
@@ -164,12 +160,12 @@ export function useTaskActions({
           .update({ ...dbUpdates, updated_at: new Date().toISOString() })
           .eq("id", taskId)
           .eq("user_id", userId);
-      } catch {
+      } catch (error: unknown) {
         setTasks(oldTasks);
-        showErrorToast("Failed to save changes. Please try again.");
+        actionError(error, "Failed to save changes. Please try again.");
       }
     },
-    [tasks, getUserId, showErrorToast, setTasks],
+    [tasks, getUserId, actionError, setTasks],
   );
 
   const deleteTask = useCallback(
@@ -191,17 +187,13 @@ export function useTaskActions({
           setTasks(tasks.filter((task) => task.id !== id));
         } catch (error: unknown) {
           console.error("Error deleting task from DB:", error);
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "Failed to delete task from database";
-          showErrorToast("Failed to Delete Task", errorMessage);
+          actionError(error, "Failed to delete task from database.");
         }
       } else {
         setTasks(tasks.filter((task) => task.id !== id));
       }
     },
-    [tasks, getUserId, showErrorToast, setTasks],
+    [tasks, getUserId, actionError, setTasks],
   );
 
   const toggleTask = useCallback(
@@ -238,15 +230,11 @@ export function useTaskActions({
             .eq("user_id", userId);
         } catch (error: unknown) {
           console.error("Error toggling task in DB:", error);
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "Failed to update task status";
-          showErrorToast("Failed to Update Task", errorMessage);
+          actionError(error, "Failed to update task status.");
         }
       }
     },
-    [tasks, getUserId, showErrorToast, setTasks],
+    [tasks, getUserId, actionError, setTasks],
   );
 
   const incrementPomodoro = useCallback(
@@ -273,15 +261,11 @@ export function useTaskActions({
             .eq("user_id", userId);
         } catch (error: unknown) {
           console.error("Error incrementing pomodoro in DB:", error);
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "Failed to update pomodoro count";
-          showErrorToast("Failed to Update Pomodoro", errorMessage);
+          actionError(error, "Failed to update pomodoro count.");
         }
       }
     },
-    [tasks, getUserId, showErrorToast, setTasks],
+    [tasks, getUserId, actionError, setTasks],
   );
 
   return {

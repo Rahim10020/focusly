@@ -12,7 +12,7 @@ import { supabaseClient } from "@/lib/supabase/client";
 import { createClient } from "@supabase/supabase-js";
 import { retryWithBackoff } from "@/lib/utils/retry";
 import { logger } from "@/lib/logger";
-import { useToastContext } from "@/components/providers/ToastProvider";
+import { useAppToast } from "@/lib/hooks/useAppToast";
 
 interface UseStatsStorageReturn {
   stats: Stats;
@@ -27,7 +27,7 @@ interface UseStatsStorageReturn {
 
 export function useStatsStorage(): UseStatsStorageReturn {
   const { data: session } = useSession();
-  const { error: showErrorToast } = useToastContext();
+  const { actionError } = useAppToast();
 
   // Local storage states
   const [localStats, setLocalStats] = useLocalStorage<Stats>(
@@ -136,11 +136,11 @@ export function useStatsStorage(): UseStatsStorageReturn {
         userId: getUserId(),
       });
       setError(errorMessage);
-      showErrorToast("Failed to Load Statistics", errorMessage);
+      actionError(err, "Failed to load statistics.");
     } finally {
       setLoading(false);
     }
-  }, [getUserId, getAuthenticatedSupabaseClient, showErrorToast]);
+  }, [getUserId, getAuthenticatedSupabaseClient, actionError]);
 
   const loadSessions = useCallback(async () => {
     const userId = getUserId();

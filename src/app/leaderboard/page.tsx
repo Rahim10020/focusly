@@ -26,7 +26,7 @@ import { InfoIcon } from "@/components/shared/icons";
 import UsersIcon from "@/components/shared/icons/UsersIcon";
 import ChevronLeftIcon from "@/components/shared/icons/ChevronLeftIcon";
 import ChevronRightIcon from "@/components/shared/icons/ChevronRightIcon";
-import { useToastContext } from "@/components/providers/ToastProvider";
+import { useAppToast } from "@/lib/hooks/useAppToast";
 
 interface FriendData {
   id: string;
@@ -38,7 +38,7 @@ interface FriendData {
 export default function LeaderboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { error: showErrorToast } = useToastContext();
+  const { actionError } = useAppToast();
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [pagination, setPagination] = useState<
     LeaderboardResponse["pagination"] | null
@@ -211,10 +211,7 @@ export default function LeaderboardPage() {
       // Refresh friends and requests after sending
       fetchFriendsAndRequests();
     } catch (err) {
-      showErrorToast(
-        "Failed to Send Friend Request",
-        err instanceof Error ? err.message : "Failed to send friend request",
-      );
+      actionError(err, "Failed to send friend request.");
       setFriendRequestStatuses((prev) => new Map(prev.set(userId, "none")));
     }
   };
