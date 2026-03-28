@@ -2,17 +2,15 @@ QUI SERAIT COOL
     - coder une version mobile (avec flutter) de cette application.
     - coder une affichage unique pour la version mobile web 
         (quand la personne y accede via le web avec un telehone mobile)
+
 A Faire PROCHAINEMENT
-- remplacer toutes les loading par celui cree et ensuite remplacer les icones
+- trouver de meilleures icones (pour remplacer celles qui reste) 
+    (- A changer apres quand j'aurai une meilleure icone)
 - page/friends ligne 103
 - regrouper les calculs des stats (si c'est regroupable afin de reutiliser) pour 
     que tout soit coherent partout
 - trouver les commentaires qui disent qu'il faut faire un truc apres dans 
     le projet ou qu'il faut changer un truc si on est dans un vrai projet (create-task, page)
 - fichiers principals dans lesquels ils faut changer les icones (toutes les pages auth)
-- revoir le loader de Button dans ui
 
-- A changer apres quand j'aurai une meilleure icone
-
----- proch : TaskModalHeader.tsx:30: réduire/sortir du fullscreen.
 - voir si toast est bien reutilise dans tout le projet.
