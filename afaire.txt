@@ -14,3 +14,5 @@ A Faire PROCHAINEMENT
 - fichiers principals dans lesquels ils faut changer les icones (toutes les pages auth)
 
 - voir si toast est bien reutilise dans tout le projet.
+- pour voir si le projet est bien aligne avec la base de donnes (supabase) de quelles 
+informations tu aurais besoin pour cote bd pour voir si tout est conforme ?

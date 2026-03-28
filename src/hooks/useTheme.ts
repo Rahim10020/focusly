@@ -52,6 +52,7 @@ function applyThemeToDocument(t: "light" | "dark") {
 }
 
 export function useTheme() {
+  const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<Theme>(() => {
     // Synchronously read the saved theme on initial render (client-only)
     try {
@@ -71,6 +72,10 @@ export function useTheme() {
   const { data: session } = useSession();
   const preferredTheme = session?.user?.themePreference as Theme | undefined;
   const effectiveTheme = preferredTheme || theme;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Keep DOM and localStorage in sync with the effective theme.
   useEffect(() => {
@@ -103,5 +108,5 @@ export function useTheme() {
     }
   };
 
-  return { theme: effectiveTheme, toggleTheme, mounted: true };
+  return { theme: effectiveTheme, toggleTheme, mounted };
 }

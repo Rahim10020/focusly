@@ -147,11 +147,11 @@ export async function rateLimit(
  *
  * @example
  * // In API route
- * export const GET = withRateLimit(async (request) => {
+ * export const GET = withBasicRateLimit(async (request) => {
  *   return Response.json({ data: 'success' });
  * }, { windowMs: 60000, maxRequests: 30 });
  */
-export function withRateLimit(
+export function withBasicRateLimit(
   handler: RateLimitedHandler,
   options: RateLimitOptions = {
     windowMs: RATE_LIMIT_WINDOWS_MS.FIFTEEN_MINUTES,
@@ -205,3 +205,8 @@ export function withRateLimit(
     return response;
   };
 }
+
+/**
+ * @deprecated Prefer middleware `withRateLimit` from `@/lib/api/middleware/rateLimit` for API routes.
+ */
+export const withRateLimit = withBasicRateLimit;

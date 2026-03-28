@@ -4,8 +4,6 @@
 
 import { TIME_MS } from "@/lib/constants";
 
-const NOW_TIMESTAMP = Date.now();
-
 /**
  * Props for the DueDateBadge component.
  * @interface DueDateBadgeProps
@@ -42,7 +40,7 @@ export default function DueDateBadge({
   dueDate,
   completed,
 }: DueDateBadgeProps) {
-  const now = NOW_TIMESTAMP;
+  const now = Date.now();
 
   const isOverdue = dueDate < now && !completed;
   const isDueToday =
