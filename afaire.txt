@@ -15,3 +15,4 @@ A Faire PROCHAINEMENT
 - A changer apres quand j'aurai une meilleure icone
 
 ---- proch : TaskModalHeader.tsx:30: réduire/sortir du fullscreen.
+- voir si toast est bien reutilise dans tout le projet.
