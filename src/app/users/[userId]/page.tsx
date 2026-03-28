@@ -21,6 +21,7 @@ import {
 } from "@/components/shared/constants/apiRoutes";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { formatHoursMinutesFromSeconds } from "@/lib/utils/stats-calculations";
+import { useToastContext } from "@/components/providers/ToastProvider";
 
 interface UserStats {
   /** Unique user identifier */
@@ -48,6 +49,8 @@ export default function UserProfilePage() {
   const router = useRouter();
   const params = useParams();
   const userId = params.userId as string;
+  const { success: showSuccessToast, error: showErrorToast } =
+    useToastContext();
 
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,10 +113,13 @@ export default function UserProfilePage() {
       }
 
       setHasPendingRequest(true);
-      // Notification de succès
-      alert("Friend request sent successfully!");
+      showSuccessToast(
+        "Friend Request Sent",
+        "Your friend request was sent successfully.",
+      );
     } catch (err) {
-      alert(
+      showErrorToast(
+        "Failed to Send Friend Request",
         err instanceof Error ? err.message : "Failed to send friend request",
       );
     } finally {

@@ -2,19 +2,19 @@
  * @fileoverview Container component for managing multiple toast notifications.
  */
 
-'use client';
+"use client";
 
-import Toast, { ToastProps } from './Toast';
+import Toast, { ToastProps } from "./Toast";
 
 /**
  * Props for the ToastContainer component.
  * @interface ToastContainerProps
  */
 interface ToastContainerProps {
-    /** Array of toast notifications to display */
-    toasts: ToastProps[];
-    /** Callback when a toast is closed */
-    onClose: (id: string) => void;
+  /** Array of toast notifications to display */
+  toasts: ToastProps[];
+  /** Callback when a toast is closed */
+  onClose: (id: string) => void;
 }
 
 /**
@@ -34,20 +34,23 @@ interface ToastContainerProps {
  *   onClose={(id) => setToasts(t => t.filter(toast => toast.id !== id))}
  * />
  */
-export default function ToastContainer({ toasts, onClose }: ToastContainerProps) {
-    if (toasts.length === 0) return null;
+export default function ToastContainer({
+  toasts,
+  onClose,
+}: ToastContainerProps) {
+  if (toasts.length === 0) return null;
 
-    return (
-        <div
-            className="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none"
-            aria-live="polite"
-            aria-atomic="true"
-        >
-            {toasts.map((toast) => (
-                <div key={toast.id} className="pointer-events-auto">
-                    <Toast {...toast} onClose={onClose} />
-                </div>
-            ))}
+  return (
+    <div
+      className="fixed top-4 right-4 z-9999 flex flex-col gap-3 pointer-events-none"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      {toasts.map((toast) => (
+        <div key={toast.id} className="pointer-events-auto">
+          <Toast {...toast} onClose={onClose} />
         </div>
-    );
+      ))}
+    </div>
+  );
 }

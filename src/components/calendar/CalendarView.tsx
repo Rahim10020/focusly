@@ -27,6 +27,7 @@ import { CalendarHeader } from "./CalendarHeader";
 import { PriorityLegend } from "./PriorityLegend";
 import { MyLoader } from "../ui/MyLoader";
 import { CheckboxCheckIcon } from "../shared/icons";
+import { useToastContext } from "@/components/providers/ToastProvider";
 
 interface CalendarViewProps {
   tasks: Task[];
@@ -39,6 +40,7 @@ export default function CalendarView({
   onTaskClick,
   onCreateTask,
 }: CalendarViewProps) {
+  const { error: showErrorToast } = useToastContext();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
@@ -109,7 +111,7 @@ export default function CalendarView({
       setShowQuickAdd(false);
     } catch (error) {
       console.error("Error creating task:", error);
-      alert("Failed to create task");
+      showErrorToast("Failed to Create Task", "Please try again.");
     } finally {
       setCreating(false);
     }

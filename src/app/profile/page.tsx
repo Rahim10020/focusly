@@ -30,9 +30,15 @@ import {
 } from "@/lib/utils/imageCompression";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { ROUTES } from "@/components/shared/constants/routes";
+import { useToastContext } from "@/components/providers/ToastProvider";
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();
+  const {
+    warning: showWarningToast,
+    error: showErrorToast,
+    info: showInfoToast,
+  } = useToastContext();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(session?.user?.name || "");
   const [email, setEmail] = useState(session?.user?.email || "");
@@ -58,14 +64,18 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (file) {
       if (!isValidImageFile(file)) {
-        alert("Please select a valid image file (JPEG, PNG, WebP, or GIF)");
+        showWarningToast(
+          "Invalid Image File",
+          "Please select a valid image file (JPEG, PNG, WebP, or GIF).",
+        );
         return;
       }
 
       const fileSizeMB = file.size / 1024 / 1024;
       if (fileSizeMB > 10) {
-        alert(
-          "Image file is too large. Please select an image smaller than 10MB.",
+        showWarningToast(
+          "Image Too Large",
+          "Please select an image smaller than 10MB.",
         );
         return;
       }
@@ -88,7 +98,7 @@ export default function ProfilePage() {
         reader.readAsDataURL(compressedFile);
       } catch (error) {
         console.error("Error compressing image:", error);
-        alert("Failed to process image. Please try another image.");
+        showErrorToast("Image Processing Failed", "Please try another image.");
       }
     }
   };
@@ -131,8 +141,9 @@ export default function ProfilePage() {
 
         if (error) throw error;
 
-        alert(
-          `Verification email sent to ${email}. Please check your inbox to confirm the change.`,
+        showInfoToast(
+          "Verification Email Sent",
+          `A verification email was sent to ${email}. Please check your inbox to confirm the change.`,
         );
       }
 
@@ -171,7 +182,7 @@ export default function ProfilePage() {
       setImagePreview(null);
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Error updating profile");
+      showErrorToast("Error Updating Profile", "Please try again.");
     } finally {
       setIsLoading(false);
     }
