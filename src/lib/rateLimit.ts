@@ -138,15 +138,16 @@ export async function rateLimit(
 }
 
 /**
- * Higher-order function that wraps an API handler with rate limiting.
+ * Legacy higher-order function that wraps a generic Request handler with rate limiting.
  * Automatically extracts client IP and adds rate limit headers to responses.
+ * Prefer API middleware from `@/lib/api/middleware/rateLimit` for App Router routes.
  *
  * @param {Function} handler - The API route handler to wrap
  * @param {RateLimitOptions} [options] - Rate limit configuration (default: 100 requests per 15 minutes)
  * @returns {Function} Wrapped handler with rate limiting
  *
  * @example
- * // In API route
+ * // Legacy/standalone usage
  * export const GET = withBasicRateLimit(async (request) => {
  *   return Response.json({ data: 'success' });
  * }, { windowMs: 60000, maxRequests: 30 });
@@ -205,8 +206,3 @@ export function withBasicRateLimit(
     return response;
   };
 }
-
-/**
- * @deprecated Prefer middleware `withRateLimit` from `@/lib/api/middleware/rateLimit` for API routes.
- */
-export const withRateLimit = withBasicRateLimit;
