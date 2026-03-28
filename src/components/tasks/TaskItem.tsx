@@ -161,6 +161,7 @@ function TaskItem({
             </p>
             {isActive && (
               <span className="inline-flex items-center gap-1 text-xs bg-primary text-primary-foreground px-2.5 py-1 rounded-full font-semibold animate-pulse-soft">
+                {/* A changer apres quand j'aurai une meilleure icone */}
                 <svg
                   className="w-3 h-3"
                   fill="currentColor"

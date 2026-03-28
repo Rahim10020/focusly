@@ -65,6 +65,7 @@ export function LandingPage() {
               className="flex items-center justify-center gap-6 text-xs text-muted-foreground pt-4 animate-fade-in"
               style={{ animationDelay: "0.3s" }}
             >
+              {/* On va pas remplacer ces svgs */}
               <div className="flex items-center gap-2">
                 <svg
                   className="w-4 h-4 text-brand-accent"
