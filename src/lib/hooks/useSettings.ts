@@ -4,25 +4,26 @@
  * cycle configuration, and auto-start preferences with localStorage persistence.
  */
 
-import { useLocalStorage } from './useLocalStorage';
+import { useLocalStorage } from "./useLocalStorage";
+import { STORAGE_KEYS, TIMER_DEFAULTS } from "@/lib/constants";
 
 /**
  * Timer configuration settings interface.
  * @interface TimerSettings
  */
 export interface TimerSettings {
-    /** Work session duration in seconds */
-    workDuration: number;
-    /** Short break duration in seconds */
-    shortBreakDuration: number;
-    /** Long break duration in seconds */
-    longBreakDuration: number;
-    /** Number of work cycles before a long break */
-    cyclesBeforeLongBreak: number;
-    /** Whether to automatically start breaks after work sessions */
-    autoStartBreaks: boolean;
-    /** Whether to automatically start work sessions after breaks */
-    autoStartPomodoros: boolean;
+  /** Work session duration in seconds */
+  workDuration: number;
+  /** Short break duration in seconds */
+  shortBreakDuration: number;
+  /** Long break duration in seconds */
+  longBreakDuration: number;
+  /** Number of work cycles before a long break */
+  cyclesBeforeLongBreak: number;
+  /** Whether to automatically start breaks after work sessions */
+  autoStartBreaks: boolean;
+  /** Whether to automatically start work sessions after breaks */
+  autoStartPomodoros: boolean;
 }
 
 /**
@@ -30,12 +31,7 @@ export interface TimerSettings {
  * @constant
  */
 const DEFAULT_SETTINGS: TimerSettings = {
-    workDuration: 25 * 60, // 25 minutes
-    shortBreakDuration: 5 * 60, // 5 minutes
-    longBreakDuration: 15 * 60, // 15 minutes
-    cyclesBeforeLongBreak: 4,
-    autoStartBreaks: false,
-    autoStartPomodoros: false,
+  ...TIMER_DEFAULTS,
 };
 
 /**
@@ -61,23 +57,23 @@ const DEFAULT_SETTINGS: TimerSettings = {
  * resetSettings();
  */
 export function useSettings() {
-    const [settings, setSettings] = useLocalStorage<TimerSettings>(
-        'focusly_settings',
-        DEFAULT_SETTINGS
-    );
+  const [settings, setSettings] = useLocalStorage<TimerSettings>(
+    STORAGE_KEYS.SETTINGS,
+    DEFAULT_SETTINGS,
+  );
 
-    const updateSettings = (updates: Partial<TimerSettings>) => {
-        setSettings({ ...settings, ...updates });
-    };
+  const updateSettings = (updates: Partial<TimerSettings>) => {
+    setSettings({ ...settings, ...updates });
+  };
 
-    const resetSettings = () => {
-        setSettings(DEFAULT_SETTINGS);
-    };
+  const resetSettings = () => {
+    setSettings(DEFAULT_SETTINGS);
+  };
 
-    return {
-        settings,
-        updateSettings,
-        resetSettings,
-        defaultSettings: DEFAULT_SETTINGS,
-    };
+  return {
+    settings,
+    updateSettings,
+    resetSettings,
+    defaultSettings: DEFAULT_SETTINGS,
+  };
 }

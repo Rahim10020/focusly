@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import KeyboardShortcutsProvider from "@/components/providers/KeyboardShortcutsProvider";
 import "./globals.css";
 import { NotificationsProvider } from "@/components/providers/NotificationsProvider";
+import { STORAGE_KEYS } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: {
@@ -76,7 +77,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `try {
-  var t = localStorage.getItem('focusly_theme');
+  var t = localStorage.getItem('${STORAGE_KEYS.THEME}');
   if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.documentElement.classList.add('dark');
   } else {

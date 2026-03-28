@@ -22,6 +22,7 @@ import {
 } from "@/lib/api";
 import { Cache } from "@/lib/cache";
 import { logger } from "@/lib/logger";
+import { LEADERBOARD_DEFAULTS } from "@/lib/constants";
 
 /**
  * Leaderboard entry containing user profile and statistics.
@@ -58,7 +59,7 @@ async function getHandler(
   const { page, limit, timeframe } = parsedData;
 
   // S'assurer que page * limit ne dépasse pas un seuil
-  if (page * limit > 10000) {
+  if (page * limit > LEADERBOARD_DEFAULTS.MAX_OFFSET) {
     throw new Error("Pagination offset too large");
   }
 
@@ -219,7 +220,7 @@ async function getHandler(
         pagination: buildPaginationMeta({ page, limit }, totalCount || 0),
       };
     },
-    { ttl: 10 * 60 * 1000 },
+    { ttl: LEADERBOARD_DEFAULTS.SERVER_CACHE_TTL_MS },
   ); // Cache for 10 minutes
 
   return successResponse(result.data, { pagination: result.pagination });

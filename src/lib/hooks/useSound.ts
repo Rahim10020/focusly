@@ -4,7 +4,8 @@
  * including work start, pause, completion, and break sounds.
  */
 
-import { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useState, useEffect } from "react";
+import { STORAGE_KEYS } from "@/lib/constants";
 
 /**
  * Creates a simple beep sound using Web Audio API.
@@ -14,21 +15,28 @@ import { useCallback, useRef, useState, useEffect } from 'react';
  * @param {number} duration - Sound duration in milliseconds (default: 200)
  */
 const createBeepSound = (frequency: number = 800, duration: number = 200) => {
-    const audioContext = new ((window as unknown as { AudioContext: typeof AudioContext }).AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+  const audioContext = new (
+    (window as unknown as { AudioContext: typeof AudioContext }).AudioContext ||
+    (window as unknown as { webkitAudioContext: typeof AudioContext })
+      .webkitAudioContext
+  )();
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
 
-    oscillator.frequency.value = frequency;
-    oscillator.type = 'sine';
+  oscillator.frequency.value = frequency;
+  oscillator.type = "sine";
 
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(
+    0.01,
+    audioContext.currentTime + duration / 1000,
+  );
 
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + duration / 1000);
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + duration / 1000);
 };
 
 /**
@@ -60,91 +68,94 @@ const createBeepSound = (frequency: number = 800, duration: number = 200) => {
  * };
  */
 export function useSound() {
-    const [soundEnabled, setSoundEnabled] = useState(() => {
-        if (typeof window === 'undefined') return true;
-        const saved = localStorage.getItem('focusly_sound_enabled');
-        return saved !== null ? JSON.parse(saved) : true;
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const saved = localStorage.getItem(STORAGE_KEYS.SOUND_ENABLED);
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  // Précharger les fichiers audio WAV
+  const workStartAudioRef = useRef<HTMLAudioElement | null>(null);
+  const workPauseAudioRef = useRef<HTMLAudioElement | null>(null);
+  const workEndAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Précharger les sons
+    workStartAudioRef.current = new Audio("/sounds/work-start.wav");
+    workPauseAudioRef.current = new Audio("/sounds/work-pause.wav");
+    workEndAudioRef.current = new Audio("/sounds/work-end.wav");
+  }, []);
+
+  const toggleSound = useCallback(() => {
+    setSoundEnabled((prev: boolean) => {
+      const newValue = !prev;
+      localStorage.setItem(
+        STORAGE_KEYS.SOUND_ENABLED,
+        JSON.stringify(newValue),
+      );
+      return newValue;
     });
+  }, []);
 
-    // Précharger les fichiers audio WAV
-    const workStartAudioRef = useRef<HTMLAudioElement | null>(null);
-    const workPauseAudioRef = useRef<HTMLAudioElement | null>(null);
-    const workEndAudioRef = useRef<HTMLAudioElement | null>(null);
+  const playWorkStart = useCallback(() => {
+    if (!soundEnabled || !workStartAudioRef.current) return;
+    try {
+      workStartAudioRef.current.currentTime = 0;
+      workStartAudioRef.current.play();
+    } catch (error) {
+      console.error("Error playing work start sound:", error);
+    }
+  }, [soundEnabled]);
 
-    useEffect(() => {
-        // Précharger les sons
-        workStartAudioRef.current = new Audio('/sounds/work-start.wav');
-        workPauseAudioRef.current = new Audio('/sounds/work-pause.wav');
-        workEndAudioRef.current = new Audio('/sounds/work-end.wav');
-    }, []);
+  const playWorkPause = useCallback(() => {
+    if (!soundEnabled || !workPauseAudioRef.current) return;
+    try {
+      workPauseAudioRef.current.currentTime = 0;
+      workPauseAudioRef.current.play();
+    } catch (error) {
+      console.error("Error playing work pause sound:", error);
+    }
+  }, [soundEnabled]);
 
-    const toggleSound = useCallback(() => {
-        setSoundEnabled((prev: boolean) => {
-            const newValue = !prev;
-            localStorage.setItem('focusly_sound_enabled', JSON.stringify(newValue));
-            return newValue;
-        });
-    }, []);
+  const playWorkComplete = useCallback(() => {
+    if (!soundEnabled || !workEndAudioRef.current) return;
+    try {
+      workEndAudioRef.current.currentTime = 0;
+      workEndAudioRef.current.play();
+    } catch (error) {
+      console.error("Error playing work end sound:", error);
+    }
+  }, [soundEnabled]);
 
-    const playWorkStart = useCallback(() => {
-        if (!soundEnabled || !workStartAudioRef.current) return;
-        try {
-            workStartAudioRef.current.currentTime = 0;
-            workStartAudioRef.current.play();
-        } catch (error) {
-            console.error('Error playing work start sound:', error);
-        }
-    }, [soundEnabled]);
+  const playBreakComplete = useCallback(() => {
+    if (!soundEnabled) return;
 
-    const playWorkPause = useCallback(() => {
-        if (!soundEnabled || !workPauseAudioRef.current) return;
-        try {
-            workPauseAudioRef.current.currentTime = 0;
-            workPauseAudioRef.current.play();
-        } catch (error) {
-            console.error('Error playing work pause sound:', error);
-        }
-    }, [soundEnabled]);
+    try {
+      // Mélodie de fin de pause (2 notes)
+      createBeepSound(659.25, 150); // Mi
+      setTimeout(() => createBeepSound(523.25, 300), 200); // Do
+    } catch (error) {
+      console.error("Error playing break sound:", error);
+    }
+  }, [soundEnabled]);
 
-    const playWorkComplete = useCallback(() => {
-        if (!soundEnabled || !workEndAudioRef.current) return;
-        try {
-            workEndAudioRef.current.currentTime = 0;
-            workEndAudioRef.current.play();
-        } catch (error) {
-            console.error('Error playing work end sound:', error);
-        }
-    }, [soundEnabled]);
+  const playTick = useCallback(() => {
+    if (!soundEnabled) return;
 
-    const playBreakComplete = useCallback(() => {
-        if (!soundEnabled) return;
+    try {
+      createBeepSound(1000, 50);
+    } catch (error) {
+      console.error("Error playing tick sound:", error);
+    }
+  }, [soundEnabled]);
 
-        try {
-            // Mélodie de fin de pause (2 notes)
-            createBeepSound(659.25, 150); // Mi
-            setTimeout(() => createBeepSound(523.25, 300), 200); // Do
-        } catch (error) {
-            console.error('Error playing break sound:', error);
-        }
-    }, [soundEnabled]);
-
-    const playTick = useCallback(() => {
-        if (!soundEnabled) return;
-
-        try {
-            createBeepSound(1000, 50);
-        } catch (error) {
-            console.error('Error playing tick sound:', error);
-        }
-    }, [soundEnabled]);
-
-    return {
-        soundEnabled,
-        toggleSound,
-        playWorkStart,
-        playWorkPause,
-        playWorkComplete,
-        playBreakComplete,
-        playTick,
-    };
+  return {
+    soundEnabled,
+    toggleSound,
+    playWorkStart,
+    playWorkPause,
+    playWorkComplete,
+    playBreakComplete,
+    playTick,
+  };
 }

@@ -4,30 +4,31 @@
  * notifications with different types (success, error, warning, info).
  */
 
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { ToastProps } from '@/components/ui/Toast';
+import { useState, useCallback } from "react";
+import { ToastProps } from "@/components/ui/Toast";
+import { TOAST_DEFAULT_DURATION_MS } from "@/lib/constants";
 
 /**
  * Available toast notification types.
  * @typedef {'success' | 'error' | 'warning' | 'info'} ToastType
  */
-type ToastType = 'success' | 'error' | 'warning' | 'info';
+type ToastType = "success" | "error" | "warning" | "info";
 
 /**
  * Options for creating a toast notification.
  * @interface ToastOptions
  */
 interface ToastOptions {
-    /** Type of toast (success, error, warning, info) */
-    type: ToastType;
-    /** Main title of the toast */
-    title: string;
-    /** Optional description text */
-    description?: string;
-    /** Display duration in milliseconds (default: 5000) */
-    duration?: number;
+  /** Type of toast (success, error, warning, info) */
+  type: ToastType;
+  /** Main title of the toast */
+  title: string;
+  /** Optional description text */
+  description?: string;
+  /** Display duration in milliseconds (default: 5000) */
+  duration?: number;
 }
 
 /** Counter for generating unique toast IDs */
@@ -61,62 +62,65 @@ let toastIdCounter = 0;
  * ))}
  */
 export function useToast() {
-    const [toasts, setToasts] = useState<ToastProps[]>([]);
+  const [toasts, setToasts] = useState<ToastProps[]>([]);
 
-    const removeToast = useCallback((id: string) => {
-        setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, []);
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
 
-    const addToast = useCallback((options: ToastOptions) => {
-        const id = `toast-${++toastIdCounter}`;
-        const newToast: ToastProps = {
-            id,
-            type: options.type,
-            title: options.title,
-            description: options.description,
-            duration: options.duration || 5000,
-            onClose: (toastId: string) => removeToast(toastId),
-        };
+  const addToast = useCallback(
+    (options: ToastOptions) => {
+      const id = `toast-${++toastIdCounter}`;
+      const newToast: ToastProps = {
+        id,
+        type: options.type,
+        title: options.title,
+        description: options.description,
+        duration: options.duration || TOAST_DEFAULT_DURATION_MS,
+        onClose: (toastId: string) => removeToast(toastId),
+      };
 
-        setToasts((prev) => [...prev, newToast]);
-        return id;
-    }, [removeToast]);
+      setToasts((prev) => [...prev, newToast]);
+      return id;
+    },
+    [removeToast],
+  );
 
-    const success = useCallback(
-        (title: string, description?: string, duration?: number) => {
-            return addToast({ type: 'success', title, description, duration });
-        },
-        [addToast]
-    );
+  const success = useCallback(
+    (title: string, description?: string, duration?: number) => {
+      return addToast({ type: "success", title, description, duration });
+    },
+    [addToast],
+  );
 
-    const error = useCallback(
-        (title: string, description?: string, duration?: number) => {
-            return addToast({ type: 'error', title, description, duration });
-        },
-        [addToast]
-    );
+  const error = useCallback(
+    (title: string, description?: string, duration?: number) => {
+      return addToast({ type: "error", title, description, duration });
+    },
+    [addToast],
+  );
 
-    const warning = useCallback(
-        (title: string, description?: string, duration?: number) => {
-            return addToast({ type: 'warning', title, description, duration });
-        },
-        [addToast]
-    );
+  const warning = useCallback(
+    (title: string, description?: string, duration?: number) => {
+      return addToast({ type: "warning", title, description, duration });
+    },
+    [addToast],
+  );
 
-    const info = useCallback(
-        (title: string, description?: string, duration?: number) => {
-            return addToast({ type: 'info', title, description, duration });
-        },
-        [addToast]
-    );
+  const info = useCallback(
+    (title: string, description?: string, duration?: number) => {
+      return addToast({ type: "info", title, description, duration });
+    },
+    [addToast],
+  );
 
-    return {
-        toasts,
-        addToast,
-        removeToast,
-        success,
-        error,
-        warning,
-        info,
-    };
+  return {
+    toasts,
+    addToast,
+    removeToast,
+    success,
+    error,
+    warning,
+    info,
+  };
 }

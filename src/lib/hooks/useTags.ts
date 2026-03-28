@@ -4,22 +4,23 @@
  * supporting both localStorage and Supabase persistence.
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import { useLocalStorage } from './useLocalStorage';
-import { Tag } from '@/types';
-import { supabaseClient } from '@/lib/supabase/client';
-import { retryWithBackoff } from '@/lib/utils/retry';
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import { useLocalStorage } from "./useLocalStorage";
+import { Tag } from "@/types";
+import { supabaseClient } from "@/lib/supabase/client";
+import { retryWithBackoff } from "@/lib/utils/retry";
+import { STORAGE_KEYS } from "@/lib/constants";
 
 /**
  * Default tags provided for new users.
  * @constant
  */
 const DEFAULT_TAGS: Tag[] = [
-    { id: 'work', name: 'Work', color: '#3B82F6', createdAt: Date.now() },
-    { id: 'personal', name: 'Personal', color: '#10B981', createdAt: Date.now() },
-    { id: 'urgent', name: 'Urgent', color: '#EF4444', createdAt: Date.now() },
-    { id: 'study', name: 'Study', color: '#8B5CF6', createdAt: Date.now() },
+  { id: "work", name: "Work", color: "#3B82F6", createdAt: Date.now() },
+  { id: "personal", name: "Personal", color: "#10B981", createdAt: Date.now() },
+  { id: "urgent", name: "Urgent", color: "#EF4444", createdAt: Date.now() },
+  { id: "study", name: "Study", color: "#8B5CF6", createdAt: Date.now() },
 ];
 
 /**
@@ -47,187 +48,202 @@ const DEFAULT_TAGS: Tag[] = [
  * const taskTags = getTagsByIds(['work', 'urgent']);
  */
 export function useTags() {
-    const { data: session } = useSession();
-    const [localTags, setLocalTags] = useLocalStorage<Tag[]>('focusly_tags', DEFAULT_TAGS);
-    const [dbTags, setDbTags] = useState<Tag[]>(DEFAULT_TAGS);
+  const { data: session } = useSession();
+  const [localTags, setLocalTags] = useLocalStorage<Tag[]>(
+    STORAGE_KEYS.TAGS,
+    DEFAULT_TAGS,
+  );
+  const [dbTags, setDbTags] = useState<Tag[]>(DEFAULT_TAGS);
 
-    const getUserId = useCallback(() => session?.user?.id, [session]);
+  const getUserId = useCallback(() => session?.user?.id, [session]);
 
-    type DbTag = {
-        id: string;
-        name: string;
-        color: string;
-        created_at: string;
+  type DbTag = {
+    id: string;
+    name: string;
+    color: string;
+    created_at: string;
+  };
+
+  // Set Supabase auth session when user logs in
+  useEffect(() => {
+    if (session?.accessToken && session?.refreshToken) {
+      supabaseClient.auth.setSession({
+        access_token: session.accessToken,
+        refresh_token: session.refreshToken,
+      });
+    }
+  }, [session]);
+
+  // Load tags from database when user logs in
+  const loadTagsFromDB = useCallback(async () => {
+    const userId = getUserId();
+    if (!userId) return;
+
+    try {
+      const { data, error } = await retryWithBackoff(async () => {
+        const result = await supabaseClient
+          .from("tags")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: true });
+        if (result.error) throw result.error;
+        return result;
+      });
+
+      if (error) throw error;
+
+      const formattedTags: Tag[] =
+        (data as DbTag[] | null)?.map((dbTag) => ({
+          id: dbTag.id,
+          name: dbTag.name,
+          color: dbTag.color,
+          createdAt: new Date(dbTag.created_at).getTime(),
+        })) || [];
+
+      // Merge with default tags if no custom tags
+      setDbTags(formattedTags.length > 0 ? formattedTags : DEFAULT_TAGS);
+    } catch (error) {
+      console.error("Error loading tags from DB:", error);
+      setDbTags(DEFAULT_TAGS);
+    }
+  }, [getUserId]);
+
+  useEffect(() => {
+    const userId = getUserId();
+    if (userId) {
+      loadTagsFromDB();
+    } else {
+      setDbTags(DEFAULT_TAGS);
+    }
+  }, [getUserId, loadTagsFromDB]);
+
+  const currentTags = getUserId() ? dbTags : localTags;
+  const setCurrentTags = getUserId() ? setDbTags : setLocalTags;
+
+  const addTag = async (name: string, color: string) => {
+    const newTag: Tag = {
+      id: `tag-${Date.now()}`,
+      name,
+      color,
+      createdAt: Date.now(),
     };
 
-    // Set Supabase auth session when user logs in
-    useEffect(() => {
-        if (session?.accessToken && session?.refreshToken) {
-            supabaseClient.auth.setSession({
-                access_token: session.accessToken,
-                refresh_token: session.refreshToken,
-            });
-        }
-    }, [session]);
+    const userId = getUserId();
+    if (userId) {
+      // Save to database
+      try {
+        const { error } = await retryWithBackoff(async () => {
+          const result = await supabaseClient
+            .from("tags")
+            .insert({
+              id: newTag.id,
+              user_id: userId,
+              name: newTag.name,
+              color: newTag.color,
+              created_at: new Date(newTag.createdAt).toISOString(),
+            })
+            .select()
+            .single();
+          if (result.error) throw result.error;
+          return result;
+        });
 
-    // Load tags from database when user logs in
-    const loadTagsFromDB = useCallback(async () => {
-        const userId = getUserId();
-        if (!userId) return;
+        if (error) throw error;
 
-        try {
-            const { data, error } = await retryWithBackoff(async () => {
-                const result = await supabaseClient
-                    .from('tags')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: true });
-                if (result.error) throw result.error;
-                return result;
-            });
+        setCurrentTags([...currentTags, newTag]);
+      } catch (error) {
+        console.error("Error adding tag to DB:", error);
+      }
+    } else {
+      // Save to localStorage
+      setCurrentTags([...currentTags, newTag]);
+    }
 
-            if (error) throw error;
+    return newTag;
+  };
 
-            const formattedTags: Tag[] = (data as DbTag[] | null)?.map((dbTag) => ({
-                id: dbTag.id,
-                name: dbTag.name,
-                color: dbTag.color,
-                createdAt: new Date(dbTag.created_at).getTime(),
-            })) || [];
+  const updateTag = async (
+    id: string,
+    updates: Partial<Omit<Tag, "id" | "createdAt">>,
+  ) => {
+    const userId = getUserId();
+    if (userId) {
+      // Update in database
+      try {
+        const { error } = await retryWithBackoff(async () => {
+          const result = await supabaseClient
+            .from("tags")
+            .update({
+              name: updates.name,
+              color: updates.color,
+            })
+            .eq("id", id)
+            .eq("user_id", userId);
+          if (result.error) throw result.error;
+          return result;
+        });
 
-            // Merge with default tags if no custom tags
-            setDbTags(formattedTags.length > 0 ? formattedTags : DEFAULT_TAGS);
-        } catch (error) {
-            console.error('Error loading tags from DB:', error);
-            setDbTags(DEFAULT_TAGS);
-        }
-    }, [getUserId]);
+        if (error) throw error;
 
-    useEffect(() => {
-        const userId = getUserId();
-        if (userId) {
-            loadTagsFromDB();
-        } else {
-            setDbTags(DEFAULT_TAGS);
-        }
-    }, [getUserId, loadTagsFromDB]);
+        setCurrentTags(
+          currentTags.map((tag: Tag) =>
+            tag.id === id ? { ...tag, ...updates } : tag,
+          ),
+        );
+      } catch (error) {
+        console.error("Error updating tag in DB:", error);
+      }
+    } else {
+      // Update in localStorage
+      setCurrentTags(
+        currentTags.map((tag: Tag) =>
+          tag.id === id ? { ...tag, ...updates } : tag,
+        ),
+      );
+    }
+  };
 
-    const currentTags = getUserId() ? dbTags : localTags;
-    const setCurrentTags = getUserId() ? setDbTags : setLocalTags;
+  const deleteTag = async (id: string) => {
+    const userId = getUserId();
+    if (userId) {
+      // Delete from database
+      try {
+        const { error } = await retryWithBackoff(async () => {
+          const result = await supabaseClient
+            .from("tags")
+            .delete()
+            .eq("id", id)
+            .eq("user_id", userId);
+          if (result.error) throw result.error;
+          return result;
+        });
 
-    const addTag = async (name: string, color: string) => {
-        const newTag: Tag = {
-            id: `tag-${Date.now()}`,
-            name,
-            color,
-            createdAt: Date.now(),
-        };
+        if (error) throw error;
 
-        const userId = getUserId();
-        if (userId) {
-            // Save to database
-            try {
-                const { error } = await retryWithBackoff(async () => {
-                    const result = await supabaseClient
-                        .from('tags')
-                        .insert({
-                            id: newTag.id,
-                            user_id: userId,
-                            name: newTag.name,
-                            color: newTag.color,
-                            created_at: new Date(newTag.createdAt).toISOString(),
-                        })
-                        .select()
-                        .single();
-                    if (result.error) throw result.error;
-                    return result;
-                });
+        setCurrentTags(currentTags.filter((tag: Tag) => tag.id !== id));
+      } catch (error) {
+        console.error("Error deleting tag from DB:", error);
+      }
+    } else {
+      // Delete from localStorage
+      setCurrentTags(currentTags.filter((tag: Tag) => tag.id !== id));
+    }
+  };
 
-                if (error) throw error;
+  const getTagById = (id: string) => {
+    return currentTags.find((tag: Tag) => tag.id === id);
+  };
 
-                setCurrentTags([...currentTags, newTag]);
-            } catch (error) {
-                console.error('Error adding tag to DB:', error);
-            }
-        } else {
-            // Save to localStorage
-            setCurrentTags([...currentTags, newTag]);
-        }
+  const getTagsByIds = (ids: string[]) => {
+    return currentTags.filter((tag: Tag) => ids.includes(tag.id));
+  };
 
-        return newTag;
-    };
-
-    const updateTag = async (id: string, updates: Partial<Omit<Tag, 'id' | 'createdAt'>>) => {
-        const userId = getUserId();
-        if (userId) {
-            // Update in database
-            try {
-                const { error } = await retryWithBackoff(async () => {
-                    const result = await supabaseClient
-                        .from('tags')
-                        .update({
-                            name: updates.name,
-                            color: updates.color,
-                        })
-                        .eq('id', id)
-                        .eq('user_id', userId);
-                    if (result.error) throw result.error;
-                    return result;
-                });
-
-                if (error) throw error;
-
-                setCurrentTags(currentTags.map((tag: Tag) => (tag.id === id ? { ...tag, ...updates } : tag)));
-            } catch (error) {
-                console.error('Error updating tag in DB:', error);
-            }
-        } else {
-            // Update in localStorage
-            setCurrentTags(currentTags.map((tag: Tag) => (tag.id === id ? { ...tag, ...updates } : tag)));
-        }
-    };
-
-    const deleteTag = async (id: string) => {
-        const userId = getUserId();
-        if (userId) {
-            // Delete from database
-            try {
-                const { error } = await retryWithBackoff(async () => {
-                    const result = await supabaseClient
-                        .from('tags')
-                        .delete()
-                        .eq('id', id)
-                        .eq('user_id', userId);
-                    if (result.error) throw result.error;
-                    return result;
-                });
-
-                if (error) throw error;
-
-                setCurrentTags(currentTags.filter((tag: Tag) => tag.id !== id));
-            } catch (error) {
-                console.error('Error deleting tag from DB:', error);
-            }
-        } else {
-            // Delete from localStorage
-            setCurrentTags(currentTags.filter((tag: Tag) => tag.id !== id));
-        }
-    };
-
-    const getTagById = (id: string) => {
-        return currentTags.find((tag: Tag) => tag.id === id);
-    };
-
-    const getTagsByIds = (ids: string[]) => {
-        return currentTags.filter((tag: Tag) => ids.includes(tag.id));
-    };
-
-    return {
-        tags: currentTags,
-        addTag,
-        updateTag,
-        deleteTag,
-        getTagById,
-        getTagsByIds,
-    };
+  return {
+    tags: currentTags,
+    addTag,
+    updateTag,
+    deleteTag,
+    getTagById,
+    getTagsByIds,
+  };
 }

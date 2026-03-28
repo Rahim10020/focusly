@@ -16,6 +16,12 @@ import { useNotificationsContext } from "@/components/providers/NotificationsPro
 import { PresetProfiles } from "./PresetProfiles";
 import { AutoStartSettings } from "./AutoStartSettings";
 import { MyLoader } from "../ui/MyLoader";
+import {
+  LONG_BREAK,
+  POMODORO_CYCLES_FOR_LONG_BREAK,
+  POMODORO_DURATION,
+  SHORT_BREAK,
+} from "@/lib/constants";
 
 /**
  * Predefined timer profiles for common Pomodoro techniques
@@ -24,10 +30,10 @@ const PRESET_PROFILES = {
   classic: {
     name: "Classic Pomodoro",
     description: "25 min work, 5 min break",
-    workDuration: 1500, // 25 min
-    shortBreakDuration: 300, // 5 min
-    longBreakDuration: 900, // 15 min
-    cyclesBeforeLongBreak: 4,
+    workDuration: POMODORO_DURATION,
+    shortBreakDuration: SHORT_BREAK,
+    longBreakDuration: LONG_BREAK,
+    cyclesBeforeLongBreak: POMODORO_CYCLES_FOR_LONG_BREAK,
   },
   ultraFocus: {
     name: "Ultra Focus",

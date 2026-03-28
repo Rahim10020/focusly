@@ -28,6 +28,7 @@ import { LeaderboardHeader } from "@/components/leaderboard/LeaderboardHeader";
 import { LeaderboardPodium } from "@/components/leaderboard/LeaderboardPodium";
 import { LeaderboardList } from "@/components/leaderboard/LeaderboardList";
 import { LeaderboardPagination } from "@/components/leaderboard/LeaderboardPagination";
+import { LEADERBOARD_DEFAULTS } from "@/lib/constants";
 
 interface FriendData {
   id: string;
@@ -35,8 +36,6 @@ interface FriendData {
   receiver_id: string;
   status: "pending" | "accepted";
 }
-
-const LEADERBOARD_CACHE_TTL = 60 * 1000;
 
 export default function LeaderboardPage() {
   const { data: session, status } = useSession();
@@ -63,16 +62,16 @@ export default function LeaderboardPage() {
       setError(null);
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: "20",
+        limit: LEADERBOARD_DEFAULTS.PAGE_SIZE.toString(),
       });
       if (timeFilter !== "all") {
         params.append("timeFilter", timeFilter);
       }
 
-      const cacheKey = `leaderboard:${page}:20:${timeFilter}`;
+      const cacheKey = `leaderboard:${page}:${LEADERBOARD_DEFAULTS.PAGE_SIZE}:${timeFilter}`;
       const cachedData = await CacheService.getWithTTL<LeaderboardResponse>(
         cacheKey,
-        LEADERBOARD_CACHE_TTL,
+        LEADERBOARD_DEFAULTS.CLIENT_CACHE_TTL_MS,
       );
       if (cachedData) {
         setLeaderboard(cachedData.data || []);

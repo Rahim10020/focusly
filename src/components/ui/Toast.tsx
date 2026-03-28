@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import CheckIcon from "../shared/icons/CheckIcon";
 import { CloseLgIcon, InfoIcon } from "../shared/icons";
 import WarningIcon from "../shared/icons/WarningIcon";
+import { TOAST_DEFAULT_DURATION_MS } from "@/lib/constants";
 
 /**
  * Props for the Toast component.
@@ -82,7 +83,7 @@ export default function Toast({
   type,
   title,
   description,
-  duration = 5000,
+  duration = TOAST_DEFAULT_DURATION_MS,
   onClose,
 }: ToastProps) {
   useEffect(() => {
