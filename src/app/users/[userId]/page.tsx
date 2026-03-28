@@ -14,11 +14,8 @@ import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import { ROUTES } from "@/components/shared/constants/routes";
-import {
-  API_DYNAMIC_ROUTES,
-  API_ROUTES,
-} from "@/components/shared/constants/apiRoutes";
+import { ROUTES } from "@/lib/constants";
+import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/lib/constants";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { formatHoursMinutesFromSeconds } from "@/lib/utils/stats-calculations";
 import { useAppToast } from "@/lib/hooks/useAppToast";

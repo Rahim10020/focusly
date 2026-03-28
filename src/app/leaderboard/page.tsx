@@ -14,11 +14,8 @@ import Header from "@/components/layout/Header";
 import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { LeaderboardUser, LeaderboardResponse } from "@/types/leaderboard";
-import { DYNAMIC_ROUTES, ROUTES } from "@/components/shared/constants/routes";
-import {
-  API_DYNAMIC_ROUTES,
-  API_ROUTES,
-} from "@/components/shared/constants/apiRoutes";
+import { DYNAMIC_ROUTES, ROUTES } from "@/lib/constants";
+import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/lib/constants";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { formatHoursMinutesFromSeconds } from "@/lib/utils/stats-calculations";
 import { InfoIcon } from "@/components/shared/icons";

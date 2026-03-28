@@ -12,7 +12,7 @@ import { supabaseClient as supabase } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { WavyCheckIcon } from "@/components/shared/icons";
 

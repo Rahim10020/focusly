@@ -5,7 +5,7 @@
 "use client";
 
 import Link from "next/link";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 import SettingsIcon from "../shared/icons/SettingsIcon";
 
 export function TimerSettingsButton() {

@@ -16,11 +16,8 @@ import { FriendsHeader } from "@/components/friends/FriendsHeader";
 import { UserSearch } from "@/components/friends/UserSearch";
 import { PendingRequests } from "@/components/friends/PendingRequests";
 import { FriendsList } from "@/components/friends/FriendsList";
-import { ROUTES } from "@/components/shared/constants/routes";
-import {
-  API_DYNAMIC_ROUTES,
-  API_ROUTES,
-} from "@/components/shared/constants/apiRoutes";
+import { ROUTES } from "@/lib/constants";
+import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/lib/constants";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { useAppToast } from "@/lib/hooks/useAppToast";
 

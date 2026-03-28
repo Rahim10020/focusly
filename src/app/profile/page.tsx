@@ -29,7 +29,7 @@ import {
   formatFileSize,
 } from "@/lib/utils/imageCompression";
 import { MyLoader } from "@/components/ui/MyLoader";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 import { useAppToast } from "@/lib/hooks/useAppToast";
 
 export default function ProfilePage() {

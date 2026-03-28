@@ -14,7 +14,7 @@ import Header from "@/components/layout/Header";
 import TaskModal, { TaskFormData } from "@/components/tasks/TaskModal";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { useTags } from "@/lib/hooks/useTags";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 import { MyLoader } from "@/components/ui/MyLoader";
 
 export default function CreateTaskPage() {

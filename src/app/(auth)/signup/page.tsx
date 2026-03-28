@@ -14,7 +14,7 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { ArrowLeftLgIcon, ArrowRightLgIcon } from "@/components/shared/icons";
 

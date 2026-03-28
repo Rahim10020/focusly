@@ -17,7 +17,7 @@ import { useTags } from "@/lib/hooks/useTags";
 import { Task } from "@/types";
 import TaskDetailsModal from "@/components/tasks/TaskDetailsModal";
 import { MyLoader } from "@/components/ui/MyLoader";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 
 // Lazy load CalendarView for better performance
 const CalendarView = dynamic(

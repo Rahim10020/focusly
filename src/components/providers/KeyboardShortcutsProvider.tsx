@@ -6,7 +6,7 @@ import {
 } from "@/lib/hooks/useKeyboardShortcuts";
 import { useRouter } from "next/navigation";
 import { useTheme } from "./ThemeProvider";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 
 interface KeyboardShortcutsProviderProps {
   children: React.ReactNode;

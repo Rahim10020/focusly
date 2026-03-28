@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { FailTaskModal } from "./FailTaskModal";
-import { DYNAMIC_ROUTES } from "@/components/shared/constants/routes";
+import { DYNAMIC_ROUTES } from "@/lib/constants";
 
 interface TaskHistoryListProps {
   tasks: Task[];

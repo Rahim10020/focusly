@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 
 export default function UserMenu() {
   const { data: session, status } = useSession();

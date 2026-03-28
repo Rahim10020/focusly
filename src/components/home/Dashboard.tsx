@@ -32,7 +32,7 @@ import { useTheme } from "@/components/providers/ThemeProvider";
 import { Task } from "@/types";
 import type { PomodoroSession } from "@/types";
 import { getAllImminentTasks } from "@/lib/utils/taskUtils";
-import { ROUTES } from "../shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 import { AddPlusIcon } from "../shared/icons";
 
 interface DashboardProps {

@@ -4,11 +4,14 @@
  * @module lib/hooks/useNotifications
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import { supabaseClient } from '@/lib/supabase/client';
-import { playNotificationSound, NotificationSoundType } from '@/lib/utils/notificationSounds';
-import { API_DYNAMIC_ROUTES, API_ROUTES } from '@/components/shared/constants/apiRoutes';
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import { supabaseClient } from "@/lib/supabase/client";
+import {
+  playNotificationSound,
+  NotificationSoundType,
+} from "@/lib/utils/notificationSounds";
+import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/lib/constants";
 
 // Simple in-memory cache to reduce duplicate fetches during dev/hot-reload or multiple mounts
 const CACHE_TTL_MS = 30 * 1000; // 30 seconds
@@ -19,24 +22,30 @@ const cacheByUser: Record<string, Notification[]> = {};
  * Represents a notification object.
  */
 export interface Notification {
-    /** Unique notification identifier */
-    id: string;
-    /** ID of the user who owns the notification */
-    user_id: string;
-    /** Type of notification */
-    type: 'friend_request' | 'friend_request_accepted' | 'task_completed' | 'task_overdue' | 'achievement' | 'info';
-    /** Notification title */
-    title: string;
-    /** Detailed notification message */
-    message: string;
-    /** Additional notification data */
-    data: unknown | null;
-    /** Whether the notification has been read */
-    read: boolean;
-    /** Timestamp when the notification was created */
-    created_at: string;
-    /** Timestamp when the notification was last updated */
-    updated_at: string;
+  /** Unique notification identifier */
+  id: string;
+  /** ID of the user who owns the notification */
+  user_id: string;
+  /** Type of notification */
+  type:
+    | "friend_request"
+    | "friend_request_accepted"
+    | "task_completed"
+    | "task_overdue"
+    | "achievement"
+    | "info";
+  /** Notification title */
+  title: string;
+  /** Detailed notification message */
+  message: string;
+  /** Additional notification data */
+  data: unknown | null;
+  /** Whether the notification has been read */
+  read: boolean;
+  /** Timestamp when the notification was created */
+  created_at: string;
+  /** Timestamp when the notification was last updated */
+  updated_at: string;
 }
 
 /**
@@ -59,319 +68,362 @@ export interface Notification {
  * @property {Function} requestPermission - Function to request browser notification permission
  */
 export function useNotifications() {
-    const { data: session } = useSession();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [soundEnabled, setSoundEnabled] = useState(true);
+  const { data: session } = useSession();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
-    // Browser notification permission state
-    const [permission, setPermission] = useState<NotificationPermission>('default');
+  // Browser notification permission state
+  const [permission, setPermission] =
+    useState<NotificationPermission>("default");
 
-    /**
-     * Fetches all notifications for the current user.
-     */
-    const fetchNotifications = useCallback(async () => {
-        if (!session?.user || !session.accessToken) return;
+  /**
+   * Fetches all notifications for the current user.
+   */
+  const fetchNotifications = useCallback(async () => {
+    if (!session?.user || !session.accessToken) return;
 
-        const userId = session.user.id;
-        const now = Date.now();
+    const userId = session.user.id;
+    const now = Date.now();
 
-        // If we have a fresh cache for this user, reuse it and avoid network call
-        if (userId && lastFetchByUser[userId] && (now - lastFetchByUser[userId] < CACHE_TTL_MS)) {
-            setNotifications(cacheByUser[userId] || []);
-            return;
+    // If we have a fresh cache for this user, reuse it and avoid network call
+    if (
+      userId &&
+      lastFetchByUser[userId] &&
+      now - lastFetchByUser[userId] < CACHE_TTL_MS
+    ) {
+      setNotifications(cacheByUser[userId] || []);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(API_ROUTES.NOTIFICATIONS);
+      if (!response.ok) {
+        throw new Error("Failed to fetch notifications");
+      }
+      const responseData = await response.json();
+      // Extract the notifications array from the API response
+      const notifications = responseData.data || [];
+      setNotifications(notifications);
+
+      // Update cache
+      if (userId) {
+        cacheByUser[userId] = notifications;
+        lastFetchByUser[userId] = Date.now();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      console.error("Error fetching notifications:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [session?.user, session?.accessToken]);
+
+  /**
+   * Marks a specific notification as read or unread.
+   * @param {string} notificationId - ID of the notification to update
+   * @param {boolean} read - Whether to mark as read (true) or unread (false)
+   */
+  const markAsRead = useCallback(
+    async (notificationId: string, read: boolean = true) => {
+      try {
+        const response = await fetch(
+          API_DYNAMIC_ROUTES.NOTIFICATION_BY_ID(notificationId),
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ read }),
+          },
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to update notification");
         }
 
-        setLoading(true);
+        // Update local state
+        setNotifications((prev) =>
+          prev.map((notification) =>
+            notification.id === notificationId
+              ? { ...notification, read }
+              : notification,
+          ),
+        );
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to update notification",
+        );
+        console.error("Error updating notification:", err);
+      }
+    },
+    [],
+  );
 
-        try {
-            const response = await fetch(API_ROUTES.NOTIFICATIONS);
-            if (!response.ok) {
-                throw new Error('Failed to fetch notifications');
-            }
-            const responseData = await response.json();
-            // Extract the notifications array from the API response
-            const notifications = responseData.data || [];
-            setNotifications(notifications);
+  /**
+   * Marks all notifications as read.
+   */
+  const markAllAsRead = useCallback(async () => {
+    try {
+      // Update all notifications in local state
+      const unreadNotifications = notifications.filter((n) => !n.read);
+      await Promise.all(
+        unreadNotifications.map((notification) =>
+          markAsRead(notification.id, true),
+        ),
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to mark all notifications as read",
+      );
+      console.error("Error marking all notifications as read:", err);
+    }
+  }, [notifications, markAsRead]);
 
-            // Update cache
-            if (userId) {
-                cacheByUser[userId] = notifications;
-                lastFetchByUser[userId] = Date.now();
-            }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
-            console.error('Error fetching notifications:', err);
-        } finally {
-            setLoading(false);
-        }
-    }, [session?.user, session?.accessToken]);
+  /**
+   * Deletes a specific notification.
+   * @param {string} notificationId - ID of the notification to delete
+   */
+  const deleteNotification = useCallback(async (notificationId: string) => {
+    try {
+      const response = await fetch(
+        API_DYNAMIC_ROUTES.NOTIFICATION_BY_ID(notificationId),
+        {
+          method: "DELETE",
+        },
+      );
 
-    /**
-     * Marks a specific notification as read or unread.
-     * @param {string} notificationId - ID of the notification to update
-     * @param {boolean} read - Whether to mark as read (true) or unread (false)
-     */
-    const markAsRead = useCallback(async (notificationId: string, read: boolean = true) => {
-        try {
-            const response = await fetch(API_DYNAMIC_ROUTES.NOTIFICATION_BY_ID(notificationId), {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ read }),
-            });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete notification");
+      }
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to update notification');
-            }
+      // Update local state
+      setNotifications((prev) =>
+        prev.filter((notification) => notification.id !== notificationId),
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to delete notification",
+      );
+      console.error("Error deleting notification:", err);
+    }
+  }, []);
 
-            // Update local state
-            setNotifications(prev =>
-                prev.map(notification =>
-                    notification.id === notificationId
-                        ? { ...notification, read }
-                        : notification
-                )
-            );
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to update notification');
-            console.error('Error updating notification:', err);
-        }
-    }, []);
-
-    /**
-     * Marks all notifications as read.
-     */
-    const markAllAsRead = useCallback(async () => {
-        try {
-            // Update all notifications in local state
-            const unreadNotifications = notifications.filter(n => !n.read);
-            await Promise.all(
-                unreadNotifications.map(notification => markAsRead(notification.id, true))
-            );
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to mark all notifications as read');
-            console.error('Error marking all notifications as read:', err);
-        }
-    }, [notifications, markAsRead]);
-
-    /**
-     * Deletes a specific notification.
-     * @param {string} notificationId - ID of the notification to delete
-     */
-    const deleteNotification = useCallback(async (notificationId: string) => {
-        try {
-            const response = await fetch(API_DYNAMIC_ROUTES.NOTIFICATION_BY_ID(notificationId), {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to delete notification');
-            }
-
-            // Update local state
-            setNotifications(prev => prev.filter(notification => notification.id !== notificationId));
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to delete notification');
-            console.error('Error deleting notification:', err);
-        }
-    }, []);
-
-    /**
-     * Creates a new notification.
-     * @param {Omit<Notification, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'read'>} notificationData - Data for the new notification
-     */
-    const createNotification = useCallback(async (notificationData: {
-        user_id: string;
-        type: Notification['type'];
-        title: string;
-        message: string;
-        data?: unknown;
+  /**
+   * Creates a new notification.
+   * @param {Omit<Notification, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'read'>} notificationData - Data for the new notification
+   */
+  const createNotification = useCallback(
+    async (notificationData: {
+      user_id: string;
+      type: Notification["type"];
+      title: string;
+      message: string;
+      data?: unknown;
     }) => {
-        try {
-            const response = await fetch(API_ROUTES.NOTIFICATIONS, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(notificationData),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to create notification');
-            }
-
-            const responseData = await response.json();
-            // Extract the notification from the API response
-            const newNotification = responseData.data;
-
-            // If the notification is for the current user, add it to local state
-            if (newNotification.user_id === session?.user?.id) {
-                setNotifications(prev => [newNotification, ...prev]);
-            }
-
-            return newNotification;
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to create notification');
-            console.error('Error creating notification:', err);
-            throw err;
-        }
-    }, [session?.user?.id]);
-
-    /**
-     * Shows a browser notification if permissions are granted.
-     * @param {string} title - Notification title
-     * @param {object} options - Notification options
-     * @param {NotificationSoundType} soundType - Type of sound to play
-     */
-    const showNotification = useCallback((
-        title: string,
-        options?: NotificationOptions,
-        soundType: NotificationSoundType = 'default'
-    ) => {
-        // Play sound if enabled
-        if (soundEnabled) {
-            playNotificationSound(soundType);
-        }
-
-        // Show browser notification
-        if ('Notification' in window && Notification.permission === 'granted') {
-            const notification = new Notification(title, options);
-            notification.onclick = () => {
-                window.focus();
-                notification.close();
-            };
-        }
-    }, [soundEnabled]);
-
-    /**
-     * Requests permission for browser notifications.
-     * @returns {Promise<boolean>} Whether permission was granted
-     */
-    const requestPermission = useCallback(async () => {
-        if ('Notification' in window) {
-            const result = await Notification.requestPermission();
-            setPermission(result);
-            return result === 'granted';
-        }
-        return false;
-    }, []);
-
-    // Initialize permission state and load sound preference
-    useEffect(() => {
-        if ('Notification' in window) {
-            setPermission(Notification.permission);
-        }
-        // Load sound preference from localStorage
-        const savedSoundPref = localStorage.getItem('notification-sound-enabled');
-        if (savedSoundPref !== null) {
-            setSoundEnabled(savedSoundPref === 'true');
-        }
-    }, []);
-
-    // Fetch notifications when session changes
-    useEffect(() => {
-        if (session?.user && session.accessToken) {
-            fetchNotifications();
-
-            // ✅ AJOUT: Set Supabase auth session
-            supabaseClient.auth.setSession({
-                access_token: session.accessToken,
-                refresh_token: session.refreshToken!,
-            });
-        } else {
-            setNotifications([]);
-        }
-    }, [session?.user, session?.accessToken, session?.refreshToken, fetchNotifications]);
-
-    // ✅ AJOUT: Subscribe to real-time notifications
-    useEffect(() => {
-        const userId = session?.user?.id;
-        if (!userId) return;
-
-        const channel = supabaseClient
-            .channel(`notifications:${userId}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: 'INSERT',
-                    schema: 'public',
-                    table: 'notifications',
-                    filter: `user_id=eq.${userId}`
-                },
-                (payload) => {
-                    const newNotification = payload.new as Notification;
-                    setNotifications(prev => [newNotification, ...prev]);
-                }
-            )
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'notifications',
-                    filter: `user_id=eq.${userId}`
-                },
-                (payload) => {
-                    const updatedNotification = payload.new as Notification;
-                    setNotifications(prev =>
-                        prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
-                    );
-                }
-            )
-            .on(
-                'postgres_changes',
-                {
-                    event: 'DELETE',
-                    schema: 'public',
-                    table: 'notifications',
-                    filter: `user_id=eq.${userId}`
-                },
-                (payload) => {
-                    const deletedId = (payload.old as { id: string }).id;
-                    setNotifications(prev => prev.filter(n => n.id !== deletedId));
-                }
-            )
-            .subscribe();
-
-        return () => {
-            channel.unsubscribe();
-        };
-    }, [session?.user?.id]);
-
-    // Calculate unread count
-    const unreadCount = notifications.filter(notification => !notification.read).length;
-
-    /**
-     * Toggles notification sounds on/off
-     */
-    const toggleSound = useCallback(() => {
-        setSoundEnabled(prev => {
-            const newValue = !prev;
-            localStorage.setItem('notification-sound-enabled', String(newValue));
-            return newValue;
+      try {
+        const response = await fetch(API_ROUTES.NOTIFICATIONS, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(notificationData),
         });
-    }, []);
 
-    return {
-        notifications,
-        loading,
-        error,
-        unreadCount,
-        fetchNotifications,
-        markAsRead,
-        markAllAsRead,
-        deleteNotification,
-        createNotification,
-        showNotification,
-        permission,
-        requestPermission,
-        soundEnabled,
-        toggleSound,
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to create notification");
+        }
+
+        const responseData = await response.json();
+        // Extract the notification from the API response
+        const newNotification = responseData.data;
+
+        // If the notification is for the current user, add it to local state
+        if (newNotification.user_id === session?.user?.id) {
+          setNotifications((prev) => [newNotification, ...prev]);
+        }
+
+        return newNotification;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to create notification",
+        );
+        console.error("Error creating notification:", err);
+        throw err;
+      }
+    },
+    [session?.user?.id],
+  );
+
+  /**
+   * Shows a browser notification if permissions are granted.
+   * @param {string} title - Notification title
+   * @param {object} options - Notification options
+   * @param {NotificationSoundType} soundType - Type of sound to play
+   */
+  const showNotification = useCallback(
+    (
+      title: string,
+      options?: NotificationOptions,
+      soundType: NotificationSoundType = "default",
+    ) => {
+      // Play sound if enabled
+      if (soundEnabled) {
+        playNotificationSound(soundType);
+      }
+
+      // Show browser notification
+      if ("Notification" in window && Notification.permission === "granted") {
+        const notification = new Notification(title, options);
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      }
+    },
+    [soundEnabled],
+  );
+
+  /**
+   * Requests permission for browser notifications.
+   * @returns {Promise<boolean>} Whether permission was granted
+   */
+  const requestPermission = useCallback(async () => {
+    if ("Notification" in window) {
+      const result = await Notification.requestPermission();
+      setPermission(result);
+      return result === "granted";
+    }
+    return false;
+  }, []);
+
+  // Initialize permission state and load sound preference
+  useEffect(() => {
+    if ("Notification" in window) {
+      setPermission(Notification.permission);
+    }
+    // Load sound preference from localStorage
+    const savedSoundPref = localStorage.getItem("notification-sound-enabled");
+    if (savedSoundPref !== null) {
+      setSoundEnabled(savedSoundPref === "true");
+    }
+  }, []);
+
+  // Fetch notifications when session changes
+  useEffect(() => {
+    if (session?.user && session.accessToken) {
+      fetchNotifications();
+
+      // ✅ AJOUT: Set Supabase auth session
+      supabaseClient.auth.setSession({
+        access_token: session.accessToken,
+        refresh_token: session.refreshToken!,
+      });
+    } else {
+      setNotifications([]);
+    }
+  }, [
+    session?.user,
+    session?.accessToken,
+    session?.refreshToken,
+    fetchNotifications,
+  ]);
+
+  // ✅ AJOUT: Subscribe to real-time notifications
+  useEffect(() => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    const channel = supabaseClient
+      .channel(`notifications:${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const newNotification = payload.new as Notification;
+          setNotifications((prev) => [newNotification, ...prev]);
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const updatedNotification = payload.new as Notification;
+          setNotifications((prev) =>
+            prev.map((n) =>
+              n.id === updatedNotification.id ? updatedNotification : n,
+            ),
+          );
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const deletedId = (payload.old as { id: string }).id;
+          setNotifications((prev) => prev.filter((n) => n.id !== deletedId));
+        },
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
     };
+  }, [session?.user?.id]);
+
+  // Calculate unread count
+  const unreadCount = notifications.filter(
+    (notification) => !notification.read,
+  ).length;
+
+  /**
+   * Toggles notification sounds on/off
+   */
+  const toggleSound = useCallback(() => {
+    setSoundEnabled((prev) => {
+      const newValue = !prev;
+      localStorage.setItem("notification-sound-enabled", String(newValue));
+      return newValue;
+    });
+  }, []);
+
+  return {
+    notifications,
+    loading,
+    error,
+    unreadCount,
+    fetchNotifications,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    createNotification,
+    showNotification,
+    permission,
+    requestPermission,
+    soundEnabled,
+    toggleSound,
+  };
 }

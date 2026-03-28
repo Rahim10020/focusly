@@ -11,7 +11,7 @@ import Link from "next/link";
 import Card, { CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import ThemeToggle from "@/components/ui/ThemeToggle";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 
 export default function HowToUsePage() {
   return (

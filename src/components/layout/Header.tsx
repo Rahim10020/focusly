@@ -11,7 +11,7 @@ import { usePathname } from "next/navigation";
 import ThemeToggle from "../ui/ThemeToggle";
 import UserMenu from "../ui/UserMenu";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 import AppLogo from "../shared/AppLogo";
 import { BellIcon } from "../shared/icons";
 

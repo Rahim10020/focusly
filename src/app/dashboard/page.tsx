@@ -30,7 +30,7 @@ import ExportPDFModal, {
   ExportOptions,
 } from "@/components/dashboard/ExportPDFModal";
 import { MyLoader } from "@/components/ui/MyLoader";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 import { getTaskCompletionStats } from "@/lib/utils/stats-calculations";
 import {
   CalendarIcon,

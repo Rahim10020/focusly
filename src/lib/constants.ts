@@ -1,6 +1,7 @@
 /**
- * @fileoverview Compatibility barrel for app constants.
- * Domain constants are split in src/lib/app-constants for maintainability.
+ * @deprecated Use '@/lib/constants' directly instead.
+ * This file is kept for backward compatibility during migration.
+ * All constants are now centralized in src/lib/constants/
  */
 
-export * from "./app-constants";
+export * from "./constants/index";

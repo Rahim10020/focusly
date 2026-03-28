@@ -21,7 +21,7 @@ import { useStats } from "@/lib/hooks/useStats";
 import { useAchievements } from "@/lib/hooks/useAchievements";
 import { Task } from "@/types";
 import AchievementNotification from "@/components/achievements/AchievementNotification";
-import { ROUTES } from "@/components/shared/constants/routes";
+import { ROUTES } from "@/lib/constants";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { AddPlusIcon } from "@/components/shared/icons";
 
