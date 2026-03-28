@@ -12,9 +12,12 @@ import Header from "@/components/layout/Header";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { useAchievements } from "@/lib/hooks/useAchievements";
 import { useTasks } from "@/lib/hooks/useTasks";
+import { useStats } from "@/lib/hooks/useStats";
 import { TaskCategorizationService } from "@/lib/services/taskCategorizationService";
 import { useState, useMemo } from "react";
 import { MyLoader } from "@/components/ui/MyLoader";
+import StatsCard from "@/components/stats/StatsCard";
+import ProductivityChart from "@/components/stats/ProductivityChart";
 
 // Lazy load heavy chart components
 const AchievementsList = dynamic(
@@ -44,6 +47,7 @@ const DomainStats = dynamic(() => import("@/components/stats/DomainStats"), {
 export default function StatsPage() {
   const { unlockedAchievements, lockedAchievements } = useAchievements();
   const { tasks } = useTasks();
+  const { sessions } = useStats();
   const [activeTab, setActiveTab] = useState<
     "achievements" | "tasks" | "domains"
   >("achievements");
@@ -160,33 +164,26 @@ export default function StatsPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Completion Rate
-                    </p>
-                    <p className="text-2xl font-bold">
-                      {taskStats.completionRate.toFixed(1)}%
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Postponed</p>
-                    <p className="text-2xl font-bold">{taskStats.postponed}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Overdue</p>
-                    <p className="text-2xl font-bold text-destructive">
-                      {taskStats.overdue}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Failure Rate
-                    </p>
-                    <p className="text-2xl font-bold">
-                      {taskStats.failureRate.toFixed(1)}%
-                    </p>
-                  </div>
+                  <StatsCard
+                    title="Completion Rate"
+                    value={`${taskStats.completionRate.toFixed(1)}%`}
+                  />
+                  <StatsCard title="Postponed" value={taskStats.postponed} />
+                  <StatsCard title="Overdue" value={taskStats.overdue} />
+                  <StatsCard
+                    title="Failure Rate"
+                    value={`${taskStats.failureRate.toFixed(1)}%`}
+                  />
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Weekly Focus Time</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ProductivityChart sessions={sessions} />
               </CardContent>
             </Card>
 

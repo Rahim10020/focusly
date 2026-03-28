@@ -3,93 +3,124 @@
  * @module lib/hooks/useCachedStats
  */
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useStats } from './useStats';
-import type { Stats, PomodoroSession } from '@/types';
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useStats } from "./useStats";
+import type { Stats, PomodoroSession } from "@/types";
+import { CacheService } from "@/lib/services/cacheService";
 
 const CACHE_DURATION = 30000; // 30 secondes
+const STATS_CACHE_KEY = "focusly:stats:latest";
 
 /**
  * Hook that caches statistics for a specified duration to reduce API calls.
  * The cache is automatically invalidated after CACHE_DURATION or can be manually invalidated.
- * 
+ *
  * @returns {Object} Contains cached stats, all stats hook methods, and invalidateCache function
  */
 export const useCachedStats = () => {
-    const [cachedStats, setCachedStats] = useState<Stats | null>(null);
-    const cacheTimestampRef = useRef<number>(0);
+  const [cachedStats, setCachedStats] = useState<Stats | null>(null);
+  const cacheTimestampRef = useRef<number>(0);
 
-    type UseStatsReturn = {
-        stats: Stats;
-        sessions: PomodoroSession[];
-        loading: boolean;
-        error: string | null;
-        addSession: (session: PomodoroSession) => Promise<void>;
-        updateTaskStats: (totalTasks: number, completedTasks: number) => Promise<void>;
-        getTodaySessions: () => PomodoroSession[];
-        getTodayFocusTime: () => number;
-        refreshStats: () => Promise<void>;
-        calculateStreak: (sessions: PomodoroSession[]) => number;
+  type UseStatsReturn = {
+    stats: Stats;
+    sessions: PomodoroSession[];
+    loading: boolean;
+    error: string | null;
+    addSession: (session: PomodoroSession) => Promise<void>;
+    updateTaskStats: (
+      totalTasks: number,
+      completedTasks: number,
+    ) => Promise<void>;
+    getTodaySessions: () => PomodoroSession[];
+    getTodayFocusTime: () => number;
+    refreshStats: () => Promise<void>;
+    calculateStreak: (sessions: PomodoroSession[]) => number;
+  };
+
+  const statsResult = useStats() as UseStatsReturn;
+  const { stats, ...statsHook } = statsResult;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadPersistedCache = async () => {
+      const persisted = await CacheService.getWithTTL<Stats>(
+        STATS_CACHE_KEY,
+        CACHE_DURATION,
+      );
+      if (!isMounted || !persisted) return;
+
+      setCachedStats(persisted);
+      cacheTimestampRef.current = Date.now();
     };
 
-    const statsResult = useStats() as UseStatsReturn;
-    const { stats, ...statsHook } = statsResult;
+    void loadPersistedCache();
 
-    useEffect(() => {
-        const now = Date.now();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-        // Utiliser le cache si valide
-        if (cachedStats && (now - cacheTimestampRef.current < CACHE_DURATION)) {
-            return;
-        }
+  useEffect(() => {
+    const now = Date.now();
 
-        // Sinon mettre à jour le cache
-        if (stats) {
-            // Defer state update to avoid synchronous setState-in-effect warnings
-            const tid = window.setTimeout(() => {
-                setCachedStats(stats);
-                cacheTimestampRef.current = now;
-            }, 0);
+    // Use in-memory cache if still fresh.
+    if (cachedStats && now - cacheTimestampRef.current < CACHE_DURATION) {
+      return;
+    }
 
-            return () => clearTimeout(tid);
-        }
-    }, [stats, cachedStats]);
+    if (!stats) return;
 
-    /**
-     * Manually invalidate the cache to force a refresh of statistics
-     */
-    const invalidateCache = useCallback(() => {
-        // Use a ref so invalidation does not trigger a re-render by itself.
-        cacheTimestampRef.current = 0;
-    }, []);
+    const tid = window.setTimeout(() => {
+      setCachedStats(stats);
+      cacheTimestampRef.current = now;
+      void CacheService.set(STATS_CACHE_KEY, stats);
+    }, 0);
 
-    // Instead of dynamically using `any`, explicitly create typed wrappers for
-    // the known mutating functions coming from useStats.
-    const {
-        addSession,
-        updateTaskStats,
-        refreshStats,
-    } = statsHook;
+    return () => clearTimeout(tid);
+  }, [stats, cachedStats]);
 
-    const wrappedAddSession = useCallback(async (session: PomodoroSession): Promise<void> => {
-        invalidateCache();
-        await addSession(session);
-        invalidateCache();
-    }, [addSession, invalidateCache]);
+  /**
+   * Manually invalidate the cache to force a refresh of statistics
+   */
+  const invalidateCache = useCallback(() => {
+    // Use a ref so invalidation does not trigger a re-render by itself.
+    cacheTimestampRef.current = 0;
+    setCachedStats(null);
+    void CacheService.delete(STATS_CACHE_KEY);
+  }, []);
 
-    const wrappedUpdateTaskStats = useCallback(async (totalTasks: number, completedTasks: number): Promise<void> => {
-        invalidateCache();
-        await updateTaskStats(totalTasks, completedTasks);
-        invalidateCache();
-    }, [updateTaskStats, invalidateCache]);
+  // Instead of dynamically using `any`, explicitly create typed wrappers for
+  // the known mutating functions coming from useStats.
+  const { addSession, updateTaskStats, refreshStats } = statsHook;
 
-    const wrappedRefreshStats = useCallback(async (): Promise<void> => {
-        invalidateCache();
-        await refreshStats();
-        invalidateCache();
-    }, [refreshStats, invalidateCache]);
+  const wrappedAddSession = useCallback(
+    async (session: PomodoroSession): Promise<void> => {
+      invalidateCache();
+      await addSession(session);
+      invalidateCache();
+    },
+    [addSession, invalidateCache],
+  );
 
-    const hookFns = useMemo(() => ({
+  const wrappedUpdateTaskStats = useCallback(
+    async (totalTasks: number, completedTasks: number): Promise<void> => {
+      invalidateCache();
+      await updateTaskStats(totalTasks, completedTasks);
+      invalidateCache();
+    },
+    [updateTaskStats, invalidateCache],
+  );
+
+  const wrappedRefreshStats = useCallback(async (): Promise<void> => {
+    invalidateCache();
+    await refreshStats();
+    invalidateCache();
+  }, [refreshStats, invalidateCache]);
+
+  const hookFns = useMemo(
+    () =>
+      ({
         sessions: statsHook.sessions,
         loading: statsHook.loading,
         error: statsHook.error,
@@ -99,21 +130,26 @@ export const useCachedStats = () => {
         getTodayFocusTime: statsHook.getTodayFocusTime,
         refreshStats: wrappedRefreshStats,
         calculateStreak: statsHook.calculateStreak,
-    }) as Omit<UseStatsReturn, 'stats'>, [
-        statsHook.sessions,
-        statsHook.loading,
-        statsHook.error,
-        statsHook.getTodaySessions,
-        statsHook.getTodayFocusTime,
-        statsHook.calculateStreak,
-        wrappedAddSession,
-        wrappedUpdateTaskStats,
-        wrappedRefreshStats,
-    ]);
+      }) as Omit<UseStatsReturn, "stats">,
+    [
+      statsHook.sessions,
+      statsHook.loading,
+      statsHook.error,
+      statsHook.getTodaySessions,
+      statsHook.getTodayFocusTime,
+      statsHook.calculateStreak,
+      wrappedAddSession,
+      wrappedUpdateTaskStats,
+      wrappedRefreshStats,
+    ],
+  );
 
-    return useMemo(() => ({
-        stats: cachedStats || stats,
-        ...hookFns,
-        invalidateCache
-    }), [cachedStats, stats, hookFns, invalidateCache]);
+  return useMemo(
+    () => ({
+      stats: cachedStats || stats,
+      ...hookFns,
+      invalidateCache,
+    }),
+    [cachedStats, stats, hookFns, invalidateCache],
+  );
 };

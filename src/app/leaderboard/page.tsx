@@ -11,9 +11,8 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
-import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import Image from "next/image";
 import { LeaderboardUser, LeaderboardResponse } from "@/types/leaderboard";
 import { DYNAMIC_ROUTES, ROUTES } from "@/components/shared/constants/routes";
 import {
@@ -23,10 +22,12 @@ import {
 import { MyLoader } from "@/components/ui/MyLoader";
 import { formatHoursMinutesFromSeconds } from "@/lib/utils/stats-calculations";
 import { InfoIcon } from "@/components/shared/icons";
-import UsersIcon from "@/components/shared/icons/UsersIcon";
-import ChevronLeftIcon from "@/components/shared/icons/ChevronLeftIcon";
-import ChevronRightIcon from "@/components/shared/icons/ChevronRightIcon";
 import { useAppToast } from "@/lib/hooks/useAppToast";
+import { CacheService } from "@/lib/services/cacheService";
+import { LeaderboardHeader } from "@/components/leaderboard/LeaderboardHeader";
+import { LeaderboardPodium } from "@/components/leaderboard/LeaderboardPodium";
+import { LeaderboardList } from "@/components/leaderboard/LeaderboardList";
+import { LeaderboardPagination } from "@/components/leaderboard/LeaderboardPagination";
 
 interface FriendData {
   id: string;
@@ -34,6 +35,8 @@ interface FriendData {
   receiver_id: string;
   status: "pending" | "accepted";
 }
+
+const LEADERBOARD_CACHE_TTL = 60 * 1000;
 
 export default function LeaderboardPage() {
   const { data: session, status } = useSession();
@@ -65,6 +68,19 @@ export default function LeaderboardPage() {
       if (timeFilter !== "all") {
         params.append("timeFilter", timeFilter);
       }
+
+      const cacheKey = `leaderboard:${page}:20:${timeFilter}`;
+      const cachedData = await CacheService.getWithTTL<LeaderboardResponse>(
+        cacheKey,
+        LEADERBOARD_CACHE_TTL,
+      );
+      if (cachedData) {
+        setLeaderboard(cachedData.data || []);
+        setPagination(cachedData.pagination || null);
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(
         API_DYNAMIC_ROUTES.LEADERBOARD_WITH_QUERY(params),
       );
@@ -74,8 +90,13 @@ export default function LeaderboardPage() {
       const responseData = await response.json();
       // Extract data and pagination from the API response
       const data: LeaderboardResponse = responseData.data || responseData;
-      setLeaderboard(Array.isArray(data) ? data : data?.data || []);
-      setPagination(data?.pagination || responseData?.pagination || null);
+      const normalized: LeaderboardResponse = {
+        data: Array.isArray(data) ? data : data?.data || [],
+        pagination: data?.pagination || responseData?.pagination || null,
+      };
+      setLeaderboard(normalized.data || []);
+      setPagination(normalized.pagination || null);
+      await CacheService.set(cacheKey, normalized);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -134,32 +155,6 @@ export default function LeaderboardPage() {
 
   const formatTime = (seconds: number) =>
     formatHoursMinutesFromSeconds(seconds);
-
-  const getRankIcon = (index: number) => {
-    switch (index) {
-      case 0:
-        return "🥇";
-      case 1:
-        return "🥈";
-      case 2:
-        return "🥉";
-      default:
-        return null;
-    }
-  };
-
-  const getRankColor = (index: number) => {
-    switch (index) {
-      case 0:
-        return "from-yellow-400 to-yellow-600";
-      case 1:
-        return "from-gray-300 to-gray-500";
-      case 2:
-        return "from-amber-600 to-amber-800";
-      default:
-        return "from-primary/20 to-primary/10";
-    }
-  };
 
   const getSortedLeaderboard = () => {
     return [...leaderboard].sort((a, b) => {
@@ -252,15 +247,7 @@ export default function LeaderboardPage() {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="max-w-6xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Leaderboard
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Compete with other Focusly users and climb to the top!
-          </p>
-        </div>
+        <LeaderboardHeader />
 
         {/* Your Rank Card */}
         {currentUserRank >= 0 && (
@@ -354,306 +341,27 @@ export default function LeaderboardPage() {
           </button>
         </div>
 
-        {/* Podium - Top 3 */}
-        {sortedLeaderboard.length >= 3 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
-            {/* Second Place */}
-            <div className="flex flex-col items-center md:order-1 md:mt-8">
-              <Card variant="elevated" className="w-full overflow-hidden">
-                <div className={`h-2 bg-linear-to-r ${getRankColor(1)}`}></div>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className="text-4xl mb-2">{getRankIcon(1)}</div>
-                  <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-linear-to-r from-gray-300 to-gray-500 p-1">
-                    <Image
-                      src={
-                        sortedLeaderboard[1].avatar_url || "/default-avatar.svg"
-                      }
-                      alt={sortedLeaderboard[1].username || "Player"}
-                      width={64}
-                      height={64}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  </div>
-                  <p className="font-bold text-sm mb-1">
-                    {sortedLeaderboard[1].username || "Player"}
-                  </p>
-                  <p className="text-2xl font-bold text-primary mb-1">
-                    {selectedTab === "tasks" &&
-                      (sortedLeaderboard[1].stats?.completed_tasks || 0)}
-                    {selectedTab === "time" &&
-                      formatTime(
-                        sortedLeaderboard[1].stats?.total_focus_time || 0,
-                      )}
-                    {selectedTab === "streak" &&
-                      `${sortedLeaderboard[1].stats?.streak || 0}`}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedTab === "tasks" && "tasks"}
-                    {selectedTab === "time" && "focused"}
-                    {selectedTab === "streak" && "day streak"}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+        <LeaderboardPodium
+          leaderboard={sortedLeaderboard}
+          selectedTab={selectedTab}
+          formatTime={formatTime}
+        />
 
-            {/* First Place */}
-            <div className="flex flex-col items-center md:order-0 col-span-1">
-              <Card
-                variant="elevated"
-                className="w-full overflow-hidden md:transform md:scale-110"
-              >
-                <div className={`h-2 bg-linear-to-r ${getRankColor(0)}`}></div>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className="text-5xl mb-2">{getRankIcon(0)}</div>
-                  <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-linear-to-r from-yellow-400 to-yellow-600 p-1">
-                    <Image
-                      src={
-                        sortedLeaderboard[0].avatar_url || "/default-avatar.svg"
-                      }
-                      alt={sortedLeaderboard[0].username || "Player"}
-                      width={80}
-                      height={80}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  </div>
-                  <p className="font-bold mb-1">
-                    {sortedLeaderboard[0].username || "Player"}
-                  </p>
-                  <p className="text-3xl font-bold text-primary mb-1">
-                    {selectedTab === "tasks" &&
-                      (sortedLeaderboard[0].stats?.completed_tasks || 0)}
-                    {selectedTab === "time" &&
-                      formatTime(
-                        sortedLeaderboard[0].stats?.total_focus_time || 0,
-                      )}
-                    {selectedTab === "streak" &&
-                      `${sortedLeaderboard[0].stats?.streak || 0}`}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedTab === "tasks" && "tasks"}
-                    {selectedTab === "time" && "focused"}
-                    {selectedTab === "streak" && "day streak"}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+        <LeaderboardList
+          leaderboard={sortedLeaderboard}
+          selectedTab={selectedTab}
+          currentUserId={session?.user?.id}
+          formatTime={formatTime}
+          onSendFriendRequest={handleSendFriendRequest}
+          friendRequestStatuses={friendRequestStatuses}
+        />
 
-            {/* Third Place */}
-            <div className="flex flex-col items-center md:order-2 md:mt-12">
-              <Card variant="elevated" className="w-full overflow-hidden">
-                <div className={`h-2 bg-linear-to-r ${getRankColor(2)}`}></div>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className="text-4xl mb-2">{getRankIcon(2)}</div>
-                  <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-linear-to-r from-amber-600 to-amber-800 p-1">
-                    <Image
-                      src={
-                        sortedLeaderboard[2].avatar_url || "/default-avatar.svg"
-                      }
-                      alt={sortedLeaderboard[2].username || "Player"}
-                      width={64}
-                      height={64}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  </div>
-                  <p className="font-bold text-sm mb-1">
-                    {sortedLeaderboard[2].username || "Player"}
-                  </p>
-                  <p className="text-2xl font-bold text-primary mb-1">
-                    {selectedTab === "tasks" &&
-                      (sortedLeaderboard[2].stats?.completed_tasks || 0)}
-                    {selectedTab === "time" &&
-                      formatTime(
-                        sortedLeaderboard[2].stats?.total_focus_time || 0,
-                      )}
-                    {selectedTab === "streak" &&
-                      `${sortedLeaderboard[2].stats?.streak || 0}`}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedTab === "tasks" && "tasks"}
-                    {selectedTab === "time" && "focused"}
-                    {selectedTab === "streak" && "day streak"}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        )}
-
-        {/* Rest of Leaderboard */}
-        <Card>
-          <CardHeader>
-            <CardTitle>All Rankings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {sortedLeaderboard.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
-                  <UsersIcon size={32} className="text-muted-foreground" />
-                </div>
-                <p className="text-muted-foreground text-lg">
-                  No users found. Be the first to start focusing!
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {sortedLeaderboard.map((user, index) => (
-                  <div
-                    key={user.id}
-                    className={`flex items-center justify-between p-4 rounded-lg transition-all cursor-pointer ${
-                      user.id === session?.user?.id
-                        ? "bg-primary/10 border-2 border-primary"
-                        : "border border-border hover:bg-muted/50 hover:scale-[1.02]"
-                    }`}
-                    onClick={() =>
-                      router.push(DYNAMIC_ROUTES.USER_PROFILE(user.id))
-                    }
-                    style={{
-                      animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`,
-                    }}
-                  >
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="w-12 text-center">
-                        {getRankIcon(index) ? (
-                          <span className="text-3xl">{getRankIcon(index)}</span>
-                        ) : (
-                          <span className="text-xl font-bold text-muted-foreground">
-                            #{index + 1}
-                          </span>
-                        )}
-                      </div>
-                      <div className="w-12 h-12 rounded-full bg-primary/10 overflow-hidden shrink-0">
-                        {user.avatar_url ? (
-                          <Image
-                            src={user.avatar_url}
-                            alt={user.username || "Player"}
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-lg font-semibold">
-                            {(user.username || "A").charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold truncate">
-                          {user.username || "Player"}
-                          {user.id === session?.user?.id && (
-                            <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
-                              You
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {user.stats?.total_sessions || 0} sessions
-                        </p>
-                        {user.id !== session?.user?.id && (
-                          <div className="mt-1">
-                            {friendRequestStatuses.get(user.id) ===
-                            "friends" ? (
-                              <Button size="sm" disabled variant="secondary">
-                                Friends
-                              </Button>
-                            ) : friendRequestStatuses.get(user.id) ===
-                              "sent" ? (
-                              <Button size="sm" disabled>
-                                Friend Request Sent
-                              </Button>
-                            ) : friendRequestStatuses.get(user.id) ===
-                              "pending" ? (
-                              <Button size="sm" disabled>
-                                Request Pending
-                              </Button>
-                            ) : (
-                              <Button
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleSendFriendRequest(user.id);
-                                }}
-                              >
-                                Send Friend Request
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold">
-                        {selectedTab === "tasks" &&
-                          (user.stats?.completed_tasks || 0)}
-                        {selectedTab === "time" &&
-                          formatTime(user.stats?.total_focus_time || 0)}
-                        {selectedTab === "streak" && (user.stats?.streak || 0)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {selectedTab === "tasks" && "tasks completed"}
-                        {selectedTab === "time" && "total focus"}
-                        {selectedTab === "streak" && "day streak"}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Pagination */}
-        {pagination && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-8">
-            <Button
-              variant="outline"
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              disabled={currentPage === 1 || loading}
-            >
-              <ChevronLeftIcon size={16} />
-              Previous
-            </Button>
-
-            <div className="flex items-center gap-1">
-              {Array.from(
-                { length: Math.min(5, pagination.totalPages) },
-                (_, i) => {
-                  const pageNum =
-                    Math.max(
-                      1,
-                      Math.min(pagination.totalPages - 4, currentPage - 2),
-                    ) + i;
-                  if (pageNum > pagination.totalPages) return null;
-
-                  return (
-                    <Button
-                      key={pageNum}
-                      variant={currentPage === pageNum ? "primary" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(pageNum)}
-                      disabled={loading}
-                      className="w-10 h-10"
-                    >
-                      {pageNum}
-                    </Button>
-                  );
-                },
-              )}
-            </div>
-
-            <Button
-              variant="outline"
-              onClick={() =>
-                setCurrentPage((prev) =>
-                  Math.min(pagination.totalPages, prev + 1),
-                )
-              }
-              disabled={currentPage === pagination.totalPages || loading}
-            >
-              Next
-              <ChevronRightIcon size={16} />
-            </Button>
-          </div>
-        )}
+        <LeaderboardPagination
+          currentPage={currentPage}
+          totalPages={pagination?.totalPages || 1}
+          loading={loading}
+          onPageChange={setCurrentPage}
+        />
 
         {/* Pagination Info */}
         {pagination && (
@@ -665,7 +373,7 @@ export default function LeaderboardPage() {
         )}
       </main>
 
-      <style jsx>{`
+      <style jsx global>{`
         @keyframes fadeInUp {
           from {
             opacity: 0;

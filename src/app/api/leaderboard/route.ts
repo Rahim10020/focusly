@@ -7,14 +7,21 @@
  * Route: /api/leaderboard
  */
 
-import { NextRequest } from 'next/server';
-import { supabaseServerPool } from '@/lib/supabase/server';
-import { Database } from '@/lib/supabase/database.types';
-import { compose, withRateLimit, withLogging, withErrorHandling, withQueryValidation } from '@/lib/api/middleware';
-import { LeaderboardQuerySchema } from '@/lib/api/schemas';
-import { successResponse } from '@/lib/api/utils/response';
-import { Cache } from '@/lib/cache';
-import { logger } from '@/lib/logger';
+import { NextRequest } from "next/server";
+import { supabaseServerPool, type Database } from "@/lib/supabase";
+import {
+  compose,
+  withRateLimit,
+  withLogging,
+  withErrorHandling,
+  withQueryValidation,
+  LeaderboardQuerySchema,
+  successResponse,
+  getPaginationOffset,
+  buildPaginationMeta,
+} from "@/lib/api";
+import { Cache } from "@/lib/cache";
+import { logger } from "@/lib/logger";
 
 /**
  * Leaderboard entry containing user profile and statistics.
@@ -43,171 +50,184 @@ import { logger } from '@/lib/logger';
  */
 
 async function getHandler(
-    _request: NextRequest,
-    _context: unknown,
-    validatedData: unknown
+  _request: NextRequest,
+  _context: unknown,
+  validatedData: unknown,
 ) {
-    const parsedData = LeaderboardQuerySchema.parse(validatedData);
-    const { page, limit, timeframe } = parsedData;
+  const parsedData = LeaderboardQuerySchema.parse(validatedData);
+  const { page, limit, timeframe } = parsedData;
 
-    // S'assurer que page * limit ne dépasse pas un seuil
-    if (page * limit > 10000) {
-        throw new Error('Pagination offset too large');
-    }
+  // S'assurer que page * limit ne dépasse pas un seuil
+  if (page * limit > 10000) {
+    throw new Error("Pagination offset too large");
+  }
 
-    const offset = (page - 1) * limit;
+  const offset = getPaginationOffset({ page, limit });
 
-    const cacheKey = `leaderboard:${page}:${limit}:${timeframe}`;
+  const cacheKey = `leaderboard:${page}:${limit}:${timeframe}`;
 
-    const result = await Cache.getOrSet(cacheKey, async () => {
-        // Use pooled server admin client for better performance
-        const supabaseAdmin = supabaseServerPool.getAdminClient();
+  const result = await Cache.getOrSet(
+    cacheKey,
+    async () => {
+      // Use pooled server admin client for better performance
+      const supabaseAdmin = supabaseServerPool.getAdminClient();
 
-        void timeframe;
+      void timeframe;
 
-        // 1. Get total count
-        const { count: totalCount, error: countError } = await supabaseAdmin
-            .from('stats')
-            .select('*', { count: 'exact', head: true });
+      // 1. Get total count
+      const { count: totalCount, error: countError } = await supabaseAdmin
+        .from("stats")
+        .select("*", { count: "exact", head: true });
 
-        if (countError) {
-            logger.error('Error fetching count', countError as Error, {
-                action: 'leaderboardGetCount'
-            });
-            throw new Error('Failed to fetch leaderboard count');
-        }
+      if (countError) {
+        logger.error("Error fetching count", countError as Error, {
+          action: "leaderboardGetCount",
+        });
+        throw new Error("Failed to fetch leaderboard count");
+      }
 
-        // 2. Fetch stats with pagination
-        const { data: statsData, error: statsError } = await supabaseAdmin
-            .from('stats')
-            .select('user_id, total_sessions, completed_tasks, total_tasks, streak, total_focus_time, longest_streak')
-            .order('total_focus_time', { ascending: false })
-            .range(offset, offset + limit - 1);
+      // 2. Fetch stats with pagination
+      const { data: statsData, error: statsError } = await supabaseAdmin
+        .from("stats")
+        .select(
+          "user_id, total_sessions, completed_tasks, total_tasks, streak, total_focus_time, longest_streak",
+        )
+        .order("total_focus_time", { ascending: false })
+        .range(offset, offset + limit - 1);
 
-        if (statsError) {
-            logger.error('Error fetching stats', statsError as Error, {
-                action: 'leaderboardGetStats'
-            });
-            throw new Error('Failed to fetch leaderboard stats');
-        }
+      if (statsError) {
+        logger.error("Error fetching stats", statsError as Error, {
+          action: "leaderboardGetStats",
+        });
+        throw new Error("Failed to fetch leaderboard stats");
+      }
 
-        if (!statsData || statsData.length === 0) {
-            return {
-                data: [],
-                pagination: {
-                    page,
-                    limit,
-                    total: totalCount || 0,
-                    totalPages: Math.ceil((totalCount || 0) / limit),
-                    hasNext: false,
-                    hasPrev: page > 1,
-                }
-            };
-        }
+      if (!statsData || statsData.length === 0) {
+        return {
+          data: [],
+          pagination: buildPaginationMeta({ page, limit }, totalCount || 0),
+        };
+      }
 
-        const typedStatsData = statsData as Database['public']['Tables']['stats']['Row'][];
+      const typedStatsData =
+        statsData as Database["public"]["Tables"]["stats"]["Row"][];
 
-        // Get all user IDs from stats
-        const userIds = typedStatsData.map(stat => stat.user_id);
+      // Get all user IDs from stats
+      const userIds = typedStatsData.map((stat) => stat.user_id);
 
-        // 3. Fetch profiles
-        const { data: profilesData, error: profilesError } = await supabaseAdmin
-            .from('profiles')
-            .select('id, username, avatar_url')
-            .in('id', userIds);
+      // 3. Fetch profiles
+      const { data: profilesData, error: profilesError } = await supabaseAdmin
+        .from("profiles")
+        .select("id, username, avatar_url")
+        .in("id", userIds);
 
-        if (profilesError) {
-            logger.error('Error fetching profiles', profilesError as Error, {
-                action: 'leaderboardGetProfiles'
-            });
-            // Continue even if profiles fetch fails, we'll use defaults
-        }
+      if (profilesError) {
+        logger.error("Error fetching profiles", profilesError as Error, {
+          action: "leaderboardGetProfiles",
+        });
+        // Continue even if profiles fetch fails, we'll use defaults
+      }
 
-        const typedProfilesData = (profilesData || []) as Database['public']['Tables']['profiles']['Row'][];
+      const typedProfilesData = (profilesData ||
+        []) as Database["public"]["Tables"]["profiles"]["Row"][];
 
-        // 4. Create missing profiles (using admin client)
-        const usersWithStats = new Set(typedStatsData.map(stat => stat.user_id));
-        const usersWithProfiles = new Set(typedProfilesData.map(profile => profile.id));
-        const usersWithoutProfiles = Array.from(usersWithStats).filter(id => !usersWithProfiles.has(id));
+      // 4. Create missing profiles (using admin client)
+      const usersWithStats = new Set(
+        typedStatsData.map((stat) => stat.user_id),
+      );
+      const usersWithProfiles = new Set(
+        typedProfilesData.map((profile) => profile.id),
+      );
+      const usersWithoutProfiles = Array.from(usersWithStats).filter(
+        (id) => !usersWithProfiles.has(id),
+      );
 
-        if (usersWithoutProfiles.length > 0) {
-            const profilesToCreate = usersWithoutProfiles.map(id => ({
-                id,
-                username: null,
-                avatar_url: null
-            }));
+      if (usersWithoutProfiles.length > 0) {
+        const profilesToCreate = usersWithoutProfiles.map((id) => ({
+          id,
+          username: null,
+          avatar_url: null,
+        }));
 
-            // Check existing profiles to avoid conflicts
-            const { data: existingProfiles } = await supabaseAdmin
-                .from('profiles')
-                .select('id')
-                .in('id', profilesToCreate.map((p: { id: string }) => p.id));
+        // Check existing profiles to avoid conflicts
+        const { data: existingProfiles } = await supabaseAdmin
+          .from("profiles")
+          .select("id")
+          .in(
+            "id",
+            profilesToCreate.map((p: { id: string }) => p.id),
+          );
 
-            const existingIds = new Set(existingProfiles?.map((p: { id: string }) => p.id) || []);
-            const profilesToInsert = profilesToCreate.filter((p: { id: string }) => !existingIds.has(p.id));
-
-            if (profilesToInsert.length > 0) {
-                const { error: createError } = await supabaseAdmin
-                    .from('profiles')
-                    .insert(profilesToInsert);
-
-                if (createError) {
-                    logger.error('Error creating missing profiles', createError as Error, {
-                        action: 'createMissingProfiles',
-                        userIds: usersWithoutProfiles
-                    });
-                    // Continue without profiles for these users
-                } else {
-                    // Add created profiles to the array
-                    profilesToInsert.forEach(profile => {
-                        typedProfilesData.push(profile as Database['public']['Tables']['profiles']['Row']);
-                    });
-                }
-            }
-        }
-
-        // 5. Create a map of user_id -> profile for quick lookup
-        const profilesMap = new Map(
-            typedProfilesData.map(profile => [profile.id, profile])
+        const existingIds = new Set(
+          existingProfiles?.map((p: { id: string }) => p.id) || [],
+        );
+        const profilesToInsert = profilesToCreate.filter(
+          (p: { id: string }) => !existingIds.has(p.id),
         );
 
-        // 6. Transform data to match expected structure
-        const transformedData = typedStatsData.map(stat => {
-            const profile = profilesMap.get(stat.user_id);
-            return {
-                id: profile?.id || stat.user_id,
-                username: profile?.username || `User ${stat.user_id.slice(0, 8)}`,
-                avatar_url: profile?.avatar_url || null,
-                stats: {
-                    total_sessions: stat.total_sessions,
-                    completed_tasks: stat.completed_tasks,
-                    total_tasks: stat.total_tasks,
-                    streak: stat.streak,
-                    total_focus_time: stat.total_focus_time,
-                    longest_streak: stat.longest_streak,
-                }
-            };
-        });
+        if (profilesToInsert.length > 0) {
+          const { error: createError } = await supabaseAdmin
+            .from("profiles")
+            .insert(profilesToInsert);
 
+          if (createError) {
+            logger.error(
+              "Error creating missing profiles",
+              createError as Error,
+              {
+                action: "createMissingProfiles",
+                userIds: usersWithoutProfiles,
+              },
+            );
+            // Continue without profiles for these users
+          } else {
+            // Add created profiles to the array
+            profilesToInsert.forEach((profile) => {
+              typedProfilesData.push(
+                profile as Database["public"]["Tables"]["profiles"]["Row"],
+              );
+            });
+          }
+        }
+      }
+
+      // 5. Create a map of user_id -> profile for quick lookup
+      const profilesMap = new Map(
+        typedProfilesData.map((profile) => [profile.id, profile]),
+      );
+
+      // 6. Transform data to match expected structure
+      const transformedData = typedStatsData.map((stat) => {
+        const profile = profilesMap.get(stat.user_id);
         return {
-            data: transformedData,
-            pagination: {
-                page,
-                limit,
-                total: totalCount || 0,
-                totalPages: Math.ceil((totalCount || 0) / limit),
-                hasNext: page < Math.ceil((totalCount || 0) / limit),
-                hasPrev: page > 1,
-            }
+          id: profile?.id || stat.user_id,
+          username: profile?.username || `User ${stat.user_id.slice(0, 8)}`,
+          avatar_url: profile?.avatar_url || null,
+          stats: {
+            total_sessions: stat.total_sessions,
+            completed_tasks: stat.completed_tasks,
+            total_tasks: stat.total_tasks,
+            streak: stat.streak,
+            total_focus_time: stat.total_focus_time,
+            longest_streak: stat.longest_streak,
+          },
         };
-    }, { ttl: 10 * 60 * 1000 }); // Cache for 10 minutes
+      });
 
-    return successResponse(result.data, { pagination: result.pagination });
+      return {
+        data: transformedData,
+        pagination: buildPaginationMeta({ page, limit }, totalCount || 0),
+      };
+    },
+    { ttl: 10 * 60 * 1000 },
+  ); // Cache for 10 minutes
+
+  return successResponse(result.data, { pagination: result.pagination });
 }
 
 export const GET = compose(
-    withErrorHandling(),
-    withLogging(),
-    withQueryValidation(LeaderboardQuerySchema),
-    withRateLimit('generous')
+  withErrorHandling(),
+  withLogging(),
+  withQueryValidation(LeaderboardQuerySchema),
+  withRateLimit("generous"),
 )(getHandler);

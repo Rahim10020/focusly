@@ -15,8 +15,10 @@ import DueDateBadge from "@/components/ui/DueDateBadge";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import TaskDetailsModal from "./TaskDetailsModal";
 import { useSound } from "@/lib/hooks/useSound";
+import { RecurrenceService } from "@/lib/services/recurrenceService";
 import { DragHorizontalIcon, TrashEmptyIcon } from "../shared/icons";
 import EditPencilIcon from "../shared/icons/EditPencilIcon";
+import { TaskCheckbox } from "./TaskCheckbox";
 
 /**
  * Props for the TaskItem component.
@@ -113,38 +115,16 @@ function TaskItem({
         </div>
 
         {/* Checkbox */}
-        <button
-          onClick={() => {
-            // Jouer le son de fin de tâche si on la marque comme terminée
+        <TaskCheckbox
+          completed={task.completed}
+          onToggle={() => {
+            // Play completion sound only when toggling from incomplete to complete.
             if (!task.completed) {
               playWorkComplete();
             }
             onToggle(task.id);
           }}
-          className={`shrink-0 w-6 h-6 rounded-full cursor-pointer border-2 flex items-center justify-center transition-all duration-300 mt-0.5 ${
-            task.completed
-              ? "bg-success border-success scale-110"
-              : "border-primary hover:bg-primary/10 hover:scale-110"
-          }`}
-        >
-          {/* A changer apres quand j'aurai une meilleure icone */}
-          {task.completed && (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-white animate-scale-in"
-            >
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          )}
-        </button>
+        />
 
         {/* Content */}
         <div className="flex-1 min-w-0 space-y-3">
@@ -190,6 +170,11 @@ function TaskItem({
                     task.subDomain
                   ]
                 }
+              </span>
+            )}
+            {task.isRecurring && (
+              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                {RecurrenceService.getRecurrenceLabel(task) || "Recurring"}
               </span>
             )}
           </div>
