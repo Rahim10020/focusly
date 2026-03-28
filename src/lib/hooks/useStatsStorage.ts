@@ -3,16 +3,16 @@
  * Handles switching between localStorage and Supabase based on authentication.
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import { useLocalStorage } from './useLocalStorage';
-import { Stats, PomodoroSession } from '@/types';
-import { STORAGE_KEYS } from '@/lib/constants';
-import { supabaseClient } from '@/lib/supabase/client';
-import { createClient } from '@supabase/supabase-js';
-import { retryWithBackoff } from '@/lib/utils/retry';
-import { logger } from '@/lib/logger';
-import { useToastContext } from '@/components/providers/ToastProvider';
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import { useLocalStorage } from "./useLocalStorage";
+import { Stats, PomodoroSession } from "@/types";
+import { STORAGE_KEYS } from "@/lib/constants";
+import { supabaseClient } from "@/lib/supabase/client";
+import { createClient } from "@supabase/supabase-js";
+import { retryWithBackoff } from "@/lib/utils/retry";
+import { logger } from "@/lib/logger";
+import { useToastContext } from "@/components/providers/ToastProvider";
 
 interface UseStatsStorageReturn {
   stats: Stats;
@@ -30,17 +30,20 @@ export function useStatsStorage(): UseStatsStorageReturn {
   const { error: showErrorToast } = useToastContext();
 
   // Local storage states
-  const [localStats, setLocalStats] = useLocalStorage<Stats>(STORAGE_KEYS.STATS, {
-    totalFocusTime: 0,
-    totalTasks: 0,
-    completedTasks: 0,
-    totalSessions: 0,
-    streak: 0,
-  });
+  const [localStats, setLocalStats] = useLocalStorage<Stats>(
+    STORAGE_KEYS.STATS,
+    {
+      totalFocusTime: 0,
+      totalTasks: 0,
+      completedTasks: 0,
+      totalSessions: 0,
+      streak: 0,
+    },
+  );
 
   const [localSessions, setLocalSessions] = useLocalStorage<PomodoroSession[]>(
     STORAGE_KEYS.SESSIONS,
-    []
+    [],
   );
 
   // Database states
@@ -61,7 +64,7 @@ export function useStatsStorage(): UseStatsStorageReturn {
 
   const getAuthenticatedSupabaseClient = useCallback(() => {
     if (!session?.accessToken) {
-      throw new Error('No access token available');
+      throw new Error("No access token available");
     }
     return createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -72,7 +75,7 @@ export function useStatsStorage(): UseStatsStorageReturn {
             Authorization: `Bearer ${session.accessToken}`,
           },
         },
-      }
+      },
     );
   }, [session?.accessToken]);
 
@@ -96,15 +99,16 @@ export function useStatsStorage(): UseStatsStorageReturn {
       const { data, error } = await retryWithBackoff(async () => {
         const authenticatedClient = getAuthenticatedSupabaseClient();
         const result = await authenticatedClient
-          .from('stats')
-          .select('*')
-          .eq('user_id', userId)
+          .from("stats")
+          .select("*")
+          .eq("user_id", userId)
           .single();
-        if (result.error && result.error.code !== 'PGRST116') throw result.error;
+        if (result.error && result.error.code !== "PGRST116")
+          throw result.error;
         return result;
       });
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== "PGRST116") {
         throw error;
       }
 
@@ -125,13 +129,14 @@ export function useStatsStorage(): UseStatsStorageReturn {
         });
       }
     } catch (err: unknown) {
-      const errorMessage = (err as Error).message || 'Failed to load statistics';
-      logger.error('Error loading stats from DB', err as Error, {
-        action: 'loadStats',
+      const errorMessage =
+        (err as Error).message || "Failed to load statistics";
+      logger.error("Error loading stats from DB", err as Error, {
+        action: "loadStats",
         userId: getUserId(),
       });
       setError(errorMessage);
-      showErrorToast('Failed to Load Statistics', errorMessage);
+      showErrorToast("Failed to Load Statistics", errorMessage);
     } finally {
       setLoading(false);
     }
@@ -145,26 +150,28 @@ export function useStatsStorage(): UseStatsStorageReturn {
       const { data, error } = await retryWithBackoff(async () => {
         const authenticatedClient = getAuthenticatedSupabaseClient();
         const result = await authenticatedClient
-          .from('sessions')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false });
+          .from("sessions")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false });
         if (result.error) throw result.error;
         return result;
       });
 
       if (error) throw error;
 
-      const formattedSessions: PomodoroSession[] = (data as Array<{
-        id: string;
-        type: string;
-        duration: number;
-        completed: boolean;
-        task_id: string;
-        created_at: string;
-      }>).map((dbSession) => ({
+      const formattedSessions: PomodoroSession[] = (
+        data as Array<{
+          id: string;
+          type: string;
+          duration: number;
+          completed: boolean;
+          task_id: string;
+          created_at: string;
+        }>
+      ).map((dbSession) => ({
         id: dbSession.id,
-        type: dbSession.type as 'work' | 'break',
+        type: dbSession.type as "work" | "break",
         duration: dbSession.duration,
         completed: dbSession.completed,
         taskId: dbSession.task_id,
@@ -176,8 +183,8 @@ export function useStatsStorage(): UseStatsStorageReturn {
 
       setDbSessions(formattedSessions);
     } catch (err) {
-      logger.error('Error loading sessions from DB', err as Error, {
-        action: 'loadSessions',
+      logger.error("Error loading sessions from DB", err as Error, {
+        action: "loadSessions",
         userId: getUserId(),
       });
     }
