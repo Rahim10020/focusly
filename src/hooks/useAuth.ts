@@ -15,6 +15,7 @@ export interface AuthSession {
 }
 
 export function useAuth() {
+  const router = useRouter();
   const [session, setSession] = useState<AuthSession | null>(null);
   const [status, setStatus] = useState<
     "loading" | "authenticated" | "unauthenticated"
@@ -65,7 +66,7 @@ export function useAuth() {
 
     const {
       data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange((_event, supabaseSession) => {
+    } = supabaseClient.auth.onAuthStateChange((event, supabaseSession) => {
       if (supabaseSession) {
         setSession({
           user: {
@@ -87,14 +88,18 @@ export function useAuth() {
       } else {
         setSession(null);
         setStatus("unauthenticated");
+        // Redirect to signin when user gets signed out (session expired or manual logout)
+        if (event === "SIGNED_OUT" && mounted) {
+          router.push("/signin");
+        }
       }
     });
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
-  }, []);
+  }, [router]);
 
   return { data: session, status };
 }

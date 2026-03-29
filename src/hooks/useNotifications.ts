@@ -4,7 +4,7 @@
  * @module lib/hooks/useNotifications
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "@/hooks/useAuth";
 import { supabaseClient } from "@/lib/supabase/client";
 import {
@@ -14,7 +14,7 @@ import {
 import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/constants";
 
 // Simple in-memory cache to reduce duplicate fetches during dev/hot-reload or multiple mounts
-const CACHE_TTL_MS = 30 * 1000; // 30 seconds
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes - Supabase real-time handles updates
 const lastFetchByUser: Record<string, number> = {};
 const cacheByUser: Record<string, Notification[]> = {};
 
@@ -74,6 +74,8 @@ export function useNotifications() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const isFetchingRef = useRef(false);
+  const lastFetchTimeRef = useRef<number>(0);
 
   // Browser notification permission state
   const [permission, setPermission] =
@@ -84,6 +86,9 @@ export function useNotifications() {
    */
   const fetchNotifications = useCallback(async () => {
     if (!session?.user || !accessToken) return;
+
+    // Prevent concurrent fetches
+    if (isFetchingRef.current) return;
 
     const userId = session.user.id;
     const now = Date.now();
@@ -98,6 +103,13 @@ export function useNotifications() {
       return;
     }
 
+    // Don't fetch if we already have an ongoing request
+    if (now - lastFetchTimeRef.current < 2000) {
+      return;
+    }
+
+    isFetchingRef.current = true;
+    lastFetchTimeRef.current = now;
     setLoading(true);
 
     try {
@@ -121,6 +133,7 @@ export function useNotifications() {
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error("Error fetching notifications:", err);
     } finally {
+      isFetchingRef.current = false;
       setLoading(false);
     }
   }, [session?.user, accessToken]);
@@ -337,7 +350,7 @@ export function useNotifications() {
     } else {
       setNotifications([]);
     }
-  }, [session?.user, session?.accessToken, fetchNotifications]);
+  }, [session?.user, session?.accessToken]);
 
   // Subscribe to real-time notifications
   useEffect(() => {
