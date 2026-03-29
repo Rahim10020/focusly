@@ -13,7 +13,7 @@ import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { useAchievements } from "@/lib/hooks/useAchievements";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { useStats } from "@/lib/hooks/useStats";
-import { TaskCategorizationService } from "@/lib/services/taskCategorizationService";
+import { StatsService } from "@/lib/domain/services/StatsService";
 import { useState, useMemo } from "react";
 import { MyLoader } from "@/components/ui/MyLoader";
 import StatsCard from "@/components/stats/StatsCard";
@@ -53,11 +53,11 @@ export default function StatsPage() {
   >("achievements");
 
   const categorizedTasks = useMemo(
-    () => TaskCategorizationService.categorizeTasks(tasks),
+    () => StatsService.categorizeTasks(tasks),
     [tasks],
   );
   const taskStats = useMemo(
-    () => TaskCategorizationService.calculateAccurateStats(tasks),
+    () => StatsService.calculateTaskStats(tasks),
     [tasks],
   );
 
@@ -68,8 +68,7 @@ export default function StatsPage() {
     };
   }, [categorizedTasks]);
 
-  const totalVisibleTasks =
-    tasks.length - (categorizedTasks.cancelled?.length || 0);
+  const totalVisibleTasks = taskStats.totalVisible;
 
   return (
     <div className="min-h-screen bg-background">
