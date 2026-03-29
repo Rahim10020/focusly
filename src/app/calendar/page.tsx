@@ -15,7 +15,7 @@ import Header from "@/components/layout/Header";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { useTags } from "@/lib/hooks/useTags";
 import { Task } from "@/types";
-import TaskDetailsModal from "@/components/tasks/TaskDetailsModal";
+import TaskDetailsModal from "@/components/tasks/modals/TaskDetailsModal";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { ROUTES } from "@/lib/constants";
 

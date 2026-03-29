@@ -10,9 +10,9 @@ import TaskModalHeader from "./TaskModalHeader";
 import TaskModalTabs from "./TaskModalTabs";
 import TaskModalDetails from "./TaskModalDetails";
 import TaskModalFullscreen from "./TaskModalFullscreen";
-import CategorySelector from "../../../components/tasks/forms/CategorySelector";
-import { TaskMetaInfo } from "../../../components/tasks/items/TaskMetaInfo";
-import { SubTaskList } from "../../../components/tasks/items/SubTaskList";
+import CategorySelector from "../forms/CategorySelector";
+import { TaskMetaInfo } from "../items/TaskMetaInfo";
+import { SubTaskList } from "../items/SubTaskList";
 import Button from "@/components/ui/Button";
 
 interface TaskDetailsModalProps {

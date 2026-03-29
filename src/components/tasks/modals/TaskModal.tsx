@@ -12,8 +12,8 @@ import TaskModalTabs from "./TaskModalTabs";
 import TaskModalDetails from "./TaskModalDetails";
 import TaskModalFullscreen from "./TaskModalFullscreen";
 import TaskModalFooter from "./TaskModalFooter";
-import CategorySelector from "../../../components/tasks/forms/CategorySelector";
-import SubTaskManager from "../../../components/tasks/items/SubTaskManager";
+import CategorySelector from "../forms/CategorySelector";
+import SubTaskManager from "../items/SubTaskManager";
 import { Priority, SubDomain, Tag } from "@/types";
 
 /**

@@ -9,8 +9,8 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import TasksView from "@/components/tasks/TasksView";
-import QuickAddTask from "@/components/tasks/QuickAddTask";
+import TasksView from "@/components/tasks/views/TasksView";
+import QuickAddTask from "@/components/tasks/forms/QuickAddTask";
 import PomodoroTimer from "@/components/pomodoro/PomodoroTimer";
 import AchievementNotification from "@/components/achievements/AchievementNotification";
 import KeyboardShortcutsModal from "@/components/ui/KeyboardShortcutsModal";
@@ -33,7 +33,7 @@ import { Task } from "@/types";
 import type { PomodoroSession } from "@/types";
 import { getAllImminentTasks } from "@/lib/utils/taskUtils";
 import { ROUTES } from "@/lib/constants";
-import { AddPlusIcon } from "../../shared/icons";
+import { AddPlusIcon } from "../shared/icons";
 
 interface DashboardProps {
   session: {
