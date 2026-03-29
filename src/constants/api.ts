@@ -15,7 +15,7 @@ export const API_ROUTES = {
 
   // Users
   USERS: "/api/users",
-  USER_PREFERENCES: "/api/user/preferences",
+  USER_PREFERENCES: "/api/users/preferences",
 
   // Tasks
   TASKS: "/api/tasks",

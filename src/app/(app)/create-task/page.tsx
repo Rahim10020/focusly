@@ -11,7 +11,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/hooks/useAuth";
 import Header from "@/components/layout/Header";
-import TaskModal, { TaskFormData } from "@/app/(app)/tasks/_components/modals/TaskModal";
+import TaskEditModal, {
+  TaskFormData,
+} from "@/app/(app)/tasks/_components/modals/TaskEditModal";
 import { useTasks } from "@/hooks/useTasks";
 import { useTags } from "@/hooks/useTags";
 import { ROUTES } from "@/constants";
@@ -80,7 +82,7 @@ export default function CreateTaskPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <TaskModal
+      <TaskEditModal
         isOpen={isModalOpen}
         onClose={handleClose}
         onSave={handleSave}

@@ -22,3 +22,10 @@ export {
 } from "./TaskService";
 export { StatsService, type StreakData } from "./StatsService";
 export { StorageService } from "./StorageService";
+export { CacheService } from "./CacheService";
+export { RecurrenceService } from "./RecurrenceService";
+export { FriendService } from "./FriendService";
+export { InsightService } from "./InsightService";
+export { StreakService } from "./StreakService";
+export { StatsCalculationService } from "./StatsCalculationService";
+export { PDFExportService } from "./PDFExportService";

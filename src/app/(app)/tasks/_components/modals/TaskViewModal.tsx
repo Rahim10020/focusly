@@ -7,14 +7,14 @@
 import { useState } from "react";
 import { Task, Tag, Priority, SubDomain } from "@/types";
 import TaskModalHeader from "./TaskModalHeader";
-import TaskModalTabs from "./TaskModalTabs";
-import TaskModalDetails from "./TaskModalDetails";
-import TaskModalFullscreen from "./TaskModalFullscreen";
+import TaskViewTabs from "./TaskViewTabs";
+import TaskFormContent from "./TaskFormContent";
+import TaskFormContentFullscreen from "./TaskFormContentFullscreen";
 import CategorySelector from "../forms/CategorySelector";
 import { TaskMetaInfo } from "../items/TaskMetaInfo";
 import { SubTaskList } from "../items/SubTaskList";
 import { DateTimeService } from "@/lib/domain/services/DateTimeService";
-import TaskDetailsModalFooter from "./details/TaskDetailsModalFooter";
+import TaskViewFooter from "./details/TaskViewFooter";
 
 interface TaskDetailsModalProps {
   task: Task;
@@ -118,7 +118,7 @@ export default function TaskDetailsModal({
         />
 
         {!isFullScreen && (
-          <TaskModalTabs
+          <TaskViewTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
             selectedSubDomain={selectedSubDomain}
@@ -134,7 +134,7 @@ export default function TaskDetailsModal({
               <div className="h-[calc(90vh-200px)] overflow-y-auto">
                 {activeTab === "details" && (
                   <div className="p-6 space-y-8">
-                    <TaskModalDetails
+                    <TaskFormContent
                       title={title}
                       priority={priority}
                       tags={tags}
@@ -184,7 +184,7 @@ export default function TaskDetailsModal({
             )}
             {isFullScreen && (
               <div className="p-6 space-y-8">
-                <TaskModalFullscreen
+                <TaskFormContentFullscreen
                   title={title}
                   priority={priority}
                   tags={tags}
@@ -227,7 +227,7 @@ export default function TaskDetailsModal({
           </div>
         </div>
 
-        <TaskDetailsModalFooter
+        <TaskViewFooter
           task={task}
           onClose={onClose}
           onSave={handleSave}

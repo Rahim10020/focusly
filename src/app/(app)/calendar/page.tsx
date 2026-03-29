@@ -15,7 +15,7 @@ import Header from "@/components/layout/Header";
 import { useTasks } from "@/hooks/useTasks";
 import { useTags } from "@/hooks/useTags";
 import { Task } from "@/types";
-import TaskDetailsModal from "@/app/(app)/tasks/_components/modals/TaskDetailsModal";
+import TaskViewModal from "@/app/(app)/tasks/_components/modals/TaskViewModal";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { ROUTES } from "@/constants";
 
@@ -84,7 +84,7 @@ export default function CalendarPage() {
       </main>
 
       {selectedTask && (
-        <TaskDetailsModal
+        <TaskViewModal
           task={selectedTask}
           tags={tags}
           onClose={() => setSelectedTask(null)}

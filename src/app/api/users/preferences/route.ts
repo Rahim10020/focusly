@@ -4,7 +4,7 @@
  * Provides endpoints for managing user preferences such as theme settings.
  * Uses upsert to create or update preferences as needed.
  *
- * Route: /api/user/preferences
+ * Route: /api/users/preferences
  */
 
 import {
@@ -33,7 +33,7 @@ import type { AuthContext } from "@/lib/api/middleware/auth";
  *
  * @example
  * // Successful response
- * // GET /api/user/preferences
+ * // GET /api/users/preferences
  * // Response: 200 OK
  * {
  *   "user_id": "user-uuid",
@@ -96,7 +96,7 @@ async function getHandler(
  *
  * @example
  * // Set theme to dark mode
- * // POST /api/user/preferences
+ * // POST /api/users/preferences
  * // Request body:
  * {
  *   "theme": "dark"

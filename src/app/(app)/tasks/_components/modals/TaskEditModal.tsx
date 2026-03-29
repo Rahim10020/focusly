@@ -8,9 +8,9 @@
 
 import { useState } from "react";
 import TaskModalHeader from "./TaskModalHeader";
-import TaskModalTabs from "./TaskModalTabs";
-import TaskModalDetails from "./TaskModalDetails";
-import TaskModalFullscreen from "./TaskModalFullscreen";
+import TaskViewTabs from "./TaskViewTabs";
+import TaskFormContent from "./TaskFormContent";
+import TaskFormContentFullscreen from "./TaskFormContentFullscreen";
 import TaskModalFooter from "./TaskModalFooter";
 import CategorySelector from "../forms/CategorySelector";
 import SubTaskManager from "../items/SubTaskManager";
@@ -171,7 +171,7 @@ function TaskModalContent({
 
         {/* Tab Navigation (Compact Mode Only) */}
         {!isFullScreen && (
-          <TaskModalTabs
+          <TaskViewTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
             selectedSubDomain={selectedSubDomain}
@@ -189,7 +189,7 @@ function TaskModalContent({
             {!isFullScreen && (
               <div className="h-[calc(90vh-200px)] overflow-y-auto">
                 {activeTab === "details" && (
-                  <TaskModalDetails
+                  <TaskFormContent
                     title={title}
                     priority={priority}
                     tags={tags}
@@ -237,7 +237,7 @@ function TaskModalContent({
             {/* Fullscreen Content */}
             {isFullScreen && (
               <div className="p-6 space-y-8">
-                <TaskModalFullscreen
+                <TaskFormContentFullscreen
                   title={title}
                   priority={priority}
                   tags={tags}

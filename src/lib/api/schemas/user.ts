@@ -5,7 +5,7 @@ import { z } from "zod";
 
 /**
  * Schema for updating user preferences
- * PUT /api/user/preferences
+ * PUT /api/users/preferences
  */
 export const UpdateUserPreferencesSchema = z.object({
   theme: z.enum(["light", "dark", "system"]).optional(),
