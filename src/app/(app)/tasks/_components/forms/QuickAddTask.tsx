@@ -68,13 +68,10 @@ export default function QuickAddTask({
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className="w-full group flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/40 hover:bg-accent/50 transition-all text-left cursor-pointer"
+        className="w-full group flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-black-80 hover:border-primary/40 hover:bg-black-10 transition-all text-left cursor-pointer"
       >
         <div className="shrink-0 w-6 h-6 rounded-full border-2 border-muted-foreground/40 group-hover:border-primary/60 flex items-center justify-center transition-all">
-          <AddPlusIcon
-            size={16}
-            className="text-muted-foreground/60 hover:text-primary"
-          />
+          <AddPlusIcon size={16} className="text-black-80 hover:text-primary" />
         </div>
         <span className="text-muted-foreground group-hover:text-foreground transition-colors font-medium">
           Quick task

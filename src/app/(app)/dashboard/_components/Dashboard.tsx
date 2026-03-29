@@ -305,14 +305,14 @@ export function Dashboard({ session }: DashboardProps) {
         {!focusMode ? (
           <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
             <div className="space-y-6">
-              <Card variant="elevated">
+              <Card variant="elevated" className="rounded-bl-lg rounded-br-lg">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>Tasks</CardTitle>
                     <Button
                       onClick={handleCreateTask}
                       size="sm"
-                      className="flex items-center gap-2"
+                      className="flex items-center"
                     >
                       <AddPlusIcon />
                       New Task
@@ -363,7 +363,9 @@ export function Dashboard({ session }: DashboardProps) {
             </div>
 
             <div className="self-start lg:sticky lg:top-24">
-              <Card variant="elevated">{pomodoroCardContent}</Card>
+              <Card variant="elevated" className="rounded-bl-lg rounded-br-lg">
+                {pomodoroCardContent}
+              </Card>
             </div>
           </div>
         ) : (

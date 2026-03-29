@@ -25,7 +25,7 @@ export default function Card({
   const variants = {
     default: "shadow-sm rounded-2xl border border-border bg-card",
     elevated:
-      "shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl border border-border bg-card",
+      "shadow-md transition-shadow duration-300 border border-border bg-card",
     interactive:
       "shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer rounded-2xl border border-border bg-card",
     outline: "shadow-none border-2 rounded-2xl border border-border bg-card",
