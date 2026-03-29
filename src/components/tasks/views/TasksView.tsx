@@ -7,11 +7,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { Task, Tag, TaskStatus } from "@/types";
-import TaskList from "../board/TaskList";
-import TaskBoardView from "../board/TaskBoardView";
 import { MyLoader } from "../../ui/MyLoader";
 import { ListUnorderedIcon, TableIcon } from "../../shared/icons";
+
+// Lazy load view components as they are heavy and conditional
+const TaskList = dynamic(() => import("../board/TaskList"), {
+  loading: () => <MyLoader label="Loading list view..." />,
+  ssr: false,
+});
+
+const TaskBoardView = dynamic(() => import("../board/TaskBoardView"), {
+  loading: () => <MyLoader label="Loading board view..." />,
+  ssr: false,
+});
 
 /** Available sort types for task ordering */
 type SortType = "default" | "alphabetical" | "createdAt" | "priority";

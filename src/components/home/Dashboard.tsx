@@ -5,6 +5,7 @@
 "use client";
 
 import { useRef, useEffect, useMemo, useCallback, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
@@ -13,11 +14,16 @@ import TasksView from "@/components/tasks/views/TasksView";
 import QuickAddTask from "@/components/tasks/forms/QuickAddTask";
 import PomodoroTimer from "@/components/pomodoro/PomodoroTimer";
 import AchievementNotification from "@/components/achievements/AchievementNotification";
-import KeyboardShortcutsModal from "@/components/ui/KeyboardShortcutsModal";
 import { DashboardNotifications } from "@/components/dashboard/DashboardNotifications";
 import { FocusModeToggle } from "@/components/dashboard/FocusModeToggle";
 import { KeyboardShortcutHint } from "@/components/dashboard/KeyboardShortcutHint";
 import { TimerSettingsButton } from "@/components/dashboard/TimerSettingsButton";
+
+// Lazy load heavy or conditional components
+const KeyboardShortcutsModal = dynamic(
+  () => import("@/components/ui/KeyboardShortcutsModal"),
+  { ssr: false },
+);
 import { useTasks } from "@/lib/hooks/useTasks";
 import { useCachedStats } from "@/lib/hooks/useCachedStats";
 import { useAchievements } from "@/lib/hooks/useAchievements";

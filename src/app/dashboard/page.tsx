@@ -26,9 +26,14 @@ import { generateDynamicInsights } from "@/lib/utils/insightGenerator";
 import { exportCustomAnalyticsToPDF } from "@/lib/utils/customPDFExport";
 import DynamicInsights from "@/components/stats/DynamicInsights";
 import ProductivityHeatmap from "@/components/stats/ProductivityHeatmap";
-import ExportPDFModal, {
-  ExportOptions,
-} from "@/components/dashboard/ExportPDFModal";
+
+// Lazy load modals and heavy components
+const ExportPDFModal = dynamic(
+  () => import("@/components/dashboard/ExportPDFModal"),
+  { ssr: false },
+);
+
+import type { ExportOptions } from "@/components/dashboard/ExportPDFModal";
 import { MyLoader } from "@/components/ui/MyLoader";
 import { ROUTES } from "@/lib/constants";
 import { getTaskCompletionStats } from "@/lib/utils/stats-calculations";

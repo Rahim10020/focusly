@@ -17,9 +17,16 @@ import { StatsService } from "@/lib/domain/services/StatsService";
 import { useState, useMemo } from "react";
 import { MyLoader } from "@/components/ui/MyLoader";
 import StatsCard from "@/components/stats/StatsCard";
-import ProductivityChart from "@/components/stats/ProductivityChart";
 
 // Lazy load heavy chart components
+const ProductivityChart = dynamic(
+  () => import("@/components/stats/ProductivityChart"),
+  {
+    ssr: false,
+    loading: () => <MyLoader label="Loading productivity chart..." />,
+  },
+);
+
 const AchievementsList = dynamic(
   () => import("@/components/achievements/AchievementsList"),
   {
