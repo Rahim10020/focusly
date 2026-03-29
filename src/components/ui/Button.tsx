@@ -32,20 +32,20 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const baseStyles =
-      "rounded-full cursor-pointer font-medium transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale focus-ring inline-flex items-center justify-center gap-2";
+      "rounded-full cursor-pointer font-normal transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale focus-ring inline-flex items-center justify-center gap-2";
 
     const variants = {
       primary:
-        "bg-primary text-primary-foreground hover:bg-[var(--brand-primary-dark)] active:scale-[0.98] shadow-sm hover:shadow-md",
+        "bg-primary text-primary-foreground hover:bg-[var(--brand-primary-dark)] active:scale-[0.98]",
       secondary: "bg-muted text-foreground hover:bg-accent active:scale-[0.98]",
       ghost:
         "bg-transparent text-foreground hover:bg-muted active:scale-[0.98]",
       outline:
         "bg-transparent border-2 !border-primary text-primary hover:bg-primary hover:text-primary-foreground active:scale-[0.98]",
       danger:
-        "bg-[var(--error)] text-white hover:bg-[var(--error-light)] active:scale-[0.98] shadow-sm hover:shadow-md",
+        "bg-[var(--error)] text-white hover:bg-[var(--error-light)] active:scale-[0.98]",
       success:
-        "bg-[var(--success)] text-white hover:bg-[var(--success-light)] active:scale-[0.98] shadow-sm hover:shadow-md",
+        "bg-[var(--success)] text-white hover:bg-[var(--success-light)] active:scale-[0.98]",
     };
 
     const sizes = {

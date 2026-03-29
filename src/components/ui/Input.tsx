@@ -54,7 +54,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ? "border-[var(--error)] focus:ring-[var(--error)]"
       : success
         ? "border-[var(--success)] focus:ring-[var(--success)]"
-        : "border-border focus:ring-white";
+        : "border-border focus:ring-black-10 focus:bg-transparent";
 
     return (
       <div className="w-full">
@@ -67,11 +67,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             type={inputType}
-            className={`w-full px-4 bg-black-5 py-2 text-foreground
+            className={`w-full px-4 bg-black-5 h-9 text-foreground
                         ${noBorder ? "border-0" : "rounded-sm"}
                         ${shouldShowPasswordToggle ? "pr-10" : ""}
                         focus:outline-none focus:ring-2 focus:ring-offset-0
-                        placeholder:text-sm
                         transition-all duration-300 ease-out
                         disabled:opacity-50 disabled:cursor-not-allowed
                         ${!noBorder ? borderColor : ""} ${className}`}

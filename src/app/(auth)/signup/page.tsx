@@ -160,7 +160,7 @@ export default function SignUp() {
           <div>
             <label
               htmlFor="username"
-              className="block text-sm font-normal mb-1 text-black-40"
+              className="block text-sm font-normal mb-1 text-black-80"
             >
               Username
             </label>
@@ -170,14 +170,14 @@ export default function SignUp() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="Your username"
+              placeholder="your username"
               className="placeholder:text-sm placeholder:text-black-40"
             />
           </div>
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-normal mb-1 text-black-40"
+              className="block text-sm font-normal mb-1 text-black-80"
             >
               Email
             </label>
@@ -194,7 +194,7 @@ export default function SignUp() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-normal mb-1 text-black-40"
+              className="block text-sm font-normal mb-1 text-black-80"
             >
               Password
             </label>
@@ -205,7 +205,7 @@ export default function SignUp() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              placeholder="Your password"
+              placeholder="your password"
               showPasswordToggle
               className="placeholder:text-sm placeholder:text-black-40"
             />

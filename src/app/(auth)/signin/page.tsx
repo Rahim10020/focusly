@@ -67,7 +67,7 @@ export default function SignIn() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-normal mb-1 text-black-40"
+              className="block text-sm font-normal mb-1 text-black-80"
             >
               Email Address
             </label>
@@ -84,7 +84,7 @@ export default function SignIn() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-normal mb-1 text-black-40"
+              className="block text-sm font-normal mb-1 text-black-80"
             >
               Password
             </label>
@@ -94,7 +94,7 @@ export default function SignIn() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Your password"
+              placeholder="your password"
               showPasswordToggle
               className="placeholder:text-sm placeholder:text-black-40"
             />
