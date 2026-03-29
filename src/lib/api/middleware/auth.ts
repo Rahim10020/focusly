@@ -63,6 +63,24 @@ async function getSupabaseServerClient() {
 async function getAuthContext(req: any): Promise<AuthContext | undefined> {
   const supabase = await getSupabaseServerClient();
 
+  // Try to get bearer token first (most secure option for API routes)
+  const bearerToken = getBearerToken(req);
+  if (bearerToken) {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(bearerToken);
+
+    if (!error && user?.id) {
+      return {
+        userId: user.id,
+        userEmail: user.email || "",
+        sessionToken: bearerToken,
+      };
+    }
+  }
+
+  // Fallback to session cookie (less secure but needed for server-side renders)
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -75,21 +93,7 @@ async function getAuthContext(req: any): Promise<AuthContext | undefined> {
     };
   }
 
-  const bearerToken = getBearerToken(req);
-  if (!bearerToken) return undefined;
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser(bearerToken);
-
-  if (error || !user?.id) return undefined;
-
-  return {
-    userId: user.id,
-    userEmail: user.email || "",
-    sessionToken: bearerToken,
-  };
+  return undefined;
 }
 
 export function withAuthRequired(): ApiMiddleware {
