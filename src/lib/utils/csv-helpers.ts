@@ -4,8 +4,8 @@
  * @module lib/utils/csv-helpers
  */
 
-import { format } from 'date-fns';
-import { getTaskCompletionStats } from '../domain/services/StatsCalculationService';
+import { format } from "date-fns";
+import { getTaskCompletionStats } from "../domain/services/StatsCalculationService";
 
 // ============================================================================
 // CSV Generation Helpers
@@ -21,11 +21,15 @@ import { getTaskCompletionStats } from '../domain/services/StatsCalculationServi
  * escapeCSVCell('Hello, World'); // Returns '"Hello, World"'
  */
 export const escapeCSVCell = (value: string): string => {
-    const stringValue = String(value ?? '');
-    if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-        return `"${stringValue.replace(/"/g, '""')}"`;
-    }
-    return stringValue;
+  const stringValue = String(value ?? "");
+  if (
+    stringValue.includes(",") ||
+    stringValue.includes('"') ||
+    stringValue.includes("\n")
+  ) {
+    return `"${stringValue.replace(/"/g, '""')}"`;
+  }
+  return stringValue;
 };
 
 /**
@@ -42,7 +46,7 @@ export const escapeCSVCell = (value: string): string => {
  * // Returns "Name,Age\nJohn,30"
  */
 export const rowsToCSV = (rows: string[][]): string => {
-    return rows.map(row => row.map(escapeCSVCell).join(',')).join('\n');
+  return rows.map((row) => row.map(escapeCSVCell).join(",")).join("\n");
 };
 
 /**
@@ -52,7 +56,7 @@ export const rowsToCSV = (rows: string[][]): string => {
  * @returns {string} CSV content with proper line endings
  */
 export const generateCSVContent = (rows: string[][]): string => {
-    return rowsToCSV(rows);
+  return rowsToCSV(rows);
 };
 
 // ============================================================================
@@ -66,7 +70,7 @@ export const generateCSVContent = (rows: string[][]): string => {
  * @returns {Blob} CSV file as Blob
  */
 export const createCSVBlob = (content: string): Blob => {
-    return new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  return new Blob([content], { type: "text/csv;charset=utf-8;" });
 };
 
 /**
@@ -76,17 +80,20 @@ export const createCSVBlob = (content: string): Blob => {
  * @param {string} filename - Download filename (without extension)
  */
 export const downloadCSVBlob = (blob: Blob, filename: string): void => {
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
 
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${filename}-${format(new Date(), 'yyyy-MM-dd')}.csv`);
-    link.style.visibility = 'hidden';
+  link.setAttribute("href", url);
+  link.setAttribute(
+    "download",
+    `${filename}-${format(new Date(), "yyyy-MM-dd")}.csv`,
+  );
+  link.style.visibility = "hidden";
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 /**
@@ -96,9 +103,9 @@ export const downloadCSVBlob = (blob: Blob, filename: string): void => {
  * @param {string} filename - Download filename (without extension)
  */
 export const downloadCSV = (rows: string[][], filename: string): void => {
-    const content = generateCSVContent(rows);
-    const blob = createCSVBlob(content);
-    downloadCSVBlob(blob, filename);
+  const content = generateCSVContent(rows);
+  const blob = createCSVBlob(content);
+  downloadCSVBlob(blob, filename);
 };
 
 // ============================================================================
@@ -113,50 +120,50 @@ export const downloadCSV = (rows: string[][], filename: string): void => {
  * @returns {string[][]} CSV-ready rows
  */
 export const tasksToCSVRows = (
-    tasks: Array<{
-        title: string;
-        priority?: string | null;
-        subDomain?: string;
-        completed: boolean;
-        startDate?: string | null;
-        startTime?: string | null;
-        dueDate?: string | null;
-        endTime?: string | null;
-        estimatedDuration?: number | null;
-        pomodoroCount: number;
-        notes?: string | null;
-    }>,
-    getDomainName: (subDomain: string) => string
+  tasks: Array<{
+    title: string;
+    priority?: string | null;
+    subDomain?: string;
+    completed: boolean;
+    startDate?: string | null;
+    startTime?: string | null;
+    dueDate?: string | null;
+    endTime?: string | null;
+    estimatedDuration?: number | null;
+    pomodoroCount: number;
+    notes?: string | null;
+  }>,
+  getDomainName: (subDomain: string) => string,
 ): string[][] => {
-    const headers = [
-        'Title',
-        'Priority',
-        'Domain',
-        'Completed',
-        'Start Date',
-        'Start Time',
-        'Due Date',
-        'End Time',
-        'Estimated Duration (min)',
-        'Pomodoros',
-        'Notes',
-    ];
+  const headers = [
+    "Title",
+    "Priority",
+    "Domain",
+    "Completed",
+    "Start Date",
+    "Start Time",
+    "Due Date",
+    "End Time",
+    "Estimated Duration (min)",
+    "Pomodoros",
+    "Notes",
+  ];
 
-    const rows = tasks.map(task => [
-        task.title,
-        task.priority || '',
-        task.subDomain ? getDomainName(task.subDomain) : '',
-        task.completed ? 'Yes' : 'No',
-        task.startDate ? format(new Date(task.startDate), 'yyyy-MM-dd') : '',
-        task.startTime || '',
-        task.dueDate ? format(new Date(task.dueDate), 'yyyy-MM-dd') : '',
-        task.endTime || '',
-        task.estimatedDuration?.toString() || '',
-        task.pomodoroCount.toString(),
-        task.notes || '',
-    ]);
+  const rows = tasks.map((task) => [
+    task.title,
+    task.priority || "",
+    task.subDomain ? getDomainName(task.subDomain) : "",
+    task.completed ? "Yes" : "No",
+    task.startDate ? format(new Date(task.startDate), "yyyy-MM-dd") : "",
+    task.startTime || "",
+    task.dueDate ? format(new Date(task.dueDate), "yyyy-MM-dd") : "",
+    task.endTime || "",
+    task.estimatedDuration?.toString() || "",
+    task.pomodoroCount.toString(),
+    task.notes || "",
+  ]);
 
-    return [headers, ...rows];
+  return [headers, ...rows];
 };
 
 /**
@@ -170,91 +177,107 @@ export const tasksToCSVRows = (
  * @returns {string[][]} CSV-ready rows
  */
 export const analyticsToCSVRows = (
-    stats: {
-        totalFocusTime: number;
-        totalSessions: number;
-        totalTasks: number;
-        completedTasks: number;
-        streak: number;
-        longestStreak?: number | null;
-    },
-    sessions: Array<{
-        completed: boolean;
-        type: string;
-        startedAt: number;
-        duration: number;
-        taskId?: string | null;
-    }>,
-    tasks: Array<{
-        id?: string;
-        title: string;
-        completed: boolean;
-        subDomain?: string | null;
-    }>,
-    getDomainName: (subDomain: string) => string
+  stats: {
+    totalFocusTime: number;
+    totalSessions: number;
+    totalTasks: number;
+    completedTasks: number;
+    streak: number;
+    longestStreak?: number | null;
+  },
+  sessions: Array<{
+    completed: boolean;
+    type: string;
+    startedAt: number;
+    duration: number;
+    taskId?: string | null;
+  }>,
+  tasks: Array<{
+    id?: string;
+    title: string;
+    completed: boolean;
+    subDomain?: string | null;
+  }>,
+  getDomainName: (subDomain: string) => string,
 ): string[][] => {
-    const lines: string[][] = [];
-    const { completionRate } = getTaskCompletionStats(
-        tasks.map((task) => ({
-            id: task.id || task.title,
-            title: task.title,
-            completed: task.completed,
-            createdAt: 0,
-            pomodoroCount: 0,
-        }))
-    );
+  const lines: string[][] = [];
+  const { completionRate } = getTaskCompletionStats(
+    tasks.map((task) => ({
+      id: task.id || task.title,
+      title: task.title,
+      completed: task.completed,
+      createdAt: 0,
+      pomodoroCount: 0,
+    })),
+  );
 
-    // Overall Stats
-    lines.push(['OVERALL STATISTICS']);
-    lines.push(['Total Focus Time (hours)', (stats.totalFocusTime / 3600).toFixed(2)]);
-    lines.push(['Total Sessions', stats.totalSessions.toString()]);
-    lines.push(['Total Tasks', stats.totalTasks.toString()]);
-    lines.push(['Completed Tasks', stats.completedTasks.toString()]);
-    lines.push(['Completion Rate (%)', completionRate.toFixed(2)]);
-    lines.push(['Current Streak (days)', stats.streak.toString()]);
-    lines.push(['Longest Streak (days)', (stats.longestStreak || 0).toString()]);
-    lines.push([]);
+  // Overall Stats
+  lines.push(["OVERALL STATISTICS"]);
+  lines.push([
+    "Total Focus Time (hours)",
+    (stats.totalFocusTime / 3600).toFixed(2),
+  ]);
+  lines.push(["Total Sessions", stats.totalSessions.toString()]);
+  lines.push(["Total Tasks", stats.totalTasks.toString()]);
+  lines.push(["Completed Tasks", stats.completedTasks.toString()]);
+  lines.push(["Completion Rate (%)", completionRate.toFixed(2)]);
+  lines.push(["Current Streak (days)", stats.streak.toString()]);
+  lines.push(["Longest Streak (days)", (stats.longestStreak || 0).toString()]);
+  lines.push([]);
 
-    // Domain Stats
-    lines.push(['DOMAIN STATISTICS']);
-    lines.push(['Domain', 'Total Tasks', 'Completed Tasks', 'Completion Rate (%)']);
+  // Domain Stats
+  lines.push(["DOMAIN STATISTICS"]);
+  lines.push([
+    "Domain",
+    "Total Tasks",
+    "Completed Tasks",
+    "Completion Rate (%)",
+  ]);
 
-    // Add domain rows
-    const domains = new Map<string, { total: number; completed: number }>();
-    
-    tasks.forEach(task => {
-        if (task.subDomain) {
-            const domainName = getDomainName(task.subDomain);
-            const existing = domains.get(domainName) || { total: 0, completed: 0 };
-            existing.total += 1;
-            if (task.completed) existing.completed += 1;
-            domains.set(domainName, existing);
-        }
+  // Add domain rows
+  const domains = new Map<string, { total: number; completed: number }>();
+
+  tasks.forEach((task) => {
+    if (task.subDomain) {
+      const domainName = getDomainName(task.subDomain);
+      const existing = domains.get(domainName) || { total: 0, completed: 0 };
+      existing.total += 1;
+      if (task.completed) existing.completed += 1;
+      domains.set(domainName, existing);
+    }
+  });
+
+  domains.forEach((data, domain) => {
+    const rate =
+      data.total > 0 ? ((data.completed / data.total) * 100).toFixed(2) : "0";
+    lines.push([
+      domain,
+      data.total.toString(),
+      data.completed.toString(),
+      rate,
+    ]);
+  });
+
+  lines.push([]);
+
+  // Recent Sessions
+  lines.push(["RECENT SESSIONS"]);
+  lines.push(["Date & Time", "Duration (min)", "Task"]);
+
+  sessions
+    .filter((s) => s.completed && s.type === "work")
+    .sort((a, b) => b.startedAt - a.startedAt)
+    .slice(0, 50)
+    .forEach((session) => {
+      const taskTitle = session.taskId
+        ? (tasks.find((t) => t.id === session.taskId)?.title ?? "Unknown")
+        : "No task";
+      lines.push([
+        format(new Date(session.startedAt), "yyyy-MM-dd HH:mm"),
+        (session.duration / 60).toString(),
+        taskTitle,
+      ]);
     });
 
-    domains.forEach((data, domain) => {
-        const rate = data.total > 0 ? ((data.completed / data.total) * 100).toFixed(2) : '0';
-        lines.push([domain, data.total.toString(), data.completed.toString(), rate]);
-    });
-
-    lines.push([]);
-
-    // Recent Sessions
-    lines.push(['RECENT SESSIONS']);
-    lines.push(['Date & Time', 'Duration (min)', 'Task']);
-
-    sessions
-        .filter(s => s.completed && s.type === 'work')
-        .sort((a, b) => b.startedAt - a.startedAt)
-        .slice(0, 50)
-        .forEach(session => {
-            const taskTitle = session.taskId ? tasks.find(t => t.id === session.taskId)?.title ?? 'Unknown' : 'No task';
-            lines.push([
-                format(new Date(session.startedAt), 'yyyy-MM-dd HH:mm'),
-                (session.duration / 60).toString(),
-                taskTitle,
-            ]);
-        });
-
-    return lines;
+  return lines;
 };

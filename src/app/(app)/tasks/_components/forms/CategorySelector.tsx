@@ -4,7 +4,7 @@
 
 import { useMemo } from "react";
 import { DOMAINS, SubDomain } from "@/types";
-import Input from "../../ui/Input";
+import Input from "@/components/ui/Input";
 import { TableIcon } from "@/components/shared/icons";
 
 interface CategorySelectorProps {
@@ -28,8 +28,7 @@ export default function CategorySelector({
           .toLowerCase()
           .includes(searchQuery.toLowerCase());
       const subDomainMatch = Object.values(domainInfo.subDomains).some(
-        (subInfo) =>
-          subInfo.name.toLowerCase().includes(searchQuery.toLowerCase()),
+        (subInfo) => subInfo.name.toLowerCase().includes(searchQuery.toLowerCase()),
       );
       return domainMatch || subDomainMatch;
     });

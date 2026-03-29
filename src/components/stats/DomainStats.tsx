@@ -3,19 +3,25 @@
  * progress organized by life domains and their sub-domains.
  */
 
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import { Task, DOMAINS, getDomainFromSubDomain, Domain, SubDomain } from '@/types';
+import { useMemo } from "react";
+import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import {
+  Task,
+  DOMAINS,
+  getDomainFromSubDomain,
+  Domain,
+  SubDomain,
+} from "@/types";
 
 /**
  * Props for the DomainStats component.
  * @interface DomainStatsProps
  */
 interface DomainStatsProps {
-    /** Array of tasks to calculate domain statistics from */
-    tasks: Task[];
+  /** Array of tasks to calculate domain statistics from */
+  tasks: Task[];
 }
 
 /**
@@ -42,108 +48,126 @@ interface DomainStatsProps {
  * ```
  */
 export default function DomainStats({ tasks }: DomainStatsProps) {
-    type DomainStatMap = Record<Domain, {
-        total: number;
-        completed: number;
-        subDomains: Record<SubDomain, { total: number; completed: number }>;
-    }>;
+  type DomainStatMap = Record<
+    Domain,
+    {
+      total: number;
+      completed: number;
+      subDomains: Record<SubDomain, { total: number; completed: number }>;
+    }
+  >;
 
-    const domainStats = useMemo(() => {
-        const stats = {} as DomainStatMap;
+  const domainStats = useMemo(() => {
+    const stats = {} as DomainStatMap;
 
-        // Initialize stats
-        Object.keys(DOMAINS).forEach(domain => {
-            stats[domain as Domain] = {
-                total: 0,
-                completed: 0,
-                subDomains: {} as Record<SubDomain, { total: number; completed: number }>,
-            };
-        });
+    // Initialize stats
+    Object.keys(DOMAINS).forEach((domain) => {
+      stats[domain as Domain] = {
+        total: 0,
+        completed: 0,
+        subDomains: {} as Record<
+          SubDomain,
+          { total: number; completed: number }
+        >,
+      };
+    });
 
-        // Count tasks by domain and subdomain
-        tasks.forEach(task => {
-            if (task.subDomain) {
-                const domain = getDomainFromSubDomain(task.subDomain);
-                stats[domain].total++;
-                if (task.completed) {
-                    stats[domain].completed++;
-                }
+    // Count tasks by domain and subdomain
+    tasks.forEach((task) => {
+      if (task.subDomain) {
+        const domain = getDomainFromSubDomain(task.subDomain);
+        stats[domain].total++;
+        if (task.completed) {
+          stats[domain].completed++;
+        }
 
-                if (!stats[domain].subDomains[task.subDomain]) {
-                    stats[domain].subDomains[task.subDomain] = { total: 0, completed: 0 };
-                }
-                stats[domain].subDomains[task.subDomain].total++;
-                if (task.completed) {
-                    stats[domain].subDomains[task.subDomain].completed++;
-                }
-            }
-        });
+        if (!stats[domain].subDomains[task.subDomain]) {
+          stats[domain].subDomains[task.subDomain] = { total: 0, completed: 0 };
+        }
+        stats[domain].subDomains[task.subDomain].total++;
+        if (task.completed) {
+          stats[domain].subDomains[task.subDomain].completed++;
+        }
+      }
+    });
 
-        return stats;
-    }, [tasks]);
+    return stats;
+  }, [tasks]);
 
-    // Always show all domains, even with 0% completion
+  // Always show all domains, even with 0% completion
 
-    return (
-        <div className="space-y-6">
-            {Object.entries(DOMAINS).map(([domainKey, domainInfo]) => {
-                const stats = domainStats[domainKey as Domain];
-                const completionRate = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0;
+  return (
+    <div className="space-y-6">
+      {Object.entries(DOMAINS).map(([domainKey, domainInfo]) => {
+        const stats = domainStats[domainKey as Domain];
+        const completionRate =
+          stats.total > 0 ? (stats.completed / stats.total) * 100 : 0;
 
-                return (
-                    <Card key={domainKey}>
-                        <CardHeader>
-                            <CardTitle className="flex items-center justify-between">
-                                <span>{domainInfo.name}</span>
-                                <span className="text-sm font-normal text-muted-foreground">
-                                    {stats.completed}/{stats.total} completed
-                                </span>
-                            </CardTitle>
-                            <p className="text-sm text-muted-foreground">{domainInfo.description}</p>
-                        </CardHeader>
-                        <CardContent>
-                            {/* Domain Progress Bar */}
-                            <div className="mb-4">
-                                <div className="flex justify-between text-sm mb-1">
-                                    <span>Overall Progress</span>
-                                    <span>{Math.round(completionRate)}%</span>
-                                </div>
-                                <div className="w-full bg-muted rounded-full h-2">
-                                    <div
-                                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                                        style={{ width: `${completionRate}%` }}
-                                    />
-                                </div>
-                            </div>
+        return (
+          <Card key={domainKey}>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>{domainInfo.name}</span>
+                <span className="text-sm font-normal text-muted-foreground">
+                  {stats.completed}/{stats.total} completed
+                </span>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {domainInfo.description}
+              </p>
+            </CardHeader>
+            <CardContent>
+              {/* Domain Progress Bar */}
+              <div className="mb-4">
+                <div className="flex justify-between text-sm mb-1">
+                  <span>Overall Progress</span>
+                  <span>{Math.round(completionRate)}%</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${completionRate}%` }}
+                  />
+                </div>
+              </div>
 
-                            {/* Subdomains */}
-                            <div className="space-y-3">
-                                {Object.entries(domainInfo.subDomains).map(([subDomainKey, subDomainInfo]) => {
-                                    const subStats = stats.subDomains[subDomainKey as SubDomain] || { total: 0, completed: 0 };
-                                    const subCompletionRate = subStats.total > 0 ? (subStats.completed / subStats.total) * 100 : 0;
+              {/* Subdomains */}
+              <div className="space-y-3">
+                {Object.entries(domainInfo.subDomains).map(
+                  ([subDomainKey, subDomainInfo]) => {
+                    const subStats = stats.subDomains[
+                      subDomainKey as SubDomain
+                    ] || { total: 0, completed: 0 };
+                    const subCompletionRate =
+                      subStats.total > 0
+                        ? (subStats.completed / subStats.total) * 100
+                        : 0;
 
-                                    return (
-                                        <div key={subDomainKey} className="space-y-1">
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-muted-foreground">{subDomainInfo.name}</span>
-                                                <span className="text-xs text-muted-foreground">
-                                                    {subStats.completed}/{subStats.total}
-                                                </span>
-                                            </div>
-                                            <div className="w-full bg-muted/50 rounded-full h-1.5">
-                                                <div
-                                                    className="bg-accent h-1.5 rounded-full transition-all duration-300"
-                                                    style={{ width: `${subCompletionRate}%` }}
-                                                />
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </CardContent>
-                    </Card>
-                );
-            })}
-        </div>
-    );
+                    return (
+                      <div key={subDomainKey} className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            {subDomainInfo.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {subStats.completed}/{subStats.total}
+                          </span>
+                        </div>
+                        <div className="w-full bg-muted/50 rounded-full h-1.5">
+                          <div
+                            className="bg-accent h-1.5 rounded-full transition-all duration-300"
+                            style={{ width: `${subCompletionRate}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  },
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
 }

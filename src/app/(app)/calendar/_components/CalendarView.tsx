@@ -4,7 +4,7 @@ import { DateTimeService } from "@/lib/domain/services/DateTimeService";
  * Displays a monthly calendar grid with task indicators and a detail panel.
  */
 
-("use client");
+"use client";
 
 import { useState, useMemo } from "react";
 import { Task } from "@/types";
