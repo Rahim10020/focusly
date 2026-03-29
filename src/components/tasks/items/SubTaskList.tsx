@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { SubTask } from "@/types";
 import Button from "@/components/ui/Button";
-import { CircleIcon, CloseLgIcon } from "../../shared/icons";
+import { CircleIcon, CloseLgIcon } from "@/components/shared/icons";
 
 interface SubTaskListProps {
   subTasks: SubTask[];

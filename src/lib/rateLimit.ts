@@ -6,7 +6,7 @@
 
 import { supabaseServerPool } from "./supabase/server";
 import { logger } from "./logger";
-import { RATE_LIMIT_WINDOWS_MS } from "./constants";
+import { RATE_LIMIT_WINDOWS_MS } from "@/constants";
 
 /**
  * Configuration options for rate limiting.

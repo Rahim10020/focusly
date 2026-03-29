@@ -5,7 +5,7 @@
 'use client';
 
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import { TimerSettings } from '@/lib/hooks/useSettings';
+import { TimerSettings } from '@/hooks/useSettings';
 
 interface AutoStartSettingsProps {
   settings: TimerSettings;

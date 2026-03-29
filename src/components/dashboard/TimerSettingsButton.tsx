@@ -6,7 +6,7 @@
 
 import Link from "next/link";
 import { ROUTES } from "@/constants";
-import SettingsIcon from "../../shared/icons/SettingsIcon";
+import SettingsIcon from "@/components/shared/icons/SettingsIcon";
 
 export function TimerSettingsButton() {
   return (

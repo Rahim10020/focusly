@@ -6,16 +6,16 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePomodoro } from '@/lib/hooks/usePomodoro';
-import { useSettings } from '@/lib/hooks/useSettings';
-import { useSound } from '@/lib/hooks/useSound';
+import { usePomodoro } from '@/hooks/usePomodoro';
+import { useSettings } from '@/hooks/useSettings';
+import { useSound } from '@/hooks/useSound';
 import { useNotificationsContext } from '@/components/providers/NotificationsProvider';
 import { getProgress } from '@/lib/utils/time';
 import TimerDisplay from './TimerDisplay';
 import TimerControls from './TimerControls';
 import ProgressRing from './ProgressRing';
 import SessionIndicator from './SessionIndicator';
-import TaskSelector from '../tasks/TaskSelector';
+import TaskSelector from '@/components/tasks/forms/TaskSelector';
 import type { PomodoroSession } from '@/types';
 import { Task } from '@/types';
 

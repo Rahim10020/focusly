@@ -6,7 +6,7 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { useToast } from "@/lib/hooks/useToast";
+import { useToast } from "@/hooks/useToast";
 import ToastContainer from "@/components/shared/ToastContainer";
 
 /**

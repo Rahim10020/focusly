@@ -5,8 +5,8 @@
  * @module lib/cache
  */
 
-import { CacheOptions, CacheStats } from "./cache-components/cacheTypes";
-import { MemoryCache } from "./cache-components/memoryCache";
+import { CacheOptions, CacheStats } from "@/components/cache/cacheTypes";
+import { MemoryCache } from "@/components/cache/memoryCache";
 import { SupabaseCache } from "@/components/cache/supabaseCache";
 import { logger } from "./logger";
 import type { Json } from "@/lib/supabase/database.types";

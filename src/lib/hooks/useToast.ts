@@ -8,7 +8,7 @@
 
 import { useState, useCallback } from "react";
 import { ToastProps } from "@/components/shared/Toast";
-import { TOAST_DEFAULT_DURATION_MS } from "@/lib/constants";
+import { TOAST_DEFAULT_DURATION_MS } from "@/constants";
 
 /**
  * Available toast notification types.

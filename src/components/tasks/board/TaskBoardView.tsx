@@ -8,7 +8,7 @@
 import { Task, Tag, TaskStatus } from "@/types";
 import React from "react";
 import { TaskBoardCard } from "./TaskBoardCard";
-import { CircleIcon } from "../../shared/icons";
+import { CircleIcon } from "@/components/shared/icons";
 
 /** Available sort types for task ordering */
 type SortType = "default" | "alphabetical" | "createdAt" | "priority";

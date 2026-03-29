@@ -5,7 +5,7 @@
 import { useMemo } from "react";
 import { DOMAINS, SubDomain } from "@/types";
 import Input from "../../ui/Input";
-import { TableIcon } from "../../shared/icons";
+import { TableIcon } from "@/components/shared/icons";
 
 interface CategorySelectorProps {
   selectedSubDomain: SubDomain | undefined;

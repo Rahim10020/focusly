@@ -9,8 +9,8 @@
 
 import Header from '@/components/layout/Header';
 import Settings from '@/components/settings/Settings';
-import { useSettings } from '@/lib/hooks/useSettings';
-import { useSound } from '@/lib/hooks/useSound';
+import { useSettings } from '@/hooks/useSettings';
+import { useSound } from '@/hooks/useSound';
 
 /**
  * Settings page component for customizing Focusly preferences.

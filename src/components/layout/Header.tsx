@@ -13,7 +13,7 @@ import UserMenu from "../shared/UserMenu";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
 import { ROUTES } from "@/constants";
 import AppLogo from "../shared/AppLogo";
-import { BellIcon } from "../shared/icons";
+import { BellIcon } from "@/components/shared/icons";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

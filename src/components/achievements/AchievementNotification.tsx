@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { Achievement } from "@/types";
-import { CloseLgIcon } from "../../shared/icons";
+import { CloseLgIcon } from "@/components/shared/icons";
 
 /**
  * Props for the AchievementNotification component.

@@ -13,7 +13,7 @@ import { LeaderboardQuerySchema } from '@/lib/api/schemas';
 import { successResponse } from '@/lib/api/utils/response';
 import { getAdminSupabaseClient } from '@/lib/api/supabase';
 import { getPaginationOffset, buildPaginationMeta } from '@/lib/api/utils/pagination';
-import { LEADERBOARD_DEFAULTS } from '@/lib/constants';
+import { LEADERBOARD_DEFAULTS } from '@/constants';
 import { StatsService } from '@/lib/domain/services/StatsService';
 import { Cache } from '@/lib/cache';
 import { logger } from '@/lib/logger';

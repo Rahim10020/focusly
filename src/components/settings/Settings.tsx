@@ -15,7 +15,7 @@ import { useStatVisibility } from "@/hooks/useStatVisibility";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
 import { PresetProfiles } from "./PresetProfiles";
 import { AutoStartSettings } from "./AutoStartSettings";
-import { MyLoader } from "../ui/MyLoader";
+import { MyLoader } from "@/components/shared/MyLoader";
 import {
   LONG_BREAK,
   POMODORO_CYCLES_FOR_LONG_BREAK,

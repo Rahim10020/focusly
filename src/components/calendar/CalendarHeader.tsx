@@ -6,8 +6,8 @@
 
 import { format } from "date-fns";
 import Button from "@/components/ui/Button";
-import ChevronLeftIcon from "../../shared/icons/ChevronLeftIcon";
-import ChevronRightIcon from "../../shared/icons/ChevronRightIcon";
+import ChevronLeftIcon from "@/components/shared/icons/ChevronLeftIcon";
+import ChevronRightIcon from "@/components/shared/icons/ChevronRightIcon";
 
 interface CalendarHeaderProps {
   currentDate: Date;

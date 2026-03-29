@@ -6,8 +6,8 @@
 "use client";
 
 import Card, { CardContent } from "@/components/ui/Card";
-import { CircleIcon, ClockIcon } from "../../shared/icons";
-import CheckIcon from "../../shared/icons/CheckIcon";
+import { CircleIcon, ClockIcon } from "@/components/shared/icons";
+import CheckIcon from "@/components/shared/icons/CheckIcon";
 
 interface ProfileStatsGridProps {
   totalSessions: number;

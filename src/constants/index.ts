@@ -2,7 +2,7 @@
  * @fileoverview Centralized constants barrel.
  * All application constants exported from a single location.
  *
- * Usage: import { ROUTES, STORAGE_KEYS, TIME_MS } from '@/lib/constants';
+ * Usage: import { ROUTES, STORAGE_KEYS, TIME_MS } from '@/constants';
  */
 
 // Time & Duration

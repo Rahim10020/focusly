@@ -11,9 +11,9 @@ import Image from "next/image";
 import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { MyLoader } from "../ui/MyLoader";
-import EditPencilIcon from "../../shared/icons/EditPencilIcon";
-import EditPencilLineIcon from "../../shared/icons/EditPencilLineIcon";
+import { MyLoader } from "@/components/shared/MyLoader";
+import EditPencilIcon from "@/components/shared/icons/EditPencilIcon";
+import EditPencilLineIcon from "@/components/shared/icons/EditPencilLineIcon";
 
 interface ProfileHeaderProps {
   isEditing: boolean;

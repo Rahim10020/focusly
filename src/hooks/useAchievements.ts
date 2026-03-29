@@ -9,7 +9,7 @@ import { Achievement } from '@/types';
 import { supabaseClient } from '@/lib/supabase/client';
 import { retryWithBackoff } from '@/lib/utils/retry';
 import { useLocalStorage } from './useLocalStorage';
-import { STORAGE_KEYS } from '@/lib/constants';
+import { STORAGE_KEYS } from '@/constants';
 
 /**
  * Achievement stats input type

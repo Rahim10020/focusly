@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Task, Tag, TaskStatus } from "@/types";
 import { MyLoader } from "../../shared/MyLoader";
-import { ListUnorderedIcon, TableIcon } from "../../shared/icons";
+import { ListUnorderedIcon, TableIcon } from "@/components/shared/icons";
 
 // Lazy load view components as they are heavy and conditional
 const TaskList = dynamic(() => import("../board/TaskList"), {

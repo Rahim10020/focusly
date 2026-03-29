@@ -8,7 +8,7 @@ import Image from "next/image";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { MyLoader } from "../ui/MyLoader";
+import { MyLoader } from "@/components/shared/MyLoader";
 
 interface UserSearchResult {
   id: string;

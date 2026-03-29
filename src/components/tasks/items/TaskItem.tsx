@@ -16,8 +16,8 @@ import { DeleteConfirmationModal } from "@/components/shared/DeleteConfirmationM
 import TaskDetailsModal from "../../../components/tasks/modals/TaskDetailsModal";
 import { useSound } from "@/hooks/useSound";
 import { RecurrenceService } from "@/lib/services/recurrenceService";
-import { DragHorizontalIcon, TrashEmptyIcon } from "../../shared/icons";
-import EditPencilIcon from "../../shared/icons/EditPencilIcon";
+import { DragHorizontalIcon, TrashEmptyIcon } from "@/components/shared/icons";
+import EditPencilIcon from "@/components/shared/icons/EditPencilIcon";
 import { TaskCheckbox } from "./TaskCheckbox";
 
 /**

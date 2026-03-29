@@ -10,7 +10,7 @@ import NotesField from "../forms/NotesField";
 import CategorySelector from "../../../components/tasks/forms/CategorySelector";
 import SubTaskManager from "../../../components/tasks/items/SubTaskManager";
 import { Tag, SubDomain, Priority, DOMAINS, Domain } from "@/types";
-import { CaretDownMdIcon } from "../../shared/icons";
+import { CaretDownMdIcon } from "@/components/shared/icons";
 
 interface TaskModalFullscreenProps {
   title: string;

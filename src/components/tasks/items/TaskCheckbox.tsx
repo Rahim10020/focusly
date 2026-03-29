@@ -4,7 +4,7 @@
 
 "use client";
 
-import { CheckboxCheckIcon } from "../../shared/icons";
+import { CheckboxCheckIcon } from "@/components/shared/icons";
 
 interface TaskCheckboxProps {
   completed: boolean;
