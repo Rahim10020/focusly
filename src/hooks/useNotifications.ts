@@ -334,23 +334,12 @@ export function useNotifications() {
   useEffect(() => {
     if (session?.user && session.accessToken) {
       fetchNotifications();
-
-      // ✅ AJOUT: Set Supabase auth session
-      supabaseClient.auth.setSession({
-        access_token: session.accessToken,
-        refresh_token: session.accessToken!,
-      });
     } else {
       setNotifications([]);
     }
-  }, [
-    session?.user,
-    session?.accessToken,
-    session?.accessToken,
-    fetchNotifications,
-  ]);
+  }, [session?.user, session?.accessToken, fetchNotifications]);
 
-  // ✅ AJOUT: Subscribe to real-time notifications
+  // Subscribe to real-time notifications
   useEffect(() => {
     const userId = session?.user?.id;
     if (!userId) return;
