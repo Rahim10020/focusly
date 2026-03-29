@@ -7,8 +7,8 @@
 "use client";
 
 import { useState, KeyboardEvent } from "react";
-import Button from "../ui/Button";
-import { AddPlusIcon } from "../shared/icons";
+import Button from "../../../ui/Button";
+import { AddPlusIcon } from "../../shared/icons";
 
 /**
  * Props for the QuickAddTask component.

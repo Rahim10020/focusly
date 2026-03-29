@@ -4,7 +4,7 @@
 
 "use client";
 
-import KeyboardIcon from "../shared/icons/KeyboardIcon";
+import KeyboardIcon from "../../shared/icons/KeyboardIcon";
 
 interface KeyboardShortcutHintProps {
   onClick: () => void;

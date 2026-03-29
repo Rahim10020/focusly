@@ -18,7 +18,7 @@ import {
 } from "@/lib/api/middleware";
 import { CreateFriendRequestSchema } from "@/lib/api/schemas";
 import { successResponse, Errors } from "@/lib/api/utils/response";
-import { getUserSupabaseClient } from "@/lib/api/supabase";
+import { FriendService } from "@/lib/services/friendService";
 import type { AuthContext } from "@/lib/api/middleware/auth";
 
 /**
@@ -37,34 +37,9 @@ async function getHandler(
   _validatedData: unknown,
   auth: AuthContext,
 ) {
-  const supabase = getUserSupabaseClient(auth);
-
-  const { data, error } = await supabase
-    .from("friends")
-    .select(
-      `
-      id,
-      sender_id,
-      receiver_id,
-      status,
-      created_at,
-      sender:profiles!friends_sender_id_fkey (
-        username,
-        avatar_url
-      ),
-      receiver:profiles!friends_receiver_id_fkey (
-        username,
-        avatar_url
-      )
-    `,
-    )
-    .or(`sender_id.eq.${auth.userId},receiver_id.eq.${auth.userId}`);
-
-  if (error) {
-    throw new Error("Failed to fetch friends");
-  }
-
-  return successResponse(data || []);
+  const friendService = new FriendService(auth);
+  const friends = await friendService.getFriends();
+  return successResponse(friends);
 }
 
 /**
@@ -86,18 +61,14 @@ async function postHandler(
   const parsedData = CreateFriendRequestSchema.parse(validatedData);
   const { receiver_id } = parsedData;
 
-  if (receiver_id === auth.userId) {
-    return Errors.badRequest("Cannot send friend request to yourself");
+  const friendService = new FriendService(auth);
+  try {
+    const data = await friendService.sendFriendRequest(receiver_id);
+    return successResponse(data);
+  } catch (error: any) {
+    return Errors.badRequest(error.message || "Failed to send friend request");
   }
-
-  const supabase = getUserSupabaseClient(auth);
-
-  // Ensure sender has a profile
-  const { data: senderProfile } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("id", auth.userId)
-    .single();
+}
 
   if (!senderProfile) {
     // Create profile if it doesn't exist

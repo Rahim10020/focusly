@@ -3,7 +3,7 @@
  */
 
 import React, { forwardRef } from "react";
-import { LoadingIcon } from "../shared/icons";
+import { LoadingIcon } from "../../shared/icons";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?:

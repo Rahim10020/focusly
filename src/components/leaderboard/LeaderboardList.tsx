@@ -10,7 +10,7 @@ import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { LeaderboardUser } from "@/types/leaderboard";
 import { DYNAMIC_ROUTES } from "@/lib/constants";
-import UsersIcon from "../shared/icons/UsersIcon";
+import UsersIcon from "../../shared/icons/UsersIcon";
 
 interface LeaderboardListProps {
   leaderboard: LeaderboardUser[];

@@ -4,7 +4,7 @@
 
 "use client";
 
-import { CloseLgIcon } from "../shared/icons";
+import { CloseLgIcon } from "../../shared/icons";
 
 /**
  * Props for the KeyboardShortcutsModal component.

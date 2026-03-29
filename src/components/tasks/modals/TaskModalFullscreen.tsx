@@ -2,15 +2,15 @@
  * @fileoverview TaskModalFullscreen component for fullscreen mode content.
  */
 
-import TaskTitleInput from "./TaskTitleInput";
-import PrioritySelector from "./PrioritySelector";
-import TagsSelector from "./TagsSelector";
-import ScheduleDuration from "./ScheduleDuration";
-import NotesField from "./NotesField";
-import CategorySelector from "./CategorySelector";
-import SubTaskManager from "./SubTaskManager";
+import TaskTitleInput from "../forms/TaskTitleInput";
+import PrioritySelector from "../forms/PrioritySelector";
+import TagsSelector from "../forms/TagsSelector";
+import ScheduleDuration from "../forms/ScheduleDuration";
+import NotesField from "../forms/NotesField";
+import CategorySelector from "../../../components/tasks/forms/CategorySelector";
+import SubTaskManager from "../../../components/tasks/items/SubTaskManager";
 import { Tag, SubDomain, Priority, DOMAINS, Domain } from "@/types";
-import { CaretDownMdIcon, ExpandIcon } from "../shared/icons";
+import { CaretDownMdIcon } from "../../shared/icons";
 
 interface TaskModalFullscreenProps {
   title: string;

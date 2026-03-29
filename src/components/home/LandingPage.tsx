@@ -5,7 +5,7 @@
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { ROUTES } from "@/lib/constants";
-import { ArrowRightLgIcon } from "../shared/icons";
+import { ArrowRightLgIcon } from "../../shared/icons";
 
 export function LandingPage() {
   const router = useRouter();

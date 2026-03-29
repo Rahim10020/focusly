@@ -5,7 +5,7 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import { CircleIcon, CloseLgIcon } from "../shared/icons";
+import { CircleIcon, CloseLgIcon } from "../../shared/icons";
 
 interface FocusModeToggleProps {
   isFocusMode: boolean;

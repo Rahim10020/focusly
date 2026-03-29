@@ -5,8 +5,8 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import ChevronLeftIcon from "../shared/icons/ChevronLeftIcon";
-import ChevronRightIcon from "../shared/icons/ChevronRightIcon";
+import ChevronLeftIcon from "../../shared/icons/ChevronLeftIcon";
+import ChevronRightIcon from "../../shared/icons/ChevronRightIcon";
 
 interface LeaderboardPaginationProps {
   currentPage: number;

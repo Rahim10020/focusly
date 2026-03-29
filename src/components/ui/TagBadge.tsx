@@ -3,7 +3,7 @@
  */
 
 import { Tag } from "@/types";
-import { CloseLgIcon } from "../shared/icons";
+import { CloseLgIcon } from "../../shared/icons";
 
 /**
  * Props for the TagBadge component.

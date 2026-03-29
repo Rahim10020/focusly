@@ -5,9 +5,9 @@
 "use client";
 
 import { useEffect } from "react";
-import CheckIcon from "../shared/icons/CheckIcon";
-import { CloseLgIcon, InfoIcon } from "../shared/icons";
-import WarningIcon from "../shared/icons/WarningIcon";
+import CheckIcon from "../../shared/icons/CheckIcon";
+import { CloseLgIcon, InfoIcon } from "../../shared/icons";
+import WarningIcon from "../../shared/icons/WarningIcon";
 import { TOAST_DEFAULT_DURATION_MS } from "@/lib/constants";
 
 /**

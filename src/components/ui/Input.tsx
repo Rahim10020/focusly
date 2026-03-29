@@ -3,8 +3,8 @@
  */
 
 import React, { useState } from "react";
-import { HideIcon, InfoIcon, ShowIcon } from "../shared/icons";
-import CheckIcon from "../shared/icons/CheckIcon";
+import { HideIcon, InfoIcon, ShowIcon } from "../../shared/icons";
+import CheckIcon from "../../shared/icons/CheckIcon";
 
 /**
  * Props for the Input component.

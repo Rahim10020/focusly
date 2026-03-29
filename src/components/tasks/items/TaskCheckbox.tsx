@@ -4,7 +4,7 @@
 
 "use client";
 
-import { CheckboxCheckIcon } from "../shared/icons";
+import { CheckboxCheckIcon } from "../../shared/icons";
 
 interface TaskCheckboxProps {
   completed: boolean;

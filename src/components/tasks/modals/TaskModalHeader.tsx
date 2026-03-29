@@ -2,7 +2,7 @@
  * @fileoverview TaskModalHeader component for modal header.
  */
 
-import { CloseLgIcon, ExpandIcon, ShrinkIcon } from "../shared/icons";
+import { CloseLgIcon, ExpandIcon, ShrinkIcon } from "../../shared/icons";
 
 interface TaskModalHeaderProps {
   isEditing: boolean;

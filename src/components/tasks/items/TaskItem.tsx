@@ -13,11 +13,11 @@ import PriorityBadge from "@/components/ui/PriorityBadge";
 import TagBadge from "@/components/ui/TagBadge";
 import DueDateBadge from "@/components/ui/DueDateBadge";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
-import TaskDetailsModal from "./TaskDetailsModal";
+import TaskDetailsModal from "../../../components/tasks/modals/TaskDetailsModal";
 import { useSound } from "@/lib/hooks/useSound";
 import { RecurrenceService } from "@/lib/services/recurrenceService";
-import { DragHorizontalIcon, TrashEmptyIcon } from "../shared/icons";
-import EditPencilIcon from "../shared/icons/EditPencilIcon";
+import { DragHorizontalIcon, TrashEmptyIcon } from "../../shared/icons";
+import EditPencilIcon from "../../shared/icons/EditPencilIcon";
 import { TaskCheckbox } from "./TaskCheckbox";
 
 /**

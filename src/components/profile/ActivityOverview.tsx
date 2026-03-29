@@ -6,8 +6,8 @@
 "use client";
 
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { CircleIcon } from "../shared/icons";
-import CheckIcon from "../shared/icons/CheckIcon";
+import { CircleIcon } from "../../shared/icons";
+import CheckIcon from "../../shared/icons/CheckIcon";
 
 interface ActivityOverviewProps {
   completionRate: number;

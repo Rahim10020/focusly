@@ -8,10 +8,10 @@
 
 import { useState, useEffect } from "react";
 import { Task, Tag, TaskStatus } from "@/types";
-import TaskList from "./TaskList";
-import TaskBoardView from "./TaskBoardView";
-import { MyLoader } from "../ui/MyLoader";
-import { ListUnorderedIcon, TableIcon } from "../shared/icons";
+import TaskList from "../board/TaskList";
+import TaskBoardView from "../board/TaskBoardView";
+import { MyLoader } from "../../ui/MyLoader";
+import { ListUnorderedIcon, TableIcon } from "../../shared/icons";
 
 /** Available sort types for task ordering */
 type SortType = "default" | "alphabetical" | "createdAt" | "priority";

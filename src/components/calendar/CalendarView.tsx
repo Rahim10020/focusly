@@ -26,7 +26,7 @@ import Input from "@/components/ui/Input";
 import { CalendarHeader } from "./CalendarHeader";
 import { PriorityLegend } from "./PriorityLegend";
 import { MyLoader } from "../ui/MyLoader";
-import { CheckboxCheckIcon } from "../shared/icons";
+import { CheckboxCheckIcon } from "../../shared/icons";
 import { useAppToast } from "@/lib/hooks/useAppToast";
 
 interface CalendarViewProps {

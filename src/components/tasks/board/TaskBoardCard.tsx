@@ -7,8 +7,8 @@
 import { type DragEvent } from "react";
 import { Task, Tag } from "@/types";
 import Button from "@/components/ui/Button";
-import CheckIcon from "../shared/icons/CheckIcon";
-import { CalendarIcon } from "../shared/icons";
+import CheckIcon from "../../shared/icons/CheckIcon";
+import { CalendarIcon } from "../../shared/icons";
 
 interface TaskBoardCardProps {
   task: Task;
