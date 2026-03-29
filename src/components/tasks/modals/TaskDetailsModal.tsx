@@ -13,7 +13,8 @@ import TaskModalFullscreen from "./TaskModalFullscreen";
 import CategorySelector from "../forms/CategorySelector";
 import { TaskMetaInfo } from "../items/TaskMetaInfo";
 import { SubTaskList } from "../items/SubTaskList";
-import Button from "@/components/ui/Button";
+import { calculateTimeDuration } from "@/lib/utils/time-calculations";
+import TaskDetailsModalFooter from "./details/TaskDetailsModalFooter";
 
 interface TaskDetailsModalProps {
   task: Task;
@@ -60,53 +61,15 @@ export default function TaskDetailsModal({
     "details" | "categories" | "subtasks"
   >("details");
 
-  const calculateDuration = (start: string, end: string) => {
-    if (!start || !end) return null;
-
-    try {
-      const startValue = start.includes(":") ? start : `${start}:00`;
-      const endValue = end.includes(":") ? end : `${end}:00`;
-      const [startHours, startMinutes = 0] = startValue.split(":").map(Number);
-      const [endHours, endMinutes = 0] = endValue.split(":").map(Number);
-
-      if (
-        isNaN(startHours) ||
-        isNaN(startMinutes) ||
-        isNaN(endHours) ||
-        isNaN(endMinutes)
-      )
-        return null;
-
-      const startDateObj = new Date();
-      startDateObj.setHours(startHours, startMinutes, 0, 0);
-      const endDateObj = new Date();
-      endDateObj.setHours(endHours, endMinutes, 0, 0);
-
-      if (endDateObj <= startDateObj) {
-        endDateObj.setDate(endDateObj.getDate() + 1);
-      }
-
-      const diffInMs = endDateObj.getTime() - startDateObj.getTime();
-      const diffInMinutes = Math.round(diffInMs / (1000 * 60));
-
-      if (diffInMinutes > 0) return diffInMinutes.toString();
-      if (diffInMinutes < 0) return "";
-      return null;
-    } catch (error) {
-      console.error("Error calculating duration:", error);
-      return null;
-    }
-  };
-
   const handleStartTimeChange = (value: string) => {
     setStartTime(value);
-    const duration = calculateDuration(value, endTime);
+    const duration = calculateTimeDuration(value, endTime);
     if (duration !== null) setEstimatedDuration(duration);
   };
 
   const handleEndTimeChange = (value: string) => {
     setEndTime(value);
-    const duration = calculateDuration(startTime, value);
+    const duration = calculateTimeDuration(startTime, value);
     if (duration !== null) setEstimatedDuration(duration);
   };
 
@@ -264,31 +227,12 @@ export default function TaskDetailsModal({
           </div>
         </div>
 
-        <div className="sticky bottom-0 bg-card border-t border-border p-6 flex justify-between gap-3">
-          <Button
-            onClick={() => {
-              onUpdate({ completed: !task.completed });
-              onClose();
-            }}
-            variant="secondary"
-          >
-            {task.completed ? "Mark as Incomplete" : "Mark as Complete"}
-          </Button>
-          <div className="flex gap-3">
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => {
-                handleSave();
-                onClose();
-              }}
-            >
-              Save Changes
-            </Button>
-          </div>
-        </div>
+        <TaskDetailsModalFooter
+          task={task}
+          onClose={onClose}
+          onSave={handleSave}
+          onUpdate={onUpdate}
+        />
       </div>
     </div>
   );
