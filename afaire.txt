@@ -16,3 +16,22 @@ A Faire PROCHAINEMENT
 - voir si toast est bien reutilise dans tout le projet.
 - pour voir si le projet est bien aligne avec la base de donnes (supabase) de quelles 
 informations tu aurais besoin pour cote bd pour voir si tout est conforme ?
+
+
+
+imdev/vscodeprojects/focusly/node_modules/next/dist/server/lib/start-server.js:226:13)"} Error: Failed to update preferences: insert or update on table "user_preferences" violates foreign key constraint "user_preferences_user_id_fkey"
+    at postHandler (src/app/api/users/preferences/route.ts:164:13)
+    at async eval (src/lib/api/middleware/rateLimit.ts:88:24)
+    at async eval (src/lib/api/middleware/logging.ts:57:26)
+    at async eval (src/lib/api/middleware/auth.ts:109:16)
+    at async eval (src/lib/api/middleware/compose.ts:46:16)
+  162 |         data: JSON.stringify(updatedPrefs),
+  163 |       });
+> 164 |       throw new Error(`Failed to update preferences: ${upsertError.message}`);
+      |             ^
+  165 |     }
+  166 |
+  167 |     // Invalidate cache for this user's preferences
+ POST /api/users/preferences 500 in 5.0s (compile: 7ms, render: 5.0s)
+ ○ Compiling /signin ...
+ ⚠ Fast Refresh had to perfor
