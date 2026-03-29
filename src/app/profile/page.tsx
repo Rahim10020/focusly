@@ -119,15 +119,20 @@ export default function ProfilePage() {
         imageUrl = publicUrl;
       }
 
-      const updateSessions: { data: Record<string, unknown> } = { data: {} };
       const emailChanged = email !== session.user?.email;
 
-      if (name !== session.user?.name) {
-        updateSessions.data = { ...updateSessions.data, name };
+      if (name !== session.user?.name || imageUrl !== session.user?.image) {
+        const { error } = await supabase.auth.updateUser({
+          data: {
+            full_name: name,
+            avatar_url: imageUrl,
+          },
+        });
+        if (error) throw error;
       }
 
       if (emailChanged) {
-        const { error } = await supabase.auth.updateSessionUser(
+        const { error } = await supabase.auth.updateUser(
           { email: email },
           {
             emailRedirectTo: `${window.location.origin}/verify-email`,
@@ -140,34 +145,6 @@ export default function ProfilePage() {
           `A verification email was sent to ${email}. Please check your inbox to confirm the change.`,
           "Verification Email",
         );
-      }
-
-      if (imageUrl !== session.user?.image) {
-        updateSessions.data = { ...updateSessions.data, image: imageUrl };
-      }
-
-      if (Object.keys(updateSessions).length > 0 && !emailChanged) {
-        const { error } = await supabase.auth.updateSessionUser(updateSessions);
-        if (error) throw error;
-
-        await updateSession({
-          ...session,
-          user: {
-            ...session.user,
-            name: name,
-            email: emailChanged ? email : session.user?.email,
-            image: imageUrl,
-          },
-        });
-      } else if (Object.keys(updateSessions).length > 0) {
-        await updateSession({
-          ...session,
-          user: {
-            ...session.user,
-            name: name,
-            image: imageUrl,
-          },
-        });
       }
 
       if (!emailChanged) {

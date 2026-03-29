@@ -9,6 +9,7 @@ export interface AuthSession {
     id: string;
     email?: string | null;
     name?: string | null;
+    image?: string | null;
   };
   accessToken?: string;
 }
@@ -36,8 +37,14 @@ export function useAuth() {
               id: supabaseSession.user.id,
               email: supabaseSession.user.email,
               name:
+                supabaseSession.user.user_metadata?.full_name ||
+                supabaseSession.user.user_metadata?.name ||
                 supabaseSession.user.user_metadata?.username ||
                 supabaseSession.user.email,
+              image:
+                supabaseSession.user.user_metadata?.avatar_url ||
+                supabaseSession.user.user_metadata?.image ||
+                null,
             },
             accessToken: supabaseSession.access_token,
           });
@@ -65,8 +72,14 @@ export function useAuth() {
             id: supabaseSession.user.id,
             email: supabaseSession.user.email,
             name:
+              supabaseSession.user.user_metadata?.full_name ||
+              supabaseSession.user.user_metadata?.name ||
               supabaseSession.user.user_metadata?.username ||
               supabaseSession.user.email,
+            image:
+              supabaseSession.user.user_metadata?.avatar_url ||
+              supabaseSession.user.user_metadata?.image ||
+              null,
           },
           accessToken: supabaseSession.access_token,
         });

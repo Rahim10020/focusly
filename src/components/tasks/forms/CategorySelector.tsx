@@ -28,7 +28,7 @@ export default function CategorySelector({
           .toLowerCase()
           .includes(searchQuery.toLowerCase());
       const subDomainMatch = Object.values(domainInfo.subDomains).some(
-        (subName) => subName.toLowerCase().includes(searchQuery.toLowerCase()),
+        (subInfo) => subInfo.name.toLowerCase().includes(searchQuery.toLowerCase()),
       );
       return domainMatch || subDomainMatch;
     });
@@ -61,7 +61,7 @@ export default function CategorySelector({
             </div>
             <div className="grid grid-cols-1 gap-2 ml-10">
               {Object.entries(domainInfo.subDomains).map(
-                ([subDomainKey, subDomainName]) => (
+                ([subDomainKey, subDomainInfo]) => (
                   <button
                     key={subDomainKey}
                     type="button"
@@ -78,7 +78,7 @@ export default function CategorySelector({
                         : "bg-card hover:bg-accent text-foreground border border-border"
                     }`}
                   >
-                    {subDomainName}
+                    {subDomainInfo.name}
                   </button>
                 ),
               )}

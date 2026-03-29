@@ -7,9 +7,9 @@ import PrioritySelector from "../forms/PrioritySelector";
 import TagsSelector from "../forms/TagsSelector";
 import ScheduleDuration from "../forms/ScheduleDuration";
 import NotesField from "../forms/NotesField";
-import CategorySelector from "../../../components/tasks/forms/CategorySelector";
-import SubTaskManager from "../../../components/tasks/items/SubTaskManager";
-import { Tag, SubDomain, Priority, DOMAINS, Domain } from "@/types";
+import CategorySelector from "../forms/CategorySelector";
+import SubTaskManager from "../items/SubTaskManager";
+import { Tag, SubDomain, Priority, DOMAINS, Domain, getDomainFromSubDomain } from "@/types";
 import { CaretDownMdIcon } from "@/components/shared/icons";
 
 interface TaskModalFullscreenProps {
@@ -130,13 +130,8 @@ export default function TaskModalFullscreen({
                 <span className="text-sm text-muted-foreground">
                   {
                     DOMAINS[
-                      Object.keys(DOMAINS).find(
-                        (domain) =>
-                          DOMAINS[domain as Domain].subDomains[
-                            selectedSubDomain
-                          ],
-                      ) as Domain
-                    ]?.subDomains[selectedSubDomain]
+                      getDomainFromSubDomain(selectedSubDomain)
+                    ]?.subDomains[selectedSubDomain].name
                   }
                 </span>
               )}

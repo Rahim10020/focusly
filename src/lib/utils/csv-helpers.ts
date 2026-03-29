@@ -5,7 +5,7 @@
  */
 
 import { format } from 'date-fns';
-import { getTaskCompletionStats } from './stats-calculations';
+import { getTaskCompletionStats } from '../domain/services/StatsCalculationService';
 
 // ============================================================================
 // CSV Generation Helpers

@@ -9,6 +9,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Task, Stats, PomodoroSession, DOMAINS, getDomainFromSubDomain, SubDomain } from '@/types';
 import { format } from 'date-fns';
+import { getTaskCompletionStats, formatHoursMinutesFromSeconds } from '../domain/services/StatsCalculationService';
 
 // Import refactored helper modules
 import {
@@ -26,10 +27,6 @@ import {
     downloadCSV,
     analyticsToCSVRows,
 } from './csv-helpers';
-import {
-    formatHoursMinutesFromSeconds,
-    getTaskCompletionStats,
-} from './stats-calculations';
 
 // ============================================================================
 // Domain Helper

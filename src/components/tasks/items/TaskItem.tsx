@@ -168,7 +168,7 @@ function TaskItem({
                 {
                   DOMAINS[getDomainFromSubDomain(task.subDomain)].subDomains[
                     task.subDomain
-                  ]
+                  ].name
                 }
               </span>
             )}

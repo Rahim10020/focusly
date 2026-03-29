@@ -118,14 +118,14 @@ export default function DomainStats({ tasks }: DomainStatsProps) {
 
                             {/* Subdomains */}
                             <div className="space-y-3">
-                                {Object.entries(domainInfo.subDomains).map(([subDomainKey, subDomainName]) => {
+                                {Object.entries(domainInfo.subDomains).map(([subDomainKey, subDomainInfo]) => {
                                     const subStats = stats.subDomains[subDomainKey as SubDomain] || { total: 0, completed: 0 };
                                     const subCompletionRate = subStats.total > 0 ? (subStats.completed / subStats.total) * 100 : 0;
 
                                     return (
                                         <div key={subDomainKey} className="space-y-1">
                                             <div className="flex justify-between text-sm">
-                                                <span className="text-muted-foreground">{subDomainName}</span>
+                                                <span className="text-muted-foreground">{subDomainInfo.name}</span>
                                                 <span className="text-xs text-muted-foreground">
                                                     {subStats.completed}/{subStats.total}
                                                 </span>

@@ -3,7 +3,7 @@ import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import { DateTimeService } from '@/lib/domain/services/DateTimeService';
 import { ExportOptions } from '@/components/dashboard/ExportPDFModal';
-import { Insight } from './insightGenerator';
+import { Insight } from './InsightService';
 
 interface Stats {
     totalFocusTime: number;
