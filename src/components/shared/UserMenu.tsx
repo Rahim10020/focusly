@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "@/hooks/useAuth";
 import { ROUTES } from "@/constants";
+import { MyLoader } from "./MyLoader";
 
 export default function UserMenu() {
   const { data: session, status } = useSession();
@@ -15,12 +16,7 @@ export default function UserMenu() {
   }, [session?.user?.name, session?.user?.email]);
 
   if (status === "loading") {
-    return (
-      <div
-        className="w-9 h-9 rounded-full bg-muted animate-pulse"
-        aria-hidden="true"
-      />
-    );
+    return <MyLoader label="" />;
   }
 
   if (!session?.user) {
@@ -49,12 +45,12 @@ export default function UserMenu() {
 
       {open && (
         <div
-          className="absolute right-0 mt-2 w-48 rounded-xl border border-border bg-card shadow-lg p-2 z-50"
+          className="absolute right-0 mt-3 w-48 rounded-br-lg rounded-bl-lg border border-border bg-card shadow-md p-2 z-50"
           role="menu"
         >
           <Link
             href={ROUTES.PROFILE}
-            className="block w-full px-3 py-2 rounded-lg text-sm hover:bg-accent"
+            className="block w-full px-3 py-2  text-sm hover:bg-accent"
             role="menuitem"
             onClick={() => setOpen(false)}
           >
@@ -62,7 +58,7 @@ export default function UserMenu() {
           </Link>
           <Link
             href={ROUTES.SETTINGS}
-            className="block w-full px-3 py-2 rounded-lg text-sm hover:bg-accent"
+            className="block w-full px-3 py-2  text-sm hover:bg-accent"
             role="menuitem"
             onClick={() => setOpen(false)}
           >
@@ -70,7 +66,7 @@ export default function UserMenu() {
           </Link>
           <button
             type="button"
-            className="block w-full text-left px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-accent cursor-pointer"
+            className="block w-full text-left px-3 py-2 border-t border-black-10 text-sm text-red-500 hover:bg-accent cursor-pointer"
             role="menuitem"
             onClick={async () => {
               setOpen(false);

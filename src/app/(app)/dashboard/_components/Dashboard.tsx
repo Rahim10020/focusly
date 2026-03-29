@@ -292,7 +292,7 @@ export function Dashboard({ session }: DashboardProps) {
                   size="sm"
                   className="flex items-center gap-2"
                 >
-                  <AddPlusIcon size={16} />
+                  <AddPlusIcon />
                   New Task
                 </Button>
               </div>

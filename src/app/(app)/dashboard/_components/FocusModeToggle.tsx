@@ -26,13 +26,13 @@ export function FocusModeToggle({
       {isFocusMode ? (
         <>
           <CloseLgIcon size={16} />
-          Quitter Focus
+          Leave Focus mode
         </>
       ) : (
         <>
           {/* A changer apres quand j'aurai une meilleure icone */}
           <CircleIcon size={16} />
-          Mode Focus
+          Focus Mode
         </>
       )}
     </Button>
