@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import Card, { CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { formatTime } from '@/lib/utils/time';
+import { DateTimeService } from '@/lib/domain/services/DateTimeService';
 
 interface Session {
     started_at: string;

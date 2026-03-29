@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
-import { formatTime } from './time';
+import { DateTimeService } from '@/lib/domain/services/DateTimeService';
 import { ExportOptions } from '@/components/dashboard/ExportPDFModal';
 import { Insight } from './insightGenerator';
 

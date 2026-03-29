@@ -1,3 +1,4 @@
+import { DateTimeService } from "@/lib/domain/services/DateTimeService";
 /**
  * @fileoverview User Profile page for viewing other users in the Focusly application.
  * Displays user statistics, avatar, and provides friend request functionality

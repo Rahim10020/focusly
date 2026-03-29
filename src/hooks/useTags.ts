@@ -66,10 +66,10 @@ export function useTags() {
 
   // Set Supabase auth session when user logs in
   useEffect(() => {
-    if (session?.accessToken && session?.refreshToken) {
+    if (session?.accessToken) {
       supabaseClient.auth.setSession({
         access_token: session.accessToken,
-        refresh_token: session.refreshToken,
+        refresh_token: session.accessToken,
       });
     }
   }, [session]);

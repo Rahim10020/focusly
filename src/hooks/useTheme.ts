@@ -69,7 +69,7 @@ export function useTheme() {
     }
   });
   const { data: session } = useSession();
-  const preferredTheme = session?.user?.themePreference as Theme | undefined;
+  const preferredTheme = undefined; // TODO: implement themePreference
   const effectiveTheme = preferredTheme || theme;
 
   useEffect(() => {

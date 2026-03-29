@@ -10,7 +10,7 @@ import { usePomodoro } from '@/hooks/usePomodoro';
 import { useSettings } from '@/hooks/useSettings';
 import { useSound } from '@/hooks/useSound';
 import { useNotificationsContext } from '@/components/providers/NotificationsProvider';
-import { getProgress } from '@/lib/utils/time';
+import { DateTimeService } from '@/lib/domain/services/DateTimeService';
 import TimerDisplay from './TimerDisplay';
 import TimerControls from './TimerControls';
 import ProgressRing from './ProgressRing';

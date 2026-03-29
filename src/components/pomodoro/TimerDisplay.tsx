@@ -5,7 +5,7 @@
 
 'use client';
 
-import { formatTime } from '@/lib/utils/time';
+import { DateTimeService } from '@/lib/domain/services/DateTimeService';
 
 /**
  * Props for the TimerDisplay component.

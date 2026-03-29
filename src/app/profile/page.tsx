@@ -33,7 +33,7 @@ import { ROUTES } from "@/constants";
 import { useAppToast } from "@/hooks/useAppToast";
 
 export default function ProfilePage() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const { validationError, actionError, infoMessage } = useAppToast();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(session?.user?.name || "");
@@ -119,15 +119,15 @@ export default function ProfilePage() {
         imageUrl = publicUrl;
       }
 
-      const updates: { data: Record<string, unknown> } = { data: {} };
+      const updateSessions: { data: Record<string, unknown> } = { data: {} };
       const emailChanged = email !== session.user?.email;
 
       if (name !== session.user?.name) {
-        updates.data = { ...updates.data, name };
+        updateSessions.data = { ...updateSessions.data, name };
       }
 
       if (emailChanged) {
-        const { error } = await supabase.auth.updateUser(
+        const { error } = await supabase.auth.updateSessionUser(
           { email: email },
           {
             emailRedirectTo: `${window.location.origin}/verify-email`,
@@ -143,14 +143,14 @@ export default function ProfilePage() {
       }
 
       if (imageUrl !== session.user?.image) {
-        updates.data = { ...updates.data, image: imageUrl };
+        updateSessions.data = { ...updateSessions.data, image: imageUrl };
       }
 
-      if (Object.keys(updates).length > 0 && !emailChanged) {
-        const { error } = await supabase.auth.updateUser(updates);
+      if (Object.keys(updateSessions).length > 0 && !emailChanged) {
+        const { error } = await supabase.auth.updateSessionUser(updateSessions);
         if (error) throw error;
 
-        await update({
+        await updateSession({
           ...session,
           user: {
             ...session.user,
@@ -159,8 +159,8 @@ export default function ProfilePage() {
             image: imageUrl,
           },
         });
-      } else if (Object.keys(updates).length > 0) {
-        await update({
+      } else if (Object.keys(updateSessions).length > 0) {
+        await updateSession({
           ...session,
           user: {
             ...session.user,
@@ -177,7 +177,7 @@ export default function ProfilePage() {
       setImagePreview(null);
     } catch (error) {
       console.error("Error updating profile:", error);
-      actionError(error, "Failed to update profile.");
+      actionError(error, "Failed to updateSession profile.");
     } finally {
       setIsLoading(false);
     }

@@ -8,7 +8,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "@/hooks/useAuth";
+import { supabaseClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
@@ -31,20 +31,20 @@ export default function SignIn() {
     setError("");
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
+      const { error: signInError } =
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-      if (result?.error) {
+      if (signInError) {
         // Check if error is due to unconfirmed email
-        if (result.error.includes("Email not confirmed")) {
+        if (signInError.message.includes("Email not confirmed")) {
           setError("Please verify your email address before signing in.");
-        } else if (result.error === "CredentialsSignin") {
+        } else if (signInError.message.includes("Invalid login credentials")) {
           setError("Incorrect email or password");
         } else {
-          setError(result.error);
+          setError(signInError.message || "An error occurred");
         }
       } else {
         router.push(ROUTES.HOME);

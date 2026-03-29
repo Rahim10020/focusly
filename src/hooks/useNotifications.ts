@@ -325,7 +325,7 @@ export function useNotifications() {
       // ✅ AJOUT: Set Supabase auth session
       supabaseClient.auth.setSession({
         access_token: session.accessToken,
-        refresh_token: session.refreshToken!,
+        refresh_token: session.accessToken!,
       });
     } else {
       setNotifications([]);
@@ -333,7 +333,7 @@ export function useNotifications() {
   }, [
     session?.user,
     session?.accessToken,
-    session?.refreshToken,
+    session?.accessToken,
     fetchNotifications,
   ]);
 
