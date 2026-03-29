@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/useAuth";
 import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import Card, { CardContent } from "@/components/ui/Card";

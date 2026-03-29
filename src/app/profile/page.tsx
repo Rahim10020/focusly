@@ -8,7 +8,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/useAuth";
 import { redirect } from "next/navigation";
 import Header from "@/components/layout/Header";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";

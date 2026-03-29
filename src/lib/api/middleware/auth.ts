@@ -1,11 +1,10 @@
 /**
  * @fileoverview Authentication middleware for API routes.
- * Handles session validation and user context extraction.
- * Replaces manual auth checks across all routes.
+ * Handles session validation and user context extraction via Supabase SSR.
  */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
 import { Errors } from "../utils/response";
 import type { ApiHandler, ApiMiddleware } from "./validation";
@@ -19,9 +18,6 @@ export interface AuthContext {
   sessionToken: string;
 }
 
-/**
- * API Handler with auth context
- */
 export type AuthenticatedApiHandler = (
   req: any,
   context: unknown,
@@ -29,99 +25,75 @@ export type AuthenticatedApiHandler = (
   auth: AuthContext,
 ) => Promise<any>;
 
-/**
- * Middleware to require authentication
- * Validates session and returns 401 if not authenticated
- * Injects AuthContext as 4th parameter to handler
- *
- * @example
- * export const GET = compose(
- *   withErrorHandling(),
- *   withAuthRequired(),
- *   withLogging()
- * )(async (req, context, data, auth) => {
- *   // auth.userId is guaranteed to be set
- *   return successResponse({ userId: auth.userId });
- * });
- */
+async function getSupabaseServerSession() {
+  const cookieStore = await cookies();
+  
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set({ name, value, ...options })
+            });
+          } catch {
+            // Read-only error ignored in API routes
+          }
+        },
+      },
+    }
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+  return session;
+}
+
 export function withAuthRequired(): ApiMiddleware {
   return (handler: ApiHandler) => {
     return async (req: any, context: unknown, validatedData: unknown) => {
       try {
-        const session = await getServerSession(authOptions);
+        const session = await getSupabaseServerSession();
 
         if (!session?.user?.id) {
-          logger.error(
-            "Unauthorized API access attempt",
-            new Error("No session"),
-            {
-              method: req.method,
-              url: req.url,
-            },
-          );
           return Errors.unauthorized();
         }
 
-        // Extract auth context
         const authContext: AuthContext = {
           userId: session.user.id,
           userEmail: session.user.email || "",
-          sessionToken: (session.accessToken as string) || "",
+          sessionToken: session.access_token,
         };
 
-        // Call handler with auth context
         return await (handler as any)(req, context, validatedData, authContext);
       } catch (error) {
-        logger.error("Auth middleware error", error as Error, {
-          method: req.method,
-          url: req.url,
-        });
         return Errors.internal("Authentication failed");
       }
     };
   };
 }
 
-/**
- * Middleware to optionally authenticate
- * Returns AuthContext if session exists, undefined otherwise
- * Allows routes to work both authenticated and unauthenticated
- *
- * @example
- * export const GET = compose(
- *   withErrorHandling(),
- *   withOptionalAuth(),
- *   withLogging()
- * )(async (req, context, data, auth) => {
- *   if (auth) {
- *     return successResponse({ content: 'private', userId: auth.userId });
- *   }
- *   return successResponse({ content: 'public' });
- * });
- */
 export function withOptionalAuth(): ApiMiddleware {
   return (handler: ApiHandler) => {
     return async (req: any, context: unknown, validatedData: unknown) => {
       try {
-        const session = await getServerSession(authOptions);
+        const session = await getSupabaseServerSession();
 
         let authContext: AuthContext | undefined;
         if (session?.user?.id) {
           authContext = {
             userId: session.user.id,
             userEmail: session.user.email || "",
-            sessionToken: (session.accessToken as string) || "",
+            sessionToken: session.access_token,
           };
         }
 
-        // Call handler with optional auth context
         return await (handler as any)(req, context, validatedData, authContext);
       } catch (error) {
-        logger.error("Optional auth middleware error", error as Error, {
-          method: req.method,
-          url: req.url,
-        });
-        // Continue without auth on error
         return await (handler as ApiHandler)(req, context, validatedData);
       }
     };

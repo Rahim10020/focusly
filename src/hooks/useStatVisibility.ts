@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabaseClient as supabase } from '@/lib/supabase/client';
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/hooks/useAuth';
 
 /**
  * Represents a single stat visibility setting.

@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/useAuth";
 import { useLocalStorage } from "./useLocalStorage";
 import { Tag } from "@/types";
 import { supabaseClient } from "@/lib/supabase/client";

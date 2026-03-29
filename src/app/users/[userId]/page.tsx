@@ -8,7 +8,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/useAuth";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import Header from "@/components/layout/Header";

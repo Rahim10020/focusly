@@ -9,7 +9,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/useAuth";
 import Header from "@/components/layout/Header";
 import TaskModal, { TaskFormData } from "@/components/tasks/modals/TaskModal";
 import { useTasks } from "@/hooks/useTasks";

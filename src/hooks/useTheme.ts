@@ -7,7 +7,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/useAuth";
 import { API_ROUTES, STORAGE_KEYS } from "@/constants";
 
 /**

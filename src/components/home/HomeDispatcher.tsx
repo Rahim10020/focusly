@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/useAuth";
 import { LandingPage } from "@/components/home/LandingPage";
 import { Dashboard } from "@/components/home/Dashboard";
 import { MyLoader } from "@/components/shared/MyLoader";

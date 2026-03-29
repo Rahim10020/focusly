@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/useAuth";
 import { Task, Priority } from "@/types";
 import { StorageService } from "@/lib/domain/services/StorageService";
 import {

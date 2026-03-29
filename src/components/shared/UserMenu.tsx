@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signOut } from "@/hooks/useAuth";
 import { ROUTES } from "@/constants";
 
 export default function UserMenu() {

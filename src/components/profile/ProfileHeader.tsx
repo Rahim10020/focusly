@@ -6,7 +6,7 @@
 "use client";
 
 import { useRef } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/useAuth";
 import Image from "next/image";
 import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";

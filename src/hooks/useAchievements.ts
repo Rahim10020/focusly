@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/hooks/useAuth';
 import { Achievement } from '@/types';
 import { supabaseClient } from '@/lib/supabase/client';
 import { retryWithBackoff } from '@/lib/utils/retry';

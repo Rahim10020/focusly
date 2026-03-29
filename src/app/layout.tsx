@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
-import { SessionProvider } from "@/components/providers/SessionProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import KeyboardShortcutsProvider from "@/components/providers/KeyboardShortcutsProvider";
@@ -94,15 +93,13 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Focusly" />
       </head>
       <body className="antialiased font-sans">
-        <SessionProvider>
-          <ThemeProvider>
-            <ToastProvider>
-              <KeyboardShortcutsProvider>
-                <NotificationsProvider>{children}</NotificationsProvider>
-              </KeyboardShortcutsProvider>
-            </ToastProvider>
-          </ThemeProvider>
-        </SessionProvider>
+        <ThemeProvider>
+          <ToastProvider>
+            <KeyboardShortcutsProvider>
+              <NotificationsProvider>{children}</NotificationsProvider>
+            </KeyboardShortcutsProvider>
+          </ToastProvider>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

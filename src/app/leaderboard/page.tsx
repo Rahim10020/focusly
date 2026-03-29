@@ -8,7 +8,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Card, { CardContent } from "@/components/ui/Card";
