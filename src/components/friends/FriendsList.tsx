@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import { DYNAMIC_ROUTES } from "@/lib/constants";
+import { DYNAMIC_ROUTES } from "@/constants";
 
 interface Friend {
   id: string;

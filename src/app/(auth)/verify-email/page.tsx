@@ -12,8 +12,8 @@ import { supabaseClient as supabase } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import { ROUTES } from "@/lib/constants";
-import { MyLoader } from "@/components/ui/MyLoader";
+import { ROUTES } from "@/constants";
+import { MyLoader } from "@/components/shared/MyLoader";
 import { WavyCheckIcon } from "@/components/shared/icons";
 
 function VerifyEmailContent() {

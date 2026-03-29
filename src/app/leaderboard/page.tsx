@@ -14,18 +14,18 @@ import Header from "@/components/layout/Header";
 import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { LeaderboardUser, LeaderboardResponse } from "@/types/leaderboard";
-import { DYNAMIC_ROUTES, ROUTES } from "@/lib/constants";
-import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/lib/constants";
-import { MyLoader } from "@/components/ui/MyLoader";
+import { DYNAMIC_ROUTES, ROUTES } from "@/constants";
+import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/constants";
+import { MyLoader } from "@/components/shared/MyLoader";
 import { formatHoursMinutesFromSeconds } from "@/lib/utils/stats-calculations";
 import { InfoIcon } from "@/components/shared/icons";
-import { useAppToast } from "@/lib/hooks/useAppToast";
+import { useAppToast } from "@/hooks/useAppToast";
 import { CacheService } from "@/lib/services/cacheService";
 import { LeaderboardHeader } from "@/components/leaderboard/LeaderboardHeader";
 import { LeaderboardPodium } from "@/components/leaderboard/LeaderboardPodium";
 import { LeaderboardList } from "@/components/leaderboard/LeaderboardList";
 import { LeaderboardPagination } from "@/components/leaderboard/LeaderboardPagination";
-import { LEADERBOARD_DEFAULTS } from "@/lib/constants";
+import { LEADERBOARD_DEFAULTS } from "@/constants";
 
 interface FriendData {
   id: string;

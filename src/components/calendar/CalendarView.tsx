@@ -27,7 +27,7 @@ import { CalendarHeader } from "./CalendarHeader";
 import { PriorityLegend } from "./PriorityLegend";
 import { MyLoader } from "../ui/MyLoader";
 import { CheckboxCheckIcon } from "../../shared/icons";
-import { useAppToast } from "@/lib/hooks/useAppToast";
+import { useAppToast } from "@/hooks/useAppToast";
 
 interface CalendarViewProps {
   tasks: Task[];

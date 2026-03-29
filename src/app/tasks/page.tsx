@@ -15,14 +15,14 @@ import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import TasksView from "@/components/tasks/views/TasksView";
 import QuickAddTask from "@/components/tasks/forms/QuickAddTask";
 import Button from "@/components/ui/Button";
-import { useTasks } from "@/lib/hooks/useTasks";
-import { useTags } from "@/lib/hooks/useTags";
-import { useStats } from "@/lib/hooks/useStats";
-import { useAchievements } from "@/lib/hooks/useAchievements";
+import { useTasks } from "@/hooks/useTasks";
+import { useTags } from "@/hooks/useTags";
+import { useStats } from "@/hooks/useStats";
+import { useAchievements } from "@/hooks/useAchievements";
 import { Task } from "@/types";
 import AchievementNotification from "@/components/achievements/AchievementNotification";
-import { ROUTES } from "@/lib/constants";
-import { MyLoader } from "@/components/ui/MyLoader";
+import { ROUTES } from "@/constants";
+import { MyLoader } from "@/components/shared/MyLoader";
 import { AddPlusIcon } from "@/components/shared/icons";
 
 export default function TasksPage() {

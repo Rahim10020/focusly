@@ -9,7 +9,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { TimerStatus, PomodoroSession } from "@/types";
 import { TimerSettings } from "./useSettings";
 import { logger } from "@/lib/logger";
-import { STORAGE_KEYS, TIME_MS } from "@/lib/constants";
+import { STORAGE_KEYS, TIME_MS } from "@/constants";
 
 /**
  * Configuration options for the usePomodoro hook.

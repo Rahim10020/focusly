@@ -5,7 +5,7 @@
  */
 
 import { toTimestamp } from "./conversion-helpers";
-import { TIME_MS } from "@/lib/constants";
+import { TIME_MS } from "@/constants";
 
 /**
  * Type for dates that can be either timestamp or ISO string

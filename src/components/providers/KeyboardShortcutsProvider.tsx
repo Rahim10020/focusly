@@ -3,10 +3,10 @@
 import {
   useKeyboardShortcuts,
   GLOBAL_SHORTCUTS,
-} from "@/lib/hooks/useKeyboardShortcuts";
+} from "@/hooks/useKeyboardShortcuts";
 import { useRouter } from "next/navigation";
 import { useTheme } from "./ThemeProvider";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES } from "@/constants";
 
 interface KeyboardShortcutsProviderProps {
   children: React.ReactNode;

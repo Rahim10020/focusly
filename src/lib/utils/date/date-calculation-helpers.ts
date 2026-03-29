@@ -5,7 +5,7 @@
  */
 
 import { toTimestamp, DateInput } from "./conversion-helpers";
-import { TIME_MS } from "@/lib/constants";
+import { TIME_MS } from "@/constants";
 
 /**
  * Gets the start of day (00:00:00) for a given date.

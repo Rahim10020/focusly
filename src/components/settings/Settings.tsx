@@ -10,8 +10,8 @@ import { useState } from "react";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { TimerSettings } from "@/lib/hooks/useSettings";
-import { useStatVisibility } from "@/lib/hooks/useStatVisibility";
+import { TimerSettings } from "@/hooks/useSettings";
+import { useStatVisibility } from "@/hooks/useStatVisibility";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
 import { PresetProfiles } from "./PresetProfiles";
 import { AutoStartSettings } from "./AutoStartSettings";
@@ -21,7 +21,7 @@ import {
   POMODORO_CYCLES_FOR_LONG_BREAK,
   POMODORO_DURATION,
   SHORT_BREAK,
-} from "@/lib/constants";
+} from "@/constants";
 
 /**
  * Predefined timer profiles for common Pomodoro techniques

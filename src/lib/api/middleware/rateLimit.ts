@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { rateLimit } from "@/lib/rateLimit";
 import { Errors } from "../utils/response";
 import type { ApiHandler, ApiMiddleware } from "./validation";
-import { RATE_LIMIT_WINDOWS_MS } from "@/lib/constants";
+import { RATE_LIMIT_WINDOWS_MS } from "@/constants";
 
 /**
  * Rate limit tier configurations

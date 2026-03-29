@@ -12,10 +12,10 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Header from "@/components/layout/Header";
 import TaskModal, { TaskFormData } from "@/components/tasks/modals/TaskModal";
-import { useTasks } from "@/lib/hooks/useTasks";
-import { useTags } from "@/lib/hooks/useTags";
-import { ROUTES } from "@/lib/constants";
-import { MyLoader } from "@/components/ui/MyLoader";
+import { useTasks } from "@/hooks/useTasks";
+import { useTags } from "@/hooks/useTags";
+import { ROUTES } from "@/constants";
+import { MyLoader } from "@/components/shared/MyLoader";
 
 export default function CreateTaskPage() {
   const router = useRouter();

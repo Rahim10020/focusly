@@ -8,7 +8,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { API_ROUTES, STORAGE_KEYS } from "@/lib/constants";
+import { API_ROUTES, STORAGE_KEYS } from "@/constants";
 
 /**
  * Available theme options.

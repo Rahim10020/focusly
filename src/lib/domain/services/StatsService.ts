@@ -10,7 +10,7 @@
 
 import { PomodoroSession, Stats, Task } from "@/types";
 import { DateTimeService } from "./DateTimeService";
-import { TIME_SECONDS } from "@/lib/constants";
+import { TIME_SECONDS } from "@/constants";
 import { addDays } from "date-fns";
 
 /**
@@ -74,7 +74,9 @@ export class StatsService {
     );
 
     return {
-      active: tasks.filter((t) => t.status === "todo" || t.status === "in-progress"),
+      active: tasks.filter(
+        (t) => t.status === "todo" || t.status === "in-progress",
+      ),
       inProgress,
       upcoming,
       completed: tasks.filter((t) => t.status === "done" || t.completed),
@@ -106,7 +108,9 @@ export class StatsService {
       postponed: categorized.postponed?.length || 0,
       cancelled: categorized.cancelled?.length || 0,
       completionRate:
-        totalVisible > 0 ? (categorized.completed.length / totalVisible) * 100 : 0,
+        totalVisible > 0
+          ? (categorized.completed.length / totalVisible) * 100
+          : 0,
       failureRate:
         totalVisible > 0 ? (categorized.failed.length / totalVisible) * 100 : 0,
       totalVisible,

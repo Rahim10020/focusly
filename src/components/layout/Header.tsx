@@ -8,11 +8,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import ThemeToggle from "../ui/ThemeToggle";
+import ThemeToggle from "../shared/ThemeToggle";
 import UserMenu from "../shared/UserMenu";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
-import { ROUTES } from "@/lib/constants";
-import AppLogo from "../ui/AppLogo";
+import { ROUTES } from "@/constants";
+import AppLogo from "../shared/AppLogo";
 import { BellIcon } from "../shared/icons";
 
 export default function Header() {

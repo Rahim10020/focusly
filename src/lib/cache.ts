@@ -7,10 +7,10 @@
 
 import { CacheOptions, CacheStats } from "./cache-components/cacheTypes";
 import { MemoryCache } from "./cache-components/memoryCache";
-import { SupabaseCache } from "@/lib/cache-components/supabaseCache";
+import { SupabaseCache } from "@/components/cache/supabaseCache";
 import { logger } from "./logger";
 import type { Json } from "@/lib/supabase/database.types";
-import { CACHE_DEFAULT_TTL_MS, TIME_MS } from "@/lib/constants";
+import { CACHE_DEFAULT_TTL_MS, TIME_MS } from "@/constants";
 
 /**
  * Multi-level cache utility class with L1 (memory) and L2 (Supabase) layers.

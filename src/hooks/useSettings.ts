@@ -5,7 +5,7 @@
  */
 
 import { useLocalStorage } from "./useLocalStorage";
-import { STORAGE_KEYS, TIMER_DEFAULTS } from "@/lib/constants";
+import { STORAGE_KEYS, TIMER_DEFAULTS } from "@/constants";
 
 /**
  * Timer configuration settings interface.

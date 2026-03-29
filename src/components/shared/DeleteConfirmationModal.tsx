@@ -2,10 +2,10 @@
  * @fileoverview Reusable delete confirmation modal component
  */
 
-'use client';
+"use client";
 
-import Button from '@/components/ui/Button';
-import Modal from '@/components/ui/Modal';
+import Button from "@/components/ui/Button";
+import Modal from "@/components/shared/Modal";
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -21,8 +21,8 @@ export function DeleteConfirmationModal({
   isOpen,
   onClose,
   onConfirm,
-  title = 'Delete Item',
-  description = 'Are you sure you want to delete this item? This action cannot be undone.',
+  title = "Delete Item",
+  description = "Are you sure you want to delete this item? This action cannot be undone.",
   itemName,
   warningNote,
 }: DeleteConfirmationModalProps) {
@@ -31,7 +31,11 @@ export function DeleteConfirmationModal({
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      description={itemName ? `Are you sure you want to delete "${itemName}"? ${description}` : description}
+      description={
+        itemName
+          ? `Are you sure you want to delete "${itemName}"? ${description}`
+          : description
+      }
       footer={
         <div className="flex gap-3 justify-end">
           <Button variant="outline" onClick={onClose}>

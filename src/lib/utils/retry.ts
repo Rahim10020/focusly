@@ -6,7 +6,7 @@
  */
 
 import { logger } from "../logger";
-import { TIME_MS } from "@/lib/constants";
+import { TIME_MS } from "@/constants";
 
 /**
  * Error types that should not be retried

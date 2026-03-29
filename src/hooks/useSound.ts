@@ -5,7 +5,7 @@
  */
 
 import { useCallback, useRef, useState, useEffect } from "react";
-import { STORAGE_KEYS } from "@/lib/constants";
+import { STORAGE_KEYS } from "@/constants";
 
 /**
  * Creates a simple beep sound using Web Audio API.

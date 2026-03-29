@@ -2,7 +2,7 @@
  * @fileoverview Badge component for displaying task due dates with contextual styling.
  */
 
-import { TIME_MS } from "@/lib/constants";
+import { TIME_MS } from "@/constants";
 
 /**
  * Props for the DueDateBadge component.

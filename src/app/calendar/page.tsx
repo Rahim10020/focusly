@@ -12,12 +12,12 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
-import { useTasks } from "@/lib/hooks/useTasks";
-import { useTags } from "@/lib/hooks/useTags";
+import { useTasks } from "@/hooks/useTasks";
+import { useTags } from "@/hooks/useTags";
 import { Task } from "@/types";
 import TaskDetailsModal from "@/components/tasks/modals/TaskDetailsModal";
-import { MyLoader } from "@/components/ui/MyLoader";
-import { ROUTES } from "@/lib/constants";
+import { MyLoader } from "@/components/shared/MyLoader";
+import { ROUTES } from "@/constants";
 
 // Lazy load CalendarView for better performance
 const CalendarView = dynamic(

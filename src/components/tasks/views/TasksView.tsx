@@ -9,7 +9,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Task, Tag, TaskStatus } from "@/types";
-import { MyLoader } from "../../ui/MyLoader";
+import { MyLoader } from "../../shared/MyLoader";
 import { ListUnorderedIcon, TableIcon } from "../../shared/icons";
 
 // Lazy load view components as they are heavy and conditional

@@ -16,8 +16,8 @@ import { ProfileStatsGrid } from "@/components/profile/ProfileStatsGrid";
 import { ActivityOverview } from "@/components/profile/ActivityOverview";
 import { DomainDistribution } from "@/components/profile/DomainDistribution";
 import { supabaseClient as supabase } from "@/lib/supabase/client";
-import { useTasks } from "@/lib/hooks/useTasks";
-import { useStats } from "@/lib/hooks/useStats";
+import { useTasks } from "@/hooks/useTasks";
+import { useStats } from "@/hooks/useStats";
 import {
   getDomainDistribution,
   getFocusHours,
@@ -28,9 +28,9 @@ import {
   isValidImageFile,
   formatFileSize,
 } from "@/lib/utils/imageCompression";
-import { MyLoader } from "@/components/ui/MyLoader";
-import { ROUTES } from "@/lib/constants";
-import { useAppToast } from "@/lib/hooks/useAppToast";
+import { MyLoader } from "@/components/shared/MyLoader";
+import { ROUTES } from "@/constants";
+import { useAppToast } from "@/hooks/useAppToast";
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();

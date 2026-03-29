@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { PomodoroSession } from "@/types";
-import { TIME_MS } from "@/lib/constants";
+import { TIME_MS } from "@/constants";
 import {
   LineChart,
   Line,

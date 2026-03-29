@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES } from "@/constants";
 
 export type AppLogoProps = {
   iconSize: number;

@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import KeyboardShortcutsProvider from "@/components/providers/KeyboardShortcutsProvider";
 import "./globals.css";
 import { NotificationsProvider } from "@/components/providers/NotificationsProvider";
-import { STORAGE_KEYS } from "@/lib/constants";
+import { STORAGE_KEYS } from "@/constants";
 
 export const metadata: Metadata = {
   title: {

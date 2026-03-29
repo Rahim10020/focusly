@@ -4,7 +4,7 @@
 
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES } from "@/constants";
 import { ArrowRightLgIcon } from "../../shared/icons";
 
 export function LandingPage() {

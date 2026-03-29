@@ -11,7 +11,7 @@
 
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "./database.types";
-import { TIME_MS } from "@/lib/constants";
+import { TIME_MS } from "@/constants";
 
 /**
  * Creates a server-side Supabase admin client with SERVICE_ROLE key.

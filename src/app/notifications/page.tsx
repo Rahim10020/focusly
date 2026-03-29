@@ -14,8 +14,8 @@ import Header from "@/components/layout/Header";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
-import { ROUTES } from "@/lib/constants";
-import { MyLoader } from "@/components/ui/MyLoader";
+import { ROUTES } from "@/constants";
+import { MyLoader } from "@/components/shared/MyLoader";
 
 export default function NotificationsPage() {
   const router = useRouter();

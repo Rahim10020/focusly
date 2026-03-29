@@ -9,7 +9,7 @@
  * - Type-safe operations
  */
 
-import { STORAGE_KEYS, StorageKey } from "@/lib/constants";
+import { STORAGE_KEYS, StorageKey } from "@/constants";
 import type { Json } from "@/lib/supabase/database.types";
 
 export interface StorageOptions {

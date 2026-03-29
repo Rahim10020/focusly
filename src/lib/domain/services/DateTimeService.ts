@@ -8,7 +8,7 @@
  * - useStatsUtils
  */
 
-import { TIME_MS, TIME_SECONDS } from "@/lib/constants";
+import { TIME_MS, TIME_SECONDS } from "@/constants";
 import {
   addDays,
   startOfDay,

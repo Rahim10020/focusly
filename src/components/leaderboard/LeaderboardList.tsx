@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { LeaderboardUser } from "@/types/leaderboard";
-import { DYNAMIC_ROUTES } from "@/lib/constants";
+import { DYNAMIC_ROUTES } from "@/constants";
 import UsersIcon from "../../shared/icons/UsersIcon";
 
 interface LeaderboardListProps {

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Task } from "@/types";
-import { useAppToast } from "@/lib/hooks/useAppToast";
+import { useAppToast } from "@/hooks/useAppToast";
 
 interface FailTaskModalProps {
   task: Task;

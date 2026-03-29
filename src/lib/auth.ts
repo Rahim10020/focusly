@@ -10,7 +10,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { createClient } from "@supabase/supabase-js";
 import type { JWT } from "next-auth/jwt";
 import { logger } from "@/lib/logger";
-import { TIME_MS } from "@/lib/constants";
+import { TIME_MS } from "@/constants";
 
 /**
  * NextAuth.js configuration options.

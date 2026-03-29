@@ -14,8 +14,8 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { ROUTES } from "@/lib/constants";
-import { MyLoader } from "@/components/ui/MyLoader";
+import { ROUTES } from "@/constants";
+import { MyLoader } from "@/components/shared/MyLoader";
 import { ArrowRightLgIcon } from "@/components/shared/icons";
 
 export default function SignIn() {

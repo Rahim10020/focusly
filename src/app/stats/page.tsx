@@ -10,12 +10,12 @@
 import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { useAchievements } from "@/lib/hooks/useAchievements";
-import { useTasks } from "@/lib/hooks/useTasks";
-import { useStats } from "@/lib/hooks/useStats";
+import { useAchievements } from "@/hooks/useAchievements";
+import { useTasks } from "@/hooks/useTasks";
+import { useStats } from "@/hooks/useStats";
 import { StatsService } from "@/lib/domain/services/StatsService";
 import { useState, useMemo } from "react";
-import { MyLoader } from "@/components/ui/MyLoader";
+import { MyLoader } from "@/components/shared/MyLoader";
 import StatsCard from "@/components/stats/StatsCard";
 
 // Lazy load heavy chart components

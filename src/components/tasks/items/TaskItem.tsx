@@ -9,12 +9,12 @@
 import { useState, memo, type HTMLAttributes } from "react";
 import { Task, Tag, DOMAINS, getDomainFromSubDomain } from "@/types";
 import Button from "@/components/ui/Button";
-import PriorityBadge from "@/components/ui/badges/PriorityBadge";
-import TagBadge from "@/components/ui/badges/TagBadge";
-import DueDateBadge from "@/components/ui/badges/DueDateBadge";
-import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
+import PriorityBadge from "@/components/shared/badges/PriorityBadge";
+import TagBadge from "@/components/shared/badges/TagBadge";
+import DueDateBadge from "@/components/shared/badges/DueDateBadge";
+import { DeleteConfirmationModal } from "@/components/shared/DeleteConfirmationModal";
 import TaskDetailsModal from "../../../components/tasks/modals/TaskDetailsModal";
-import { useSound } from "@/lib/hooks/useSound";
+import { useSound } from "@/hooks/useSound";
 import { RecurrenceService } from "@/lib/services/recurrenceService";
 import { DragHorizontalIcon, TrashEmptyIcon } from "../../shared/icons";
 import EditPencilIcon from "../../shared/icons/EditPencilIcon";

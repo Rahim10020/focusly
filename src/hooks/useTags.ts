@@ -10,7 +10,7 @@ import { useLocalStorage } from "./useLocalStorage";
 import { Tag } from "@/types";
 import { supabaseClient } from "@/lib/supabase/client";
 import { retryWithBackoff } from "@/lib/utils/retry";
-import { STORAGE_KEYS } from "@/lib/constants";
+import { STORAGE_KEYS } from "@/constants";
 
 /**
  * Default tags provided for new users.

@@ -14,8 +14,8 @@ import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import { useTasks } from "@/lib/hooks/useTasks";
-import { useStats } from "@/lib/hooks/useStats";
+import { useTasks } from "@/hooks/useTasks";
+import { useStats } from "@/hooks/useStats";
 import {
   exportTasksToPDF,
   exportTasksToCSV,
@@ -34,8 +34,8 @@ const ExportPDFModal = dynamic(
 );
 
 import type { ExportOptions } from "@/components/dashboard/ExportPDFModal";
-import { MyLoader } from "@/components/ui/MyLoader";
-import { ROUTES } from "@/lib/constants";
+import { MyLoader } from "@/components/shared/MyLoader";
+import { ROUTES } from "@/constants";
 import { getTaskCompletionStats } from "@/lib/utils/stats-calculations";
 import {
   CalendarIcon,

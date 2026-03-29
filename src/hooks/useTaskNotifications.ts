@@ -6,7 +6,7 @@
 
 import { useEffect } from "react";
 import { Task } from "@/types";
-import { TIME_MS } from "@/lib/constants";
+import { TIME_MS } from "@/constants";
 
 /**
  * Configuration props for useTaskNotifications hook.

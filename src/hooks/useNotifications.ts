@@ -11,7 +11,7 @@ import {
   playNotificationSound,
   NotificationSoundType,
 } from "@/lib/utils/notificationSounds";
-import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/lib/constants";
+import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/constants";
 
 // Simple in-memory cache to reduce duplicate fetches during dev/hot-reload or multiple mounts
 const CACHE_TTL_MS = 30 * 1000; // 30 seconds

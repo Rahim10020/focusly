@@ -21,24 +21,24 @@ import { TimerSettingsButton } from "@/components/dashboard/TimerSettingsButton"
 
 // Lazy load heavy or conditional components
 const KeyboardShortcutsModal = dynamic(
-  () => import("@/components/ui/KeyboardShortcutsModal"),
+  () => import("@/components/shared/KeyboardShortcutsModal"),
   { ssr: false },
 );
-import { useTasks } from "@/lib/hooks/useTasks";
-import { useCachedStats } from "@/lib/hooks/useCachedStats";
-import { useAchievements } from "@/lib/hooks/useAchievements";
-import { useTags } from "@/lib/hooks/useTags";
+import { useTasks } from "@/hooks/useTasks";
+import { useCachedStats } from "@/hooks/useCachedStats";
+import { useAchievements } from "@/hooks/useAchievements";
+import { useTags } from "@/hooks/useTags";
 import {
   useKeyboardShortcuts,
   GLOBAL_SHORTCUTS,
-} from "@/lib/hooks/useKeyboardShortcuts";
-import { useTaskNotifications } from "@/lib/hooks/useTaskNotifications";
+} from "@/hooks/useKeyboardShortcuts";
+import { useTaskNotifications } from "@/hooks/useTaskNotifications";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { Task } from "@/types";
 import type { PomodoroSession } from "@/types";
 import { getAllImminentTasks } from "@/lib/utils/taskUtils";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES } from "@/constants";
 import { AddPlusIcon } from "../shared/icons";
 
 interface DashboardProps {

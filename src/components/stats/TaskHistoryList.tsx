@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { Task } from "@/types";
-import { useTasks } from "@/lib/hooks/useTasks";
+import { useTasks } from "@/hooks/useTasks";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { FailTaskModal } from "./FailTaskModal";
-import { DYNAMIC_ROUTES } from "@/lib/constants";
+import { DYNAMIC_ROUTES } from "@/constants";
 
 interface TaskHistoryListProps {
   tasks: Task[];
