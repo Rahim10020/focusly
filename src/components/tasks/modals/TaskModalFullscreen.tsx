@@ -2,13 +2,13 @@
  * @fileoverview TaskModalFullscreen component for fullscreen mode content.
  */
 
-import TaskTitleInput from "../forms/TaskTitleInput";
-import PrioritySelector from "../forms/PrioritySelector";
-import TagsSelector from "../forms/TagsSelector";
-import ScheduleDuration from "../forms/ScheduleDuration";
-import NotesField from "../forms/NotesField";
-import CategorySelector from "../forms/CategorySelector";
-import SubTaskManager from "../items/SubTaskManager";
+import TaskTitleInput from "@/app/(app)/tasks/_components/forms/TaskTitleInput";
+import PrioritySelector from "@/app/(app)/tasks/_components/forms/PrioritySelector";
+import TagsSelector from "@/app/(app)/tasks/_components/forms/TagsSelector";
+import ScheduleDuration from "@/app/(app)/tasks/_components/forms/ScheduleDuration";
+import NotesField from "@/app/(app)/tasks/_components/forms/NotesField";
+import CategorySelector from "@/app/(app)/tasks/_components/forms/CategorySelector";
+import SubTaskManager from "@/app/(app)/tasks/_components/items/SubTaskManager";
 import {
   Tag,
   SubDomain,

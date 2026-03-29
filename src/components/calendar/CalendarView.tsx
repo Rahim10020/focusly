@@ -24,8 +24,8 @@ import {
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
-import { CalendarHeader } from "./CalendarHeader";
-import { PriorityLegend } from "./PriorityLegend";
+import { CalendarHeader } from "@/app/(app)/calendar/_components/CalendarHeader";
+import { PriorityLegend } from "@/app/(app)/calendar/_components/PriorityLegend";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { CheckboxCheckIcon } from "@/components/shared/icons";
 import { useAppToast } from "@/hooks/useAppToast";
