@@ -2,10 +2,10 @@
  * @fileoverview Toggle button component for switching between light and dark themes.
  */
 
-'use client';
+"use client";
 
-import { Moon, Sun } from 'lucide-react';
-import { useTheme } from '@/components/providers/ThemeProvider';
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 /**
  * A button component for toggling between light and dark themes.
@@ -21,24 +21,26 @@ import { useTheme } from '@/components/providers/ThemeProvider';
  * </header>
  */
 export default function ThemeToggle() {
-    const { theme, toggleTheme, mounted } = useTheme();
+  const { theme, toggleTheme, mounted } = useTheme();
 
-    // Éviter le flash pendant l'hydratation
-    if (!mounted) {
-        return <div className="p-2 rounded-full w-9 h-9" />;
-    }
+  // Éviter le flash pendant l'hydratation
+  if (!mounted) {
+    return <div className="p-2 rounded-full w-9 h-9" />;
+  }
 
-    return (
-        <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full cursor-pointer hover:bg-muted transition-colors"
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-        >
-            {theme === 'dark' ? (
-                <Sun className="h-5 w-5 text-brand-secondary" />
-            ) : (
-                <Moon className="h-5 w-5 text-muted-foreground" />
-            )}
-        </button>
-    );
+  return (
+    <button
+      onClick={toggleTheme}
+      className="p-2 rounded-full cursor-pointer hover:bg-muted transition-colors"
+      aria-label={
+        theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+      }
+    >
+      {theme === "dark" ? (
+        <Sun className="h-4 w-4 text-brand-secondary" />
+      ) : (
+        <Moon className="h-4 w-4 text-muted-foreground" />
+      )}
+    </button>
+  );
 }

@@ -19,8 +19,8 @@ export function FocusModeToggle({
   return (
     <Button
       onClick={onToggle}
-      className="fixed top-3 right-[500px] z-50"
-      variant={isFocusMode ? "primary" : "outline"}
+      className="fixed top-2.5 right-50 z-50"
+      variant={isFocusMode ? "outline" : "primary"}
       title="Toggle Focus Mode (F)"
     >
       {isFocusMode ? (

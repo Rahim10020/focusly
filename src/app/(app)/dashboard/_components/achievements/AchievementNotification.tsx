@@ -66,13 +66,13 @@ export default function AchievementNotification({
 
   return (
     <div
-      className={`fixed top-20 right-6 z-50 transition-all duration-300 ${
-        isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+      className={`fixed bottom-16 right-6 z-50 transition-all duration-300 ${
+        isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
       }`}
     >
-      <div className="bg-card border-2 border-primary rounded-2xl shadow-2xl p-6 max-w-sm">
+      <div className="bg-card border-2 border-primary rounded-lg shadow-lg p-6 max-w-sm">
         <div className="flex items-start gap-4">
-          <div className="text-5xl">{achievement.icon}</div>
+          <div className="text-4xl">{achievement.icon}</div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-semibold text-primary uppercase tracking-wide">

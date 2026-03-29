@@ -63,7 +63,8 @@ export default function Header() {
             Leaderboard
           </Link>
 
-          <div className="ml-25 flex items-center gap-6">
+          <div className="ml-25 flex items-center gap-2">
+            <ThemeToggle />
             <Link
               href={ROUTES.NOTIFICATIONS}
               className={`p-2 rounded-full transition-colors relative ${pathname === ROUTES.NOTIFICATIONS ? "bg-accent" : "hover:bg-accent"}`}
@@ -77,7 +78,6 @@ export default function Header() {
                 </span>
               )}
             </Link>
-            <ThemeToggle />
             <UserMenu />
           </div>
         </nav>
