@@ -1,9 +1,9 @@
+"use client";
+
 import { DateTimeService } from "@/lib/domain/services/DateTimeService";
 /**
  * @fileoverview Leaderboard list component
  */
-
-"use client";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";

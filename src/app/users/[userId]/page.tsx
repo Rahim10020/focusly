@@ -1,3 +1,5 @@
+"use client";
+
 import { DateTimeService } from "@/lib/domain/services/DateTimeService";
 /**
  * @fileoverview User Profile page for viewing other users in the Focusly application.
@@ -5,8 +7,6 @@ import { DateTimeService } from "@/lib/domain/services/DateTimeService";
  * for public user profiles accessed from leaderboard or friend lists.
  * @module app/users/[userId]/page
  */
-
-"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { useSession } from "@/hooks/useAuth";
@@ -220,7 +220,9 @@ export default function UserProfilePage() {
               <CardContent>
                 <p className="text-3xl font-bold text-primary">
                   {userStats.stats.total_focus_time !== null
-                    ? DateTimeService.formatTime(userStats.stats.total_focus_time)
+                    ? DateTimeService.formatTime(
+                        userStats.stats.total_focus_time,
+                      )
                     : "Hidden"}
                 </p>
               </CardContent>
