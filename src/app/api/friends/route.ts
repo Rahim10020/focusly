@@ -18,7 +18,7 @@ import {
 } from "@/lib/api/middleware";
 import { CreateFriendRequestSchema } from "@/lib/api/schemas";
 import { successResponse, Errors } from "@/lib/api/utils/response";
-import { FriendService } from "@/lib/services/friendService";
+import { FriendService } from "@/lib/domain/services/FriendService";
 import type { AuthContext } from "@/lib/api/middleware/auth";
 
 /**

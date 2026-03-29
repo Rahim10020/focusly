@@ -15,7 +15,7 @@ import DueDateBadge from "@/components/shared/badges/DueDateBadge";
 import { DeleteConfirmationModal } from "@/components/shared/DeleteConfirmationModal";
 import TaskDetailsModal from "../../../components/tasks/modals/TaskDetailsModal";
 import { useSound } from "@/hooks/useSound";
-import { RecurrenceService } from "@/lib/services/recurrenceService";
+import { RecurrenceService } from "@/lib/domain/services/RecurrenceService";
 import { DragHorizontalIcon, TrashEmptyIcon } from "@/components/shared/icons";
 import EditPencilIcon from "@/components/shared/icons/EditPencilIcon";
 import { TaskCheckbox } from "./TaskCheckbox";

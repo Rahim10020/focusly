@@ -1,7 +1,7 @@
 'use client';
 
 import Card, { CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Insight } from '@/lib/utils/insightGenerator';
+import { Insight } from '@/lib/domain/services/InsightService';
 import { AlertCircle, TrendingUp, Info, Award } from 'lucide-react';
 
 interface DynamicInsightsProps {

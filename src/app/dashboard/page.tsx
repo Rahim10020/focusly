@@ -22,8 +22,8 @@ import {
   exportAnalyticsToCSV,
 } from "@/lib/utils/exportUtils";
 import { exportTasksToICS } from "@/lib/utils/calendarIntegration";
-import { generateDynamicInsights } from "@/lib/utils/insightGenerator";
-import { exportCustomAnalyticsToPDF } from "@/lib/utils/customPDFExport";
+import { generateDynamicInsights } from "@/lib/domain/services/InsightService";
+import { exportCustomAnalyticsToPDF } from "@/lib/domain/services/PDFExportService";
 import DynamicInsights from "@/components/stats/DynamicInsights";
 import ProductivityHeatmap from "@/components/stats/ProductivityHeatmap";
 
@@ -36,7 +36,7 @@ const ExportPDFModal = dynamic(
 import type { ExportOptions } from "@/components/dashboard/ExportPDFModal";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { ROUTES } from "@/constants";
-import { getTaskCompletionStats } from "@/lib/utils/stats-calculations";
+import { getTaskCompletionStats } from "@/lib/domain/services/StatsCalculationService";
 import {
   CalendarIcon,
   CheckboxCheckIcon,

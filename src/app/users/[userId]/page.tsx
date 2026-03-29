@@ -18,7 +18,7 @@ import Button from "@/components/ui/Button";
 import { ROUTES } from "@/constants";
 import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
-import { formatHoursMinutesFromSeconds } from "@/lib/utils/stats-calculations";
+import { formatHoursMinutesFromSeconds } from "@/lib/domain/services/StatsCalculationService";
 import { useAppToast } from "@/hooks/useAppToast";
 
 interface UserStats {

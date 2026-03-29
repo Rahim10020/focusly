@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useStats } from "./useStats";
 import type { Stats, PomodoroSession } from "@/types";
-import { CacheService } from "@/lib/services/cacheService";
+import { CacheService } from "@/lib/domain/services/CacheService";
 import { TIME_MS } from "@/constants";
 
 const CACHE_DURATION = 30 * TIME_MS.SECOND;

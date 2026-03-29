@@ -22,7 +22,7 @@ import {
   getDomainDistribution,
   getFocusHours,
   getTaskCompletionStats,
-} from "@/lib/utils/stats-calculations";
+} from "@/lib/domain/services/StatsCalculationService";
 import {
   compressImage,
   isValidImageFile,
