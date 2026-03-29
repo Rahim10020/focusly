@@ -39,7 +39,7 @@ import { Task } from "@/types";
 import type { PomodoroSession } from "@/types";
 import { getAllImminentTasks } from "@/lib/utils/taskUtils";
 import { ROUTES } from "@/constants";
-import { AddPlusIcon } from "@/components/shared/icons";
+import { AddPlusIcon, CloseLgIcon } from "@/components/shared/icons";
 
 interface DashboardProps {
   session: {
@@ -57,6 +57,7 @@ export function Dashboard({ session }: DashboardProps) {
   const taskInputRef = useRef<HTMLInputElement>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
+  const [isPomodoroSidebarOpen, setIsPomodoroSidebarOpen] = useState(false);
   const [showAllUpcomingTasks, setShowAllUpcomingTasks] = useState(false);
   const [achievementCheckPending, setAchievementCheckPending] = useState(false);
   const [timerRef, setTimerRef] = useState<{
@@ -116,6 +117,12 @@ export function Dashboard({ session }: DashboardProps) {
     statsRef.current = stats;
     tasksRef.current = tasks;
   }, [stats, tasks]);
+
+  useEffect(() => {
+    if (focusMode) {
+      setIsPomodoroSidebarOpen(true);
+    }
+  }, [focusMode]);
 
   // Update task stats
   useEffect(() => {
@@ -276,7 +283,15 @@ export function Dashboard({ session }: DashboardProps) {
     <div
       className={`min-h-screen bg-background ${focusMode ? "focus-mode" : ""}`}
     >
-      {!focusMode && <Header />}
+      {!focusMode && (
+        <Header
+          showPomodoroToggle
+          isPomodoroOpen={isPomodoroSidebarOpen}
+          onTogglePomodoro={() =>
+            setIsPomodoroSidebarOpen((prevOpen) => !prevOpen)
+          }
+        />
+      )}
 
       <main
         className={`max-w-6xl mx-auto px-6 py-8 space-y-6 ${focusMode ? "focus-mode-container" : ""}`}
@@ -338,18 +353,41 @@ export function Dashboard({ session }: DashboardProps) {
           </Card>
         )}
 
-        {/* Pomodoro Timer */}
-        <Card
-          variant="elevated"
-          className={focusMode ? "focus-mode-timer" : ""}
+        {/* Notifications */}
+        {!focusMode && notifications.length > 0 && <DashboardNotifications />}
+      </main>
+
+      <div
+        className={`fixed inset-0 z-60 ${isPomodoroSidebarOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+        aria-hidden={!isPomodoroSidebarOpen}
+      >
+        <div
+          className={`absolute inset-0 bg-black/45 transition-opacity duration-300 ${isPomodoroSidebarOpen ? "opacity-100" : "opacity-0"}`}
+          onClick={() => setIsPomodoroSidebarOpen(false)}
+        />
+
+        <aside
+          className={`absolute right-0 top-0 h-full w-full max-w-[480px] border-l border-border bg-background shadow-2xl transition-transform duration-300 ${isPomodoroSidebarOpen ? "translate-x-0" : "translate-x-full"}`}
+          role="dialog"
+          aria-label="Pomodoro Timer Panel"
         >
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Pomodoro Timer</CardTitle>
-              <TimerSettingsButton />
+          <div className="h-full overflow-y-auto p-4 sm:p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Pomodoro Timer</h2>
+
+              <div className="flex items-center gap-2">
+                <TimerSettingsButton />
+                <button
+                  onClick={() => setIsPomodoroSidebarOpen(false)}
+                  className="p-2 rounded-lg hover:bg-muted transition-colors"
+                  aria-label="Close Pomodoro Timer"
+                  title="Close Pomodoro Timer"
+                >
+                  <CloseLgIcon size={18} />
+                </button>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent>
+
             <PomodoroTimer
               activeTaskId={activeTaskId}
               tasks={tasks}
@@ -358,12 +396,9 @@ export function Dashboard({ session }: DashboardProps) {
               onPomodoroComplete={handlePomodoroComplete}
               onTimerRefReady={setTimerRef}
             />
-          </CardContent>
-        </Card>
-
-        {/* Notifications */}
-        {!focusMode && notifications.length > 0 && <DashboardNotifications />}
-      </main>
+          </div>
+        </aside>
+      </div>
 
       {/* Achievement Notifications */}
       {newlyUnlocked.map((achievement, index) => (

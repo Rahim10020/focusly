@@ -13,9 +13,19 @@ import UserMenu from "../shared/UserMenu";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
 import { ROUTES } from "@/constants";
 import AppLogo from "../shared/AppLogo";
-import { BellIcon } from "@/components/shared/icons";
+import { BellIcon, TimerIcon } from "@/components/shared/icons";
 
-export default function Header() {
+interface HeaderProps {
+  showPomodoroToggle?: boolean;
+  isPomodoroOpen?: boolean;
+  onTogglePomodoro?: () => void;
+}
+
+export default function Header({
+  showPomodoroToggle = false,
+  isPomodoroOpen = false,
+  onTogglePomodoro,
+}: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const { unreadCount } = useNotificationsContext();
@@ -64,6 +74,21 @@ export default function Header() {
           </Link>
 
           <div className="ml-25 flex items-center gap-6">
+            {showPomodoroToggle && (
+              <button
+                onClick={onTogglePomodoro}
+                className={`p-2 rounded-full transition-colors ${isPomodoroOpen ? "bg-accent text-primary" : "hover:bg-accent"}`}
+                aria-label={
+                  isPomodoroOpen ? "Hide Pomodoro Timer" : "Show Pomodoro Timer"
+                }
+                aria-pressed={isPomodoroOpen}
+                title={
+                  isPomodoroOpen ? "Hide Pomodoro Timer" : "Show Pomodoro Timer"
+                }
+              >
+                <TimerIcon size={20} />
+              </button>
+            )}
             <Link
               href={ROUTES.NOTIFICATIONS}
               className={`p-2 rounded-full transition-colors relative ${pathname === ROUTES.NOTIFICATIONS ? "bg-accent" : "hover:bg-accent"}`}
@@ -84,6 +109,21 @@ export default function Header() {
 
         {/* Mobile Navigation */}
         <div className="md:hidden flex items-center gap-3">
+          {showPomodoroToggle && (
+            <button
+              onClick={onTogglePomodoro}
+              className={`p-2 rounded-full transition-colors ${isPomodoroOpen ? "bg-accent text-primary" : "hover:bg-accent"}`}
+              aria-label={
+                isPomodoroOpen ? "Hide Pomodoro Timer" : "Show Pomodoro Timer"
+              }
+              aria-pressed={isPomodoroOpen}
+              title={
+                isPomodoroOpen ? "Hide Pomodoro Timer" : "Show Pomodoro Timer"
+              }
+            >
+              <TimerIcon size={20} />
+            </button>
+          )}
           <ThemeToggle />
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
