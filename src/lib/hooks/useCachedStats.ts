@@ -22,23 +22,7 @@ export const useCachedStats = () => {
   const [cachedStats, setCachedStats] = useState<Stats | null>(null);
   const cacheTimestampRef = useRef<number>(0);
 
-  type UseStatsReturn = {
-    stats: Stats;
-    sessions: PomodoroSession[];
-    loading: boolean;
-    error: string | null;
-    addSession: (session: PomodoroSession) => Promise<void>;
-    updateTaskStats: (
-      totalTasks: number,
-      completedTasks: number,
-    ) => Promise<void>;
-    getTodaySessions: () => PomodoroSession[];
-    getTodayFocusTime: () => number;
-    refreshStats: () => Promise<void>;
-    calculateStreak: (sessions: PomodoroSession[]) => number;
-  };
-
-  const statsResult = useStats() as UseStatsReturn;
+  const statsResult = useStats();
   const { stats, ...statsHook } = statsResult;
 
   useEffect(() => {
@@ -93,7 +77,13 @@ export const useCachedStats = () => {
 
   // Instead of dynamically using `any`, explicitly create typed wrappers for
   // the known mutating functions coming from useStats.
-  const { addSession, updateTaskStats, refreshStats } = statsHook;
+  const {
+    addSession,
+    updateTaskStats,
+    refreshStats,
+    getTodaySessions,
+    getTodayFocusTime,
+  } = statsHook;
 
   const wrappedAddSession = useCallback(
     async (session: PomodoroSession): Promise<void> => {
@@ -105,9 +95,9 @@ export const useCachedStats = () => {
   );
 
   const wrappedUpdateTaskStats = useCallback(
-    async (totalTasks: number, completedTasks: number): Promise<void> => {
+    (totalTasks: number, completedTasks: number): void => {
       invalidateCache();
-      await updateTaskStats(totalTasks, completedTasks);
+      updateTaskStats(totalTasks, completedTasks);
       invalidateCache();
     },
     [updateTaskStats, invalidateCache],
@@ -120,25 +110,22 @@ export const useCachedStats = () => {
   }, [refreshStats, invalidateCache]);
 
   const hookFns = useMemo(
-    () =>
-      ({
-        sessions: statsHook.sessions,
-        loading: statsHook.loading,
-        error: statsHook.error,
-        addSession: wrappedAddSession,
-        updateTaskStats: wrappedUpdateTaskStats,
-        getTodaySessions: statsHook.getTodaySessions,
-        getTodayFocusTime: statsHook.getTodayFocusTime,
-        refreshStats: wrappedRefreshStats,
-        calculateStreak: statsHook.calculateStreak,
-      }) as Omit<UseStatsReturn, "stats">,
+    () => ({
+      sessions: statsHook.sessions,
+      loading: statsHook.loading,
+      error: statsHook.error,
+      addSession: wrappedAddSession,
+      updateTaskStats: wrappedUpdateTaskStats,
+      getTodaySessions,
+      getTodayFocusTime,
+      refreshStats: wrappedRefreshStats,
+    }),
     [
       statsHook.sessions,
       statsHook.loading,
       statsHook.error,
-      statsHook.getTodaySessions,
-      statsHook.getTodayFocusTime,
-      statsHook.calculateStreak,
+      getTodaySessions,
+      getTodayFocusTime,
       wrappedAddSession,
       wrappedUpdateTaskStats,
       wrappedRefreshStats,
