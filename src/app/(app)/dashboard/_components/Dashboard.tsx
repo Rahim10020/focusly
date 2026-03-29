@@ -39,7 +39,7 @@ import { Task } from "@/types";
 import type { PomodoroSession } from "@/types";
 import { getAllImminentTasks } from "@/lib/utils/taskUtils";
 import { ROUTES } from "@/constants";
-import { AddPlusIcon, CloseLgIcon } from "@/components/shared/icons";
+import { AddPlusIcon } from "@/components/shared/icons";
 
 interface DashboardProps {
   session: {
@@ -57,7 +57,6 @@ export function Dashboard({ session }: DashboardProps) {
   const taskInputRef = useRef<HTMLInputElement>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
-  const [isPomodoroSidebarOpen, setIsPomodoroSidebarOpen] = useState(false);
   const [showAllUpcomingTasks, setShowAllUpcomingTasks] = useState(false);
   const [achievementCheckPending, setAchievementCheckPending] = useState(false);
   const [timerRef, setTimerRef] = useState<{
@@ -117,12 +116,6 @@ export function Dashboard({ session }: DashboardProps) {
     statsRef.current = stats;
     tasksRef.current = tasks;
   }, [stats, tasks]);
-
-  useEffect(() => {
-    if (focusMode) {
-      setIsPomodoroSidebarOpen(true);
-    }
-  }, [focusMode]);
 
   // Update task stats
   useEffect(() => {
@@ -279,126 +272,106 @@ export function Dashboard({ session }: DashboardProps) {
     },
   ]);
 
+  const pomodoroCardContent = (
+    <>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>Pomodoro Timer</CardTitle>
+          <TimerSettingsButton />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <PomodoroTimer
+          activeTaskId={activeTaskId}
+          tasks={tasks}
+          onSelectTask={setActiveTask}
+          onSessionComplete={handleSessionComplete}
+          onPomodoroComplete={handlePomodoroComplete}
+          onTimerRefReady={setTimerRef}
+        />
+      </CardContent>
+    </>
+  );
+
   return (
     <div
       className={`min-h-screen bg-background ${focusMode ? "focus-mode" : ""}`}
     >
-      {!focusMode && (
-        <Header
-          showPomodoroToggle
-          isPomodoroOpen={isPomodoroSidebarOpen}
-          onTogglePomodoro={() =>
-            setIsPomodoroSidebarOpen((prevOpen) => !prevOpen)
-          }
-        />
-      )}
+      {!focusMode && <Header />}
 
       <main
         className={`max-w-6xl mx-auto px-6 py-8 space-y-6 ${focusMode ? "focus-mode-container" : ""}`}
       >
-        {/* Tasks Section - Full Width */}
-        {!focusMode && (
-          <Card variant="elevated">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Tasks</CardTitle>
-                <Button
-                  onClick={handleCreateTask}
-                  size="sm"
-                  className="flex items-center gap-2"
-                >
-                  <AddPlusIcon />
-                  New Task
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <QuickAddTask onAdd={handleQuickAddTask} />
-
-                <TasksView
-                  tasks={displayedTasks}
-                  activeTaskId={activeTaskId}
-                  tags={tags}
-                  loading={loading}
-                  error={error}
-                  onToggle={toggleTask}
-                  onDelete={deleteTask}
-                  onSelectTask={setActiveTask}
-                  onUpdate={updateTask}
-                  onAddSubTask={addSubTask}
-                  onToggleSubTask={toggleSubTask}
-                  onDeleteSubTask={deleteSubTask}
-                  onReorder={reorderTasks}
-                  onEditTask={handleEditTask}
-                  showSortOptions={false}
-                />
-                {hasMoreTasksThanDisplayed && (
-                  <div className="text-center">
+        {!focusMode ? (
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
+            <div className="space-y-6">
+              <Card variant="elevated">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Tasks</CardTitle>
                     <Button
-                      variant="ghost"
-                      onClick={() =>
-                        setShowAllUpcomingTasks(!showAllUpcomingTasks)
-                      }
-                      className="text-sm"
+                      onClick={handleCreateTask}
+                      size="sm"
+                      className="flex items-center gap-2"
                     >
-                      {showAllUpcomingTasks
-                        ? "Voir moins"
-                        : `Voir ${allImminentTasks.length - 5} tâche${allImminentTasks.length - 5 > 1 ? "s" : ""} de plus`}
+                      <AddPlusIcon />
+                      New Task
                     </Button>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <QuickAddTask onAdd={handleQuickAddTask} />
 
-        {/* Notifications */}
-        {!focusMode && notifications.length > 0 && <DashboardNotifications />}
-      </main>
+                    <TasksView
+                      tasks={displayedTasks}
+                      activeTaskId={activeTaskId}
+                      tags={tags}
+                      loading={loading}
+                      error={error}
+                      onToggle={toggleTask}
+                      onDelete={deleteTask}
+                      onSelectTask={setActiveTask}
+                      onUpdate={updateTask}
+                      onAddSubTask={addSubTask}
+                      onToggleSubTask={toggleSubTask}
+                      onDeleteSubTask={deleteSubTask}
+                      onReorder={reorderTasks}
+                      onEditTask={handleEditTask}
+                      showSortOptions={false}
+                    />
+                    {hasMoreTasksThanDisplayed && (
+                      <div className="text-center">
+                        <Button
+                          variant="ghost"
+                          onClick={() =>
+                            setShowAllUpcomingTasks(!showAllUpcomingTasks)
+                          }
+                          className="text-sm"
+                        >
+                          {showAllUpcomingTasks
+                            ? "Voir moins"
+                            : `Voir ${allImminentTasks.length - 5} tâche${allImminentTasks.length - 5 > 1 ? "s" : ""} de plus`}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
 
-      <div
-        className={`fixed inset-0 z-60 ${isPomodoroSidebarOpen ? "pointer-events-auto" : "pointer-events-none"}`}
-        aria-hidden={!isPomodoroSidebarOpen}
-      >
-        <div
-          className={`absolute inset-0 bg-black/45 transition-opacity duration-300 ${isPomodoroSidebarOpen ? "opacity-100" : "opacity-0"}`}
-          onClick={() => setIsPomodoroSidebarOpen(false)}
-        />
-
-        <aside
-          className={`absolute right-0 top-0 h-full w-full max-w-[480px] border-l border-border bg-background shadow-2xl transition-transform duration-300 ${isPomodoroSidebarOpen ? "translate-x-0" : "translate-x-full"}`}
-          role="dialog"
-          aria-label="Pomodoro Timer Panel"
-        >
-          <div className="h-full overflow-y-auto p-4 sm:p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Pomodoro Timer</h2>
-
-              <div className="flex items-center gap-2">
-                <TimerSettingsButton />
-                <button
-                  onClick={() => setIsPomodoroSidebarOpen(false)}
-                  className="p-2 rounded-lg hover:bg-muted transition-colors"
-                  aria-label="Close Pomodoro Timer"
-                  title="Close Pomodoro Timer"
-                >
-                  <CloseLgIcon size={18} />
-                </button>
-              </div>
+              {notifications.length > 0 && <DashboardNotifications />}
             </div>
 
-            <PomodoroTimer
-              activeTaskId={activeTaskId}
-              tasks={tasks}
-              onSelectTask={setActiveTask}
-              onSessionComplete={handleSessionComplete}
-              onPomodoroComplete={handlePomodoroComplete}
-              onTimerRefReady={setTimerRef}
-            />
+            <div className="self-start lg:sticky lg:top-24">
+              <Card variant="elevated">{pomodoroCardContent}</Card>
+            </div>
           </div>
-        </aside>
-      </div>
+        ) : (
+          <Card variant="elevated" className="focus-mode-timer">
+            {pomodoroCardContent}
+          </Card>
+        )}
+      </main>
 
       {/* Achievement Notifications */}
       {newlyUnlocked.map((achievement, index) => (

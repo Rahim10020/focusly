@@ -19,20 +19,18 @@ export function FocusModeToggle({
   return (
     <Button
       onClick={onToggle}
-      className="fixed top-6 right-6 z-50 gap-2"
+      className="fixed top-3 right-6 z-50"
       variant={isFocusMode ? "primary" : "outline"}
       title="Toggle Focus Mode (F)"
     >
       {isFocusMode ? (
         <>
           <CloseLgIcon size={16} />
-          Leave Focus mode
         </>
       ) : (
         <>
           {/* A changer apres quand j'aurai une meilleure icone */}
           <CircleIcon size={16} />
-          Focus Mode
         </>
       )}
     </Button>
