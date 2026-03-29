@@ -4,12 +4,17 @@
  * and it's not completed.
  */
 
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { supabaseServerPool } from '@/lib/supabase/server';
-import { logger } from '@/lib/logger';
-import { compose, withRateLimit, withLogging, withErrorHandling } from '@/lib/api/middleware';
-import { successResponse, Errors } from '@/lib/api/utils/response';
+import {
+  compose,
+  withRateLimit,
+  withLogging,
+  withErrorHandling,
+  withAuthRequired,
+} from "@/lib/api/middleware";
+import { successResponse } from "@/lib/api/utils/response";
+import { getAdminSupabaseClient } from "@/lib/api/supabase";
+import { logger } from "@/lib/logger";
+import type { AuthContext } from "@/lib/api/middleware/auth";
 
 /**
  * Retrieves all failed (overdue) tasks for the authenticated user.
@@ -19,6 +24,9 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  * - It's not completed
  *
  * @param {NextRequest} request - The incoming request
+ * @param {unknown} context - Route context
+ * @param {unknown} validatedData - Validated request data
+ * @param {AuthContext} auth - Authenticated user context
  * @returns {Promise<NextResponse>} JSON response with failed tasks
  *
  * @example
@@ -26,46 +34,55 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  *
  * @example
  * // Successful response (200 OK)
- * [
- *   {
+ * {
+ *   "data": [{
  *     "id": "uuid",
  *     "title": "Complete project",
  *     "due_date": "2024-01-15T10:30:00Z",
  *     "completed": false,
  *     ...
- *   }
- * ]
+ *   }],
+ *   "meta": { "timestamp": "2024-01-15T10:30:00Z" }
+ * }
  */
-async function getHandler() {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-        return Errors.unauthorized();
-    }
+async function getHandler(
+  _request: any,
+  _context: unknown,
+  _validatedData: unknown,
+  auth: AuthContext,
+) {
+  const supabase = getAdminSupabaseClient();
 
-    const supabaseAdmin = supabaseServerPool.getAdminClient();
-
+  try {
     // Récupérer les tâches overdue (failed)
-    const { data, error } = await supabaseAdmin
-        .from('tasks')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .eq('completed', false)
-        .not('due_date', 'is', null)
-        .lt('due_date', new Date().toISOString());
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .eq("user_id", auth.userId)
+      .eq("completed", false)
+      .not("due_date", "is", null)
+      .lt("due_date", new Date().toISOString());
 
     if (error) {
-        logger.error('Error fetching failed tasks', error as Error, {
-            action: 'getFailedTasks',
-            userId: session.user.id
-        });
-        throw new Error('Failed to fetch failed tasks');
+      logger.error("Error fetching failed tasks", error as Error, {
+        action: "getFailedTasks",
+        userId: auth.userId,
+      });
+      throw new Error("Failed to fetch failed tasks");
     }
 
     return successResponse(data || []);
+  } catch (error) {
+    logger.error("Failed to retrieve failed tasks", error as Error, {
+      userId: auth.userId,
+    });
+    throw error;
+  }
 }
 
 export const GET = compose(
-    withErrorHandling(),
-    withLogging(),
-    withRateLimit('standard')
+  withErrorHandling(),
+  withLogging(),
+  withRateLimit("standard"),
+  withAuthRequired(),
 )(getHandler);
