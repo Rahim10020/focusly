@@ -69,6 +69,7 @@ export interface Notification {
  */
 export function useNotifications() {
   const { data: session } = useSession();
+  const accessToken = session?.accessToken;
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,7 +83,7 @@ export function useNotifications() {
    * Fetches all notifications for the current user.
    */
   const fetchNotifications = useCallback(async () => {
-    if (!session?.user || !session.accessToken) return;
+    if (!session?.user || !accessToken) return;
 
     const userId = session.user.id;
     const now = Date.now();
@@ -100,7 +101,9 @@ export function useNotifications() {
     setLoading(true);
 
     try {
-      const response = await fetch(API_ROUTES.NOTIFICATIONS);
+      const response = await fetch(API_ROUTES.NOTIFICATIONS, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch notifications");
       }
@@ -120,7 +123,7 @@ export function useNotifications() {
     } finally {
       setLoading(false);
     }
-  }, [session?.user, session?.accessToken]);
+  }, [session?.user, accessToken]);
 
   /**
    * Marks a specific notification as read or unread.
@@ -136,6 +139,9 @@ export function useNotifications() {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
+              ...(accessToken
+                ? { Authorization: `Bearer ${accessToken}` }
+                : {}),
             },
             body: JSON.stringify({ read }),
           },
@@ -161,7 +167,7 @@ export function useNotifications() {
         console.error("Error updating notification:", err);
       }
     },
-    [],
+    [accessToken],
   );
 
   /**
@@ -190,31 +196,37 @@ export function useNotifications() {
    * Deletes a specific notification.
    * @param {string} notificationId - ID of the notification to delete
    */
-  const deleteNotification = useCallback(async (notificationId: string) => {
-    try {
-      const response = await fetch(
-        API_DYNAMIC_ROUTES.NOTIFICATION_BY_ID(notificationId),
-        {
-          method: "DELETE",
-        },
-      );
+  const deleteNotification = useCallback(
+    async (notificationId: string) => {
+      try {
+        const response = await fetch(
+          API_DYNAMIC_ROUTES.NOTIFICATION_BY_ID(notificationId),
+          {
+            method: "DELETE",
+            headers: accessToken
+              ? { Authorization: `Bearer ${accessToken}` }
+              : undefined,
+          },
+        );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete notification");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to delete notification");
+        }
+
+        // Update local state
+        setNotifications((prev) =>
+          prev.filter((notification) => notification.id !== notificationId),
+        );
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to delete notification",
+        );
+        console.error("Error deleting notification:", err);
       }
-
-      // Update local state
-      setNotifications((prev) =>
-        prev.filter((notification) => notification.id !== notificationId),
-      );
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to delete notification",
-      );
-      console.error("Error deleting notification:", err);
-    }
-  }, []);
+    },
+    [accessToken],
+  );
 
   /**
    * Creates a new notification.
@@ -233,6 +245,7 @@ export function useNotifications() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
           },
           body: JSON.stringify(notificationData),
         });
@@ -260,7 +273,7 @@ export function useNotifications() {
         throw err;
       }
     },
-    [session?.user?.id],
+    [session?.user?.id, accessToken],
   );
 
   /**

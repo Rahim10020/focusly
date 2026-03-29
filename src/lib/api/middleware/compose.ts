@@ -40,9 +40,10 @@ export function withErrorHandling(): ApiMiddleware {
       req: NextRequest,
       context: unknown,
       validatedData?: unknown,
+      ...args: unknown[]
     ) => {
       try {
-        return await handler(req, context, validatedData);
+        return await handler(req, context, validatedData, ...args);
       } catch (error) {
         // Get request ID if available
         const requestId =
@@ -107,6 +108,7 @@ export function withCors(options?: {
       req: NextRequest,
       context: unknown,
       validatedData?: unknown,
+      ...args: unknown[]
     ) => {
       // Handle preflight requests
       if (req.method === "OPTIONS") {
@@ -128,7 +130,7 @@ export function withCors(options?: {
       }
 
       // Execute handler
-      const response = await handler(req, context, validatedData);
+      const response = await handler(req, context, validatedData, ...args);
 
       // Add CORS headers to response
       response.headers.set(

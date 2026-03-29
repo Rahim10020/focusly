@@ -56,6 +56,7 @@ export function withRateLimit(tier: RateLimitTier = "standard"): ApiMiddleware {
       req: NextRequest,
       context: unknown,
       validatedData?: unknown,
+      ...args: unknown[]
     ) => {
       const identifier = getClientIdentifier(req);
       const options = RateLimitTiers[tier];
@@ -84,7 +85,7 @@ export function withRateLimit(tier: RateLimitTier = "standard"): ApiMiddleware {
       }
 
       // Execute the handler
-      const response = await handler(req, context, validatedData);
+      const response = await handler(req, context, validatedData, ...args);
 
       // Add rate limit headers to successful responses
       if (result.remaining !== undefined) {
@@ -117,6 +118,7 @@ export function withCustomRateLimit(options: {
       req: NextRequest,
       context: unknown,
       validatedData?: unknown,
+      ...args: unknown[]
     ) => {
       const identifier = getClientIdentifier(req);
 
@@ -144,7 +146,7 @@ export function withCustomRateLimit(options: {
       }
 
       // Execute the handler
-      const response = await handler(req, context, validatedData);
+      const response = await handler(req, context, validatedData, ...args);
 
       // Add rate limit headers to successful responses
       if (result.remaining !== undefined) {

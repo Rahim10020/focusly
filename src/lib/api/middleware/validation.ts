@@ -18,7 +18,12 @@ export function withValidation<T extends z.ZodSchema>(
   schema: T,
 ): ApiMiddleware {
   return (handler: ApiHandler) => {
-    return async (req: NextRequest, context: unknown) => {
+    return async (
+      req: NextRequest,
+      context: unknown,
+      _validatedData?: unknown,
+      ...args: unknown[]
+    ) => {
       try {
         // Parse request body
         const body = await req.json();
@@ -27,7 +32,7 @@ export function withValidation<T extends z.ZodSchema>(
         const validated = schema.parse(body);
 
         // Pass validated data to handler
-        return handler(req, context, validated);
+        return handler(req, context, validated, ...args);
       } catch (err) {
         // Handle Zod validation errors
         if (err instanceof z.ZodError) {
@@ -59,7 +64,12 @@ export function withQueryValidation<T extends z.ZodSchema>(
   schema: T,
 ): ApiMiddleware {
   return (handler: ApiHandler) => {
-    return async (req: NextRequest, context: unknown) => {
+    return async (
+      req: NextRequest,
+      context: unknown,
+      _validatedData?: unknown,
+      ...args: unknown[]
+    ) => {
       try {
         // Get search params
         const { searchParams } = new URL(req.url);
@@ -74,7 +84,7 @@ export function withQueryValidation<T extends z.ZodSchema>(
         const validated = schema.parse(queryObject);
 
         // Pass validated data to handler
-        return handler(req, context, validated);
+        return handler(req, context, validated, ...args);
       } catch (err) {
         // Handle Zod validation errors
         if (err instanceof z.ZodError) {
@@ -102,7 +112,12 @@ export function withBodyAndQueryValidation<
   TQuery extends z.ZodSchema,
 >(bodySchema: TBody, querySchema: TQuery): ApiMiddleware {
   return (handler: ApiHandler) => {
-    return async (req: NextRequest, context: unknown) => {
+    return async (
+      req: NextRequest,
+      context: unknown,
+      _validatedData?: unknown,
+      ...args: unknown[]
+    ) => {
       try {
         // Parse and validate body
         const body = await req.json();
@@ -117,10 +132,15 @@ export function withBodyAndQueryValidation<
         const validatedQuery = querySchema.parse(queryObject);
 
         // Pass both validated data to handler
-        return handler(req, context, {
-          body: validatedBody,
-          query: validatedQuery,
-        });
+        return handler(
+          req,
+          context,
+          {
+            body: validatedBody,
+            query: validatedQuery,
+          },
+          ...args,
+        );
       } catch (err) {
         // Handle Zod validation errors
         if (err instanceof z.ZodError) {

@@ -5,7 +5,6 @@
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { logger } from "@/lib/logger";
 import { Errors } from "../utils/response";
 import type { ApiHandler, ApiMiddleware } from "./validation";
 
@@ -25,10 +24,21 @@ export type AuthenticatedApiHandler = (
   auth: AuthContext,
 ) => Promise<any>;
 
-async function getSupabaseServerSession() {
+function getBearerToken(req: any): string | undefined {
+  const headerValue: unknown = req?.headers?.get
+    ? req.headers.get("authorization")
+    : undefined;
+
+  if (typeof headerValue !== "string") return undefined;
+
+  const match = headerValue.match(/^Bearer\s+(.+)$/i);
+  return match?.[1]?.trim() || undefined;
+}
+
+async function getSupabaseServerClient() {
   const cookieStore = await cookies();
-  
-  const supabase = createServerClient(
+
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -39,37 +49,70 @@ async function getSupabaseServerSession() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set({ name, value, ...options })
+              cookieStore.set({ name, value, ...options });
             });
           } catch {
             // Read-only error ignored in API routes
           }
         },
       },
-    }
+    },
   );
+}
 
-  const { data: { session } } = await supabase.auth.getSession();
-  return session;
+async function getAuthContext(req: any): Promise<AuthContext | undefined> {
+  const supabase = await getSupabaseServerClient();
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session?.user?.id) {
+    return {
+      userId: session.user.id,
+      userEmail: session.user.email || "",
+      sessionToken: session.access_token,
+    };
+  }
+
+  const bearerToken = getBearerToken(req);
+  if (!bearerToken) return undefined;
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(bearerToken);
+
+  if (error || !user?.id) return undefined;
+
+  return {
+    userId: user.id,
+    userEmail: user.email || "",
+    sessionToken: bearerToken,
+  };
 }
 
 export function withAuthRequired(): ApiMiddleware {
   return (handler: ApiHandler) => {
-    return async (req: any, context: unknown, validatedData: unknown) => {
+    return async (
+      req: any,
+      context: unknown,
+      validatedData: unknown,
+      ...args: unknown[]
+    ) => {
       try {
-        const session = await getSupabaseServerSession();
-
-        if (!session?.user?.id) {
+        const authContext = await getAuthContext(req);
+        if (!authContext?.userId || !authContext.sessionToken) {
           return Errors.unauthorized();
         }
 
-        const authContext: AuthContext = {
-          userId: session.user.id,
-          userEmail: session.user.email || "",
-          sessionToken: session.access_token,
-        };
-
-        return await (handler as any)(req, context, validatedData, authContext);
+        return await (handler as any)(
+          req,
+          context,
+          validatedData,
+          authContext,
+          ...args,
+        );
       } catch (error) {
         return Errors.internal("Authentication failed");
       }
@@ -79,22 +122,29 @@ export function withAuthRequired(): ApiMiddleware {
 
 export function withOptionalAuth(): ApiMiddleware {
   return (handler: ApiHandler) => {
-    return async (req: any, context: unknown, validatedData: unknown) => {
+    return async (
+      req: any,
+      context: unknown,
+      validatedData: unknown,
+      ...args: unknown[]
+    ) => {
       try {
-        const session = await getSupabaseServerSession();
+        const authContext = await getAuthContext(req);
 
-        let authContext: AuthContext | undefined;
-        if (session?.user?.id) {
-          authContext = {
-            userId: session.user.id,
-            userEmail: session.user.email || "",
-            sessionToken: session.access_token,
-          };
-        }
-
-        return await (handler as any)(req, context, validatedData, authContext);
+        return await (handler as any)(
+          req,
+          context,
+          validatedData,
+          authContext,
+          ...args,
+        );
       } catch (error) {
-        return await (handler as ApiHandler)(req, context, validatedData);
+        return await (handler as ApiHandler)(
+          req,
+          context,
+          validatedData,
+          ...args,
+        );
       }
     };
   };
