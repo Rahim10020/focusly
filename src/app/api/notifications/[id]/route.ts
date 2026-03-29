@@ -7,13 +7,18 @@
  * Route: /api/notifications/[id]
  */
 
-import { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import { compose, withErrorHandling, withLogging, withRateLimit, withValidation } from '@/lib/api/middleware';
-import { UpdateNotificationSchema } from '@/lib/api/schemas';
-import { successResponse, Errors } from '@/lib/api/utils/response';
+import {
+  compose,
+  withErrorHandling,
+  withLogging,
+  withRateLimit,
+  withValidation,
+  withAuthRequired,
+} from "@/lib/api/middleware";
+import { UpdateNotificationSchema } from "@/lib/api/schemas";
+import { successResponse, Errors } from "@/lib/api/utils/response";
+import { getUserSupabaseClient } from "@/lib/api/supabase";
+import type { AuthContext } from "@/lib/api/middleware/auth";
 
 /**
  * Marks a notification as read.
@@ -21,6 +26,8 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  * @param {NextRequest} request - The incoming request object
  * @param {Object} context - Route context
  * @param {Promise<{id: string}>} context.params - Route parameters containing the notification ID
+ * @param {unknown} validatedData - Validated notification update schema
+ * @param {AuthContext} auth - Authenticated user context
  * @returns {Promise<NextResponse>} JSON response containing the updated notification
  *
  * @example
@@ -52,61 +59,45 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  * // 404: { "error": "Notification not found" }
  */
 async function putHandler(
-    _request: NextRequest,
-    context: unknown,
-    validatedData: unknown
+  _request: any,
+  context: unknown,
+  validatedData: unknown,
+  auth: AuthContext,
 ) {
-    const parsedData = UpdateNotificationSchema.parse(validatedData);
-    const session = await getServerSession(authOptions);
-    if (!session?.user || !session.accessToken) {
-        return Errors.unauthorized();
-    }
+  const parsedData = UpdateNotificationSchema.parse(validatedData);
+  const routeContext = context as { params: Promise<{ id: string }> };
+  const { id: notificationId } = await routeContext.params;
+  const { read } = parsedData;
 
-    const userId = session.user.id;
-    const routeContext = context as { params: Promise<{ id: string }> };
-    const { id: notificationId } = await routeContext.params;
-    const { read } = parsedData;
+  const supabase = getUserSupabaseClient(auth);
 
-    // Create supabase client with user's access token for RLS
-    const supabaseWithAuth = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            global: {
-                headers: {
-                    'Authorization': `Bearer ${session.accessToken}`
-                }
-            }
-        }
-    );
+  // Check if the notification belongs to the user
+  const { data: notification, error: fetchError } = await supabase
+    .from("notifications")
+    .select("user_id")
+    .eq("id", notificationId)
+    .single();
 
-    // Check if the notification belongs to the user
-    const { data: notification, error: fetchError } = await supabaseWithAuth
-        .from('notifications')
-        .select('user_id')
-        .eq('id', notificationId)
-        .single();
+  if (fetchError || !notification) {
+    return Errors.notFound("Notification not found");
+  }
 
-    if (fetchError || !notification) {
-        return Errors.notFound('Notification not found');
-    }
+  if (notification.user_id !== auth.userId) {
+    return Errors.forbidden("Unauthorized to modify this notification");
+  }
 
-    if (notification.user_id !== userId) {
-        return Errors.forbidden('Unauthorized to modify this notification');
-    }
+  const { data, error } = await supabase
+    .from("notifications")
+    .update({ read })
+    .eq("id", notificationId)
+    .select()
+    .single();
 
-    const { data, error } = await supabaseWithAuth
-        .from('notifications')
-        .update({ read })
-        .eq('id', notificationId)
-        .select()
-        .single();
+  if (error) {
+    throw new Error("Failed to update notification");
+  }
 
-    if (error) {
-        throw new Error('Failed to update notification');
-    }
-
-    return successResponse(data);
+  return successResponse(data);
 }
 
 /**
@@ -115,6 +106,8 @@ async function putHandler(
  * @param {NextRequest} request - The incoming request object
  * @param {Object} context - Route context
  * @param {Promise<{id: string}>} context.params - Route parameters containing the notification ID
+ * @param {unknown} validatedData - Validated request data
+ * @param {AuthContext} auth - Authenticated user context
  * @returns {Promise<NextResponse>} JSON response confirming deletion
  *
  * @example
@@ -130,67 +123,54 @@ async function putHandler(
  * // 404: { "error": "Notification not found" }
  */
 async function deleteHandler(
-    _request: NextRequest,
-    context: unknown
+  _request: any,
+  context: unknown,
+  _validatedData: unknown,
+  auth: AuthContext,
 ) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || !session.accessToken) {
-        return Errors.unauthorized();
-    }
+  const routeContext = context as { params: Promise<{ id: string }> };
+  const { id: notificationId } = await routeContext.params;
 
-    const userId = session.user.id;
-    const routeContext = context as { params: Promise<{ id: string }> };
-    const { id: notificationId } = await routeContext.params;
+  const supabase = getUserSupabaseClient(auth);
 
-    // Create supabase client with user's access token for RLS
-    const supabaseWithAuth = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            global: {
-                headers: {
-                    'Authorization': `Bearer ${session.accessToken}`
-                }
-            }
-        }
-    );
+  // Check if the notification belongs to the user
+  const { data: notification, error: fetchError } = await supabase
+    .from("notifications")
+    .select("user_id")
+    .eq("id", notificationId)
+    .single();
 
-    // Check if the notification belongs to the user
-    const { data: notification, error: fetchError } = await supabaseWithAuth
-        .from('notifications')
-        .select('user_id')
-        .eq('id', notificationId)
-        .single();
+  if (fetchError || !notification) {
+    return Errors.notFound("Notification not found");
+  }
 
-    if (fetchError || !notification) {
-        return Errors.notFound('Notification not found');
-    }
+  if (notification.user_id !== auth.userId) {
+    return Errors.forbidden("Unauthorized to delete this notification");
+  }
 
-    if (notification.user_id !== userId) {
-        return Errors.forbidden('Unauthorized to delete this notification');
-    }
+  const { error } = await supabase
+    .from("notifications")
+    .delete()
+    .eq("id", notificationId);
 
-    const { error } = await supabaseWithAuth
-        .from('notifications')
-        .delete()
-        .eq('id', notificationId);
+  if (error) {
+    throw new Error("Failed to delete notification");
+  }
 
-    if (error) {
-        throw new Error('Failed to delete notification');
-    }
-
-    return successResponse({ message: 'Notification deleted successfully' });
+  return successResponse({ message: "Notification deleted successfully" });
 }
 
 export const PUT = compose(
-    withErrorHandling(),
-    withLogging(),
-    withValidation(UpdateNotificationSchema),
-    withRateLimit('standard')
+  withErrorHandling(),
+  withValidation(UpdateNotificationSchema),
+  withAuthRequired(),
+  withLogging(),
+  withRateLimit("standard"),
 )(putHandler);
 
 export const DELETE = compose(
-    withErrorHandling(),
-    withLogging(),
-    withRateLimit('standard')
+  withErrorHandling(),
+  withAuthRequired(),
+  withLogging(),
+  withRateLimit("standard"),
 )(deleteHandler);

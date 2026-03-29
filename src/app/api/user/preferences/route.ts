@@ -7,35 +7,91 @@
  * Route: /api/user/preferences
  */
 
-import { getServerSession } from 'next-auth/next';
-import { NextRequest } from 'next/server';
-import { authOptions } from '@/lib/auth';
-import { supabaseServerPool } from '@/lib/supabase/server';
-import { logger } from '@/lib/logger';
-import { Cache } from '@/lib/cache';
-import { compose, withRateLimit, withValidation, withLogging, withErrorHandling } from '@/lib/api/middleware';
-import { UpdateUserPreferencesSchema } from '@/lib/api/schemas';
-import { successResponse, Errors } from '@/lib/api/utils/response';
+import {
+  compose,
+  withRateLimit,
+  withValidation,
+  withLogging,
+  withErrorHandling,
+  withAuthRequired,
+} from "@/lib/api/middleware";
+import { UpdateUserPreferencesSchema } from "@/lib/api/schemas";
+import { successResponse } from "@/lib/api/utils/response";
+import { getAdminSupabaseClient } from "@/lib/api/supabase";
+import { Cache } from "@/lib/cache";
+import { logger } from "@/lib/logger";
+import type { AuthContext } from "@/lib/api/middleware/auth";
 
 /**
- * User preferences request body.
- * @typedef {Object} PreferencesRequest
- * @property {'light' | 'dark'} theme - The theme preference to set
+ * Retrieves the authenticated user's preferences.
+ *
+ * @param {NextRequest} request - The incoming request object
+ * @param {unknown} context - Route context
+ * @param {unknown} validatedData - Validated request data
+ * @param {AuthContext} auth - Authenticated user context
+ * @returns {Promise<NextResponse>} JSON response containing user preferences
+ *
+ * @example
+ * // Successful response
+ * // GET /api/user/preferences
+ * // Response: 200 OK
+ * {
+ *   "user_id": "user-uuid",
+ *   "theme": "dark",
+ *   "created_at": "2024-01-15T10:30:00Z",
+ *   "updated_at": "2024-01-15T10:30:00Z"
+ * }
+ *
+ * @example
+ * // Error responses
+ * // 401: { "error": "Unauthorized" }
+ * // 404: { "error": "Preferences not found" }
  */
+async function getHandler(
+  _request: any,
+  _context: unknown,
+  _validatedData: unknown,
+  auth: AuthContext,
+) {
+  const supabase = getAdminSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("user_preferences")
+    .select("*")
+    .eq("user_id", auth.userId)
+    .single();
+
+  if (error && error.code !== "PGRST116") {
+    logger.error("Error fetching user preferences", error as Error, {
+      action: "getHandler - fetchPreferences",
+      userId: auth.userId,
+      errorCode: error.code,
+      errorMessage: error.message,
+    });
+    throw new Error("Failed to fetch preferences");
+  }
+
+  // Return empty preferences if none exist
+  if (!data) {
+    return successResponse({
+      user_id: auth.userId,
+      theme: "light", // Default theme
+    });
+  }
+
+  return successResponse(data);
+}
 
 /**
- * Successful preferences update response.
- * @typedef {Object} PreferencesSuccessResponse
- * @property {boolean} success - Always true on success
- */
-
-/**
- * Updates the user's theme preference.
+ * Updates the user's preferences.
  *
  * Creates a new preference record if one doesn't exist, or updates the
  * existing record. Requires authentication.
  *
- * @param {Request} request - The incoming request object
+ * @param {NextRequest} request - The incoming request object
+ * @param {unknown} context - Route context
+ * @param {unknown} validatedData - Validated preferences schema
+ * @param {AuthContext} auth - Authenticated user context
  * @returns {Promise<NextResponse>} JSON response indicating success or failure
  *
  * @example
@@ -44,14 +100,6 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  * // Request body:
  * {
  *   "theme": "dark"
- * }
- *
- * @example
- * // Set theme to light mode
- * // POST /api/user/preferences
- * // Request body:
- * {
- *   "theme": "light"
  * }
  *
  * @example
@@ -67,79 +115,83 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  * // 500: { "error": "Failed to update preferences" }
  */
 async function postHandler(
-    _request: NextRequest,
-    _context: unknown,
-    validatedData: unknown
+  _request: any,
+  _context: unknown,
+  validatedData: unknown,
+  auth: AuthContext,
 ) {
-    const parsedData = UpdateUserPreferencesSchema.parse(validatedData);
-    const session = await getServerSession(authOptions);
+  const parsedData = UpdateUserPreferencesSchema.parse(validatedData);
 
-    if (!session?.user?.id) {
-        return Errors.unauthorized();
+  try {
+    const supabase = getAdminSupabaseClient();
+
+    // Get current preferences to merge with updates
+    const { data: currentPrefs, error: fetchError } = await supabase
+      .from("user_preferences")
+      .select("*")
+      .eq("user_id", auth.userId)
+      .single();
+
+    if (fetchError && fetchError.code !== "PGRST116") {
+      logger.error("Error fetching current preferences", fetchError as Error, {
+        action: "postHandler - fetchPreferences",
+        userId: auth.userId,
+        errorCode: fetchError.code,
+        errorMessage: fetchError.message,
+      });
     }
 
-    try {
-        // Use pooled server-side admin client with strict user validation
-        const supabaseAdmin = supabaseServerPool.getAdminClient();
+    // Merge validated data with current preferences
+    const updatedPrefs = {
+      ...(currentPrefs || {}),
+      ...parsedData,
+      user_id: auth.userId, // Use session user ID, not request body
+      updated_at: new Date().toISOString(),
+    };
 
-        // Get current preferences to merge with updates
-        const { data: currentPrefs, error: fetchError } = await supabaseAdmin
-            .from('user_preferences')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single();
+    const { error: upsertError } = await supabase
+      .from("user_preferences")
+      .upsert(updatedPrefs, { onConflict: "user_id" });
 
-        if (fetchError && fetchError.code !== 'PGRST116') {
-            logger.error('Error fetching current preferences', fetchError as Error, {
-                action: 'postHandler - fetchPreferences',
-                userId: session.user.id,
-                errorCode: fetchError.code,
-                errorMessage: fetchError.message
-            });
-        }
-
-        // Merge validated data with current preferences
-        const updatedPrefs = {
-            ...(currentPrefs || {}),
-            ...parsedData,
-            user_id: session.user.id, // Use session user ID, not request body
-            updated_at: new Date().toISOString()
-        };
-
-        const { error: upsertError } = await supabaseAdmin
-            .from('user_preferences')
-            .upsert(updatedPrefs, { onConflict: 'user_id' });
-
-        if (upsertError) {
-            logger.error('Error upserting user preferences', upsertError as Error, {
-                action: 'postHandler - upsert',
-                userId: session.user.id,
-                errorCode: upsertError.code,
-                errorMessage: upsertError.message,
-                data: JSON.stringify(updatedPrefs)
-            });
-            throw new Error(`Failed to update preferences: ${upsertError.message}`);
-        }
-
-        // Invalidate cache for this user's preferences
-        await Cache.invalidate(`theme-preference:${session.user.id}`);
-        await Cache.invalidate(`user-preferences:${session.user.id}`);
-
-        return successResponse({ success: true });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        logger.error('Error in preferences handler', error as Error, {
-            action: 'postHandler',
-            userId: session?.user?.id,
-            errorMessage
-        });
-        throw error;
+    if (upsertError) {
+      logger.error("Error upserting user preferences", upsertError as Error, {
+        action: "postHandler - upsert",
+        userId: auth.userId,
+        errorCode: upsertError.code,
+        errorMessage: upsertError.message,
+        data: JSON.stringify(updatedPrefs),
+      });
+      throw new Error(`Failed to update preferences: ${upsertError.message}`);
     }
+
+    // Invalidate cache for this user's preferences
+    await Cache.invalidate(`theme-preference:${auth.userId}`);
+    await Cache.invalidate(`user-preferences:${auth.userId}`);
+
+    return successResponse({ success: true });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    logger.error("Error in preferences handler", error as Error, {
+      action: "postHandler",
+      userId: auth.userId,
+      errorMessage,
+    });
+    throw error;
+  }
 }
 
+export const GET = compose(
+  withErrorHandling(),
+  withAuthRequired(),
+  withLogging(),
+  withRateLimit("standard"),
+)(getHandler);
+
 export const POST = compose(
-    withErrorHandling(),
-    withLogging(),
-    withValidation(UpdateUserPreferencesSchema),
-    withRateLimit('standard')
+  withErrorHandling(),
+  withValidation(UpdateUserPreferencesSchema),
+  withAuthRequired(),
+  withLogging(),
+  withRateLimit("standard"),
 )(postHandler);

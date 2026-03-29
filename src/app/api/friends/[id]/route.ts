@@ -2,287 +2,197 @@
  * @fileoverview Individual friend request operations API route.
  *
  * Provides endpoints for managing a specific friend request by ID,
- * including accepting or rejecting pending requests.
+ * including accepting, rejecting, and deleting requests.
  *
  * Route: /api/friends/[id]
  */
 
-import { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import { logger } from '@/lib/logger';
-import { compose, withErrorHandling, withLogging, withRateLimit, withValidation } from '@/lib/api/middleware';
-import { UpdateFriendRequestSchema } from '@/lib/api/schemas';
-import { successResponse, Errors } from '@/lib/api/utils/response';
-
-/**
- * Updated friend request data.
- * @typedef {Object} UpdatedFriendRequest
- * @property {string} id - Friendship ID
- * @property {string} sender_id - ID of the user who sent the request
- * @property {string} receiver_id - ID of the user who received the request
- * @property {'accepted' | 'rejected'} status - Updated friendship status
- * @property {string} created_at - ISO timestamp of creation
- */
+import {
+  compose,
+  withErrorHandling,
+  withLogging,
+  withRateLimit,
+  withValidation,
+  withAuthRequired,
+} from "@/lib/api/middleware";
+import { UpdateFriendRequestSchema } from "@/lib/api/schemas";
+import { successResponse, Errors } from "@/lib/api/utils/response";
+import { getUserSupabaseClient } from "@/lib/api/supabase";
+import { logger } from "@/lib/logger";
+import type { AuthContext } from "@/lib/api/middleware/auth";
 
 /**
  * Accepts or rejects a pending friend request.
- *
  * Only the receiver of a friend request can accept or reject it.
- * The request must be in 'pending' status to be modified.
- *
- * @param {NextRequest} request - The incoming request object
- * @param {Object} context - Route context
- * @param {Promise<{id: string}>} context.params - Route parameters containing the friend request ID
- * @returns {Promise<NextResponse>} JSON response containing the updated friend request
- *
- * @example
- * // Accept a friend request
- * // PUT /api/friends/friendship-uuid
- * // Request body:
- * {
- *   "action": "accept"
- * }
- *
- * @example
- * // Reject a friend request
- * // PUT /api/friends/friendship-uuid
- * // Request body:
- * {
- *   "action": "reject"
- * }
- *
- * @example
- * // Successful response (200 OK)
- * {
- *   "id": "friendship-uuid",
- *   "sender_id": "sender-uuid",
- *   "receiver_id": "current-user-uuid",
- *   "status": "accepted",
- *   "created_at": "2024-01-15T10:30:00Z"
- * }
- *
- * @example
- * // Error responses
- * // 400: { "error": "Invalid action" }
- * // 400: { "error": "Request already processed" }
- * // 401: { "error": "Unauthorized" }
- * // 403: { "error": "Unauthorized to modify this request" }
- * // 404: { "error": "Friend request not found" }
  */
 async function putHandler(
-    _request: NextRequest,
-    context: unknown,
-    validatedData: unknown
+  _request: any,
+  context: any,
+  validatedData: unknown,
+  auth: AuthContext,
 ) {
-    const parsedData = UpdateFriendRequestSchema.parse(validatedData);
-    const session = await getServerSession(authOptions);
-    if (!session?.user || !session.accessToken) {
-        return Errors.unauthorized();
-    }
+  const parsedData = UpdateFriendRequestSchema.parse(validatedData);
+  const { id: friendId } = await context.params;
+  const { action } = parsedData;
 
-    const userId = session.user.id;
-    const routeContext = context as { params: Promise<{ id: string }> };
-    const { id: friendId } = await routeContext.params;
-    const { action } = parsedData;
+  const supabase = getUserSupabaseClient(auth);
 
-    // Create supabase client with user's access token for RLS
-    const supabaseWithAuth = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            global: {
-                headers: {
-                    'Authorization': `Bearer ${session.accessToken}`
-                }
-            }
-        }
-    );
+  // Check if the user is the receiver of this friend request
+  const { data: friendRequestData, error: fetchError } = await supabase
+    .from("friends")
+    .select("sender_id, receiver_id, status")
+    .eq("id", friendId)
+    .single();
 
-    // Check if the user is the receiver of this friend request
-    const { data: friendRequestData, error: fetchError } = await supabaseWithAuth
-        .from('friends')
-        .select('sender_id, receiver_id, status')
-        .eq('id', friendId)
-        .single();
+  if (fetchError || !friendRequestData) {
+    return Errors.notFound("Friend request not found");
+  }
 
-    if (fetchError || !friendRequestData) {
-        return Errors.notFound('Friend request not found');
-    }
+  const typedData = friendRequestData as {
+    receiver_id: string;
+    status: "pending" | "accepted" | "rejected";
+    sender_id: string;
+  };
 
-    const typedFriendRequestData = friendRequestData as { receiver_id: string; status: 'pending' | 'accepted' | 'rejected'; sender_id: string };
+  if (typedData.receiver_id !== auth.userId) {
+    return Errors.forbidden("Unauthorized to modify this request");
+  }
 
-    if (typedFriendRequestData.receiver_id !== userId) {
-        return Errors.forbidden('Unauthorized to modify this request');
-    }
+  if (typedData.status !== "pending") {
+    return Errors.badRequest("Request already processed");
+  }
 
-    if (typedFriendRequestData.status !== 'pending') {
-        return Errors.badRequest('Request already processed');
-    }
+  // Update friendship status
+  const newStatus = action === "accept" ? "accepted" : "rejected";
+  const { error: updateError } = await supabase
+    .from("friends")
+    .update({ status: newStatus })
+    .eq("id", friendId);
 
-    // 1. Update friendship status
-    const newStatus = action === 'accept' ? 'accepted' : 'rejected';
-    const { error: updateError } = await supabaseWithAuth
-        .from('friends')
-        .update({ status: newStatus })
-        .eq('id', friendId);
-
-    if (updateError) {
-        logger.error('Error updating friend request', updateError as Error, {
-            action: 'updateFriendRequest',
-            friendId
-        });
-        throw new Error('Failed to update friend request');
-    }
-
-    // 2. Delete original friend request notification
-    const { error: deleteNotifError } = await supabaseWithAuth
-        .from('notifications')
-        .delete()
-        .eq('type', 'friend_request')
-        .eq('data->friendshipId', friendId);
-
-    if (deleteNotifError) {
-        logger.error('Error deleting friend request notification', deleteNotifError as Error, {
-            action: 'deleteFriendRequestNotification',
-            friendId
-        });
-        // Continue anyway - this is not critical
-    }
-
-    // 3. Create acceptance notification for sender if accepted
-    if (action === 'accept') {
-        const { error: notifError } = await supabaseWithAuth
-            .from('notifications')
-            .insert({
-                user_id: typedFriendRequestData.sender_id,
-                type: 'friend_request_accepted',
-                title: 'Friend Request Accepted',
-                message: `${session.user.name || session.user.email} accepted your friend request`,
-                data: { friendshipId: friendId }
-            });
-
-        if (notifError) {
-            logger.error('Error creating friend accept notification', notifError as Error, {
-                action: 'createFriendAcceptNotification',
-                friendId
-            });
-            // Continue anyway - this is not critical
-        }
-    }
-
-    logger.info(`Friend request ${action}ed`, {
-        action: `${action}FriendRequest`,
-        friendId,
-        senderId: typedFriendRequestData.sender_id,
-        receiverId: userId
+  if (updateError) {
+    logger.error("Error updating friend request", updateError as Error, {
+      friendId,
+      action: "updateFriendRequest",
     });
+    throw new Error("Failed to update friend request");
+  }
 
-    return successResponse({ message: `Friend request ${action}ed` });
+  // Delete original friend request notification
+  try {
+    await supabase
+      .from("notifications")
+      .delete()
+      .eq("type", "friend_request")
+      .eq("data->friend_request_id", friendId);
+  } catch {
+    // Don't fail if notification deletion fails
+  }
+
+  // Create notification for the other party
+  const notificationType =
+    action === "accept" ? "friend_accepted" : "friend_rejected";
+  try {
+    await supabase.from("notifications").insert({
+      user_id: typedData.sender_id,
+      type: notificationType,
+      title:
+        action === "accept"
+          ? "Friend Request Accepted"
+          : "Friend Request Rejected",
+      message:
+        action === "accept"
+          ? "Your friend request was accepted"
+          : "Your friend request was rejected",
+      data: { friend_request_id: friendId },
+      read: false,
+    });
+  } catch {
+    // Don't fail if notification creation fails
+  }
+
+  // Fetch updated friend request to return
+  const { data: updatedData } = await supabase
+    .from("friends")
+    .select("*")
+    .eq("id", friendId)
+    .single();
+
+  return successResponse(updatedData || {});
 }
 
 /**
  * Deletes (removes) a friendship.
- *
- * Either user in the friendship can delete it. This permanently removes
- * the friendship record from the database.
- *
- * @param {NextRequest} request - The incoming request object
- * @param {Object} context - Route context
- * @param {Promise<{id: string}>} context.params - Route parameters containing the friendship ID
- * @returns {Promise<NextResponse>} JSON response confirming deletion
- *
- * @example
- * // Delete a friendship
- * // DELETE /api/friends/friendship-uuid
- *
- * @example
- * // Successful response (200 OK)
- * {
- *   "message": "Friend removed successfully"
- * }
- *
- * @example
- * // Error responses
- * // 401: { "error": "Unauthorized" }
- * // 403: { "error": "Unauthorized to remove this friendship" }
- * // 404: { "error": "Friendship not found" }
+ * Either user in the friendship can delete it.
  */
 async function deleteHandler(
-    _request: NextRequest,
-    context: unknown
+  _request: any,
+  context: any,
+  _validatedData: unknown,
+  auth: AuthContext,
 ) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || !session.accessToken) {
-        return Errors.unauthorized();
-    }
+  const { id: friendshipId } = await context.params;
 
-    const userId = session.user.id;
-    const routeContext = context as { params: Promise<{ id: string }> };
-    const { id: friendshipId } = await routeContext.params;
+  const supabase = getUserSupabaseClient(auth);
 
-    // Create supabase client with user's access token for RLS
-    const supabaseWithAuth = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            global: {
-                headers: {
-                    'Authorization': `Bearer ${session.accessToken}`
-                }
-            }
-        }
-    );
+  // Check if the user is part of this friendship
+  const { data: friendshipData, error: fetchError } = await supabase
+    .from("friends")
+    .select("sender_id, receiver_id, status")
+    .eq("id", friendshipId)
+    .single();
 
-    // Check if the user is part of this friendship
-    const { data: friendshipData, error: fetchError } = await supabaseWithAuth
-        .from('friends')
-        .select('sender_id, receiver_id, status')
-        .eq('id', friendshipId)
-        .single();
+  if (fetchError || !friendshipData) {
+    return Errors.notFound("Friendship not found");
+  }
 
-    if (fetchError || !friendshipData) {
-        return Errors.notFound('Friendship not found');
-    }
+  const typedData = friendshipData as {
+    sender_id: string;
+    receiver_id: string;
+    status: string;
+  };
 
-    // Verify user is either sender or receiver
-    if (friendshipData.sender_id !== userId && friendshipData.receiver_id !== userId) {
-        return Errors.forbidden('Unauthorized to remove this friendship');
-    }
+  // Verify user is either sender or receiver
+  if (
+    typedData.sender_id !== auth.userId &&
+    typedData.receiver_id !== auth.userId
+  ) {
+    return Errors.forbidden("Unauthorized to remove this friendship");
+  }
 
-    // Delete the friendship
-    const { error: deleteError } = await supabaseWithAuth
-        .from('friends')
-        .delete()
-        .eq('id', friendshipId);
+  // Delete the friendship
+  const { error: deleteError } = await supabase
+    .from("friends")
+    .delete()
+    .eq("id", friendshipId);
 
-    if (deleteError) {
-        logger.error('Error deleting friendship', deleteError as Error, {
-            action: 'deleteFriendship',
-            friendshipId
-        });
-        throw new Error('Failed to remove friend');
-    }
-
-    logger.info('Friendship removed', {
-        action: 'removeFriend',
-        friendshipId,
-        userId
+  if (deleteError) {
+    logger.error("Error deleting friendship", deleteError as Error, {
+      friendshipId,
+      action: "deleteFriendship",
     });
+    throw new Error("Failed to remove friend");
+  }
 
-    return successResponse({ message: 'Friend removed successfully' });
+  logger.info("Friendship removed", {
+    action: "removeFriend",
+    friendshipId,
+    userId: auth.userId,
+  });
+
+  return successResponse({ message: "Friend removed successfully" });
 }
 
 export const PUT = compose(
-    withErrorHandling(),
-    withLogging(),
-    withValidation(UpdateFriendRequestSchema),
-    withRateLimit('standard')
+  withErrorHandling(),
+  withLogging(),
+  withValidation(UpdateFriendRequestSchema),
+  withRateLimit("standard"),
+  withAuthRequired(),
 )(putHandler);
 
 export const DELETE = compose(
-    withErrorHandling(),
-    withLogging(),
-    withRateLimit('standard')
+  withErrorHandling(),
+  withLogging(),
+  withRateLimit("standard"),
+  withAuthRequired(),
 )(deleteHandler);

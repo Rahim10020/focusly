@@ -3,32 +3,23 @@
  *
  * Provides endpoints for managing user notifications including:
  * - Fetching user notifications
- * - Marking notifications as read
- * - Deleting notifications
+ * - Creating notifications
  *
  * All endpoints require authentication and are rate-limited.
  */
 
-import { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import { compose, withRateLimit, withLogging, withErrorHandling } from '@/lib/api/middleware';
-import { successResponse, Errors } from '@/lib/api/utils/response';
-
-/**
- * Notification data returned from the API.
- * @typedef {Object} NotificationData
- * @property {string} id - Unique notification ID
- * @property {string} user_id - ID of the user who owns the notification
- * @property {'friend_request' | 'friend_request_accepted' | 'task_completed' | 'task_overdue' | 'achievement' | 'info'} type - Notification type
- * @property {string} title - Notification title
- * @property {string} message - Notification message
- * @property {Object|null} data - Additional notification data
- * @property {boolean} read - Whether the notification has been read
- * @property {string} created_at - ISO timestamp of creation
- * @property {string} updated_at - ISO timestamp of last update
- */
+import {
+  compose,
+  withRateLimit,
+  withValidation,
+  withLogging,
+  withErrorHandling,
+  withAuthRequired,
+} from "@/lib/api/middleware";
+import { CreateNotificationSchema } from "@/lib/api/schemas";
+import { successResponse, Errors } from "@/lib/api/utils/response";
+import { getUserSupabaseClient } from "@/lib/api/supabase";
+import type { AuthContext } from "@/lib/api/middleware/auth";
 
 /**
  * Retrieves all notifications for the authenticated user.
@@ -36,6 +27,9 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  * Returns notifications ordered by creation date (newest first).
  *
  * @param {NextRequest} request - The incoming request object
+ * @param {unknown} context - Route context
+ * @param {unknown} validatedData - Validated request data
+ * @param {AuthContext} auth - Authenticated user context
  * @returns {Promise<NextResponse>} JSON response containing array of notifications
  *
  * @example
@@ -61,44 +55,34 @@ import { successResponse, Errors } from '@/lib/api/utils/response';
  * // Response: 401 Unauthorized
  * { "error": "Unauthorized" }
  */
-async function getHandler() {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || !session.accessToken) {
-        return Errors.unauthorized();
-    }
+async function getHandler(
+  _request: any,
+  _context: unknown,
+  _validatedData: unknown,
+  auth: AuthContext,
+) {
+  const supabase = getUserSupabaseClient(auth);
 
-    const userId = session.user.id;
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq("user_id", auth.userId)
+    .order("created_at", { ascending: false });
 
-    // Create supabase client with user's access token for RLS
-    const supabaseWithAuth = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            global: {
-                headers: {
-                    'Authorization': `Bearer ${session.accessToken}`
-                }
-            }
-        }
-    );
+  if (error) {
+    throw new Error("Failed to fetch notifications");
+  }
 
-    const { data, error } = await supabaseWithAuth
-        .from('notifications')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        throw new Error('Failed to fetch notifications');
-    }
-
-    return successResponse(data || []);
+  return successResponse(data || []);
 }
 
 /**
  * Creates a new notification for a user.
  *
  * @param {NextRequest} request - The incoming request object
+ * @param {unknown} context - Route context
+ * @param {unknown} validatedData - Validated notification schema
+ * @param {AuthContext} auth - Authenticated user context
  * @returns {Promise<NextResponse>} JSON response containing the created notification
  *
  * @example
@@ -126,65 +110,48 @@ async function getHandler() {
  *   "updated_at": "2024-01-15T10:30:00Z"
  * }
  */
-async function postHandler(request: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || !session.accessToken) {
-        return Errors.unauthorized();
-    }
+async function postHandler(
+  _request: any,
+  _context: unknown,
+  validatedData: unknown,
+  auth: AuthContext,
+) {
+  const parsedData = CreateNotificationSchema.parse(validatedData);
+  const { user_id, type, title, message, data } = parsedData;
 
-    const { user_id, type, title, message, data } = await request.json();
+  const supabase = getUserSupabaseClient(auth);
 
-    if (!user_id || !type || !title || !message) {
-        return Errors.badRequest('Missing required fields');
-    }
+  const { data: notification, error } = await supabase
+    .from("notifications")
+    .insert({
+      user_id,
+      type,
+      title,
+      message,
+      data: data || null,
+      read: false,
+    })
+    .select()
+    .single();
 
-    // Validate notification type
-    const validTypes = ['friend_request', 'friend_request_accepted', 'task_completed', 'task_overdue', 'achievement', 'info'];
-    if (!validTypes.includes(type)) {
-        return Errors.badRequest('Invalid notification type');
-    }
+  if (error) {
+    throw new Error("Failed to create notification");
+  }
 
-    // Create supabase client with user's access token for RLS
-    const supabaseWithAuth = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            global: {
-                headers: {
-                    'Authorization': `Bearer ${session.accessToken}`
-                }
-            }
-        }
-    );
-
-    const { data: notification, error } = await supabaseWithAuth
-        .from('notifications')
-        .insert({
-            user_id,
-            type,
-            title,
-            message,
-            data: data || null,
-            read: false
-        })
-        .select()
-        .single();
-
-    if (error) {
-        throw new Error('Failed to create notification');
-    }
-
-    return successResponse(notification, { status: 201 });
+  return successResponse(notification, { status: 201 });
 }
 
 export const GET = compose(
-    withErrorHandling(),
-    withLogging(),
-    withRateLimit('generous')
+  withErrorHandling(),
+  withAuthRequired(),
+  withLogging(),
+  withRateLimit("generous"),
 )(getHandler);
 
 export const POST = compose(
-    withErrorHandling(),
-    withLogging(),
-    withRateLimit('standard')
+  withErrorHandling(),
+  withValidation(CreateNotificationSchema),
+  withAuthRequired(),
+  withLogging(),
+  withRateLimit("standard"),
 )(postHandler);
