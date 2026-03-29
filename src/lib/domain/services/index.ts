@@ -25,7 +25,16 @@ export { StorageService } from "./StorageService";
 export { CacheService } from "./CacheService";
 export { RecurrenceService } from "./RecurrenceService";
 export { FriendService } from "./FriendService";
-export { InsightService } from "./InsightService";
 export { StreakService } from "./StreakService";
-export { StatsCalculationService } from "./StatsCalculationService";
-export { PDFExportService } from "./PDFExportService";
+
+// Re-export individual functions and types from utility services
+export { generateDynamicInsights, type Insight } from "./InsightService";
+export {
+  getTaskCompletionStats,
+  getDomainDistribution,
+  formatHoursMinutesFromSeconds,
+  getFocusHours,
+  type TaskCompletionStats,
+  type DomainDistributionItem,
+} from "./StatsCalculationService";
+export { exportCustomAnalyticsToPDF } from "./PDFExportService";
