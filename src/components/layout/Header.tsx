@@ -9,11 +9,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "../ui/ThemeToggle";
-import UserMenu from "../ui/UserMenu";
+import UserMenu from "../shared/UserMenu";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
 import { ROUTES } from "@/lib/constants";
-import AppLogo from "../shared/AppLogo";
-import { BellIcon } from "../../shared/icons";
+import AppLogo from "../ui/AppLogo";
+import { BellIcon } from "../shared/icons";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

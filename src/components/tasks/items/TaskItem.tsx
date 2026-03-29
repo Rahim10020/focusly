@@ -9,9 +9,9 @@
 import { useState, memo, type HTMLAttributes } from "react";
 import { Task, Tag, DOMAINS, getDomainFromSubDomain } from "@/types";
 import Button from "@/components/ui/Button";
-import PriorityBadge from "@/components/ui/PriorityBadge";
-import TagBadge from "@/components/ui/TagBadge";
-import DueDateBadge from "@/components/ui/DueDateBadge";
+import PriorityBadge from "@/components/ui/badges/PriorityBadge";
+import TagBadge from "@/components/ui/badges/TagBadge";
+import DueDateBadge from "@/components/ui/badges/DueDateBadge";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import TaskDetailsModal from "../../../components/tasks/modals/TaskDetailsModal";
 import { useSound } from "@/lib/hooks/useSound";

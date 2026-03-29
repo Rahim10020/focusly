@@ -1,4 +1,4 @@
-import AppLogo from "@/components/shared/AppLogo";
+import AppLogo from "@/components/ui/AppLogo";
 import LanguageSwitcher from "@/components/shared/LanguageSwitcher";
 import { ReactNode } from "react";
 
