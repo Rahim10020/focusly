@@ -67,7 +67,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             type={inputType}
-            className={`w-full px-4 bg-black-5 h-9 text-foreground
+            className={`w-full px-4 bg-black-5 h-9 text-sm text-foreground
                         ${noBorder ? "border-0" : "rounded-sm"}
                         ${shouldShowPasswordToggle ? "pr-10" : ""}
                         focus:outline-none focus:ring-2 focus:ring-offset-0
