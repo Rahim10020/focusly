@@ -85,7 +85,7 @@ export const exportCustomAnalyticsToPDF = async (
             ['Métrique', 'Valeur'],
             ['Sessions totales', stats.totalSessions.toString()],
             ['Tâches complétées', `${stats.completedTasks}/${stats.totalTasks}`],
-            ['Temps focus total', formatTime(stats.totalFocusTime)],
+            ['Temps focus total', DateTimeService.formatTime(stats.totalFocusTime)],
             ['Streak actuel', `${stats.streak} jours`],
             ['Plus long streak', `${stats.longestStreak || 0} jours`]
         ];

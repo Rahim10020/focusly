@@ -161,7 +161,7 @@ export default function CalendarView({
                 const dayTasks = getTasksForDate(day);
                 const isCurrentMonth = isSameMonth(day, currentDate);
                 const isSelected = selectedDate && isSameDay(day, selectedDate);
-                const isDayToday = isToday(day);
+                const isDayToday = DateTimeService.isToday(day);
 
                 return (
                   <button

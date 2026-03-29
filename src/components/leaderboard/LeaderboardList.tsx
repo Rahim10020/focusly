@@ -49,7 +49,7 @@ export function LeaderboardList({
       case "tasks":
         return user.stats?.completed_tasks || 0;
       case "time":
-        return formatTime(user.stats?.total_focus_time || 0);
+        return DateTimeService.formatTime(user.stats?.total_focus_time || 0);
       case "streak":
         return user.stats?.streak || 0;
       default:

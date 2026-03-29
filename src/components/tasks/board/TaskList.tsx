@@ -7,7 +7,7 @@
 
 import { useState, memo } from "react";
 import { Task, Tag } from "@/types";
-import { isToday, isTomorrow } from "@/lib/utils/time";
+import { DateTimeService } from "@/lib/domain/services/DateTimeService";
 import Button from "@/components/ui/Button";
 import TaskItem from "../items/TaskItem";
 
@@ -93,17 +93,17 @@ function TaskList({
   const activeTasks = tasks.filter((task) => !task.completed);
 
   const todayTasks = sortTasks(
-    activeTasks.filter((task) => task.dueDate && isToday(task.dueDate)),
+    activeTasks.filter((task) => task.dueDate && DateTimeService.isToday(task.dueDate)),
   );
 
   const tomorrowTasks = sortTasks(
-    activeTasks.filter((task) => task.dueDate && isTomorrow(task.dueDate)),
+    activeTasks.filter((task) => task.dueDate && DateTimeService.isTomorrow(task.dueDate)),
   );
 
   const otherTasks = sortTasks(
     activeTasks.filter(
       (task) =>
-        !task.dueDate || (!isToday(task.dueDate) && !isTomorrow(task.dueDate)),
+        !task.dueDate || (!DateTimeService.isToday(task.dueDate) && !DateTimeService.isTomorrow(task.dueDate)),
     ),
   );
 

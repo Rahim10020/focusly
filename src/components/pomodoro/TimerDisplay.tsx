@@ -41,7 +41,7 @@ export default function TimerDisplay({ timeLeft, sessionType }: TimerDisplayProp
             </div>
 
             <div className="text-7xl font-bold text-foreground font-mono">
-                {formatTime(timeLeft)}
+                {DateTimeService.formatTime(timeLeft)}
             </div>
         </div>
     );

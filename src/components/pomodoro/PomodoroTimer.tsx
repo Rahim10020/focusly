@@ -117,7 +117,7 @@ export default function PomodoroTimer({
         return isLongBreak ? settings.longBreakDuration : settings.shortBreakDuration;
     };
 
-    const progress = getProgress(timeLeft, getTotalTime());
+    const progress = DateTimeService.getProgress(timeLeft, getTotalTime());
 
     const handleStart = () => {
         // Demander la permission pour les notifications au premier démarrage

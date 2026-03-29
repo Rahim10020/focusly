@@ -36,7 +36,7 @@ export function LeaderboardPodium({ leaderboard, selectedTab, formatTime }: Lead
   const getDisplayValue = (user: LeaderboardUser) => {
     switch (selectedTab) {
       case 'tasks': return user.stats?.completed_tasks || 0;
-      case 'time': return formatTime(user.stats?.total_focus_time || 0);
+      case 'time': return DateTimeService.formatTime(user.stats?.total_focus_time || 0);
       case 'streak': return `${user.stats?.streak || 0}`;
       default: return 0;
     }

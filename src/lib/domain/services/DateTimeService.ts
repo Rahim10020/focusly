@@ -169,4 +169,80 @@ export class DateTimeService {
   static secondsToMs(seconds: number): number {
     return seconds * TIME_MS.SECOND;
   }
+
+  /**
+   * Formats seconds into a MM:SS string format for timer display.
+   */
+  static formatTime(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
+  }
+
+  /**
+   * Calculates the progress percentage of a timer.
+   */
+  static getProgress(timeLeft: number, totalTime: number): number {
+    return ((totalTime - timeLeft) / totalTime) * 100;
+  }
+
+  /**
+   * Checks if a timestamp represents tomorrow's date.
+   */
+  static isTomorrow(timestamp: number): boolean {
+    const date = new Date(timestamp);
+    const tomorrow = addDays(new Date(), 1);
+    return (
+      this.formatDateInUserTimezone(date) ===
+      this.formatDateInUserTimezone(tomorrow)
+    );
+  }
+
+  /**
+   * Checks if a timestamp is in the past (before current time).
+   */
+  static isPast(timestamp: number): boolean {
+    return timestamp < Date.now();
+  }
+
+  /**
+   * Calculates the duration in minutes between two "HH:mm" formatted strings.
+   */
+  static calculateTimeDuration(start: string, end: string): string | null {
+    if (!start || !end) return null;
+
+    try {
+      const startValue = start.includes(":") ? start : `${start}:00`;
+      const endValue = end.includes(":") ? end : `${end}:00`;
+      const [startHours, startMinutes = 0] = startValue.split(":").map(Number);
+      const [endHours, endMinutes = 0] = endValue.split(":").map(Number);
+
+      if (
+        isNaN(startHours) ||
+        isNaN(startMinutes) ||
+        isNaN(endHours) ||
+        isNaN(endMinutes)
+      )
+        return null;
+
+      const startDateObj = new Date();
+      startDateObj.setHours(startHours, startMinutes, 0, 0);
+      const endDateObj = new Date();
+      endDateObj.setHours(endHours, endMinutes, 0, 0);
+
+      if (endDateObj <= startDateObj) {
+        endDateObj.setDate(endDateObj.getDate() + 1);
+      }
+
+      const diffInMs = endDateObj.getTime() - startDateObj.getTime();
+      const diffInMinutes = Math.round(diffInMs / (1000 * 60));
+
+      if (diffInMinutes > 0) return diffInMinutes.toString();
+      if (diffInMinutes < 0) return "";
+      return null;
+    } catch (error) {
+      console.error("Error calculating duration:", error);
+      return null;
+    }
+  }
 }

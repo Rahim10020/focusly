@@ -105,7 +105,7 @@ export default function ProductivityHeatmap({ sessions }: ProductivityHeatmapPro
                                                 key={`${dayIndex}-${hour}`}
                                                 className={`h-4 rounded-sm ${getColor(cell?.value || 0)} 
                           transition-transform hover:scale-150 hover:z-10 cursor-pointer`}
-                                                title={`${day} ${hour}h: ${formatTime(cell?.value || 0)} (${cell?.sessions || 0} sessions)`}
+                                                title={`${day} ${hour}h: ${DateTimeService.formatTime(cell?.value || 0)} (${cell?.sessions || 0} sessions)`}
                                             />
                                         );
                                     })}

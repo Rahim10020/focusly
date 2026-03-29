@@ -13,7 +13,7 @@ import TaskModalFullscreen from "./TaskModalFullscreen";
 import CategorySelector from "../forms/CategorySelector";
 import { TaskMetaInfo } from "../items/TaskMetaInfo";
 import { SubTaskList } from "../items/SubTaskList";
-import { calculateTimeDuration } from "@/lib/utils/time-calculations";
+import { DateTimeService } from "@/lib/domain/services/DateTimeService";
 import TaskDetailsModalFooter from "./details/TaskDetailsModalFooter";
 
 interface TaskDetailsModalProps {
@@ -63,13 +63,13 @@ export default function TaskDetailsModal({
 
   const handleStartTimeChange = (value: string) => {
     setStartTime(value);
-    const duration = calculateTimeDuration(value, endTime);
+    const duration = DateTimeService.calculateTimeDuration(value, endTime);
     if (duration !== null) setEstimatedDuration(duration);
   };
 
   const handleEndTimeChange = (value: string) => {
     setEndTime(value);
-    const duration = calculateTimeDuration(startTime, value);
+    const duration = DateTimeService.calculateTimeDuration(startTime, value);
     if (duration !== null) setEstimatedDuration(duration);
   };
 

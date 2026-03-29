@@ -219,7 +219,7 @@ export default function UserProfilePage() {
               <CardContent>
                 <p className="text-3xl font-bold text-primary">
                   {userStats.stats.total_focus_time !== null
-                    ? formatTime(userStats.stats.total_focus_time)
+                    ? DateTimeService.formatTime(userStats.stats.total_focus_time)
                     : "Hidden"}
                 </p>
               </CardContent>
