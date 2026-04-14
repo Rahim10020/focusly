@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     "time management",
     "habits",
   ],
-  authors: [{ name: "Focusly Team" }],
+  authors: [{ name: "Twocoderz Team" }],
   creator: "Rahim ALI",
   publisher: "Rahim ALI",
   manifest: "/manifest.json",
