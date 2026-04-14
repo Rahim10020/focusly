@@ -27,16 +27,16 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-2">
           <Link
-            href={ROUTES.DASHBOARD}
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === ROUTES.DASHBOARD ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
-          >
-            Dashboard
-          </Link>
-          <Link
             href={ROUTES.TASKS}
             className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === ROUTES.TASKS ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
           >
             Tasks
+          </Link>
+          <Link
+            href={ROUTES.DASHBOARD}
+            className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === ROUTES.DASHBOARD ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
+          >
+            Dashboard
           </Link>
           <Link
             href={ROUTES.CALENDAR}
