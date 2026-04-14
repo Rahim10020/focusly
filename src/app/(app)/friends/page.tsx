@@ -10,7 +10,6 @@
 import { useEffect, useState } from "react";
 import { useSession } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import Header from "@/components/layout/Header";
 import { debounce } from "@/lib/utils/debounce";
 import { FriendsHeader } from "@/app/(app)/friends/_components/FriendsHeader";
 import { UserSearch } from "@/app/(app)/friends/_components/UserSearch";

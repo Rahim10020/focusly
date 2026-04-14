@@ -8,7 +8,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Header from "@/components/layout/Header";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useTasks } from "@/hooks/useTasks";

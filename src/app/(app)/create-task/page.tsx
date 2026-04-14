@@ -10,7 +10,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/hooks/useAuth";
-import Header from "@/components/layout/Header";
 import TaskEditModal, {
   TaskFormData,
 } from "@/app/(app)/tasks/_components/modals/TaskEditModal";

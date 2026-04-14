@@ -10,7 +10,6 @@
 import { useState } from "react";
 import { useSession } from "@/hooks/useAuth";
 import { redirect } from "next/navigation";
-import Header from "@/components/layout/Header";
 import { ProfileHeader } from "@/app/(app)/profile/_components/ProfileHeader";
 import { ProfileStatsGrid } from "@/app/(app)/profile/_components/ProfileStatsGrid";
 import { ActivityOverview } from "@/app/(app)/profile/_components/ActivityOverview";
