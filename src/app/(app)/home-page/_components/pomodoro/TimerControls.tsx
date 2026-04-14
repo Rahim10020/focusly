@@ -3,10 +3,10 @@
  * Adapts button display based on current timer status.
  */
 
-'use client';
+"use client";
 
-import { TimerStatus } from '@/types';
-import Button from '@/components/ui/Button';
+import { TimerStatus } from "@/types";
+import Button from "@/components/ui/Button";
 
 /**
  * Props for the TimerControls component.
@@ -18,11 +18,11 @@ import Button from '@/components/ui/Button';
  * @property {function} onSkip - Callback to skip the current session
  */
 interface TimerControlsProps {
-    status: TimerStatus;
-    onStart: () => void;
-    onPause: () => void;
-    onReset: () => void;
-    onSkip: () => void;
+  status: TimerStatus;
+  onStart: () => void;
+  onPause: () => void;
+  onReset: () => void;
+  onSkip: () => void;
 }
 
 /**
@@ -42,34 +42,34 @@ interface TimerControlsProps {
  * />
  */
 export default function TimerControls({
-    status,
-    onStart,
-    onPause,
-    onReset,
-    onSkip,
+  status,
+  onStart,
+  onPause,
+  onReset,
+  onSkip,
 }: TimerControlsProps) {
-    return (
-        <div className="flex items-center justify-center gap-3">
-            {status === 'running' ? (
-                <Button onClick={onPause} size="lg" className="min-w-[120px]">
-                    Pause
-                </Button>
-            ) : (
-                <Button onClick={onStart} size="lg" className="min-w-[120px]">
-                    {status === 'paused' ? 'Resume' : 'Start'}
-                </Button>
-            )}
+  return (
+    <div className="flex items-center justify-center gap-3">
+      {status === "running" ? (
+        <Button onClick={onPause} size="lg" className="min-w-[120px]">
+          Pause
+        </Button>
+      ) : (
+        <Button onClick={onStart} size="lg" className="min-w-[120px]">
+          {status === "paused" ? "Resume" : "Start"}
+        </Button>
+      )}
 
-            {status !== 'idle' && (
-                <>
-                    <Button onClick={onReset} variant="secondary" size="lg">
-                        Reset
-                    </Button>
-                    <Button onClick={onSkip} variant="ghost" size="lg">
-                        Skip
-                    </Button>
-                </>
-            )}
-        </div>
-    );
+      {status !== "idle" && (
+        <>
+          <Button onClick={onReset} variant="secondary" size="lg">
+            Reset
+          </Button>
+          <Button onClick={onSkip} variant="ghost" size="lg">
+            Skip
+          </Button>
+        </>
+      )}
+    </div>
+  );
 }
