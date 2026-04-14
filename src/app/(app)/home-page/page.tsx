@@ -13,7 +13,7 @@ import TasksView from "@/app/(app)/tasks/_components/views/TasksView";
 import QuickAddTask from "@/app/(app)/tasks/_components/forms/QuickAddTask";
 import PomodoroTimer from "@/app/(app)/home-page/_components/pomodoro/PomodoroTimer";
 import AchievementNotification from "@/app/(app)/home-page/_components/achievements/AchievementNotification";
-import { DashboardNotifications } from "@/app/(app)/home-page/_components/HomeNotifications";
+import { HomeNotifications } from "@/app/(app)/home-page/_components/HomeNotifications";
 import { KeyboardShortcutHint } from "@/app/(app)/home-page/_components/KeyboardShortcutHint";
 import { TimerSettingsButton } from "@/app/(app)/home-page/_components/TimerSettingsButton";
 
@@ -353,7 +353,7 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          {notifications.length > 0 && <DashboardNotifications />}
+          {notifications.length > 0 && <HomeNotifications />}
         </div>
 
         <div className="self-start lg:sticky lg:top-24">
