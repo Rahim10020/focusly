@@ -5,6 +5,7 @@
 "use client";
 
 import { useEffect, ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { CloseLgIcon } from "@/components/shared/icons";
 
 /**
@@ -97,6 +98,7 @@ export default function Modal({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+  if (typeof document === "undefined") return null;
 
   const sizes = {
     sm: "max-w-md",
@@ -106,7 +108,7 @@ export default function Modal({
     full: "max-w-full mx-4",
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 animate-fade-in">
       {/* Overlay */}
       <div
@@ -155,6 +157,7 @@ export default function Modal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
