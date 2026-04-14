@@ -5,7 +5,7 @@ import { DateTimeService } from "@/lib/domain/services/DateTimeService";
  * @fileoverview User Profile page for viewing other users in the Focusly application.
  * Displays user statistics, avatar, and provides friend request functionality
  * for public user profiles accessed from leaderboard or friend lists.
- * @module app/users/[userId]/page
+ * @module app/(app)/users/[userId]/page
  */
 
 import { useCallback, useEffect, useState } from "react";
