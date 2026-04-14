@@ -27,8 +27,7 @@ const ProductivityChart = dynamic(
 );
 
 const AchievementsList = dynamic(
-  () =>
-    import("@/app/(app)/home-page/_components/achievements/AchievementsList"),
+  () => import("@/app/(app)/home/_components/achievements/AchievementsList"),
   {
     ssr: false,
     loading: () => <MyLoader label="Loading" />,

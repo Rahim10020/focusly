@@ -19,7 +19,7 @@ import { useTags } from "@/hooks/useTags";
 import { useStats } from "@/hooks/useStats";
 import { useAchievements } from "@/hooks/useAchievements";
 import { Task } from "@/types";
-import AchievementNotification from "@/app/(app)/home-page/_components/achievements/AchievementNotification";
+import AchievementNotification from "@/app/(app)/home/_components/achievements/AchievementNotification";
 import { ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { AddPlusIcon } from "@/components/shared/icons";

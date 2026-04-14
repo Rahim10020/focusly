@@ -11,11 +11,11 @@ import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import TasksView from "@/app/(app)/tasks/_components/views/TasksView";
 import QuickAddTask from "@/app/(app)/tasks/_components/forms/QuickAddTask";
-import PomodoroTimer from "@/app/(app)/home-page/_components/pomodoro/PomodoroTimer";
-import AchievementNotification from "@/app/(app)/home-page/_components/achievements/AchievementNotification";
-import { HomeNotifications } from "@/app/(app)/home-page/_components/HomeNotifications";
-import { KeyboardShortcutHint } from "@/app/(app)/home-page/_components/KeyboardShortcutHint";
-import { TimerSettingsButton } from "@/app/(app)/home-page/_components/TimerSettingsButton";
+import PomodoroTimer from "@/app/(app)/home/_components/pomodoro/PomodoroTimer";
+import AchievementNotification from "@/app/(app)/home/_components/achievements/AchievementNotification";
+import { HomeNotifications } from "@/app/(app)/home/_components/HomeNotifications";
+import { KeyboardShortcutHint } from "@/app/(app)/home/_components/KeyboardShortcutHint";
+import { TimerSettingsButton } from "@/app/(app)/home/_components/TimerSettingsButton";
 
 // Lazy load heavy or conditional components
 const KeyboardShortcutsModal = dynamic(
@@ -221,8 +221,6 @@ export default function HomePage() {
     [allImminentTasks, showAllUpcomingTasks],
   );
   const hasMoreTasksThanDisplayed = allImminentTasks.length > 5;
-
-  useTheme();
 
   // Keyboard shortcuts
   useKeyboardShortcuts([
