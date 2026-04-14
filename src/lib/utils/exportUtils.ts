@@ -6,7 +6,7 @@
  */
 
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import "jspdf-autotable";
 import {
   Task,
   Stats,
@@ -386,7 +386,7 @@ export const exportLargeTasksToPDF = async (
     const tableData = chunk.map(taskToCompactTableRow);
 
     await new Promise<void>((resolve) => {
-      autoTable(doc, {
+      (doc as any).autoTable({
         startY,
         head:
           i === 0
