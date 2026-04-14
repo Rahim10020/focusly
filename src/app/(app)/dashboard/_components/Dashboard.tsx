@@ -15,7 +15,6 @@ import QuickAddTask from "@/app/(app)/tasks/_components/forms/QuickAddTask";
 import PomodoroTimer from "@/app/(app)/dashboard/_components/pomodoro/PomodoroTimer";
 import AchievementNotification from "@/app/(app)/dashboard/_components/achievements/AchievementNotification";
 import { DashboardNotifications } from "@/app/(app)/dashboard/_components/DashboardNotifications";
-import { FocusModeToggle } from "@/app/(app)/dashboard/_components/FocusModeToggle";
 import { KeyboardShortcutHint } from "@/app/(app)/dashboard/_components/KeyboardShortcutHint";
 import { TimerSettingsButton } from "@/app/(app)/dashboard/_components/TimerSettingsButton";
 
@@ -56,7 +55,6 @@ export function Dashboard({ session }: DashboardProps) {
   const router = useRouter();
   const taskInputRef = useRef<HTMLInputElement>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
   const [showAllUpcomingTasks, setShowAllUpcomingTasks] = useState(false);
   const [achievementCheckPending, setAchievementCheckPending] = useState(false);
   const [timerRef, setTimerRef] = useState<{
@@ -265,11 +263,6 @@ export function Dashboard({ session }: DashboardProps) {
       ...GLOBAL_SHORTCUTS.SHOW_SHORTCUTS,
       action: () => setShowShortcuts(true),
     },
-    {
-      key: "f",
-      description: "Toggle Focus Mode",
-      action: () => setFocusMode(!focusMode),
-    },
   ]);
 
   const pomodoroCardContent = (
@@ -294,85 +287,75 @@ export function Dashboard({ session }: DashboardProps) {
   );
 
   return (
-    <div
-      className={`min-h-screen bg-background ${focusMode ? "focus-mode" : ""}`}
-    >
-      {!focusMode && <Header />}
+    <div className="min-h-screen bg-background">
+      <Header />
 
-      <main
-        className={`max-w-6xl mx-auto px-6 py-8 space-y-6 ${focusMode ? "focus-mode-container" : ""}`}
-      >
-        {!focusMode ? (
-          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
-            <div className="space-y-6">
-              <Card variant="elevated" className="rounded-bl-lg rounded-br-lg">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Tasks</CardTitle>
-                    <Button
-                      onClick={handleCreateTask}
-                      size="sm"
-                      className="flex items-center"
-                    >
-                      <AddPlusIcon />
-                      New Task
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <QuickAddTask onAdd={handleQuickAddTask} />
+      <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="space-y-6">
+            <Card variant="elevated" className="rounded-bl-lg rounded-br-lg">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Tasks</CardTitle>
+                  <Button
+                    onClick={handleCreateTask}
+                    size="sm"
+                    className="flex items-center"
+                  >
+                    <AddPlusIcon />
+                    New Task
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <QuickAddTask onAdd={handleQuickAddTask} />
 
-                    <TasksView
-                      tasks={displayedTasks}
-                      activeTaskId={activeTaskId}
-                      tags={tags}
-                      loading={loading}
-                      error={error}
-                      onToggle={toggleTask}
-                      onDelete={deleteTask}
-                      onSelectTask={setActiveTask}
-                      onUpdate={updateTask}
-                      onAddSubTask={addSubTask}
-                      onToggleSubTask={toggleSubTask}
-                      onDeleteSubTask={deleteSubTask}
-                      onReorder={reorderTasks}
-                      onEditTask={handleEditTask}
-                      showSortOptions={false}
-                    />
-                    {hasMoreTasksThanDisplayed && (
-                      <div className="text-center">
-                        <Button
-                          variant="ghost"
-                          onClick={() =>
-                            setShowAllUpcomingTasks(!showAllUpcomingTasks)
-                          }
-                          className="text-sm"
-                        >
-                          {showAllUpcomingTasks
-                            ? "Voir moins"
-                            : `Voir ${allImminentTasks.length - 5} tâche${allImminentTasks.length - 5 > 1 ? "s" : ""} de plus`}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                  <TasksView
+                    tasks={displayedTasks}
+                    activeTaskId={activeTaskId}
+                    tags={tags}
+                    loading={loading}
+                    error={error}
+                    onToggle={toggleTask}
+                    onDelete={deleteTask}
+                    onSelectTask={setActiveTask}
+                    onUpdate={updateTask}
+                    onAddSubTask={addSubTask}
+                    onToggleSubTask={toggleSubTask}
+                    onDeleteSubTask={deleteSubTask}
+                    onReorder={reorderTasks}
+                    onEditTask={handleEditTask}
+                    showSortOptions={false}
+                  />
+                  {hasMoreTasksThanDisplayed && (
+                    <div className="text-center">
+                      <Button
+                        variant="ghost"
+                        onClick={() =>
+                          setShowAllUpcomingTasks(!showAllUpcomingTasks)
+                        }
+                        className="text-sm"
+                      >
+                        {showAllUpcomingTasks
+                          ? "Voir moins"
+                          : `Voir ${allImminentTasks.length - 5} tâche${allImminentTasks.length - 5 > 1 ? "s" : ""} de plus`}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
-              {notifications.length > 0 && <DashboardNotifications />}
-            </div>
-
-            <div className="self-start lg:sticky lg:top-24">
-              <Card variant="elevated" className="rounded-bl-lg rounded-br-lg">
-                {pomodoroCardContent}
-              </Card>
-            </div>
+            {notifications.length > 0 && <DashboardNotifications />}
           </div>
-        ) : (
-          <Card variant="elevated" className="focus-mode-timer">
-            {pomodoroCardContent}
-          </Card>
-        )}
+
+          <div className="self-start lg:sticky lg:top-24">
+            <Card variant="elevated" className="rounded-bl-lg rounded-br-lg">
+              {pomodoroCardContent}
+            </Card>
+          </div>
+        </div>
       </main>
 
       {/* Achievement Notifications */}
@@ -393,16 +376,8 @@ export function Dashboard({ session }: DashboardProps) {
         <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
       )}
 
-      {/* Focus Mode Toggle Button */}
-      <FocusModeToggle
-        isFocusMode={focusMode}
-        onToggle={() => setFocusMode(!focusMode)}
-      />
-
       {/* Keyboard shortcut hint */}
-      {!focusMode && (
-        <KeyboardShortcutHint onClick={() => setShowShortcuts(true)} />
-      )}
+      <KeyboardShortcutHint onClick={() => setShowShortcuts(true)} />
     </div>
   );
 }
