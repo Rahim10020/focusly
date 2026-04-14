@@ -32,7 +32,6 @@ import {
 } from "@/hooks/useKeyboardShortcuts";
 import { useTaskNotifications } from "@/hooks/useTaskNotifications";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
-import { useTheme } from "@/components/providers/ThemeProvider";
 import { useSession } from "@/hooks/useAuth";
 import { Task } from "@/types";
 import type { PomodoroSession } from "@/types";
