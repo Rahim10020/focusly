@@ -6,6 +6,7 @@
 export const ROUTES = {
   // Home & Auth
   HOME: "/",
+  HOME_PAGE: "/home-page",
   DASHBOARD: "/dashboard",
   HOW_TO_USE: "/how-to-use",
 

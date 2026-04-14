@@ -13,7 +13,7 @@ export function HomeDispatcher() {
 
   useEffect(() => {
     if (session) {
-      router.replace(ROUTES.TASKS);
+      router.replace(ROUTES.HOME_PAGE);
     }
   }, [session, router]);
 
