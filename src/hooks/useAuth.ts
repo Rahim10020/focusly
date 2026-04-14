@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabaseClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants";
 
 export interface AuthSession {
   user: {
@@ -90,7 +91,7 @@ export function useAuth() {
         setStatus("unauthenticated");
         // Redirect to signin when user gets signed out (session expired or manual logout)
         if (event === "SIGNED_OUT" && mounted) {
-          router.push("/signin");
+          router.push(ROUTES.SIGN_IN);
         }
       }
     });
@@ -107,20 +108,22 @@ export function useAuth() {
 // Emulate next-auth/react exports
 export const useSession = useAuth;
 
-export const signOut = async () => {
+export const signOut = async (options?: { callbackUrl?: string }) => {
   await supabaseClient.auth.signOut();
+  if (options?.callbackUrl) {
+    window.location.href = options.callbackUrl;
+  } else {
+    window.location.href = ROUTES.SIGN_IN;
+  }
 };
 
 export const signIn = async (
   provider?: string,
   options?: { callbackUrl?: string },
 ) => {
-  // Supabase OAuth sign-in
-  // Caller should handle navigation or redirects
-  if (provider) {
-    await supabaseClient.auth.signInWithOAuth({
-      provider: provider as "google" | "github",
-      options: options ? { redirectTo: options.callbackUrl } : undefined,
-    });
+  if (options?.callbackUrl) {
+    window.location.href = `/signin?callbackUrl=${encodeURIComponent(options.callbackUrl)}`;
+  } else {
+    window.location.href = ROUTES.SIGN_IN;
   }
 };
