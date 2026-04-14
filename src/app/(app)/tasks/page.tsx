@@ -10,7 +10,6 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/hooks/useAuth";
-import Header from "@/components/layout/Header";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import TasksView from "@/app/(app)/tasks/_components/views/TasksView";
 import QuickAddTask from "@/app/(app)/tasks/_components/forms/QuickAddTask";
@@ -116,65 +115,57 @@ export default function TasksPage() {
   }
 
   if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <MyLoader label="Loading" />
-      </div>
-    );
+    return <MyLoader label="Loading" />;
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold mb-2">My Tasks</h1>
+        <p className="text-muted-foreground">
+          Manage and track all your tasks in one place
+        </p>
+      </div>
 
-      <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">My Tasks</h1>
-          <p className="text-muted-foreground">
-            Manage and track all your tasks in one place
-          </p>
-        </div>
+      {/* Tasks Section - Full Width */}
+      <Card variant="default">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Tasks</CardTitle>
+            <Button
+              onClick={handleCreateTask}
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <AddPlusIcon size={16} />
+              New Task
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <QuickAddTask onAdd={handleQuickAddTask} />
 
-        {/* Tasks Section - Full Width */}
-        <Card variant="elevated">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Tasks</CardTitle>
-              <Button
-                onClick={handleCreateTask}
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <AddPlusIcon size={16} />
-                New Task
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <QuickAddTask onAdd={handleQuickAddTask} />
-
-              <TasksView
-                tasks={tasks}
-                activeTaskId={activeTaskId}
-                tags={tags}
-                loading={loading}
-                error={error}
-                onToggle={toggleTask}
-                onDelete={deleteTask}
-                onSelectTask={setActiveTask}
-                onUpdate={updateTask}
-                onAddSubTask={addSubTask}
-                onToggleSubTask={toggleSubTask}
-                onDeleteSubTask={deleteSubTask}
-                onReorder={reorderTasks}
-                onEditTask={handleEditTask}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </main>
+            <TasksView
+              tasks={tasks}
+              activeTaskId={activeTaskId}
+              tags={tags}
+              loading={loading}
+              error={error}
+              onToggle={toggleTask}
+              onDelete={deleteTask}
+              onSelectTask={setActiveTask}
+              onUpdate={updateTask}
+              onAddSubTask={addSubTask}
+              onToggleSubTask={toggleSubTask}
+              onDeleteSubTask={deleteSubTask}
+              onReorder={reorderTasks}
+              onEditTask={handleEditTask}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Achievement Notifications */}
       {newlyUnlocked.map((achievement, index) => (

@@ -2,11 +2,13 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession, signOut } from "@/hooks/useAuth";
 import { ROUTES } from "@/constants";
 import { MyLoader } from "./MyLoader";
 
 export default function UserMenu() {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
 
@@ -70,7 +72,8 @@ export default function UserMenu() {
             role="menuitem"
             onClick={async () => {
               setOpen(false);
-              await signOut({ callbackUrl: ROUTES.SIGN_IN });
+              await signOut();
+              router.push(ROUTES.SIGN_IN);
             }}
           >
             Sign Out

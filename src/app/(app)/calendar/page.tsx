@@ -60,28 +60,22 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div>
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold mb-2">Calendar</h1>
+        <p className="text-muted-foreground text-lg">
+          Visualize your tasks and schedule across the month
+        </p>
+      </div>
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Calendar</h1>
-          <p className="text-muted-foreground text-lg">
-            Visualize your tasks and schedule across the month
-          </p>
-        </div>
-
-        <CalendarView
-          tasks={tasks}
-          onTaskClick={(task) => setSelectedTask(task)}
-          onCreateTask={async (taskData) => {
-            await addTask(
-              taskData as Omit<Task, "id" | "userId" | "createdAt">,
-            );
-          }}
-        />
-      </main>
+      <CalendarView
+        tasks={tasks}
+        onTaskClick={(task) => setSelectedTask(task)}
+        onCreateTask={async (taskData) => {
+          await addTask(taskData as Omit<Task, "id" | "userId" | "createdAt">);
+        }}
+      />
 
       {selectedTask && (
         <TaskViewModal

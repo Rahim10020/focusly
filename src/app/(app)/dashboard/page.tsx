@@ -151,212 +151,204 @@ export default function DashboardPage() {
     getTaskCompletionStats(tasks);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-
-      <main className="max-w-6xl mx-auto px-6 py-8">
-        {/* Page Header */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
-            <p className="text-muted-foreground">
-              Comprehensive overview of your productivity and progress
-            </p>
-          </div>
+    <div>
+      {/* Page Header */}
+      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
+          <p className="text-muted-foreground">
+            Comprehensive overview of your productivity and progress
+          </p>
         </div>
-        {/* Export Buttons */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          <Button
-            variant="outline"
-            onClick={() => exportTasksToCSV(tasks)}
-            className="text-sm"
-          >
-            <DownloadIcon size={16} className="mr-2" />
-            Export Tasks (CSV)
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() =>
-              exportTasksToPDF(tasks, session?.user?.name || "User")
-            }
-            className="text-sm"
-          >
-            <FileDocumentIcon size={16} className="mr-2" />
-            Export Tasks (PDF)
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() =>
-              exportAnalyticsToCSV(
-                stats || {
-                  totalFocusTime: 0,
-                  totalTasks,
-                  completedTasks,
-                  totalSessions: 0,
-                  streak: 0,
-                },
-                tasks,
-                sessions,
-              )
-            }
-            className="text-sm"
-          >
-            <CircleIcon size={16} className="mr-2" />
-            Analytics (CSV)
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setShowExportModal(true)}
-            className="text-sm"
-          >
-            <CircleIcon size={16} className="mr-2" />
-            Analytics (PDF Custom)
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => exportTasksToICS(tasks)}
-            className="text-sm"
-          >
-            <CalendarIcon size={16} className="mr-2" />
-            Export Calendar (iCal)
-          </Button>
-        </div>
+      </div>
+      {/* Export Buttons */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Button
+          variant="outline"
+          onClick={() => exportTasksToCSV(tasks)}
+          className="text-sm"
+        >
+          <DownloadIcon size={16} className="mr-2" />
+          Export Tasks (CSV)
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => exportTasksToPDF(tasks, session?.user?.name || "User")}
+          className="text-sm"
+        >
+          <FileDocumentIcon size={16} className="mr-2" />
+          Export Tasks (PDF)
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            exportAnalyticsToCSV(
+              stats || {
+                totalFocusTime: 0,
+                totalTasks,
+                completedTasks,
+                totalSessions: 0,
+                streak: 0,
+              },
+              tasks,
+              sessions,
+            )
+          }
+          className="text-sm"
+        >
+          <CircleIcon size={16} className="mr-2" />
+          Analytics (CSV)
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => setShowExportModal(true)}
+          className="text-sm"
+        >
+          <CircleIcon size={16} className="mr-2" />
+          Analytics (PDF Custom)
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => exportTasksToICS(tasks)}
+          className="text-sm"
+        >
+          <CalendarIcon size={16} className="mr-2" />
+          Export Calendar (iCal)
+        </Button>
+      </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card variant="elevated">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Total Tasks
-                  </p>
-                  <p className="text-3xl font-bold">{totalTasks}</p>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <ListUnorderedIcon className="text-primary" />
-                </div>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Card variant="elevated">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Total Tasks
+                </p>
+                <p className="text-3xl font-bold">{totalTasks}</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card variant="elevated">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Completed
-                  </p>
-                  <p className="text-3xl font-bold">{completedTasks}</p>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
-                  <CheckboxCheckIcon className="text-green-500" />
-                </div>
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <ListUnorderedIcon className="text-primary" />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card variant="elevated">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Completion Rate
-                  </p>
-                  <p className="text-3xl font-bold">{completionRate}%</p>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-                  <ClockIcon className="text-amber-700" />
-                </div>
+        <Card variant="elevated">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Completed</p>
+                <p className="text-3xl font-bold">{completedTasks}</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card variant="elevated">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Current Streak
-                  </p>
-                  <p className="text-3xl font-bold">{stats?.streak || 0}</p>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                  {/* A remplacer apres avoir trouve une bonne icone */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-red-500"
-                  >
-                    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
-                  </svg>
-                </div>
+              <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
+                <CheckboxCheckIcon className="text-green-500" />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Time Range Selector */}
-        <div className="flex justify-end mb-6">
-          <div className="flex gap-2 bg-muted p-1 rounded-lg">
-            <Button
-              variant={timeRange === 7 ? "primary" : "ghost"}
-              onClick={() => setTimeRange(7)}
-              className="text-sm"
-            >
-              Last 7 Days
-            </Button>
-            <Button
-              variant={timeRange === 30 ? "primary" : "ghost"}
-              onClick={() => setTimeRange(30)}
-              className="text-sm"
-            >
-              Last 30 Days
-            </Button>
-          </div>
-        </div>
+        <Card variant="elevated">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Completion Rate
+                </p>
+                <p className="text-3xl font-bold">{completionRate}%</p>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
+                <ClockIcon className="text-amber-700" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Dynamic Insights */}
-        <div className="mb-8">
-          <DynamicInsights insights={dynamicInsights} />
-        </div>
+        <Card variant="elevated">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Current Streak
+                </p>
+                <p className="text-3xl font-bold">{stats?.streak || 0}</p>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                {/* A remplacer apres avoir trouve une bonne icone */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-red-500"
+                >
+                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+                </svg>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Productivity Charts */}
-        <div className="mb-8" ref={chartRef}>
-          <h2 className="text-2xl font-bold mb-4">Productivity Trends</h2>
-          <AdvancedProductivityChart sessions={sessions} days={timeRange} />
+      {/* Time Range Selector */}
+      <div className="flex justify-end mb-6">
+        <div className="flex gap-2 bg-muted p-1 rounded-lg">
+          <Button
+            variant={timeRange === 7 ? "primary" : "ghost"}
+            onClick={() => setTimeRange(7)}
+            className="text-sm"
+          >
+            Last 7 Days
+          </Button>
+          <Button
+            variant={timeRange === 30 ? "primary" : "ghost"}
+            onClick={() => setTimeRange(30)}
+            className="text-sm"
+          >
+            Last 30 Days
+          </Button>
         </div>
+      </div>
 
-        {/* Productivity Heatmap */}
-        <div className="mb-8">
-          <ProductivityHeatmap
-            sessions={sessions.map((session) => ({
-              started_at: new Date(session.startedAt).toISOString(),
-              duration: session.duration,
-            }))}
-          />
-        </div>
+      {/* Dynamic Insights */}
+      <div className="mb-8">
+        <DynamicInsights insights={dynamicInsights} />
+      </div>
 
-        {/* Domain Evolution */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Life Domains Progress</h2>
-          <DomainEvolutionChart tasks={tasks} />
-        </div>
+      {/* Productivity Charts */}
+      <div className="mb-8" ref={chartRef}>
+        <h2 className="text-2xl font-bold mb-4">Productivity Trends</h2>
+        <AdvancedProductivityChart sessions={sessions} days={timeRange} />
+      </div>
 
-        {/* Export PDF Modal */}
-        <ExportPDFModal
-          open={showExportModal}
-          onClose={() => setShowExportModal(false)}
-          onExport={handleCustomPDFExport}
+      {/* Productivity Heatmap */}
+      <div className="mb-8">
+        <ProductivityHeatmap
+          sessions={sessions.map((session) => ({
+            started_at: new Date(session.startedAt).toISOString(),
+            duration: session.duration,
+          }))}
         />
-      </main>
+      </div>
+
+      {/* Domain Evolution */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">Life Domains Progress</h2>
+        <DomainEvolutionChart tasks={tasks} />
+      </div>
+
+      {/* Export PDF Modal */}
+      <ExportPDFModal
+        open={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleCustomPDFExport}
+      />
     </div>
   );
 }

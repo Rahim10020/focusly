@@ -208,166 +208,151 @@ export default function LeaderboardPage() {
   };
 
   if (status === "loading" || loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <MyLoader label="Loading leaderboard" />
-        </div>
-      </div>
-    );
+    return <MyLoader label="Loading leaderboard" />;
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <Card>
-            <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 rounded-full bg-red-500/10 mx-auto mb-4 flex items-center justify-center">
-                <InfoIcon size={32} className="text-red-500" />
-              </div>
-              <p className="text-red-500 mb-4 text-lg">Error: {error}</p>
-              <Button onClick={() => fetchLeaderboard()}>Try Again</Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <Card>
+        <CardContent className="p-8 text-center">
+          <div className="w-16 h-16 rounded-full bg-red-500/10 mx-auto mb-4 flex items-center justify-center">
+            <InfoIcon size={32} className="text-red-500" />
+          </div>
+          <p className="text-red-500 mb-4 text-lg">Error: {error}</p>
+          <Button onClick={() => fetchLeaderboard()}>Try Again</Button>
+        </CardContent>
+      </Card>
     );
   }
 
   const sortedLeaderboard = getSortedLeaderboard();
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="max-w-6xl mx-auto px-6 py-8">
-        <LeaderboardHeader />
+    <div>
+      <LeaderboardHeader />
 
-        {/* Your Rank Card */}
-        {currentUserRank >= 0 && (
-          <Card variant="default" className="mb-8 overflow-hidden">
-            <div className="absolute inset-0 bg-linear-to-r from-primary/10 to-transparent opacity-50"></div>
-            <CardContent className="relative py-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="text-3xl font-bold text-primary">
-                    #{currentUserRank + 1}
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      Your Rank
-                    </p>
-                    <p className="text-xl font-semibold">
-                      {session?.user?.name || "You"}
-                    </p>
-                  </div>
+      {/* Your Rank Card */}
+      {currentUserRank >= 0 && (
+        <Card variant="default" className="mb-8 overflow-hidden">
+          <div className="absolute inset-0 bg-linear-to-r from-primary/10 to-transparent opacity-50"></div>
+          <CardContent className="relative py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="text-3xl font-bold text-primary">
+                  #{currentUserRank + 1}
                 </div>
-                <div className="text-right">
+                <div>
                   <p className="text-sm text-muted-foreground mb-1">
-                    Keep going!
+                    Your Rank
                   </p>
-                  <p className="text-lg font-semibold">
-                    {leaderboard[currentUserRank]?.stats?.completed_tasks || 0}{" "}
-                    tasks completed
+                  <p className="text-xl font-semibold">
+                    {session?.user?.name || "You"}
                   </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        )}
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground mb-1">
+                  Keep going!
+                </p>
+                <p className="text-lg font-semibold">
+                  {leaderboard[currentUserRank]?.stats?.completed_tasks || 0}{" "}
+                  tasks completed
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Time Filter */}
-        <div className="flex gap-2 mb-4 flex-wrap">
-          <Button
-            variant={timeFilter === "all" ? "primary" : "outline"}
-            onClick={() => setTimeFilter("all")}
-            size="sm"
-          >
-            All Time
-          </Button>
-          <Button
-            variant={timeFilter === "month" ? "primary" : "outline"}
-            onClick={() => setTimeFilter("month")}
-            size="sm"
-          >
-            This Month
-          </Button>
-          <Button
-            variant={timeFilter === "week" ? "primary" : "outline"}
-            onClick={() => setTimeFilter("week")}
-            size="sm"
-          >
-            This Week
-          </Button>
+      {/* Time Filter */}
+      <div className="flex gap-2 mb-4 flex-wrap">
+        <Button
+          variant={timeFilter === "all" ? "primary" : "outline"}
+          onClick={() => setTimeFilter("all")}
+          size="sm"
+        >
+          All Time
+        </Button>
+        <Button
+          variant={timeFilter === "month" ? "primary" : "outline"}
+          onClick={() => setTimeFilter("month")}
+          size="sm"
+        >
+          This Month
+        </Button>
+        <Button
+          variant={timeFilter === "week" ? "primary" : "outline"}
+          onClick={() => setTimeFilter("week")}
+          size="sm"
+        >
+          This Week
+        </Button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 mb-6 bg-muted p-1 rounded-lg max-w-md mx-auto">
+        <button
+          onClick={() => setSelectedTab("tasks")}
+          className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${
+            selectedTab === "tasks"
+              ? "bg-primary text-primary-foreground shadow-lg"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Tasks
+        </button>
+        <button
+          onClick={() => setSelectedTab("time")}
+          className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${
+            selectedTab === "time"
+              ? "bg-primary text-primary-foreground shadow-lg"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Focus Time
+        </button>
+        <button
+          onClick={() => setSelectedTab("streak")}
+          className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${
+            selectedTab === "streak"
+              ? "bg-primary text-primary-foreground shadow-lg"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Streak
+        </button>
+      </div>
+
+      <LeaderboardPodium
+        leaderboard={sortedLeaderboard}
+        selectedTab={selectedTab}
+        formatTime={formatTime}
+      />
+
+      <LeaderboardList
+        leaderboard={sortedLeaderboard}
+        selectedTab={selectedTab}
+        currentUserId={session?.user?.id}
+        formatTime={formatTime}
+        onSendFriendRequest={handleSendFriendRequest}
+        friendRequestStatuses={friendRequestStatuses}
+      />
+
+      <LeaderboardPagination
+        currentPage={currentPage}
+        totalPages={pagination?.totalPages || 1}
+        loading={loading}
+        onPageChange={setCurrentPage}
+      />
+
+      {/* Pagination Info */}
+      {pagination && (
+        <div className="text-center text-sm text-muted-foreground mt-4">
+          Showing {(currentPage - 1) * pagination.limit + 1} to{" "}
+          {Math.min(currentPage * pagination.limit, pagination.total)} of{" "}
+          {pagination.total} users
         </div>
-
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6 bg-muted p-1 rounded-lg max-w-md mx-auto">
-          <button
-            onClick={() => setSelectedTab("tasks")}
-            className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${
-              selectedTab === "tasks"
-                ? "bg-primary text-primary-foreground shadow-lg"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Tasks
-          </button>
-          <button
-            onClick={() => setSelectedTab("time")}
-            className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${
-              selectedTab === "time"
-                ? "bg-primary text-primary-foreground shadow-lg"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Focus Time
-          </button>
-          <button
-            onClick={() => setSelectedTab("streak")}
-            className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${
-              selectedTab === "streak"
-                ? "bg-primary text-primary-foreground shadow-lg"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Streak
-          </button>
-        </div>
-
-        <LeaderboardPodium
-          leaderboard={sortedLeaderboard}
-          selectedTab={selectedTab}
-          formatTime={formatTime}
-        />
-
-        <LeaderboardList
-          leaderboard={sortedLeaderboard}
-          selectedTab={selectedTab}
-          currentUserId={session?.user?.id}
-          formatTime={formatTime}
-          onSendFriendRequest={handleSendFriendRequest}
-          friendRequestStatuses={friendRequestStatuses}
-        />
-
-        <LeaderboardPagination
-          currentPage={currentPage}
-          totalPages={pagination?.totalPages || 1}
-          loading={loading}
-          onPageChange={setCurrentPage}
-        />
-
-        {/* Pagination Info */}
-        {pagination && (
-          <div className="text-center text-sm text-muted-foreground mt-4">
-            Showing {(currentPage - 1) * pagination.limit + 1} to{" "}
-            {Math.min(currentPage * pagination.limit, pagination.total)} of{" "}
-            {pagination.total} users
-          </div>
-        )}
-      </main>
+      )}
 
       <style jsx global>{`
         @keyframes fadeInUp {

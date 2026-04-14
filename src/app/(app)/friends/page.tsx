@@ -274,48 +274,38 @@ export default function FriendsPage() {
   };
 
   if (status === "loading" || loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="max-w-4xl mx-auto px-6 py-8">
-          <MyLoader label="Loading friends" />
-        </div>
-      </div>
-    );
+    return <MyLoader label="Loading friends" />;
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="max-w-4xl mx-auto px-6 py-8">
-        <FriendsHeader />
+    <div>
+      <FriendsHeader />
 
-        <div className="space-y-6">
-          <UserSearch
-            searchQuery={searchQuery}
-            searching={searching}
-            searchResults={searchResults}
-            onSearchChange={(query) => {
-              setSearchQuery(query);
-              searchUsers(query);
-            }}
-            onSendFriendRequest={handleSendFriendRequest}
-          />
+      <div className="space-y-6">
+        <UserSearch
+          searchQuery={searchQuery}
+          searching={searching}
+          searchResults={searchResults}
+          onSearchChange={(query) => {
+            setSearchQuery(query);
+            searchUsers(query);
+          }}
+          onSendFriendRequest={handleSendFriendRequest}
+        />
 
-          <PendingRequests
-            requests={pendingRequests}
-            processingRequests={processingRequests}
-            onAccept={handleAcceptRequest}
-            onReject={handleRejectRequest}
-          />
+        <PendingRequests
+          requests={pendingRequests}
+          processingRequests={processingRequests}
+          onAccept={handleAcceptRequest}
+          onReject={handleRejectRequest}
+        />
 
-          <FriendsList
-            friends={friends}
-            currentUserId={session?.user?.id}
-            onRemoveFriend={handleRemoveFriend}
-          />
-        </div>
-      </main>
+        <FriendsList
+          friends={friends}
+          currentUserId={session?.user?.id}
+          onRemoveFriend={handleRemoveFriend}
+        />
+      </div>
     </div>
   );
 }

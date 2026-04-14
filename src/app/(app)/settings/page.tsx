@@ -5,12 +5,11 @@
  * @module app/settings/page
  */
 
-'use client';
+"use client";
 
-import Header from '@/components/layout/Header';
-import Settings from '@/app/(app)/settings/_components/Settings';
-import { useSettings } from '@/hooks/useSettings';
-import { useSound } from '@/hooks/useSound';
+import Settings from "@/app/(app)/settings/_components/Settings";
+import { useSettings } from "@/hooks/useSettings";
+import { useSound } from "@/hooks/useSound";
 
 /**
  * Settings page component for customizing Focusly preferences.
@@ -19,29 +18,25 @@ import { useSound } from '@/hooks/useSound';
  * @returns {JSX.Element} The rendered settings page
  */
 export default function SettingsPage() {
-    const { settings, updateSettings, resetSettings } = useSettings();
-    const { soundEnabled, toggleSound } = useSound();
+  const { settings, updateSettings, resetSettings } = useSettings();
+  const { soundEnabled, toggleSound } = useSound();
 
-    return (
-        <div className="min-h-screen bg-background">
-            <Header />
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-4xl font-bold text-foreground mb-2">Settings</h1>
+        <p className="text-muted-foreground">
+          Customize your Focusly experience
+        </p>
+      </div>
 
-            <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
-                <div>
-                    <h1 className="text-4xl font-bold text-foreground mb-2">Settings</h1>
-                    <p className="text-muted-foreground">
-                        Customize your Focusly experience
-                    </p>
-                </div>
-
-                <Settings
-                    settings={settings}
-                    onUpdateSettings={updateSettings}
-                    onReset={resetSettings}
-                    soundEnabled={soundEnabled}
-                    onToggleSound={toggleSound}
-                />
-            </main>
-        </div>
-    );
+      <Settings
+        settings={settings}
+        onUpdateSettings={updateSettings}
+        onReset={resetSettings}
+        soundEnabled={soundEnabled}
+        onToggleSound={toggleSound}
+      />
+    </div>
+  );
 }

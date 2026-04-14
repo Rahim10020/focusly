@@ -7,7 +7,6 @@
 import { useRef, useEffect, useMemo, useCallback, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import Header from "@/components/layout/Header";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import TasksView from "@/app/(app)/tasks/_components/views/TasksView";
@@ -287,76 +286,72 @@ export function Dashboard({ session }: DashboardProps) {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="space-y-6">
+          <Card variant="elevated" className="rounded-bl-lg rounded-br-lg">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Tasks</CardTitle>
+                <Button
+                  onClick={handleCreateTask}
+                  size="sm"
+                  className="flex items-center"
+                >
+                  <AddPlusIcon />
+                  New Task
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <QuickAddTask onAdd={handleQuickAddTask} />
 
-      <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
-          <div className="space-y-6">
-            <Card variant="elevated" className="rounded-bl-lg rounded-br-lg">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Tasks</CardTitle>
-                  <Button
-                    onClick={handleCreateTask}
-                    size="sm"
-                    className="flex items-center"
-                  >
-                    <AddPlusIcon />
-                    New Task
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <QuickAddTask onAdd={handleQuickAddTask} />
+                <TasksView
+                  tasks={displayedTasks}
+                  activeTaskId={activeTaskId}
+                  tags={tags}
+                  loading={loading}
+                  error={error}
+                  onToggle={toggleTask}
+                  onDelete={deleteTask}
+                  onSelectTask={setActiveTask}
+                  onUpdate={updateTask}
+                  onAddSubTask={addSubTask}
+                  onToggleSubTask={toggleSubTask}
+                  onDeleteSubTask={deleteSubTask}
+                  onReorder={reorderTasks}
+                  onEditTask={handleEditTask}
+                  showSortOptions={false}
+                />
+                {hasMoreTasksThanDisplayed && (
+                  <div className="text-center">
+                    <Button
+                      variant="ghost"
+                      onClick={() =>
+                        setShowAllUpcomingTasks(!showAllUpcomingTasks)
+                      }
+                      className="text-sm"
+                    >
+                      {showAllUpcomingTasks
+                        ? "Voir moins"
+                        : `Voir ${allImminentTasks.length - 5} tâche${allImminentTasks.length - 5 > 1 ? "s" : ""} de plus`}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
-                  <TasksView
-                    tasks={displayedTasks}
-                    activeTaskId={activeTaskId}
-                    tags={tags}
-                    loading={loading}
-                    error={error}
-                    onToggle={toggleTask}
-                    onDelete={deleteTask}
-                    onSelectTask={setActiveTask}
-                    onUpdate={updateTask}
-                    onAddSubTask={addSubTask}
-                    onToggleSubTask={toggleSubTask}
-                    onDeleteSubTask={deleteSubTask}
-                    onReorder={reorderTasks}
-                    onEditTask={handleEditTask}
-                    showSortOptions={false}
-                  />
-                  {hasMoreTasksThanDisplayed && (
-                    <div className="text-center">
-                      <Button
-                        variant="ghost"
-                        onClick={() =>
-                          setShowAllUpcomingTasks(!showAllUpcomingTasks)
-                        }
-                        className="text-sm"
-                      >
-                        {showAllUpcomingTasks
-                          ? "Voir moins"
-                          : `Voir ${allImminentTasks.length - 5} tâche${allImminentTasks.length - 5 > 1 ? "s" : ""} de plus`}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {notifications.length > 0 && <DashboardNotifications />}
-          </div>
-
-          <div className="self-start lg:sticky lg:top-24">
-            <Card variant="elevated" className="rounded-bl-lg rounded-br-lg">
-              {pomodoroCardContent}
-            </Card>
-          </div>
+          {notifications.length > 0 && <DashboardNotifications />}
         </div>
-      </main>
+
+        <div className="self-start lg:sticky lg:top-24">
+          <Card variant="elevated" className="rounded-bl-lg rounded-br-lg">
+            {pomodoroCardContent}
+          </Card>
+        </div>
+      </div>
 
       {/* Achievement Notifications */}
       {newlyUnlocked.map((achievement, index) => (

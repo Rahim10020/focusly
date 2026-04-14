@@ -68,11 +68,7 @@ export default function CreateTaskPage() {
   };
 
   if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <MyLoader label="Loading" />
-      </div>
-    );
+    return <MyLoader label="Loading" />;
   }
 
   if (!session) {
@@ -80,8 +76,7 @@ export default function CreateTaskPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div>
       <TaskEditModal
         isOpen={isModalOpen}
         onClose={handleClose}

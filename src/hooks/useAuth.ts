@@ -107,22 +107,20 @@ export function useAuth() {
 // Emulate next-auth/react exports
 export const useSession = useAuth;
 
-export const signOut = async (options?: { callbackUrl?: string }) => {
+export const signOut = async () => {
   await supabaseClient.auth.signOut();
-  if (options?.callbackUrl) {
-    window.location.href = options.callbackUrl;
-  } else {
-    window.location.href = "/signin";
-  }
 };
 
 export const signIn = async (
   provider?: string,
   options?: { callbackUrl?: string },
 ) => {
-  if (options?.callbackUrl) {
-    window.location.href = `/signin?callbackUrl=${encodeURIComponent(options.callbackUrl)}`;
-  } else {
-    window.location.href = "/signin";
+  // Supabase OAuth sign-in
+  // Caller should handle navigation or redirects
+  if (provider) {
+    await supabaseClient.auth.signInWithOAuth({
+      provider: provider as "google" | "github",
+      options: options ? { redirectTo: options.callbackUrl } : undefined,
+    });
   }
 };

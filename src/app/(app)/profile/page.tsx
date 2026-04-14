@@ -174,39 +174,35 @@ export default function ProfilePage() {
   const domainDistribution = getDomainDistribution(tasks);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div>
+      <ProfileHeader
+        isEditing={isEditing}
+        name={name}
+        email={email}
+        imagePreview={imagePreview}
+        isLoading={isLoading}
+        onImageChange={handleImageChange}
+        onSave={handleSave}
+        onCancel={handleCancel}
+        onEditToggle={() => setIsEditing(true)}
+      />
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
-        <ProfileHeader
-          isEditing={isEditing}
-          name={name}
-          email={email}
-          imagePreview={imagePreview}
-          isLoading={isLoading}
-          onImageChange={handleImageChange}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          onEditToggle={() => setIsEditing(true)}
+      <ProfileStatsGrid
+        totalSessions={stats?.totalSessions || 0}
+        completedTasks={completedTasks}
+        totalFocusHours={totalFocusHours}
+        currentStreak={stats?.streak || 0}
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ActivityOverview
+          completionRate={completionRate}
+          longestStreak={stats?.longestStreak || 0}
+          activeTasks={activeTasks}
         />
 
-        <ProfileStatsGrid
-          totalSessions={stats?.totalSessions || 0}
-          completedTasks={completedTasks}
-          totalFocusHours={totalFocusHours}
-          currentStreak={stats?.streak || 0}
-        />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ActivityOverview
-            completionRate={completionRate}
-            longestStreak={stats?.longestStreak || 0}
-            activeTasks={activeTasks}
-          />
-
-          <DomainDistribution domains={domainDistribution} />
-        </div>
-      </main>
+        <DomainDistribution domains={domainDistribution} />
+      </div>
     </div>
   );
 }
