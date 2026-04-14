@@ -3,8 +3,6 @@
  * Provides persistent Header and main container structure for user pages.
  */
 
-"use client";
-
 import Header from "@/components/layout/Header";
 
 export default function UsersLayout({

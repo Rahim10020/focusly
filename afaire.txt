@@ -38,3 +38,6 @@ imdev/vscodeprojects/focusly/node_modules/next/dist/server/lib/start-server.js:2
  ========================================================================
 
  - la prochaine fois, continuer avec la modification de l'ui dans dashboard page.
+
+
+ Quand je vais dans les pages de l'app(les items de menu et autres) et que je reviens sur la home page il y a a chaque fois un chargement pour les taches. c'est pas bien. ca rend les choses trop lourds.
