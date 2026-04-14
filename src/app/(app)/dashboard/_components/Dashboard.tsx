@@ -168,7 +168,7 @@ export function Dashboard({ session }: DashboardProps) {
   useEffect(() => {
     if (achievementCheckPending) {
       const timer = setTimeout(async () => {
-        await checkAchievements(currentStats);
+        checkAchievements(currentStats);
         setAchievementCheckPending(false);
       }, 2000);
 
