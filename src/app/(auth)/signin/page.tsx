@@ -8,7 +8,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
@@ -17,6 +17,7 @@ import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { ArrowRightLgIcon } from "@/components/shared/icons";
+const supabaseClient = getSupabaseClient();
 
 export default function SignIn() {
   const [email, setEmail] = useState("");

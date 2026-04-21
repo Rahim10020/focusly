@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants";
+const supabaseClient = getSupabaseClient();
 
 export interface AuthSession {
   user: {

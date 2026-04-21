@@ -9,13 +9,14 @@ import { useSession } from "@/hooks/useAuth";
 import { Stats, PomodoroSession } from "@/types";
 import { StorageService } from "@/lib/domain/services/StorageService";
 import { StatsService, StreakData } from "@/lib/domain/services/StatsService";
-import { supabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClient } from "@/lib/supabase/client";
 import {
   mapSessionToDbInsert,
   mapDbSessionToSession,
 } from "@/lib/supabase/mappers";
 import { retryWithBackoff } from "@/lib/utils/retry";
 import { useAppToast } from "./useAppToast";
+const supabaseClient = getSupabaseClient();
 
 interface UseStatsReturn {
   // State

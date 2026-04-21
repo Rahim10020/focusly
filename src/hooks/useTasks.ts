@@ -14,10 +14,11 @@ import {
   TaskStats,
 } from "@/lib/domain/services";
 import { CreateTaskInput } from "@/types/task-input";
-import { supabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClient } from "@/lib/supabase/client";
 import { mapTaskToDbInsert, mapDbTaskToTask } from "@/lib/supabase/mappers";
 import { retryWithBackoff } from "@/lib/utils/retry";
 import { useAppToast } from "./useAppToast";
+const supabaseClient = getSupabaseClient();
 
 interface UseTasksReturn {
   // Tasks state

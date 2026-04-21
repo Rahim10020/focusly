@@ -8,9 +8,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "@/hooks/useAuth";
 import { useLocalStorage } from "./useLocalStorage";
 import { Tag } from "@/types";
-import { supabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClient } from "@/lib/supabase/client";
 import { retryWithBackoff } from "@/lib/utils/retry";
 import { STORAGE_KEYS } from "@/constants";
+const supabaseClient = getSupabaseClient();
 
 /**
  * Default tags provided for new users.
