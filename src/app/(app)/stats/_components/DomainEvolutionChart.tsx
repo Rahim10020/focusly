@@ -220,7 +220,7 @@ export default function DomainEvolutionChart({
                 fill: theme === "dark" ? "#94A3B8" : "#6B7280",
                 fontSize: 16,
               }}
-              angle={-10}
+              angle={-8}
               textAnchor="end"
               height={100}
               interval={0}
@@ -229,7 +229,10 @@ export default function DomainEvolutionChart({
               className="text-xs"
               tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: "#F3F4F6" }} />
+            <Tooltip
+              content={<CustomTooltip />}
+              cursor={{ fill: theme === "dark" ? "#334155" : "#F3F4F6" }}
+            />
             <Bar
               dataKey="total"
               fill={theme === "dark" ? "#334155" : "#F3F4F6"}
