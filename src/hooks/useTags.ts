@@ -64,16 +64,6 @@ export function useTags() {
     created_at: string;
   };
 
-  // Set Supabase auth session when user logs in
-  useEffect(() => {
-    if (session?.accessToken) {
-      supabaseClient.auth.setSession({
-        access_token: session.accessToken,
-        refresh_token: session.accessToken,
-      });
-    }
-  }, [session]);
-
   // Load tags from database when user logs in
   const loadTagsFromDB = useCallback(async () => {
     const userId = getUserId();

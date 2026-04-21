@@ -56,6 +56,9 @@ export function useAuth() {
           setStatus("unauthenticated");
         }
       } catch (error) {
+        // If stored auth tokens are corrupted/expired, clear local auth state
+        // to prevent repeated refresh-token errors on every render.
+        await supabaseClient.auth.signOut({ scope: "local" });
         if (mounted) {
           setSession(null);
           setStatus("unauthenticated");
