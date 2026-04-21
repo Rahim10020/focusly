@@ -14,7 +14,7 @@ import { ProfileHeader } from "@/app/(app)/profile/_components/ProfileHeader";
 import { ProfileStatsGrid } from "@/app/(app)/profile/_components/ProfileStatsGrid";
 import { ActivityOverview } from "@/app/(app)/profile/_components/ActivityOverview";
 import { DomainDistribution } from "@/app/(app)/profile/_components/DomainDistribution";
-import { supabaseClient as supabase } from "@/lib/supabase/client";
+import { getSupabaseClient } from "@/lib/supabase/client";
 import { useTasks } from "@/hooks/useTasks";
 import { useStats } from "@/hooks/useStats";
 import {
@@ -30,6 +30,7 @@ import {
 import { MyLoader } from "@/components/shared/MyLoader";
 import { ROUTES } from "@/constants";
 import { useAppToast } from "@/hooks/useAppToast";
+const supabase = getSupabaseClient();
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
