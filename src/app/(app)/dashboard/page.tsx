@@ -173,7 +173,7 @@ export default function DashboardPage() {
                 <p className="text-3xl font-bold">{totalTasks}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <ListUnorderedIcon className="text-primary" />
+                <ListUnorderedIcon className="text-foreground" />
               </div>
             </div>
           </CardContent>
@@ -187,7 +187,7 @@ export default function DashboardPage() {
                 <p className="text-3xl font-bold">{completedTasks}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
-                <CheckboxCheckIcon className="text-green-500" />
+                <CheckboxCheckIcon className="text-foreground" />
               </div>
             </div>
           </CardContent>
@@ -203,7 +203,7 @@ export default function DashboardPage() {
                 <p className="text-3xl font-bold">{completionRate}%</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-                <ClockIcon className="text-amber-700" />
+                <ClockIcon className="text-foreground" />
               </div>
             </div>
           </CardContent>
@@ -230,7 +230,7 @@ export default function DashboardPage() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-red-500"
+                  className="text-foreground"
                 >
                   <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
                 </svg>
