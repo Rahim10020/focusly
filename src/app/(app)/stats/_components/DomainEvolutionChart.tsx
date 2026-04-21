@@ -142,7 +142,7 @@ export default function DomainEvolutionChart({
         </p>
         <ResponsiveContainer width="100%" height={400}>
           <RadarChart data={domainStats} outerRadius="75%">
-            <PolarGrid className="stroke-muted" />
+            <PolarGrid stroke={theme === "dark" ? "#94A3B8" : "#374151"} />
             <PolarAngleAxis
               dataKey="domain"
               tick={(props: any) => {
@@ -170,7 +170,7 @@ export default function DomainEvolutionChart({
               domain={[0, 100]}
               tick={{
                 fill: theme === "dark" ? "#94A3B8" : "#6B7280",
-                fontSize: 11,
+                fontSize: 13,
               }}
             />
             <Radar
