@@ -251,11 +251,9 @@ export default function DomainEvolutionChart({
 
       {/* Completion Rate Breakdown */}
       <div className="bg-card p-6 rounded-xl border border-border">
-        <h3 className="text-lg font-semibold mb-4">
-          Completion Rate Breakdown
-        </h3>
+        <h3 className="text-xl font-medium mb-8">Completion Rate Breakdown</h3>
         <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={domainStats} layout="horizontal">
+          <BarChart data={domainStats} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis
               type="number"
@@ -271,7 +269,10 @@ export default function DomainEvolutionChart({
                 fontSize: 11,
               }}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={<CustomTooltip />}
+              cursor={{ fill: theme === "dark" ? "#334155" : "#F3F4F6" }}
+            />
             <Bar dataKey="completionRate" radius={[0, 8, 8, 0]}>
               {domainStats.map((entry, index) => (
                 <Cell
