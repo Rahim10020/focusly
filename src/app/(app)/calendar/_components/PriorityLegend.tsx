@@ -4,7 +4,7 @@
 
 export function PriorityLegend() {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 mt-4">
       <div className="flex items-center gap-2 text-sm">
         <div className="w-3 h-3 rounded-full bg-red-500"></div>
         <span>High Priority</span>

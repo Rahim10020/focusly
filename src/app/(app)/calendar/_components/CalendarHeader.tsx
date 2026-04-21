@@ -29,7 +29,7 @@ export function CalendarHeader({
         <Button variant="outline" onClick={onPreviousMonth}>
           <ChevronLeftIcon size={20} />
         </Button>
-        <Button variant="outline" onClick={onToday}>
+        <Button variant="primary" onClick={onToday}>
           Today
         </Button>
         <Button variant="outline" onClick={onNextMonth}>
