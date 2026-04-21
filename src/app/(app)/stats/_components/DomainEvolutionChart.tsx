@@ -209,9 +209,7 @@ export default function DomainEvolutionChart({
 
       {/* Bar Chart - Tasks by Domain */}
       <div className="bg-card p-6 rounded-xl border border-border">
-        <h3 className="text-lg font-semibold mb-4">
-          Tasks Completion by Domain
-        </h3>
+        <h3 className="text-xl font-medium mb-8">Tasks Completion by Domain</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={domainStats}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
