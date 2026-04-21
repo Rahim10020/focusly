@@ -290,11 +290,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Export Buttons */}
-      <div className="flex gap-2 mb-4 mt-20">
+      <div className="flex flex-wrap gap-2 mb-4 mt-20">
         <Button
           variant="outline"
           onClick={() => exportTasksToCSV(tasks)}
-          className="text-sm"
+          size="sm"
         >
           <DownloadIcon size={16} className="mr-2" />
           Export Tasks (CSV)

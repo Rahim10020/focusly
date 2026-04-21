@@ -70,12 +70,12 @@ export default function ProductivityHeatmap({
   };
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
-  const days = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Heatmap de Productivité</CardTitle>
+        <CardTitle>Productivity Heatmap</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
@@ -122,9 +122,9 @@ export default function ProductivityHeatmap({
               </div>
             ))}
 
-            {/* Légende */}
+            {/* Legend */}
             <div className="flex items-center justify-end gap-2 mt-4 text-xs text-muted-foreground">
-              <span>Moins</span>
+              <span>Less</span>
               <div className="flex gap-1">
                 <div className="w-3 h-3 rounded-sm bg-gray-100 dark:bg-gray-800" />
                 <div className="w-3 h-3 rounded-sm bg-green-200" />
@@ -133,7 +133,7 @@ export default function ProductivityHeatmap({
                 <div className="w-3 h-3 rounded-sm bg-green-600" />
                 <div className="w-3 h-3 rounded-sm bg-green-700" />
               </div>
-              <span>Plus</span>
+              <span>More</span>
             </div>
           </div>
         </div>

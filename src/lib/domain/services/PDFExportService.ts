@@ -37,16 +37,16 @@ const formatDateRange = (range: string): string => {
   const now = new Date();
   switch (range) {
     case "7days":
-      return "Les 7 derniers jours";
+      return "Last 7 days";
     case "30days":
-      return "Les 30 derniers jours";
+      return "Last 30 days";
     case "thisMonth":
-      return `${now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}`;
+      return `${now.toLocaleDateString("en-US", { month: "long", year: "numeric" })}`;
     case "lastMonth":
       const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1);
-      return `${lastMonth.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}`;
+      return `${lastMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}`;
     case "thisYear":
-      return `Année ${now.getFullYear()}`;
+      return `Year ${now.getFullYear()}`;
     default:
       return range;
   }
@@ -66,32 +66,32 @@ export const exportCustomAnalyticsToPDF = async (
 
   // Header
   doc.setFontSize(20);
-  doc.text("Rapport de Productivité Focusly", 20, yPosition);
+  doc.text("Focusly Productivity Report", 20, yPosition);
   yPosition += 10;
 
   doc.setFontSize(10);
-  doc.text(`Utilisateur: ${userName}`, 20, yPosition);
-  doc.text(`Période: ${formatDateRange(options.timeRange)}`, 20, yPosition + 5);
+  doc.text(`User: ${userName}`, 20, yPosition);
+  doc.text(`Period: ${formatDateRange(options.timeRange)}`, 20, yPosition + 5);
   doc.text(
-    `Généré le: ${new Date().toLocaleDateString("fr-FR")}`,
+    `Generated on: ${new Date().toLocaleDateString("en-US")}`,
     150,
     yPosition,
   );
   yPosition += 20;
 
-  // Stats si sélectionné
+  // Stats if selected
   if (options.includeStats) {
     doc.setFontSize(16);
-    doc.text("Statistiques", 20, yPosition);
+    doc.text("Statistics", 20, yPosition);
     yPosition += 10;
 
     const statsData = [
-      ["Métrique", "Valeur"],
-      ["Sessions totales", stats.totalSessions.toString()],
-      ["Tâches complétées", `${stats.completedTasks}/${stats.totalTasks}`],
-      ["Temps focus total", DateTimeService.formatTime(stats.totalFocusTime)],
-      ["Streak actuel", `${stats.streak} jours`],
-      ["Plus long streak", `${stats.longestStreak || 0} jours`],
+      ["Metric", "Value"],
+      ["Total Sessions", stats.totalSessions.toString()],
+      ["Completed Tasks", `${stats.completedTasks}/${stats.totalTasks}`],
+      ["Total Focus Time", DateTimeService.formatTime(stats.totalFocusTime)],
+      ["Current Streak", `${stats.streak} days`],
+      ["Longest Streak", `${stats.longestStreak || 0} days`],
     ];
 
     (doc as any).autoTable({
@@ -128,7 +128,7 @@ export const exportCustomAnalyticsToPDF = async (
     }
   }
 
-  // Insights si sélectionné
+  // Insights if selected
   if (options.includeInsights && insights.length > 0) {
     if (yPosition > 200) {
       doc.addPage();
@@ -136,7 +136,7 @@ export const exportCustomAnalyticsToPDF = async (
     }
 
     doc.setFontSize(16);
-    doc.text("Insights et Recommandations", 20, yPosition);
+    doc.text("Insights & Recommendations", 20, yPosition);
     yPosition += 10;
 
     insights.forEach((insight) => {
@@ -171,13 +171,13 @@ export const exportCustomAnalyticsToPDF = async (
     });
   }
 
-  // Tasks si sélectionné
+  // Tasks if selected
   if (options.includeTasks && tasks.length > 0) {
     doc.addPage();
     yPosition = 20;
 
     doc.setFontSize(16);
-    doc.text("Tâches Récentes", 20, yPosition);
+    doc.text("Recent Tasks", 20, yPosition);
     yPosition += 10;
 
     const recentTasks = tasks
@@ -185,13 +185,13 @@ export const exportCustomAnalyticsToPDF = async (
       .slice(0, 20)
       .map((t) => [
         t.title.substring(0, 40),
-        new Date(t.completed_at || t.created_at).toLocaleDateString("fr-FR"),
+        new Date(t.completed_at || t.created_at).toLocaleDateString("en-US"),
       ]);
 
     if (recentTasks.length > 0) {
       (doc as any).autoTable({
         startY: yPosition,
-        head: [["Tâche", "Date"]],
+        head: [["Task", "Date"]],
         body: recentTasks,
         theme: "grid",
         styles: { fontSize: 9 },
@@ -200,6 +200,6 @@ export const exportCustomAnalyticsToPDF = async (
   }
 
   // Save
-  const filename = `focusly-rapport-${options.timeRange}-${Date.now()}.pdf`;
+  const filename = `focusly-report-${options.timeRange}-${Date.now()}.pdf`;
   doc.save(filename);
 };

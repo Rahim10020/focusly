@@ -81,7 +81,7 @@ export default function ExportPDFModal({
               className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
             />
             <label htmlFor="stats" className="text-sm cursor-pointer">
-              Statistiques générales
+              General Statistics
             </label>
           </div>
 
@@ -96,7 +96,7 @@ export default function ExportPDFModal({
               className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
             />
             <label htmlFor="charts" className="text-sm cursor-pointer">
-              Graphiques de productivité
+              Productivity Charts
             </label>
           </div>
 
@@ -111,7 +111,7 @@ export default function ExportPDFModal({
               className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
             />
             <label htmlFor="insights" className="text-sm cursor-pointer">
-              Insights et recommandations
+              Insights & Recommendations
             </label>
           </div>
 
@@ -126,15 +126,15 @@ export default function ExportPDFModal({
               className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
             />
             <label htmlFor="tasks" className="text-sm cursor-pointer">
-              Liste des tâches récentes
+              Recent Tasks List
             </label>
           </div>
         </div>
 
-        {/* Plage temporelle */}
+        {/* Time Range */}
         <div className="space-y-2">
           <label htmlFor="timeRange" className="text-base font-semibold block">
-            Plage temporelle
+            Time Range
           </label>
           <select
             id="timeRange"
@@ -144,19 +144,17 @@ export default function ExportPDFModal({
             }
             className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="7days">7 derniers jours</option>
-            <option value="30days">30 derniers jours</option>
-            <option value="thisMonth">Ce mois</option>
-            <option value="lastMonth">Mois dernier</option>
-            <option value="thisYear">Cette année</option>
+            <option value="7days">Last 7 days</option>
+            <option value="30days">Last 30 days</option>
+            <option value="thisMonth">This month</option>
+            <option value="lastMonth">Last month</option>
+            <option value="thisYear">This year</option>
           </select>
         </div>
 
         {/* Format */}
         <div className="space-y-2">
-          <label className="text-base font-semibold block">
-            Format du rapport
-          </label>
+          <label className="text-base font-semibold block">Report Format</label>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <input
@@ -169,7 +167,7 @@ export default function ExportPDFModal({
                 className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
               />
               <label htmlFor="detailed" className="text-sm cursor-pointer">
-                Détaillé (toutes les informations)
+                Detailed (all information)
               </label>
             </div>
             <div className="flex items-center space-x-2">
@@ -183,7 +181,7 @@ export default function ExportPDFModal({
                 className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
               />
               <label htmlFor="summary" className="text-sm cursor-pointer">
-                Résumé (aperçu concis)
+                Summary (concise overview)
               </label>
             </div>
           </div>
