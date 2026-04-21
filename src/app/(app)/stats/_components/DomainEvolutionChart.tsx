@@ -318,7 +318,7 @@ export default function DomainEvolutionChart({
         {domainStats.map((stat, index) => (
           <div
             key={index}
-            className="bg-card p-4 rounded-xl border border-border hover:shadow-lg transition-shadow"
+            className="bg-card p-4 rounded-xl border border-border hover:shadow-sm transition-shadow"
           >
             <div className="flex items-start justify-between mb-3">
               <h4 className="text-sm font-medium">{stat.fullDomain}</h4>

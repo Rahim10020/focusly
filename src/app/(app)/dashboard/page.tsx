@@ -160,61 +160,6 @@ export default function DashboardPage() {
           </p>
         </div>
       </div>
-      {/* Export Buttons */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <Button
-          variant="outline"
-          onClick={() => exportTasksToCSV(tasks)}
-          className="text-sm"
-        >
-          <DownloadIcon size={16} className="mr-2" />
-          Export Tasks (CSV)
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => exportTasksToPDF(tasks, session?.user?.name || "User")}
-          className="text-sm"
-        >
-          <FileDocumentIcon size={16} className="mr-2" />
-          Export Tasks (PDF)
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            exportAnalyticsToCSV(
-              stats || {
-                totalFocusTime: 0,
-                totalTasks,
-                completedTasks,
-                totalSessions: 0,
-                streak: 0,
-              },
-              tasks,
-              sessions,
-            )
-          }
-          className="text-sm"
-        >
-          <CircleIcon size={16} className="mr-2" />
-          Analytics (CSV)
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => setShowExportModal(true)}
-          className="text-sm"
-        >
-          <CircleIcon size={16} className="mr-2" />
-          Analytics (PDF Custom)
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => exportTasksToICS(tasks)}
-          className="text-sm"
-        >
-          <CalendarIcon size={16} className="mr-2" />
-          Export Calendar (iCal)
-        </Button>
-      </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -342,6 +287,62 @@ export default function DashboardPage() {
           Life Domains Progress
         </h2>
         <DomainEvolutionChart tasks={tasks} />
+      </div>
+
+      {/* Export Buttons */}
+      <div className="flex flex-wrap gap-2 mb-4 mt-20">
+        <Button
+          variant="outline"
+          onClick={() => exportTasksToCSV(tasks)}
+          className="text-sm"
+        >
+          <DownloadIcon size={16} className="mr-2" />
+          Export Tasks (CSV)
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => exportTasksToPDF(tasks, session?.user?.name || "User")}
+          className="text-sm"
+        >
+          <FileDocumentIcon size={16} className="mr-2" />
+          Export Tasks (PDF)
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            exportAnalyticsToCSV(
+              stats || {
+                totalFocusTime: 0,
+                totalTasks,
+                completedTasks,
+                totalSessions: 0,
+                streak: 0,
+              },
+              tasks,
+              sessions,
+            )
+          }
+          className="text-sm"
+        >
+          <CircleIcon size={16} className="mr-2" />
+          Analytics (CSV)
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => setShowExportModal(true)}
+          className="text-sm"
+        >
+          <CircleIcon size={16} className="mr-2" />
+          Analytics (PDF Custom)
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => exportTasksToICS(tasks)}
+          className="text-sm"
+        >
+          <CalendarIcon size={16} className="mr-2" />
+          Export Calendar (iCal)
+        </Button>
       </div>
 
       {/* Export PDF Modal */}
