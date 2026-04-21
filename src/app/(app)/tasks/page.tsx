@@ -124,7 +124,7 @@ export default function TasksPage() {
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">My Tasks</h1>
         <p className="text-muted-foreground">
-          Manage and track all your tasks in one place
+          Manage and track all your tasks in one place.
         </p>
       </div>
 

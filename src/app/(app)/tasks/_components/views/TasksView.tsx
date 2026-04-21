@@ -112,10 +112,10 @@ export default function TasksView(props: TasksViewProps) {
   };
 
   const sortOptions = [
-    { value: "default" as SortType, label: "Due Date & Priority", icon: "📅" },
-    { value: "alphabetical" as SortType, label: "Alphabetical", icon: "🔤" },
-    { value: "createdAt" as SortType, label: "Date Added", icon: "🕒" },
-    { value: "priority" as SortType, label: "Priority", icon: "⚡" },
+    { value: "default" as SortType, label: "Due Date & Priority", icon: "" },
+    { value: "alphabetical" as SortType, label: "Alphabetical", icon: "" },
+    { value: "createdAt" as SortType, label: "Date Added", icon: "" },
+    { value: "priority" as SortType, label: "Priority", icon: "" },
   ];
 
   return (
@@ -127,7 +127,7 @@ export default function TasksView(props: TasksViewProps) {
             <span className="text-sm font-medium text-muted-foreground">
               Sort by:
             </span>
-            <div className="flex gap-1 bg-muted p-1 rounded-lg">
+            <div className="flex gap-1 bg-muted p-1 rounded-md">
               {sortOptions.map((option) => (
                 <button
                   key={option.value}
