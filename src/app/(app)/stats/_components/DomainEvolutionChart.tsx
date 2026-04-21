@@ -157,7 +157,7 @@ export default function DomainEvolutionChart({
                     y={y}
                     textAnchor={textAnchor}
                     fill={theme === "dark" ? "#F1F5F9" : "#1F2937"}
-                    fontSize={14}
+                    fontSize={16}
                     dy={isTop ? -12 : isBottom ? 12 : 4}
                   >
                     {value}
@@ -168,7 +168,10 @@ export default function DomainEvolutionChart({
             <PolarRadiusAxis
               angle={90}
               domain={[0, 100]}
-              tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
+              tick={{
+                fill: theme === "dark" ? "#94A3B8" : "#6B7280",
+                fontSize: 11,
+              }}
             />
             <Radar
               name="Score"
