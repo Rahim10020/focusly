@@ -229,7 +229,10 @@ export default function AdvancedProductivityChart({
       <div className="bg-card p-4 rounded-xl border border-border">
         <h3 className="text-sm font-medium mb-4">Daily Focus Time</h3>
         <ResponsiveContainer width="100%" height={200}>
-          <AreaChart data={chartData}>
+          <AreaChart
+            data={chartData}
+            margin={{ top: 5, right: 10, left: 15, bottom: 5 }}
+          >
             <defs>
               <linearGradient id="colorMinutes" x1="0" y1="0" x2="0" y2="1">
                 <stop
@@ -249,6 +252,7 @@ export default function AdvancedProductivityChart({
               dataKey="date"
               className="text-xs"
               tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
+              padding={{ left: 100, right: 20 }}
             />
             <YAxis
               className="text-xs"
