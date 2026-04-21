@@ -296,15 +296,15 @@ export default function DashboardPage() {
           onClick={() => exportTasksToCSV(tasks)}
           size="sm"
         >
-          <DownloadIcon size={16} className="mr-2" />
+          <DownloadIcon size={16} />
           Export Tasks (CSV)
         </Button>
         <Button
           variant="outline"
           onClick={() => exportTasksToPDF(tasks, session?.user?.name || "User")}
-          className="text-sm"
+          size="sm"
         >
-          <FileDocumentIcon size={16} className="mr-2" />
+          <FileDocumentIcon size={16} />
           Export Tasks (PDF)
         </Button>
         <Button
@@ -322,25 +322,25 @@ export default function DashboardPage() {
               sessions,
             )
           }
-          className="text-sm"
+          size="sm"
         >
-          <CircleIcon size={16} className="mr-2" />
+          <CircleIcon size={16} />
           Analytics (CSV)
         </Button>
         <Button
           variant="outline"
           onClick={() => setShowExportModal(true)}
-          className="text-sm"
+          size="sm"
         >
-          <CircleIcon size={16} className="mr-2" />
+          <CircleIcon size={16} />
           Analytics (PDF Custom)
         </Button>
         <Button
           variant="outline"
           onClick={() => exportTasksToICS(tasks)}
-          className="text-sm"
+          size="sm"
         >
-          <CalendarIcon size={16} className="mr-2" />
+          <CalendarIcon size={16} />
           Export Calendar (iCal)
         </Button>
       </div>
