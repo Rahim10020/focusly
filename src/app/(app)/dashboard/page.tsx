@@ -327,7 +327,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Productivity Heatmap */}
-      <div className="mb-8">
+      <div className="mb-20">
         <ProductivityHeatmap
           sessions={sessions.map((session) => ({
             started_at: new Date(session.startedAt).toISOString(),
@@ -337,8 +337,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Domain Evolution */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Life Domains Progress</h2>
+      <div className="mb-10 mt-12">
+        <h2 className="text-2xl tracking-wide font-bold mb-8">
+          Life Domains Progress
+        </h2>
         <DomainEvolutionChart tasks={tasks} />
       </div>
 
