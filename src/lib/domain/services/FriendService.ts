@@ -1,9 +1,10 @@
 import { AuthContext } from "@/lib/api/middleware/auth";
 import { getUserSupabaseClient } from "@/lib/api/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase";
 
 export class FriendService {
-  private supabase: SupabaseClient;
+  private supabase: SupabaseClient<Database>;
   private auth: AuthContext;
 
   constructor(auth: AuthContext) {

@@ -20,6 +20,7 @@ import { CreateNotificationSchema } from "@/lib/api/schemas";
 import { successResponse, Errors } from "@/lib/api/utils/response";
 import { getUserSupabaseClient } from "@/lib/api/supabase";
 import type { AuthContext } from "@/lib/api/middleware/auth";
+import type { Json } from "@/lib/supabase/database.types";
 
 /**
  * Retrieves all notifications for the authenticated user.
@@ -128,7 +129,7 @@ async function postHandler(
       type,
       title,
       message,
-      data: data || null,
+      data: (data as Json) || null,
       read: false,
     })
     .select()

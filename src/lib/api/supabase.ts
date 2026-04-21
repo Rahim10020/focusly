@@ -6,13 +6,14 @@
 import { createClient } from "@supabase/supabase-js";
 import { supabaseServerPool } from "@/lib/supabase/server";
 import type { AuthContext } from "./middleware/auth";
+import type { Database } from "@/lib/supabase";
 
 /**
  * Get Supabase admin client
  * Use for server-side operations with full permissions
  * Requires appropriate RLS policies to be set
  */
-export function getAdminSupabaseClient() {
+export function getAdminSupabaseClient(): import("@supabase/supabase-js").SupabaseClient<Database> {
   return supabaseServerPool.getAdminClient();
 }
 
@@ -36,7 +37,7 @@ export function getAdminSupabaseClient() {
  *   return successResponse(tasks);
  * });
  */
-export function getUserSupabaseClient(auth: AuthContext) {
+export function getUserSupabaseClient(auth: AuthContext): import("@supabase/supabase-js").SupabaseClient<Database> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -44,7 +45,7 @@ export function getUserSupabaseClient(auth: AuthContext) {
     throw new Error("Missing Supabase configuration");
   }
 
-  return createClient(
+  return createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
@@ -61,7 +62,7 @@ export function getUserSupabaseClient(auth: AuthContext) {
  * Get Supabase client for unauthenticated operations
  * Use for public data retrieval or guest operations
  */
-export function getPublicSupabaseClient() {
+export function getPublicSupabaseClient(): import("@supabase/supabase-js").SupabaseClient<Database> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -69,7 +70,7 @@ export function getPublicSupabaseClient() {
     throw new Error("Missing Supabase configuration");
   }
 
-  return createClient(
+  return createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   );
