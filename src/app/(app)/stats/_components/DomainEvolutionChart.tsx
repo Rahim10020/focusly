@@ -210,16 +210,20 @@ export default function DomainEvolutionChart({
       {/* Bar Chart - Tasks by Domain */}
       <div className="bg-card p-6 rounded-xl border border-border">
         <h3 className="text-xl font-medium mb-8">Tasks Completion by Domain</h3>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={350}>
           <BarChart data={domainStats}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis
               dataKey="domain"
               className="text-xs"
-              tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
-              angle={-15}
+              tick={{
+                fill: theme === "dark" ? "#94A3B8" : "#6B7280",
+                fontSize: 16,
+              }}
+              angle={-10}
               textAnchor="end"
-              height={80}
+              height={100}
+              interval={0}
             />
             <YAxis
               className="text-xs"
