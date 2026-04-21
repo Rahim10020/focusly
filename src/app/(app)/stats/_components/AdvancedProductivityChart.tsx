@@ -285,7 +285,10 @@ export default function AdvancedProductivityChart({
               className="text-xs"
               tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={<CustomTooltip />}
+              cursor={{ fill: theme === "dark" ? "#334155" : "#F3F4F6" }}
+            />
             <Bar
               dataKey="sessions"
               fill={theme === "dark" ? "#F87171" : "#EF4444"}
