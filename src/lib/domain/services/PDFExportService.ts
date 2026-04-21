@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import "jspdf-autotable";
 import html2canvas from "html2canvas";
 import { DateTimeService } from "@/lib/domain/services/DateTimeService";
 import { ExportOptions } from "@/app/(app)/dashboard/_components/ExportPDFModal";
@@ -94,7 +94,7 @@ export const exportCustomAnalyticsToPDF = async (
       ["Plus long streak", `${stats.longestStreak || 0} jours`],
     ];
 
-    autoTable(doc, {
+    (doc as any).autoTable({
       startY: yPosition,
       head: [statsData[0]],
       body: statsData.slice(1),
@@ -189,7 +189,7 @@ export const exportCustomAnalyticsToPDF = async (
       ]);
 
     if (recentTasks.length > 0) {
-      autoTable(doc, {
+      (doc as any).autoTable({
         startY: yPosition,
         head: [["Tâche", "Date"]],
         body: recentTasks,
