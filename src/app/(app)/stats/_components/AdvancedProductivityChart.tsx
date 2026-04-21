@@ -302,12 +302,16 @@ export default function AdvancedProductivityChart({
       <div className="bg-card p-4 rounded-xl border border-border">
         <h3 className="text-sm font-medium mb-4">Focus Score Trend</h3>
         <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={chartData}>
+          <LineChart
+            data={chartData}
+            margin={{ top: 5, right: 10, left: 15, bottom: 5 }}
+          >
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis
               dataKey="date"
               className="text-xs"
               tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
+              padding={{ left: 100, right: 20 }}
             />
             <YAxis
               className="text-xs"
