@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { ROUTES } from "@/constants";
 import { ArrowRightLgIcon } from "@/components/shared/icons";
+import LiquidEther from "@/components/LiquidEther";
 
 export function LandingPage() {
   const router = useRouter();
@@ -14,6 +15,19 @@ export function LandingPage() {
     <div className="min-h-screen bg-background transition-colors duration-200">
       {/* Hero Section */}
       <main className="relative overflow-hidden min-h-screen flex items-center">
+        {/* LiquidEther Background */}
+        <div className="absolute inset-0 pointer-events-none opacity-40 dark:opacity-60">
+          <LiquidEther
+            colors={["#ef4444", "#f59e0b", "#10b981"]}
+            resolution={0.7}
+            cursorSize={80}
+            mouseForce={15}
+            autoDemo={true}
+            autoSpeed={0.3}
+            autoIntensity={1.8}
+          />
+        </div>
+
         {/* Background Gradient */}
         <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-brand-accent/5 dark:from-primary/10 dark:to-brand-accent/10 pointer-events-none" />
 
