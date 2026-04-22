@@ -136,9 +136,9 @@ export default function TasksPage() {
             <Button
               onClick={handleCreateTask}
               size="sm"
-              className="flex items-center gap-2"
+              className="flex items-center text-sm font-medium gap-1"
             >
-              <AddPlusIcon size={16} />
+              <AddPlusIcon size={20} />
               New Task
             </Button>
           </div>

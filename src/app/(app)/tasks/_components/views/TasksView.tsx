@@ -124,15 +124,15 @@ export default function TasksView(props: TasksViewProps) {
       {showSortOptions && (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-muted-foreground">
+            <span className="text-sm font-semibold text-muted-foreground">
               Sort by:
             </span>
-            <div className="flex gap-1 bg-muted p-1 rounded-md">
+            <div className="flex gap-1 bg-muted p-1 rounded-xl">
               {sortOptions.map((option) => (
                 <button
                   key={option.value}
                   onClick={() => setSortType(option.value)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer flex items-center gap-1 ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer flex items-center gap-1 ${
                     sortType === option.value
                       ? "bg-background text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
@@ -152,10 +152,10 @@ export default function TasksView(props: TasksViewProps) {
             active tasks
           </div>
           {/* View Toggle */}
-          <div className="flex items-center gap-2 bg-muted p-1 rounded-lg">
+          <div className="flex items-center gap-2 bg-muted p-1 rounded-xl">
             <button
               onClick={() => setView("list")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                 view === "list"
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
