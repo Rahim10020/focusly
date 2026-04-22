@@ -209,7 +209,7 @@ export default function Settings({
           <CardTitle>Sound & Notifications</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-4 mt-8">
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-sm text-foreground">
                 Enable sound notifications
@@ -224,8 +224,8 @@ export default function Settings({
 
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium">Browser Notifications</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="font-medium text-sm">Browser Notifications</h3>
+                <p className="text-xs text-muted-foreground">
                   {permission === "granted" ? "Enabled" : "Not enabled"}
                 </p>
               </div>
@@ -258,7 +258,7 @@ export default function Settings({
               <MyLoader label="Loading" />
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 mt-12">
               {visibilitySettings.map((setting) => (
                 <label
                   key={setting.stat_field}

@@ -438,3 +438,9 @@ body {
   background-color: var(--primary);
   color: var(--primary-foreground);
 }
+
+/* Checkbox and form elements accent color */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--primary);
+}
