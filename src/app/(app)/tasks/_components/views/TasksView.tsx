@@ -168,7 +168,7 @@ export default function TasksView(props: TasksViewProps) {
             </button>
             <button
               onClick={() => setView("board")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                 view === "board"
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
