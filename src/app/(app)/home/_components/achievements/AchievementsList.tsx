@@ -11,9 +11,6 @@ import AchievementCard from "./components/AchievementCard";
 
 /**
  * Props for the AchievementsList component.
- * @interface AchievementsListProps
- * @property {Achievement[]} unlockedAchievements - Array of achievements the user has unlocked
- * @property {Achievement[]} lockedAchievements - Array of achievements still to be unlocked
  */
 interface AchievementsListProps {
   unlockedAchievements: Achievement[];
@@ -24,23 +21,6 @@ interface AchievementsListProps {
  * Achievements list component that displays user achievements organized by level.
  * Features tabbed navigation between beginner and expert achievements,
  * with progress bars for locked achievements.
- *
- * @param {AchievementsListProps} props - Component props
- * @param {Achievement[]} props.unlockedAchievements - Achievements the user has earned
- * @param {Achievement[]} props.lockedAchievements - Achievements still in progress
- * @returns {JSX.Element} The achievements list with tabs and progress indicators
- *
- * @example
- * function AchievementsPage() {
- *   const { unlocked, locked } = useAchievements();
- *
- *   return (
- *     <AchievementsList
- *       unlockedAchievements={unlocked}
- *       lockedAchievements={locked}
- *     />
- *   );
- * }
  */
 export default function AchievementsList({
   unlockedAchievements,
@@ -58,10 +38,10 @@ export default function AchievementsList({
   return (
     <div className="space-y-6">
       {/* Tab Navigation */}
-      <div className="flex space-x-1 bg-muted p-1 rounded-lg">
+      <div className="flex space-x-1 bg-muted p-1 rounded-xl">
         <button
           onClick={() => setActiveTab("beginner")}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${
+          className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all cursor-pointer ${
             activeTab === "beginner"
               ? "bg-background text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
@@ -74,7 +54,7 @@ export default function AchievementsList({
         </button>
         <button
           onClick={() => setActiveTab("expert")}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${
+          className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all cursor-pointer ${
             activeTab === "expert"
               ? "bg-background text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"

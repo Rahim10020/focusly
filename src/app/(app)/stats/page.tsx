@@ -17,15 +17,6 @@ import { useState, useMemo } from "react";
 import { MyLoader } from "@/components/shared/MyLoader";
 import StatsCard from "@/app/(app)/stats/_components/StatsCard";
 
-// Lazy load heavy chart components
-const ProductivityChart = dynamic(
-  () => import("@/app/(app)/stats/_components/ProductivityChart"),
-  {
-    ssr: false,
-    loading: () => <MyLoader label="Loading productivity chart..." />,
-  },
-);
-
 const AchievementsList = dynamic(
   () => import("@/app/(app)/home/_components/achievements/AchievementsList"),
   {
@@ -178,15 +169,6 @@ export default function StatsPage() {
                   value={`${taskStats.failureRate.toFixed(1)}%`}
                 />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Weekly Focus Time</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ProductivityChart sessions={sessions} />
             </CardContent>
           </Card>
 
