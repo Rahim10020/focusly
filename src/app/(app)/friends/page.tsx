@@ -273,7 +273,11 @@ export default function FriendsPage() {
   };
 
   if (status === "loading" || loading) {
-    return <MyLoader label="Loading friends" />;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <MyLoader label="Loading friends" />;
+      </div>
+    );
   }
 
   return (

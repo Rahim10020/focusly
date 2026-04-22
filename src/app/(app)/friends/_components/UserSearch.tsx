@@ -37,63 +37,68 @@ export function UserSearch({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Find Friends</CardTitle>
+        <CardTitle>Find your friends</CardTitle>
       </CardHeader>
       <CardContent>
-        <Input
-          placeholder="Search users by username..."
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-        />
-        {searching && (
-          <div className="mt-4 text-center text-muted-foreground">
-            <MyLoader label="Searching" />
-          </div>
-        )}
-        {!searching && searchResults.length > 0 && (
-          <div className="mt-4 space-y-2">
-            {searchResults.map((user) => (
-              <div
-                key={user.id}
-                className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    {user.avatar_url ? (
-                      <Image
-                        src={user.avatar_url}
-                        alt={user.username || "User"}
-                        width={40}
-                        height={40}
-                        className="w-10 h-10 rounded-full"
-                      />
-                    ) : (
-                      <span className="text-lg">
-                        {(user.username || "A").charAt(0).toUpperCase()}
-                      </span>
-                    )}
+        <div className="max-w-lg">
+          <Input
+            placeholder="Search users by username..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+          />
+          {searching && (
+            <div className="mt-4 text-center text-muted-foreground">
+              <MyLoader label="Searching" />
+            </div>
+          )}
+          {!searching && searchResults.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {searchResults.map((user) => (
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      {user.avatar_url ? (
+                        <Image
+                          src={user.avatar_url}
+                          alt={user.username || "User"}
+                          width={40}
+                          height={40}
+                          className="w-10 h-10 rounded-full"
+                        />
+                      ) : (
+                        <span className="text-lg">
+                          {(user.username || "A").charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        {user.username || "Anonymous User"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {user.stats?.completed_tasks || 0} tasks completed
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">
-                      {user.username || "Anonymous User"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {user.stats?.completed_tasks || 0} tasks completed
-                    </p>
-                  </div>
+                  <Button
+                    onClick={() => onSendFriendRequest(user.id)}
+                    size="sm"
+                  >
+                    Add Friend
+                  </Button>
                 </div>
-                <Button onClick={() => onSendFriendRequest(user.id)} size="sm">
-                  Add Friend
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-        {!searching && searchQuery && searchResults.length === 0 && (
-          <p className="mt-4 text-center text-muted-foreground">
-            No users found
-          </p>
-        )}
+              ))}
+            </div>
+          )}
+          {!searching && searchQuery && searchResults.length === 0 && (
+            <p className="mt-4 text-center text-muted-foreground">
+              No users found
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
