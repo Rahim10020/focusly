@@ -178,17 +178,18 @@ export default function Settings({
                 max={60}
               />
             </div>
+            <div className="max-w-50">
+              <Input
+                type="number"
+                label="Pomodoros before long break"
+                value={cycles}
+                onChange={(e) => setCycles(Number(e.target.value))}
+                min={2}
+                max={10}
+              />
+            </div>
 
-            <Input
-              type="number"
-              label="Pomodoros before long break"
-              value={cycles}
-              onChange={(e) => setCycles(Number(e.target.value))}
-              min={2}
-              max={10}
-            />
-
-            <div className="flex-column space-y-3 md:space-y-0 md:flex items-center gap-3">
+            <div className="flex-column space-y-3 md:space-y-0 md:flex items-center md:justify-end gap-3">
               <Button onClick={handleSave}>Save Settings</Button>
               <Button onClick={onReset} variant="secondary">
                 Reset to Default
