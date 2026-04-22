@@ -1,7 +1,4 @@
-import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-
-export interface LiquidEtherProps {
+/* File marked for deletion */
   mouseForce?: number;
   cursorSize?: number;
   isViscous?: boolean;
