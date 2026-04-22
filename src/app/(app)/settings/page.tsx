@@ -20,21 +20,23 @@ export default function SettingsPage() {
   const { soundEnabled, toggleSound } = useSound();
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-4xl font-bold text-foreground mb-2">Settings</h1>
-        <p className="text-muted-foreground">
-          Customize your Focusly experience
-        </p>
-      </div>
+    <div className="max-w-3xl mx-auto">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Settings</h1>
+          <p className="text-muted-foreground">
+            Customize your Focusly experience
+          </p>
+        </div>
 
-      <Settings
-        settings={settings}
-        onUpdateSettings={updateSettings}
-        onReset={resetSettings}
-        soundEnabled={soundEnabled}
-        onToggleSound={toggleSound}
-      />
+        <Settings
+          settings={settings}
+          onUpdateSettings={updateSettings}
+          onReset={resetSettings}
+          soundEnabled={soundEnabled}
+          onToggleSound={toggleSound}
+        />
+      </div>
     </div>
   );
 }

@@ -2,9 +2,9 @@
  * @fileoverview Preset profiles component for settings
  */
 
-'use client';
+"use client";
 
-import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 
 interface PresetProfile {
   name: string;
@@ -20,7 +20,10 @@ interface PresetProfilesProps {
   onApplyPreset: (presetKey: string) => void;
 }
 
-export function PresetProfiles({ presets, onApplyPreset }: PresetProfilesProps) {
+export function PresetProfiles({
+  presets,
+  onApplyPreset,
+}: PresetProfilesProps) {
   return (
     <Card>
       <CardHeader>
@@ -30,7 +33,7 @@ export function PresetProfiles({ presets, onApplyPreset }: PresetProfilesProps) 
         </p>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
           {Object.entries(presets).map(([key, profile]) => (
             <button
               key={key}
