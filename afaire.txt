@@ -14,3 +14,6 @@ A Faire PROCHAINEMENT
  Quand je vais dans les pages de l'app(les items de menu et autres) et que 
  je reviens sur la home page il y a a chaque fois un chargement pour les taches. 
  c'est pas bien. ca rend les choses trop lourds.
+
+ - modif ui : Create task modal, 
+ - test creation of task and check the way it working
