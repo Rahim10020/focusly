@@ -56,13 +56,15 @@ export default function TaskModalDetails({
     <div className="p-6 space-y-8">
       <TaskTitleInput value={title} onChange={onTitleChange} autoFocus />
 
-      <PrioritySelector value={priority} onChange={onPriorityChange} />
+      <div className="flex flex-col items-start gap-2">
+        <PrioritySelector value={priority} onChange={onPriorityChange} />
 
-      <TagsSelector
-        tags={tags}
-        selectedTags={selectedTags}
-        onToggle={onTagsToggle}
-      />
+        <TagsSelector
+          tags={tags}
+          selectedTags={selectedTags}
+          onToggle={onTagsToggle}
+        />
+      </div>
 
       <ScheduleDuration
         startDate={startDate}

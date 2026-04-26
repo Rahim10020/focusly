@@ -19,7 +19,7 @@ export default function TaskModalHeader({
 }: TaskModalHeaderProps) {
   return (
     <div className="sticky top-0 bg-card border-b border-border p-6 flex items-center justify-between z-10">
-      <h2 className="text-xl font-semibold text-foreground">
+      <h2 className="text-2xl font-semibold text-foreground">
         {isEditing ? "Edit Task" : "Create New Task"}
       </h2>
       <div className="flex items-center gap-3">
