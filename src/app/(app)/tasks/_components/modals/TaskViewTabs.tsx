@@ -31,7 +31,7 @@ export default function TaskModalTabs({
 
   return (
     <div className="sticky top-[89px] bg-card border-b border-border px-6 py-2 z-10">
-      <div className="flex">
+      <div className="flex items-center justify-between">
         {tabs.map((tab) => (
           <button
             key={tab.id}
