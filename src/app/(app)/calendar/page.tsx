@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/hooks/useAuth";
 import dynamic from "next/dynamic";
 import { useTasks } from "@/hooks/useTasks";
-import { useTags } from "@/hooks/useTags";
 import { Task } from "@/types";
 import TaskViewModal from "@/app/(app)/tasks/_components/modals/TaskViewModal";
 import { MyLoader } from "@/components/shared/MyLoader";
@@ -42,7 +41,6 @@ export default function CalendarPage() {
     deleteSubTask,
     addTask,
   } = useTasks();
-  const { tags } = useTags();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   if (status === "loading") {
@@ -79,7 +77,6 @@ export default function CalendarPage() {
       {selectedTask && (
         <TaskViewModal
           task={selectedTask}
-          tags={tags}
           onClose={() => setSelectedTask(null)}
           onUpdate={(updates) => updateTask(selectedTask.id, updates)}
           onAddSubTask={(title) => addSubTask(selectedTask.id, title)}

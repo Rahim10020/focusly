@@ -1,7 +1,7 @@
 /**
  * @fileoverview TaskModal component for creating and editing tasks.
- * Provides a comprehensive form with fields for title, priority, tags, dates, times,
- * duration, notes, categories, and subtasks. Supports fullscreen mode.
+ * Provides a comprehensive form with fields for title, priority, dates, times,
+ * duration, categories, and subtasks. Supports fullscreen mode.
  */
 
 "use client";
@@ -14,7 +14,7 @@ import TaskFormContentFullscreen from "./TaskFormContentFullscreen";
 import TaskModalFooter from "./TaskModalFooter";
 import CategorySelector from "../forms/CategorySelector";
 import SubTaskManager from "../items/SubTaskManager";
-import { Priority, SubDomain, Tag } from "@/types";
+import { Priority, SubDomain } from "@/types";
 
 /**
  * Props for the TaskModal component.
@@ -24,8 +24,6 @@ interface TaskModalProps {
   onClose: () => void;
   onSave: (taskData: TaskFormData) => void;
   initialData?: TaskFormData;
-  /** Available tags for task categorization */
-  tags: Tag[];
 }
 
 /**
@@ -48,8 +46,8 @@ export interface TaskFormData {
 
 /**
  * TaskModal component provides a form for creating new tasks or editing existing ones.
- * Features include priority selection, tag assignment, date/time scheduling,
- * duration calculation, notes, category selection, and subtask management.
+ * Features include priority selection, date/time scheduling, duration calculation,
+ * category selection, and subtask management.
  * Supports both compact and fullscreen modes.
  */
 export default function TaskModal({
@@ -57,7 +55,6 @@ export default function TaskModal({
   onClose,
   onSave,
   initialData,
-  tags,
 }: TaskModalProps) {
   if (!isOpen) return null;
 
@@ -69,7 +66,6 @@ export default function TaskModal({
       onClose={onClose}
       onSave={onSave}
       initialData={initialData}
-      tags={tags}
     />
   );
 }
@@ -78,14 +74,13 @@ function TaskModalContent({
   onClose,
   onSave,
   initialData,
-  tags,
 }: Omit<TaskModalProps, "isOpen">) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [title, setTitle] = useState(() => initialData?.title || "");
   const [priority, setPriority] = useState<Priority | undefined>(
     () => initialData?.priority,
   );
-  const [selectedTags, setSelectedTags] = useState<string[]>(
+  const [selectedTags] = useState<string[]>(
     () => initialData?.tags || [],
   );
   const [dueDate, setDueDate] = useState(() =>
@@ -105,7 +100,7 @@ function TaskModalContent({
   const [estimatedDuration, setEstimatedDuration] = useState(
     () => initialData?.estimatedDuration?.toString() || "",
   );
-  const [notes, setNotes] = useState(() => initialData?.notes || "");
+  const [notes] = useState(() => initialData?.notes || "");
   const [selectedSubDomain, setSelectedSubDomain] = useState<
     SubDomain | undefined
   >(() => initialData?.subDomain);
@@ -141,14 +136,6 @@ function TaskModalContent({
     });
 
     onClose();
-  };
-
-  const toggleTag = (tagId: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tagId)
-        ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId],
-    );
   };
 
   const modalClasses = isFullScreen
@@ -192,23 +179,18 @@ function TaskModalContent({
                   <TaskFormContent
                     title={title}
                     priority={priority}
-                    tags={tags}
-                    selectedTags={selectedTags}
                     startDate={startDate}
                     dueDate={dueDate}
                     startTime={startTime}
                     endTime={endTime}
                     estimatedDuration={estimatedDuration}
-                    notes={notes}
                     onTitleChange={setTitle}
                     onPriorityChange={setPriority}
-                    onTagsToggle={toggleTag}
                     onStartDateChange={setStartDate}
                     onDueDateChange={setDueDate}
                     onStartTimeChange={setStartTime}
                     onEndTimeChange={setEndTime}
                     onDurationChange={setEstimatedDuration}
-                    onNotesChange={setNotes}
                   />
                 )}
 
@@ -240,14 +222,11 @@ function TaskModalContent({
                 <TaskFormContentFullscreen
                   title={title}
                   priority={priority}
-                  tags={tags}
-                  selectedTags={selectedTags}
                   startDate={startDate}
                   dueDate={dueDate}
                   startTime={startTime}
                   endTime={endTime}
                   estimatedDuration={estimatedDuration}
-                  notes={notes}
                   selectedSubDomain={selectedSubDomain}
                   subTasks={subTasks}
                   searchQuery={searchQuery}
@@ -255,13 +234,11 @@ function TaskModalContent({
                   isSubTasksOpen={isSubTasksOpen}
                   onTitleChange={setTitle}
                   onPriorityChange={setPriority}
-                  onTagsToggle={toggleTag}
                   onStartDateChange={setStartDate}
                   onDueDateChange={setDueDate}
                   onStartTimeChange={setStartTime}
                   onEndTimeChange={setEndTime}
                   onDurationChange={setEstimatedDuration}
-                  onNotesChange={setNotes}
                   onSubDomainChange={setSelectedSubDomain}
                   onSubTasksChange={setSubTasks}
                   onSearchChange={setSearchQuery}

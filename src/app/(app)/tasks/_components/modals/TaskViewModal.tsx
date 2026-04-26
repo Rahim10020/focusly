@@ -5,7 +5,7 @@
 "use client";
 
 import { useState } from "react";
-import { Task, Tag, Priority, SubDomain } from "@/types";
+import { Task, Priority, SubDomain } from "@/types";
 import TaskModalHeader from "./TaskModalHeader";
 import TaskViewTabs from "./TaskViewTabs";
 import TaskFormContent from "./TaskFormContent";
@@ -18,7 +18,6 @@ import TaskViewFooter from "./details/TaskViewFooter";
 
 interface TaskDetailsModalProps {
   task: Task;
-  tags: Tag[];
   onClose: () => void;
   onUpdate: (updates: Partial<Task>) => void;
   onAddSubTask: (title: string) => void;
@@ -28,7 +27,6 @@ interface TaskDetailsModalProps {
 
 export default function TaskDetailsModal({
   task,
-  tags,
   onClose,
   onUpdate,
   onAddSubTask,
@@ -37,9 +35,9 @@ export default function TaskDetailsModal({
 }: TaskDetailsModalProps) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [title, setTitle] = useState(task.title || "");
-  const [notes, setNotes] = useState(task.notes || "");
+  const [notes] = useState(task.notes || "");
   const [priority, setPriority] = useState<Priority | undefined>(task.priority);
-  const [selectedTags, setSelectedTags] = useState<string[]>(task.tags || []);
+  const [selectedTags] = useState<string[]>(task.tags || []);
   const [dueDate, setDueDate] = useState(
     task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
   );
@@ -90,14 +88,6 @@ export default function TaskDetailsModal({
     });
   };
 
-  const toggleTag = (tagId: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tagId)
-        ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId],
-    );
-  };
-
   if (!task) return null;
 
   const modalClasses = isFullScreen
@@ -137,23 +127,18 @@ export default function TaskDetailsModal({
                     <TaskFormContent
                       title={title}
                       priority={priority}
-                      tags={tags}
-                      selectedTags={selectedTags}
                       startDate={startDate}
                       dueDate={dueDate}
                       startTime={startTime}
                       endTime={endTime}
                       estimatedDuration={estimatedDuration}
-                      notes={notes}
                       onTitleChange={setTitle}
                       onPriorityChange={setPriority}
-                      onTagsToggle={toggleTag}
                       onStartDateChange={setStartDate}
                       onDueDateChange={setDueDate}
                       onStartTimeChange={handleStartTimeChange}
                       onEndTimeChange={handleEndTimeChange}
                       onDurationChange={setEstimatedDuration}
-                      onNotesChange={setNotes}
                     />
                     <TaskMetaInfo
                       createdAt={task.createdAt}
@@ -187,14 +172,11 @@ export default function TaskDetailsModal({
                 <TaskFormContentFullscreen
                   title={title}
                   priority={priority}
-                  tags={tags}
-                  selectedTags={selectedTags}
                   startDate={startDate}
                   dueDate={dueDate}
                   startTime={startTime}
                   endTime={endTime}
                   estimatedDuration={estimatedDuration}
-                  notes={notes}
                   selectedSubDomain={selectedSubDomain}
                   subTasks={task.subTasks || []}
                   searchQuery={searchQuery}
@@ -202,13 +184,11 @@ export default function TaskDetailsModal({
                   isSubTasksOpen={isSubTasksOpen}
                   onTitleChange={setTitle}
                   onPriorityChange={setPriority}
-                  onTagsToggle={toggleTag}
                   onStartDateChange={setStartDate}
                   onDueDateChange={setDueDate}
                   onStartTimeChange={handleStartTimeChange}
                   onEndTimeChange={handleEndTimeChange}
                   onDurationChange={setEstimatedDuration}
-                  onNotesChange={setNotes}
                   onSubDomainChange={setSelectedSubDomain}
                   onSubTasksChange={() => {}}
                   onSearchChange={setSearchQuery}

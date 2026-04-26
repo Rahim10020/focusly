@@ -5,50 +5,40 @@
 import TaskTitleInput from "../forms/TaskTitleInput";
 import PrioritySelector from "../forms/PrioritySelector";
 import ScheduleDuration from "../forms/ScheduleDuration";
-import { Tag, Priority } from "@/types";
+import { Priority } from "@/types";
 
 interface TaskModalDetailsProps {
   title: string;
   priority: Priority | undefined;
-  tags: Tag[];
-  selectedTags: string[];
   startDate: string;
   dueDate: string;
   startTime: string;
   endTime: string;
   estimatedDuration: string;
-  notes: string;
   onTitleChange: (value: string) => void;
   onPriorityChange: (value: Priority | undefined) => void;
-  onTagsToggle: (tagId: string) => void;
   onStartDateChange: (value: string) => void;
   onDueDateChange: (value: string) => void;
   onStartTimeChange: (value: string) => void;
   onEndTimeChange: (value: string) => void;
   onDurationChange: (value: string) => void;
-  onNotesChange: (value: string) => void;
 }
 
 export default function TaskModalDetails({
   title,
   priority,
-  tags,
-  selectedTags,
   startDate,
   dueDate,
   startTime,
   endTime,
   estimatedDuration,
-  notes,
   onTitleChange,
   onPriorityChange,
-  onTagsToggle,
   onStartDateChange,
   onDueDateChange,
   onStartTimeChange,
   onEndTimeChange,
   onDurationChange,
-  onNotesChange,
 }: TaskModalDetailsProps) {
   return (
     <div className="p-6 space-y-8">
@@ -70,7 +60,6 @@ export default function TaskModalDetails({
         onEndTimeChange={onEndTimeChange}
         onDurationChange={onDurationChange}
       />
-
     </div>
   );
 }

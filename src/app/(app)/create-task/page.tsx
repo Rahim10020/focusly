@@ -1,7 +1,7 @@
 /**
  * @fileoverview Create Task page for the Focusly application.
  * Provides a full-featured task creation modal with support for
- * priorities, tags, scheduling, domains, and subtasks.
+ * priorities, scheduling, domains, and subtasks.
  * @module app/create-task/page
  */
 
@@ -14,7 +14,6 @@ import TaskEditModal, {
   TaskFormData,
 } from "@/app/(app)/tasks/_components/modals/TaskEditModal";
 import { useTasks } from "@/hooks/useTasks";
-import { useTags } from "@/hooks/useTags";
 import { ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
 
@@ -22,7 +21,6 @@ export default function CreateTaskPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const { addTask } = useTasks();
-  const { tags } = useTags();
   const [isModalOpen] = useState(true);
 
   useEffect(() => {
@@ -84,7 +82,6 @@ export default function CreateTaskPage() {
         isOpen={isModalOpen}
         onClose={handleClose}
         onSave={handleSave}
-        tags={tags}
       />
     </div>
   );

@@ -263,7 +263,6 @@ function TaskItem({
       {showDetails && (
         <TaskViewModal
           task={task}
-          tags={tags}
           onClose={() => setShowDetails(false)}
           onUpdate={(updates) => onUpdate(task.id, updates)}
           onAddSubTask={(title) => onAddSubTask(task.id, title)}

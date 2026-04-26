@@ -8,11 +8,9 @@ import ScheduleDuration from "../forms/ScheduleDuration";
 import CategorySelector from "../forms/CategorySelector";
 import SubTaskManager from "../items/SubTaskManager";
 import {
-  Tag,
   SubDomain,
   Priority,
   DOMAINS,
-  Domain,
   getDomainFromSubDomain,
 } from "@/types";
 import { CaretDownMdIcon } from "@/components/shared/icons";
@@ -20,14 +18,11 @@ import { CaretDownMdIcon } from "@/components/shared/icons";
 interface TaskModalFullscreenProps {
   title: string;
   priority: Priority | undefined;
-  tags: Tag[];
-  selectedTags: string[];
   startDate: string;
   dueDate: string;
   startTime: string;
   endTime: string;
   estimatedDuration: string;
-  notes: string;
   selectedSubDomain: SubDomain | undefined;
   subTasks: { title: string; completed: boolean }[];
   searchQuery: string;
@@ -35,13 +30,11 @@ interface TaskModalFullscreenProps {
   isSubTasksOpen: boolean;
   onTitleChange: (value: string) => void;
   onPriorityChange: (value: Priority | undefined) => void;
-  onTagsToggle: (tagId: string) => void;
   onStartDateChange: (value: string) => void;
   onDueDateChange: (value: string) => void;
   onStartTimeChange: (value: string) => void;
   onEndTimeChange: (value: string) => void;
   onDurationChange: (value: string) => void;
-  onNotesChange: (value: string) => void;
   onSubDomainChange: (value: SubDomain | undefined) => void;
   onSubTasksChange: (subTasks: { title: string; completed: boolean }[]) => void;
   onSearchChange: (value: string) => void;
@@ -52,14 +45,11 @@ interface TaskModalFullscreenProps {
 export default function TaskModalFullscreen({
   title,
   priority,
-  tags,
-  selectedTags,
   startDate,
   dueDate,
   startTime,
   endTime,
   estimatedDuration,
-  notes,
   selectedSubDomain,
   subTasks,
   searchQuery,
@@ -67,13 +57,11 @@ export default function TaskModalFullscreen({
   isSubTasksOpen,
   onTitleChange,
   onPriorityChange,
-  onTagsToggle,
   onStartDateChange,
   onDueDateChange,
   onStartTimeChange,
   onEndTimeChange,
   onDurationChange,
-  onNotesChange,
   onSubDomainChange,
   onSubTasksChange,
   onSearchChange,
