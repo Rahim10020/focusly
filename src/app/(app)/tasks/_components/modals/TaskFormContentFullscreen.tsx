@@ -4,7 +4,6 @@
 
 import TaskTitleInput from "../forms/TaskTitleInput";
 import PrioritySelector from "../forms/PrioritySelector";
-import TagsSelector from "../forms/TagsSelector";
 import ScheduleDuration from "../forms/ScheduleDuration";
 import CategorySelector from "../forms/CategorySelector";
 import SubTaskManager from "../items/SubTaskManager";
@@ -88,12 +87,6 @@ export default function TaskModalFullscreen({
         <TaskTitleInput value={title} onChange={onTitleChange} autoFocus />
 
         <PrioritySelector value={priority} onChange={onPriorityChange} />
-
-        <TagsSelector
-          tags={tags}
-          selectedTags={selectedTags}
-          onToggle={onTagsToggle}
-        />
 
         <div className="border-t border-border" />
 

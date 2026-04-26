@@ -4,7 +4,6 @@
 
 import TaskTitleInput from "../forms/TaskTitleInput";
 import PrioritySelector from "../forms/PrioritySelector";
-import TagsSelector from "../forms/TagsSelector";
 import ScheduleDuration from "../forms/ScheduleDuration";
 import { Tag, Priority } from "@/types";
 
@@ -57,12 +56,6 @@ export default function TaskModalDetails({
 
       <div className="flex flex-col items-start gap-2">
         <PrioritySelector value={priority} onChange={onPriorityChange} />
-
-        <TagsSelector
-          tags={tags}
-          selectedTags={selectedTags}
-          onToggle={onTagsToggle}
-        />
       </div>
 
       <ScheduleDuration
