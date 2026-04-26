@@ -32,7 +32,7 @@ export default function TaskModalHeader({
               : "Switch to full screen mode"
           }
         >
-          {isFullScreen ? <ShrinkIcon size={20} /> : <ExpandIcon size={20} />}
+          {isFullScreen ? <ShrinkIcon size={24} /> : <ExpandIcon size={24} />}
         </button>
         <button
           onClick={onClose}
