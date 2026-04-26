@@ -28,14 +28,15 @@ export default function CategorySelector({
           .toLowerCase()
           .includes(searchQuery.toLowerCase());
       const subDomainMatch = Object.values(domainInfo.subDomains).some(
-        (subInfo) => subInfo.name.toLowerCase().includes(searchQuery.toLowerCase()),
+        (subInfo) =>
+          subInfo.name.toLowerCase().includes(searchQuery.toLowerCase()),
       );
       return domainMatch || subDomainMatch;
     });
   }, [searchQuery]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-8 pb-10">
       <Input
         type="text"
         placeholder="Search categories..."
