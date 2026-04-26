@@ -6,7 +6,6 @@ import TaskTitleInput from "../forms/TaskTitleInput";
 import PrioritySelector from "../forms/PrioritySelector";
 import TagsSelector from "../forms/TagsSelector";
 import ScheduleDuration from "../forms/ScheduleDuration";
-import NotesField from "../forms/NotesField";
 import { Tag, Priority } from "@/types";
 
 interface TaskModalDetailsProps {
@@ -79,7 +78,6 @@ export default function TaskModalDetails({
         onDurationChange={onDurationChange}
       />
 
-      <NotesField value={notes} onChange={onNotesChange} />
     </div>
   );
 }

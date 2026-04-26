@@ -6,10 +6,16 @@ import TaskTitleInput from "../forms/TaskTitleInput";
 import PrioritySelector from "../forms/PrioritySelector";
 import TagsSelector from "../forms/TagsSelector";
 import ScheduleDuration from "../forms/ScheduleDuration";
-import NotesField from "../forms/NotesField";
 import CategorySelector from "../forms/CategorySelector";
 import SubTaskManager from "../items/SubTaskManager";
-import { Tag, SubDomain, Priority, DOMAINS, Domain, getDomainFromSubDomain } from "@/types";
+import {
+  Tag,
+  SubDomain,
+  Priority,
+  DOMAINS,
+  Domain,
+  getDomainFromSubDomain,
+} from "@/types";
 import { CaretDownMdIcon } from "@/components/shared/icons";
 
 interface TaskModalFullscreenProps {
@@ -105,8 +111,6 @@ export default function TaskModalFullscreen({
         />
 
         <div className="border-t border-border" />
-
-        <NotesField value={notes} onChange={onNotesChange} />
       </div>
 
       {/* Right Sidebar - Categories & Subtasks */}
@@ -129,9 +133,8 @@ export default function TaskModalFullscreen({
               {selectedSubDomain && (
                 <span className="text-sm text-muted-foreground">
                   {
-                    DOMAINS[
-                      getDomainFromSubDomain(selectedSubDomain)
-                    ]?.subDomains[selectedSubDomain].name
+                    DOMAINS[getDomainFromSubDomain(selectedSubDomain)]
+                      ?.subDomains[selectedSubDomain].name
                   }
                 </span>
               )}
