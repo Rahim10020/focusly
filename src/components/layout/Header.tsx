@@ -28,37 +28,37 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-2">
           <Link
             href={ROUTES.TASKS}
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === ROUTES.TASKS ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
+            className={`px-3 py-2 text-sm font-medium rounded-full transition-all ${pathname === ROUTES.TASKS ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
           >
             Tasks
           </Link>
           <Link
             href={ROUTES.DASHBOARD}
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === ROUTES.DASHBOARD ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
+            className={`px-3 py-2 text-sm font-medium rounded-full transition-all ${pathname === ROUTES.DASHBOARD ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
           >
             Dashboard
           </Link>
           <Link
             href={ROUTES.CALENDAR}
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === ROUTES.CALENDAR ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
+            className={`px-3 py-2 text-sm font-medium rounded-full transition-all ${pathname === ROUTES.CALENDAR ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
           >
             Calendar
           </Link>
           <Link
             href={ROUTES.STATS}
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === ROUTES.STATS ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
+            className={`px-3 py-2 text-sm font-medium rounded-full transition-all ${pathname === ROUTES.STATS ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
           >
             Statistics
           </Link>
           <Link
             href={ROUTES.FRIENDS}
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === ROUTES.FRIENDS ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
+            className={`px-3 py-2 text-sm font-medium rounded-full transition-all ${pathname === ROUTES.FRIENDS ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
           >
             Friends
           </Link>
           <Link
             href={ROUTES.LEADERBOARD}
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${pathname === ROUTES.LEADERBOARD ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
+            className={`px-3 py-2 text-sm font-medium rounded-full transition-all ${pathname === ROUTES.LEADERBOARD ? "text-primary bg-accent" : "text-foreground hover:text-primary hover:bg-accent"}`}
           >
             Leaderboard
           </Link>
