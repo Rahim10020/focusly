@@ -6,7 +6,7 @@ export default function LanguageSwitcher() {
       <GlobeIcon size={16} />
       <div className="flex items-center cursor-pointer">
         <span className="text-xs">English(USA)</span>
-        <CaretDownMdIcon size={16} />
+        <CaretDownMdIcon size={24} />
       </div>
     </div>
   );

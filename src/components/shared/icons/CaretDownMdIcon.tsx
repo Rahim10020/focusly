@@ -1,10 +1,9 @@
-
 import type { IconProps } from "./types";
 
 const CaretDownMdIcon = ({
   size = 24,
   color = "currentColor",
-  strokeWidth = 2,
+  strokeWidth = 1,
   ...props
 }: IconProps) => (
   <svg

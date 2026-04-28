@@ -167,7 +167,7 @@ export default function ScheduleDuration({
         Schedule & Duration
       </h3>
 
-      <div className="rounded-xl border border-border overflow-hidden bg-background">
+      <div className="rounded-lg border border-border overflow-hidden bg-background">
         {/* ── Zone 1 : Période ── */}
         <div className="px-5 py-4 border-b border-border">
           <SectionLabel

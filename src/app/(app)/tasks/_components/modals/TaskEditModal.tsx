@@ -247,7 +247,7 @@ function TaskModalContent({
                 >
                   <div className="flex items-center gap-3">
                     <CaretDownMdIcon
-                      size={20}
+                      size={32}
                       className={`text-muted-foreground transition-transform ${isCategoriesOpen ? "rotate-180" : ""}`}
                     />
                     <span className="text-lg font-medium text-foreground">
@@ -283,7 +283,7 @@ function TaskModalContent({
                 >
                   <div className="flex items-center gap-3">
                     <CaretDownMdIcon
-                      size={20}
+                      size={32}
                       className={`text-muted-foreground transition-transform ${isSubTasksOpen ? "rotate-180" : ""}`}
                     />
                     <span className="text-lg font-medium text-foreground">
