@@ -8,6 +8,15 @@ import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { FailTaskModal } from "./FailTaskModal";
 import { DYNAMIC_ROUTES } from "@/constants";
+import {
+  ArrowUndoIcon,
+  CalendarIcon,
+  CheckIcon,
+  CloseLgIcon,
+  EditPencilIcon,
+  RedoIcon,
+  TrashEmptyIcon,
+} from "@/components/shared/icons";
 
 interface TaskHistoryListProps {
   tasks: Task[];
@@ -28,14 +37,14 @@ export function TaskHistoryList({
     if (task.completed) {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
-          ✓ Completed
+          <CheckIcon size={16} /> Completed
         </span>
       );
     }
     if (task.failedAt) {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
-          ✗ Failed
+          <CloseLgIcon size={16} /> Failed
         </span>
       );
     }
@@ -54,7 +63,7 @@ export function TaskHistoryList({
       {task.failedAt && (
         <>
           <button
-            className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800"
+            className="px-2 py-1 cursor-pointer flex items-center gap-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800"
             onClick={() =>
               updateTask(task.id, {
                 failedAt: undefined,
@@ -62,31 +71,34 @@ export function TaskHistoryList({
               })
             }
           >
-            🔄 Reactivate
+            <ArrowUndoIcon size={16} />
+            Reactivate
           </button>
 
           <button
-            className="px-2 py-1 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded hover:bg-purple-200 dark:hover:bg-purple-800"
+            className="px-2 py-1 cursor-pointer flex items-center gap-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded hover:bg-purple-200 dark:hover:bg-purple-800"
             onClick={() => {
               setSelectedTask(task);
               setShowFailModal(true);
             }}
           >
-            📅 Postpone
+            <CalendarIcon size={16} />
+            Postpone
           </button>
         </>
       )}
 
       <button
-        className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+        className="px-2 py-1 cursor-pointer flex items-center gap-2 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
         onClick={() => router.push(DYNAMIC_ROUTES.TASKS_EDIT(task.id))}
       >
-        ✏️ Edit
+        <EditPencilIcon size={16} />
+        Edit
       </button>
 
       {task.completed && (
         <button
-          className="px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded hover:bg-yellow-200 dark:hover:bg-yellow-800"
+          className="px-2 py-1 cursor-pointer flex items-center gap-2 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded hover:bg-yellow-200 dark:hover:bg-yellow-800"
           onClick={() =>
             updateTask(task.id, {
               completed: false,
@@ -94,12 +106,13 @@ export function TaskHistoryList({
             })
           }
         >
-          ↩️ Reopen
+          <RedoIcon size={16} />
+          Reopen
         </button>
       )}
 
       <button
-        className="px-2 py-1 text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800"
+        className="px-2 py-1 cursor-pointer flex items-center gap-2 text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800"
         onClick={() => {
           if (confirm("Delete this task permanently?")) {
             setDeletingId(task.id);
@@ -108,7 +121,8 @@ export function TaskHistoryList({
         }}
         disabled={deletingId === task.id}
       >
-        🗑️ Delete
+        <TrashEmptyIcon size={16} />
+        Delete
       </button>
     </div>
   );
