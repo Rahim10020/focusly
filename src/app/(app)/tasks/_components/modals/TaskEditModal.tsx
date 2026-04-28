@@ -80,9 +80,7 @@ function TaskModalContent({
   const [priority, setPriority] = useState<Priority | undefined>(
     () => initialData?.priority,
   );
-  const [selectedTags] = useState<string[]>(
-    () => initialData?.tags || [],
-  );
+  const [selectedTags] = useState<string[]>(() => initialData?.tags || []);
   const [dueDate, setDueDate] = useState(() =>
     initialData?.dueDate
       ? new Date(initialData.dueDate).toISOString().split("T")[0]
@@ -168,7 +166,7 @@ function TaskModalContent({
 
         {/* Content */}
         <div
-          className={`${isFullScreen ? "grid grid-cols-[1fr_1fr] gap-8" : ""}`}
+          className={`${isFullScreen ? "grid grid-cols-[3fr_2fr] gap-8" : ""}`}
         >
           {/* Main Content */}
           <div className={`${isFullScreen ? "p-6 space-y-8" : ""}`}>

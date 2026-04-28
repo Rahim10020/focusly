@@ -117,7 +117,7 @@ export default function TaskDetailsModal({
         )}
 
         <div
-          className={`${isFullScreen ? "grid grid-cols-[1fr_1fr] gap-8" : ""}`}
+          className={`${isFullScreen ? "grid grid-cols-[3fr_2fr] gap-8" : ""}`}
         >
           <div className={`${isFullScreen ? "p-6 space-y-8" : ""}`}>
             {!isFullScreen && (
