@@ -14,7 +14,8 @@ import TaskFormContentFullscreen from "./TaskFormContentFullscreen";
 import TaskModalFooter from "./TaskModalFooter";
 import CategorySelector from "../forms/CategorySelector";
 import SubTaskManager from "../items/SubTaskManager";
-import { Priority, SubDomain } from "@/types";
+import { CaretDownMdIcon } from "@/components/shared/icons";
+import { Priority, SubDomain, DOMAINS, getDomainFromSubDomain } from "@/types";
 
 /**
  * Props for the TaskModal component.
@@ -166,7 +167,7 @@ function TaskModalContent({
 
         {/* Content */}
         <div
-          className={`${isFullScreen ? "grid grid-cols-[3fr_2fr] gap-8" : ""}`}
+          className={`${isFullScreen ? "grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-8" : ""}`}
         >
           {/* Main Content */}
           <div className={`${isFullScreen ? "p-6 space-y-8" : ""}`}>
@@ -225,11 +226,6 @@ function TaskModalContent({
                   startTime={startTime}
                   endTime={endTime}
                   estimatedDuration={estimatedDuration}
-                  selectedSubDomain={selectedSubDomain}
-                  subTasks={subTasks}
-                  searchQuery={searchQuery}
-                  isCategoriesOpen={isCategoriesOpen}
-                  isSubTasksOpen={isSubTasksOpen}
                   onTitleChange={setTitle}
                   onPriorityChange={setPriority}
                   onStartDateChange={setStartDate}
@@ -237,17 +233,82 @@ function TaskModalContent({
                   onStartTimeChange={setStartTime}
                   onEndTimeChange={setEndTime}
                   onDurationChange={setEstimatedDuration}
-                  onSubDomainChange={setSelectedSubDomain}
-                  onSubTasksChange={setSubTasks}
-                  onSearchChange={setSearchQuery}
-                  onCategoriesToggle={() =>
-                    setIsCategoriesOpen(!isCategoriesOpen)
-                  }
-                  onSubTasksToggle={() => setIsSubTasksOpen(!isSubTasksOpen)}
                 />
               </div>
             )}
           </div>
+
+          {isFullScreen && (
+            <div className="p-6 space-y-6 md:border-l md:border-border md:pl-8 w-full">
+              <div className="space-y-4">
+                <button
+                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                  className="w-full flex items-center justify-between p-2 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <CaretDownMdIcon
+                      size={20}
+                      className={`text-muted-foreground transition-transform ${isCategoriesOpen ? "rotate-180" : ""}`}
+                    />
+                    <span className="text-lg font-medium text-foreground">
+                      Categories
+                    </span>
+                    {selectedSubDomain && (
+                      <span className="text-sm text-muted-foreground">
+                        {
+                          DOMAINS[getDomainFromSubDomain(selectedSubDomain)]
+                            ?.subDomains[selectedSubDomain].name
+                        }
+                      </span>
+                    )}
+                  </div>
+                </button>
+
+                {isCategoriesOpen && (
+                  <div className="space-y-4 animate-slide-down">
+                    <CategorySelector
+                      selectedSubDomain={selectedSubDomain}
+                      onChange={setSelectedSubDomain}
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                <button
+                  onClick={() => setIsSubTasksOpen(!isSubTasksOpen)}
+                  className="w-full flex items-center justify-between p-2 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <CaretDownMdIcon
+                      size={20}
+                      className={`text-muted-foreground transition-transform ${isSubTasksOpen ? "rotate-180" : ""}`}
+                    />
+                    <span className="text-lg font-medium text-foreground">
+                      Subtasks
+                    </span>
+                    {subTasks.length > 0 && (
+                      <span className="text-sm text-muted-foreground">
+                        {subTasks.filter((t) => t.completed).length}/
+                        {subTasks.length}
+                      </span>
+                    )}
+                  </div>
+                </button>
+
+                {isSubTasksOpen && (
+                  <div className="space-y-4 animate-slide-down">
+                    <SubTaskManager
+                      subTasks={subTasks}
+                      onSubTasksChange={setSubTasks}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
