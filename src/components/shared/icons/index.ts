@@ -50,5 +50,7 @@ export { default as WavyCheckIcon } from "./WavyCheckIcon";
 export { default as GlobeIcon } from "./GlobeIcon";
 export { default as FileDocumentIcon } from "./FileDocumentIcon";
 export { default as DownloadIcon } from "./DownloadIcon";
+export { default as ArrowUndoIcon } from "./ArrowUndoIcon";
+export { default as RedoIcon } from "./RedoIcon";
 export { default as CircleIcon } from "./CircleIcon";
 export type { IconProps } from "./types";
