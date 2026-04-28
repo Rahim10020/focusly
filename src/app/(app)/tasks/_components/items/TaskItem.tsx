@@ -225,6 +225,16 @@ function TaskItem({
             <EditPencilIcon size={16} />
           </Button>
 
+          {/* Delete */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowDeleteConfirm(true)}
+            className="md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-error/10 hover:text-error"
+          >
+            <TrashEmptyIcon size={16} />
+          </Button>
+
           {/* Set Active / Unset */}
           {!task.completed && !isActive && (
             <Button
@@ -246,16 +256,6 @@ function TaskItem({
               Unset
             </Button>
           )}
-
-          {/* Delete */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowDeleteConfirm(true)}
-            className="md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-error/10 hover:text-error"
-          >
-            <TrashEmptyIcon />
-          </Button>
         </div>
       </div>
 
