@@ -115,7 +115,11 @@ export default function TasksPage() {
   }
 
   if (status === "loading") {
-    return <MyLoader label="Loading" />;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <MyLoader label="Loading" />
+      </div>
+    );
   }
 
   return (

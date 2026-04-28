@@ -207,7 +207,11 @@ export default function LeaderboardPage() {
   };
 
   if (status === "loading" || loading) {
-    return <MyLoader label="Loading leaderboard" />;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <MyLoader label="Loading Leaderboard" />
+      </div>
+    );
   }
 
   if (error) {

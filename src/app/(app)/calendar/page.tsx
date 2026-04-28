@@ -46,7 +46,7 @@ export default function CalendarPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <MyLoader label="Loading" />
+        <MyLoader label="Loading Calendar" />
       </div>
     );
   }
