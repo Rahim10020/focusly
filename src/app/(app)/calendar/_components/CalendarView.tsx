@@ -1,6 +1,5 @@
 "use client";
 
-import { DateTimeService } from "@/lib/domain/services/DateTimeService";
 /**
  * @fileoverview Calendar view component for visualizing tasks by date.
  * Displays a monthly calendar grid with task indicators and a detail panel.
