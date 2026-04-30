@@ -15,7 +15,11 @@ import {
 } from "@/lib/domain/services";
 import { CreateTaskInput } from "@/types/task-input";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import { mapTaskToDbInsert, mapDbTaskToTask } from "@/lib/supabase/mappers";
+import {
+  mapTaskToDbInsert,
+  mapDbTaskToTask,
+  mapTaskUpdateToDb,
+} from "@/lib/supabase/mappers";
 import { retryWithBackoff } from "@/lib/utils/retry";
 import { useAppToast } from "./useAppToast";
 const supabaseClient = getSupabaseClient();
@@ -174,6 +178,7 @@ export function useTasks(): UseTasksReturn {
 
   /**
    * Update a task
+   * Convertit les propriétés camelCase de l'app en snake_case pour Supabase
    */
   const updateTask = useCallback(
     async (taskId: string, updates: Partial<Task>) => {
@@ -184,10 +189,13 @@ export function useTasks(): UseTasksReturn {
 
       if (session?.user?.id) {
         try {
+          // Mapper les propriétés vers le format de la base de données
+          const dbUpdates = mapTaskUpdateToDb(updates);
+
           await retryWithBackoff(async () => {
             return supabaseClient
               .from("tasks")
-              .update(updates as any)
+              .update(dbUpdates)
               .eq("id", taskId)
               .eq("user_id", session.user.id);
           });
@@ -341,8 +349,9 @@ export function useTasks(): UseTasksReturn {
             await retryWithBackoff(async () => {
               return supabaseClient
                 .from("tasks")
-                .update({ order: task.order } as any)
-                .eq("id", task.id);
+                .update({ order: task.order })
+                .eq("id", task.id)
+                .eq("user_id", session.user.id);
             });
           }
         } catch (err) {

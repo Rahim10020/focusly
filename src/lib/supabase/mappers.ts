@@ -88,6 +88,53 @@ export function mapTaskToDbInsert(
 }
 
 /**
+ * Map application Task partial updates to database format
+ * Convertit les données mises à jour depuis l'app vers le format Supabase
+ */
+export function mapTaskUpdateToDb(updates: Partial<Task>): Record<string, any> {
+  const dbUpdates: Record<string, any> = {};
+
+  if (updates.title !== undefined) dbUpdates.title = updates.title;
+  if (updates.completed !== undefined) dbUpdates.completed = updates.completed;
+  if (updates.status !== undefined) dbUpdates.status = updates.status;
+  if (updates.completedAt !== undefined) {
+    dbUpdates.completed_at = updates.completedAt
+      ? new Date(updates.completedAt).toISOString()
+      : null;
+  }
+  if (updates.failedAt !== undefined) {
+    dbUpdates.failed_at = updates.failedAt
+      ? new Date(updates.failedAt).toISOString()
+      : null;
+  }
+  if (updates.pomodoroCount !== undefined)
+    dbUpdates.pomodoro_count = updates.pomodoroCount;
+  if (updates.priority !== undefined) dbUpdates.priority = updates.priority;
+  if (updates.tags !== undefined) dbUpdates.tags = updates.tags;
+  if (updates.dueDate !== undefined) {
+    dbUpdates.due_date = updates.dueDate
+      ? new Date(updates.dueDate).toISOString()
+      : null;
+  }
+  if (updates.startDate !== undefined) {
+    dbUpdates.start_date = updates.startDate
+      ? new Date(updates.startDate).toISOString()
+      : null;
+  }
+  if (updates.startTime !== undefined) dbUpdates.start_time = updates.startTime;
+  if (updates.endTime !== undefined) dbUpdates.end_time = updates.endTime;
+  if (updates.estimatedDuration !== undefined)
+    dbUpdates.estimated_duration = updates.estimatedDuration;
+  if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
+  if (updates.subTasks !== undefined) dbUpdates.subtasks = updates.subTasks;
+  if (updates.order !== undefined) dbUpdates.order = updates.order;
+  if (updates.subDomain !== undefined) dbUpdates.sub_domain = updates.subDomain;
+  if (updates.version !== undefined) dbUpdates.version = updates.version;
+
+  return dbUpdates;
+}
+
+/**
  * Map application PomodoroSession to database insert object
  */
 export function mapSessionToDbInsert(
