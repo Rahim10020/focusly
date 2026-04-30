@@ -5,7 +5,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRightLgIcon, CaretDownMdIcon } from "@/components/shared/icons";
+import { CaretDownMdIcon } from "@/components/shared/icons";
 import {
   Task,
   Priority,
@@ -210,8 +210,8 @@ export default function TaskDetailsModal({
                   className="w-full flex items-center justify-between p-2 cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
-                    <ArrowRightLgIcon
-                      size={20}
+                    <CaretDownMdIcon
+                      size={32}
                       className={`text-muted-foreground transition-transform ${isCategoriesOpen ? "rotate-180" : ""}`}
                     />
                     <span className="text-lg font-medium text-foreground">

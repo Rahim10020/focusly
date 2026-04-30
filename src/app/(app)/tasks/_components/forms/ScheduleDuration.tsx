@@ -7,7 +7,7 @@ import Input from "@/components/ui/Input";
 import {
   CalendarIcon,
   ClockIcon,
-  ArrowRightLgIcon,
+  CaretDownMdIcon,
 } from "@/components/shared/icons";
 import { DateTimeService } from "@/lib/domain/services/DateTimeService";
 
@@ -189,7 +189,10 @@ export default function ScheduleDuration({
             </div>
 
             <div className="pb-2.5 shrink-0">
-              <ArrowRightLgIcon size={16} className="text-muted-foreground" />
+              <CaretDownMdIcon
+                size={16}
+                className="text-muted-foreground rotate-90"
+              />
             </div>
 
             <div className="flex-1">
