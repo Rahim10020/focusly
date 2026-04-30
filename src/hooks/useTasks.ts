@@ -245,7 +245,6 @@ export function useTasks(): UseTasksReturn {
       await updateTask(taskId, {
         completed: !task.completed,
         completedAt: !task.completed ? Date.now() : undefined,
-        // NOTE: 'status' n'existe pas dans la DB (propriété calculée), on l'exclut
       });
     },
     [tasks, updateTask],
