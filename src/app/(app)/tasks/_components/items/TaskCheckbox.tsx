@@ -4,7 +4,7 @@
 
 "use client";
 
-import { CheckboxCheckIcon } from "@/components/shared/icons";
+import { CheckIcon } from "@/components/shared/icons";
 
 interface TaskCheckboxProps {
   completed: boolean;
@@ -22,7 +22,7 @@ export function TaskCheckbox({ completed, onToggle }: TaskCheckboxProps) {
       }`}
     >
       {completed && (
-        <CheckboxCheckIcon size={14} className="text-white animate-scale-in" />
+        <CheckIcon size={14} className="text-white animate-scale-in" />
       )}
     </button>
   );
