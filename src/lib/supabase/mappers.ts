@@ -66,7 +66,7 @@ export function mapTaskToDbInsert(
     user_id: userId,
     title: task.title,
     completed: task.completed,
-    status: task.status,
+    // NOTE: 'status' n'existe pas dans la DB (propriété calculée), on l'exclut
     created_at: new Date(task.createdAt).toISOString(),
     completed_at: task.completedAt
       ? new Date(task.completedAt).toISOString()
@@ -90,13 +90,15 @@ export function mapTaskToDbInsert(
 /**
  * Map application Task partial updates to database format
  * Convertit les données mises à jour depuis l'app vers le format Supabase
+ * NOTE: `status` est une propriété calculée (non stockée dans la DB), on l'exclut
  */
 export function mapTaskUpdateToDb(updates: Partial<Task>): Record<string, any> {
   const dbUpdates: Record<string, any> = {};
 
   if (updates.title !== undefined) dbUpdates.title = updates.title;
   if (updates.completed !== undefined) dbUpdates.completed = updates.completed;
-  if (updates.status !== undefined) dbUpdates.status = updates.status;
+  // NOTE: La colonne "status" n'existe pas dans la table tasks - on l'exclut volontairement
+  // status est calculé à la lecture : status = completed ? "done" : "todo"
   if (updates.completedAt !== undefined) {
     dbUpdates.completed_at = updates.completedAt
       ? new Date(updates.completedAt).toISOString()
