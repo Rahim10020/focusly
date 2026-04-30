@@ -76,18 +76,10 @@ export default function DueDateBadge({
     return "bg-gray-300 text-black border-gray-300 dark:bg-gray-600 dark:text-white dark:border-gray-600";
   };
 
-  const getIcon = () => {
-    if (isOverdue) return "⚠️";
-    if (isDueToday) return "📅";
-    if (isTomorrow) return "⏰";
-    return "📆";
-  };
-
   return (
     <span
       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${getStyles()}`}
     >
-      <span>{getIcon()}</span>
       {formatDate()}
     </span>
   );
