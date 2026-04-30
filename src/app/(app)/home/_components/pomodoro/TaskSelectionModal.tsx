@@ -143,7 +143,7 @@ export default function TaskSelectionModal({
                       key={task.id}
                       type="button"
                       onClick={() => setSelectedTaskId(task.id)}
-                      className={`w-full rounded-xl border p-3 text-left transition-all ${
+                      className={`w-full cursor-pointer rounded-xl border p-3 text-left transition-all ${
                         isSelected
                           ? "border-primary/50 bg-primary/10"
                           : "border-border bg-card hover:bg-accent/60"
