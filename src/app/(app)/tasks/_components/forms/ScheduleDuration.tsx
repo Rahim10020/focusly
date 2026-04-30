@@ -154,7 +154,7 @@ export default function ScheduleDuration({
       return { text: "End date is before start date", danger: true };
     if (daysDiff === 0) return { text: "Same day", danger: false };
     return {
-      text: `${daysDiff} jour${daysDiff > 1 ? "s" : ""}`,
+      text: `${daysDiff} day${daysDiff > 1 ? "s" : ""}`,
       danger: false,
     };
   }, [startDate, dueDate, daysDiff]);
@@ -193,7 +193,7 @@ export default function ScheduleDuration({
             </div>
 
             <div className="flex-1">
-              <FieldLabel>Fin</FieldLabel>
+              <FieldLabel>End</FieldLabel>
               <Input
                 type="date"
                 value={dueDate}
@@ -247,7 +247,7 @@ export default function ScheduleDuration({
 
             {/* End time */}
             <div className="flex-1">
-              <FieldLabel>Fin</FieldLabel>
+              <FieldLabel>End</FieldLabel>
               <Input
                 type="time"
                 value={endTime}
@@ -260,7 +260,9 @@ export default function ScheduleDuration({
           {/* Editable minutes field — shown only when duration is set */}
           {showDurationInput && (
             <div className="flex items-center gap-2 mt-3">
-              <span className="text-xs text-muted-foreground">Durée (min)</span>
+              <span className="text-xs text-muted-foreground">
+                Duration (min)
+              </span>
               <Input
                 type="number"
                 value={estimatedDuration}
@@ -277,7 +279,7 @@ export default function ScheduleDuration({
           )}
 
           <HintText>
-            {showDurationInput ? `${estimatedDuration} minutes au total` : null}
+            {showDurationInput ? `${estimatedDuration} minutes total` : null}
           </HintText>
         </div>
       </div>

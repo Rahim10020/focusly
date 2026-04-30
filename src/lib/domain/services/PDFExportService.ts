@@ -118,7 +118,7 @@ export const exportCustomAnalyticsToPDF = async (
       }
 
       doc.setFontSize(16);
-      doc.text("Graphique de Productivité", 20, yPosition);
+      doc.text("Productivity Chart", 20, yPosition);
       yPosition += 10;
 
       doc.addImage(chartImage, "PNG", 20, yPosition, 170, 100);
