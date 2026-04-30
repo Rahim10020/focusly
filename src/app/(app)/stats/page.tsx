@@ -52,6 +52,13 @@ export default function StatsPage() {
     "achievements" | "tasks" | "domains"
   >("achievements");
 
+  // États de recherche pour chaque section de tâches
+  const [completedSearch, setCompletedSearch] = useState("");
+  const [inProgressSearch, setInProgressSearch] = useState("");
+  const [upcomingSearch, setUpcomingSearch] = useState("");
+  const [failedSearch, setFailedSearch] = useState("");
+  const [overdueSearch, setOverdueSearch] = useState("");
+
   const categorizedTasks = useMemo(
     () => StatsService.categorizeTasks(tasks),
     [tasks],
@@ -67,6 +74,40 @@ export default function StatsPage() {
       failedTasks: categorizedTasks.failed,
     };
   }, [categorizedTasks]);
+
+  // Fonction pour filtrer les tâches par titre
+  const filterTasks = (tasks: any[], searchText: string) => {
+    if (!searchText.trim()) return tasks;
+    return tasks.filter((task) =>
+      task.title.toLowerCase().includes(searchText.toLowerCase()),
+    );
+  };
+
+  // Tâches filtrées pour chaque section
+  const filteredCompletedTasks = useMemo(
+    () => filterTasks(completedTasks, completedSearch),
+    [completedTasks, completedSearch],
+  );
+
+  const filteredInProgressTasks = useMemo(
+    () => filterTasks(categorizedTasks.inProgress, inProgressSearch),
+    [categorizedTasks.inProgress, inProgressSearch],
+  );
+
+  const filteredUpcomingTasks = useMemo(
+    () => filterTasks(categorizedTasks.upcoming, upcomingSearch),
+    [categorizedTasks.upcoming, upcomingSearch],
+  );
+
+  const filteredFailedTasks = useMemo(
+    () => filterTasks(failedTasks, failedSearch),
+    [failedTasks, failedSearch],
+  );
+
+  const filteredOverdueTasks = useMemo(
+    () => filterTasks(categorizedTasks.overdue, overdueSearch),
+    [categorizedTasks.overdue, overdueSearch],
+  );
 
   const totalVisibleTasks = taskStats.totalVisible;
 
@@ -178,12 +219,30 @@ export default function StatsPage() {
               <div className="flex items-center space-x-8 justify-between">
                 <CardTitle>Completed Tasks</CardTitle>
                 <div className="text-sm text-muted-foreground">
-                  {completedTasks.length} task(s) completed
+                  {filteredCompletedTasks.length} task(s) completed
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <TaskHistoryList tasks={completedTasks} type="completed" />
+            <CardContent className="space-y-4">
+              <input
+                type="text"
+                placeholder="Rechercher dans les tâches complétées..."
+                value={completedSearch}
+                onChange={(e) => setCompletedSearch(e.target.value)}
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              <div
+                className={
+                  filteredCompletedTasks.length > 5
+                    ? "max-h-96 overflow-y-auto"
+                    : ""
+                }
+              >
+                <TaskHistoryList
+                  tasks={filteredCompletedTasks}
+                  type="completed"
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -193,15 +252,30 @@ export default function StatsPage() {
               <div className="flex items-center space-x-8 justify-between">
                 <CardTitle>In-Progress Tasks</CardTitle>
                 <div className="text-sm text-muted-foreground">
-                  {categorizedTasks.inProgress.length} in progress
+                  {filteredInProgressTasks.length} in progress
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <TaskHistoryList
-                tasks={categorizedTasks.inProgress}
-                type="in-progress"
+            <CardContent className="space-y-4">
+              <input
+                type="text"
+                placeholder="Rechercher dans les tâches en cours..."
+                value={inProgressSearch}
+                onChange={(e) => setInProgressSearch(e.target.value)}
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               />
+              <div
+                className={
+                  filteredInProgressTasks.length > 5
+                    ? "max-h-96 overflow-y-auto"
+                    : ""
+                }
+              >
+                <TaskHistoryList
+                  tasks={filteredInProgressTasks}
+                  type="in-progress"
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -211,15 +285,30 @@ export default function StatsPage() {
               <div className="flex items-center space-x-8 justify-between">
                 <CardTitle>Upcoming Tasks</CardTitle>
                 <div className="text-sm text-muted-foreground">
-                  {categorizedTasks.upcoming.length} upcoming
+                  {filteredUpcomingTasks.length} upcoming
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <TaskHistoryList
-                tasks={categorizedTasks.upcoming}
-                type="upcoming"
+            <CardContent className="space-y-4">
+              <input
+                type="text"
+                placeholder="Rechercher dans les tâches à venir..."
+                value={upcomingSearch}
+                onChange={(e) => setUpcomingSearch(e.target.value)}
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               />
+              <div
+                className={
+                  filteredUpcomingTasks.length > 5
+                    ? "max-h-96 overflow-y-auto"
+                    : ""
+                }
+              >
+                <TaskHistoryList
+                  tasks={filteredUpcomingTasks}
+                  type="upcoming"
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -230,12 +319,27 @@ export default function StatsPage() {
                 <div className="flex items-center space-x-8 justify-between">
                   <CardTitle>Failed Tasks</CardTitle>
                   <div className="text-sm text-muted-foreground">
-                    {failedTasks.length} task(s) not completed
+                    {filteredFailedTasks.length} task(s) not completed
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <TaskHistoryList tasks={failedTasks} type="failed" />
+              <CardContent className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Rechercher dans les tâches échouées..."
+                  value={failedSearch}
+                  onChange={(e) => setFailedSearch(e.target.value)}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <div
+                  className={
+                    filteredFailedTasks.length > 5
+                      ? "max-h-96 overflow-y-auto"
+                      : ""
+                  }
+                >
+                  <TaskHistoryList tasks={filteredFailedTasks} type="failed" />
+                </div>
               </CardContent>
             </Card>
           )}
@@ -247,12 +351,27 @@ export default function StatsPage() {
                 <div className="flex items-center space-x-8 justify-between">
                   <CardTitle>Overdue Tasks</CardTitle>
                   <div className="text-sm text-muted-foreground">
-                    {categorizedTasks.overdue.length} task(s) overdue
+                    {filteredOverdueTasks.length} task(s) overdue
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <TaskHistoryList tasks={categorizedTasks.overdue} type="all" />
+              <CardContent className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Rechercher dans les tâches en retard..."
+                  value={overdueSearch}
+                  onChange={(e) => setOverdueSearch(e.target.value)}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <div
+                  className={
+                    filteredOverdueTasks.length > 5
+                      ? "max-h-96 overflow-y-auto"
+                      : ""
+                  }
+                >
+                  <TaskHistoryList tasks={filteredOverdueTasks} type="all" />
+                </div>
               </CardContent>
             </Card>
           )}
