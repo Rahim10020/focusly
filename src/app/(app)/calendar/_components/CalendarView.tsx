@@ -26,8 +26,9 @@ import Input from "@/components/ui/Input";
 import { CalendarHeader } from "./CalendarHeader";
 import { PriorityLegend } from "./PriorityLegend";
 import { MyLoader } from "@/components/shared/MyLoader";
-import { CheckboxCheckIcon } from "@/components/shared/icons";
+import { CheckIcon } from "@/components/shared/icons";
 import { useAppToast } from "@/hooks/useAppToast";
+import { DateTimeService } from "@/lib/domain";
 
 interface CalendarViewProps {
   tasks: Task[];
@@ -261,10 +262,7 @@ export default function CalendarView({
                           </div>
                           {task.completed && (
                             <div>
-                              <CheckboxCheckIcon
-                                size={20}
-                                className="text-green-500"
-                              />
+                              <CheckIcon size={20} className="text-green-500" />
                             </div>
                           )}
                         </div>
