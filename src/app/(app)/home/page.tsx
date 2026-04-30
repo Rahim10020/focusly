@@ -341,8 +341,8 @@ export default function HomePage() {
                       className="text-sm"
                     >
                       {showAllUpcomingTasks
-                        ? "Voir moins"
-                        : `Voir ${allImminentTasks.length - 5} tâche${allImminentTasks.length - 5 > 1 ? "s" : ""} de plus`}
+                        ? "View less"
+                        : `View ${allImminentTasks.length - 5} more task${allImminentTasks.length - 5 > 1 ? "s" : ""}`}
                     </Button>
                   </div>
                 )}

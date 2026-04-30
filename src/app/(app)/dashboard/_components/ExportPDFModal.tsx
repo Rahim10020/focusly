@@ -50,24 +50,24 @@ export default function ExportPDFModal({
     <Modal
       isOpen={open}
       onClose={onClose}
-      title="Personnaliser l'export PDF"
+      title="Customize PDF Export"
       size="lg"
       footer={
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose} disabled={isExporting}>
-            Annuler
+            Cancel
           </Button>
           <Button onClick={handleExport} disabled={isExporting}>
-            {isExporting ? "Export en cours..." : "Générer PDF"}
+            {isExporting ? "Exporting..." : "Generate PDF"}
           </Button>
         </div>
       }
     >
       <div className="space-y-6">
-        {/* Sections à inclure */}
+        {/* Sections to include */}
         <div className="space-y-3">
           <label className="text-base font-semibold block">
-            Sections à inclure
+            Sections to Include
           </label>
 
           <div className="flex items-center space-x-2">

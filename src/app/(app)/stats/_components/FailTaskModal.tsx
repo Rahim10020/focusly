@@ -39,10 +39,7 @@ export function FailTaskModal({
 
       case "postpone":
         if (!newDate) {
-          validationError(
-            "Veuillez sélectionner une nouvelle date.",
-            "Date requise",
-          );
+          validationError("Please select a new date.", "Date required");
           return;
         }
         updates = {

@@ -226,7 +226,7 @@ export default function StatsPage() {
             <CardContent className="space-y-4">
               <input
                 type="text"
-                placeholder="Rechercher dans les tâches complétées..."
+                placeholder="Search in completed tasks..."
                 value={completedSearch}
                 onChange={(e) => setCompletedSearch(e.target.value)}
                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -259,7 +259,7 @@ export default function StatsPage() {
             <CardContent className="space-y-4">
               <input
                 type="text"
-                placeholder="Rechercher dans les tâches en cours..."
+                placeholder="Search in ongoing tasks..."
                 value={inProgressSearch}
                 onChange={(e) => setInProgressSearch(e.target.value)}
                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -292,7 +292,7 @@ export default function StatsPage() {
             <CardContent className="space-y-4">
               <input
                 type="text"
-                placeholder="Rechercher dans les tâches à venir..."
+                placeholder="Search in upcoming tasks..."
                 value={upcomingSearch}
                 onChange={(e) => setUpcomingSearch(e.target.value)}
                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -326,7 +326,7 @@ export default function StatsPage() {
               <CardContent className="space-y-4">
                 <input
                   type="text"
-                  placeholder="Rechercher dans les tâches échouées..."
+                  placeholder="Search in failed tasks..."
                   value={failedSearch}
                   onChange={(e) => setFailedSearch(e.target.value)}
                   className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -358,7 +358,7 @@ export default function StatsPage() {
               <CardContent className="space-y-4">
                 <input
                   type="text"
-                  placeholder="Rechercher dans les tâches en retard..."
+                  placeholder="Search in overdue tasks..."
                   value={overdueSearch}
                   onChange={(e) => setOverdueSearch(e.target.value)}
                   className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"

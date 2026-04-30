@@ -151,8 +151,8 @@ export default function ScheduleDuration({
     if (!startDate && !dueDate) return null;
     if (daysDiff === null) return null;
     if (daysDiff < 0)
-      return { text: "La date de fin est avant le début", danger: true };
-    if (daysDiff === 0) return { text: "Même jour", danger: false };
+      return { text: "End date is before start date", danger: true };
+    if (daysDiff === 0) return { text: "Same day", danger: false };
     return {
       text: `${daysDiff} jour${daysDiff > 1 ? "s" : ""}`,
       danger: false,
@@ -173,12 +173,12 @@ export default function ScheduleDuration({
           <SectionLabel
             icon={<CalendarIcon size={13} className="text-muted-foreground" />}
           >
-            Période
+            Period
           </SectionLabel>
 
           <div className="flex items-end gap-3">
             <div className="flex-1">
-              <FieldLabel>Début</FieldLabel>
+              <FieldLabel>Start</FieldLabel>
               <Input
                 type="date"
                 value={startDate}
@@ -212,13 +212,13 @@ export default function ScheduleDuration({
           <SectionLabel
             icon={<ClockIcon size={13} className="text-muted-foreground" />}
           >
-            Créneau
+            Time Slot
           </SectionLabel>
 
           <div className="flex items-end gap-3">
             {/* Start time */}
             <div className="flex-1">
-              <FieldLabel>Début</FieldLabel>
+              <FieldLabel>Start</FieldLabel>
               <Input
                 type="time"
                 value={startTime}
