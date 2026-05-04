@@ -3,17 +3,5 @@ QUI SERAIT COOL
     - coder une affichage unique pour la version mobile web 
         (quand la personne y accede via le web avec un telehone mobile)
 
-A Faire PROCHAINEMENT
-- trouver de meilleures icones (pour remplacer celles qui reste) 
-    (- A changer apres quand j'aurai une meilleure icone)
-- page/friends ligne 103
-
 - trouver les commentaires qui disent qu'il faut faire un truc apres dans 
     le projet ou qu'il faut changer un truc si on est dans un vrai projet (create-task, page)
-
- Quand je vais dans les pages de l'app(les items de menu et autres) et que 
- je reviens sur la home page il y a a chaque fois un chargement pour les taches. 
- c'est pas bien. ca rend les choses trop lourds.
-
- - modif ui : Create task modal, 
- - test creation of task and check the way it working
