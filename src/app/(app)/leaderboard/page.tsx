@@ -357,7 +357,7 @@ export default function LeaderboardPage() {
         </div>
       )}
 
-      <style jsx global>{`
+      <style>{`
         @keyframes fadeInUp {
           from {
             opacity: 0;
