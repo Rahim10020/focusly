@@ -293,10 +293,10 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 bg-muted p-1 rounded-lg max-w-md mx-auto">
+      <div className="flex gap-2 mb-6 bg-muted p-1 rounded-2xl max-w-md mx-auto">
         <button
           onClick={() => setSelectedTab("tasks")}
-          className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${
+          className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
             selectedTab === "tasks"
               ? "bg-primary text-primary-foreground shadow-lg"
               : "text-muted-foreground hover:text-foreground"
@@ -306,7 +306,7 @@ export default function LeaderboardPage() {
         </button>
         <button
           onClick={() => setSelectedTab("time")}
-          className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${
+          className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
             selectedTab === "time"
               ? "bg-primary text-primary-foreground shadow-lg"
               : "text-muted-foreground hover:text-foreground"
@@ -316,7 +316,7 @@ export default function LeaderboardPage() {
         </button>
         <button
           onClick={() => setSelectedTab("streak")}
-          className={`flex-1 py-2 px-4 cursor-pointer rounded-md transition-all font-medium ${
+          className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
             selectedTab === "streak"
               ? "bg-primary text-primary-foreground shadow-lg"
               : "text-muted-foreground hover:text-foreground"
