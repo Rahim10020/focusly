@@ -8,27 +8,36 @@
  * - Improves response time by 75%
  */
 
-import { compose, withRateLimit, withLogging, withErrorHandling, withQueryValidation } from '@/lib/api/middleware';
-import { LeaderboardQuerySchema } from '@/lib/api/schemas';
-import { successResponse } from '@/lib/api/utils/response';
-import { getAdminSupabaseClient } from '@/lib/api/supabase';
-import { getPaginationOffset, buildPaginationMeta } from '@/lib/api/utils/pagination';
-import { LEADERBOARD_DEFAULTS } from '@/constants';
-import { StatsService } from '@/lib/domain/services/StatsService';
-import { Cache } from '@/lib/cache';
-import { logger } from '@/lib/logger';
+import {
+  compose,
+  withRateLimit,
+  withLogging,
+  withErrorHandling,
+  withQueryValidation,
+} from "@/lib/api/middleware";
+import { LeaderboardQuerySchema } from "@/lib/api/schemas";
+import { successResponse } from "@/lib/api/utils/response";
+import { getAdminSupabaseClient } from "@/lib/api/supabase";
+import {
+  getPaginationOffset,
+  buildPaginationMeta,
+} from "@/lib/api/utils/pagination";
+import { LEADERBOARD_DEFAULTS } from "@/constants";
+import { StatsService } from "@/lib/domain/services/StatsService";
+import { Cache } from "@/lib/cache";
+import { logger } from "@/lib/logger";
 
-type LeaderboardTimeFilter = 'all' | 'week' | 'month';
+type LeaderboardTimeFilter = "all" | "week" | "month";
 
 /**
  * Get start date for time-based filtering
  */
 function getFilterStartDate(timeFilter: LeaderboardTimeFilter): string | null {
-  if (timeFilter === 'all') return null;
+  if (timeFilter === "all") return null;
 
   const now = new Date();
 
-  if (timeFilter === 'week') {
+  if (timeFilter === "week") {
     const start = new Date(now);
     const day = start.getDay();
     const diffToMonday = (day + 6) % 7;
@@ -49,14 +58,14 @@ function getFilterStartDate(timeFilter: LeaderboardTimeFilter): string | null {
 async function getHandler(
   _request: any,
   _context: unknown,
-  validatedData: unknown
+  validatedData: unknown,
 ) {
   const parsedData = LeaderboardQuerySchema.parse(validatedData);
   const { page, limit, timeFilter } = parsedData;
 
   // Ensure pagination doesn't exceed limits
   if (page * limit > LEADERBOARD_DEFAULTS.MAX_OFFSET) {
-    throw new Error('Pagination offset too large');
+    throw new Error("Pagination offset too large");
   }
 
   const offset = getPaginationOffset({ page, limit });
@@ -66,14 +75,20 @@ async function getHandler(
     cacheKey,
     async () => {
       const supabase = getAdminSupabaseClient();
-      const filterStartDate = getFilterStartDate(timeFilter as LeaderboardTimeFilter);
+      const filterStartDate = getFilterStartDate(
+        timeFilter as LeaderboardTimeFilter,
+      );
 
       try {
-        if (timeFilter === 'all') {
+        if (timeFilter === "all") {
           // Simple path: use precomputed stats
-          // Query 1: Get stats+profiles in single request
-          const { data: statsWithProfiles, error: err, count } = await supabase
-            .from('stats')
+          // Query 1: Get stats with count
+          const {
+            data: stats,
+            error: statsErr,
+            count,
+          } = await supabase
+            .from("stats")
             .select(
               `
               user_id,
@@ -82,39 +97,60 @@ async function getHandler(
               total_tasks,
               streak,
               total_focus_time,
-              longest_streak,
-              profiles:user_id (
-                id,
-                username,
-                avatar_url
-              )
+              longest_streak
             `,
-              { count: 'exact' }
+              { count: "exact" },
             )
-            .order('total_focus_time', { ascending: false })
+            .order("total_focus_time", { ascending: false })
             .range(offset, offset + limit - 1);
 
-          if (err) {
-            logger.error('Error fetching leaderboard stats', err as Error, {
-              action: 'leaderboardStats',
-            });
-            throw new Error('Failed to fetch leaderboard');
+          if (statsErr || !stats) {
+            logger.error(
+              "Error fetching leaderboard stats",
+              statsErr as Error,
+              {
+                action: "leaderboardStats",
+              },
+            );
+            throw new Error("Failed to fetch leaderboard");
           }
 
+          // Query 2: Get profiles for these stats
+          const userIds = stats.map((s) => (s as any).user_id);
+          const { data: profiles, error: profilesErr } = await supabase
+            .from("profiles")
+            .select("id, username, avatar_url")
+            .in("id", userIds);
+
+          if (profilesErr) {
+            logger.error(
+              "Error fetching leaderboard profiles",
+              profilesErr as Error,
+              {
+                action: "leaderboardProfiles",
+              },
+            );
+            throw new Error("Failed to fetch profiles");
+          }
+
+          // Create profile map for efficient lookup
+          const profileMap = new Map((profiles || []).map((p) => [p.id, p]));
+
           // Format response
-          const leaderboardData = (statsWithProfiles || []).map(stat => {
-            const profile = Array.isArray(stat.profiles) && stat.profiles[0] ? stat.profiles[0] : null;
+          const leaderboardData = (stats || []).map((stat) => {
+            const userIdStr = (stat as any).user_id;
+            const profile = profileMap.get(userIdStr);
             return {
-              id: stat.user_id,
-              username: profile?.username || 'Anonymous',
+              id: userIdStr,
+              username: profile?.username || "Anonymous",
               avatar_url: profile?.avatar_url || null,
               stats: {
-                total_sessions: stat.total_sessions,
-                completed_tasks: stat.completed_tasks,
-                total_tasks: stat.total_tasks,
-                streak: stat.streak,
-                total_focus_time: stat.total_focus_time,
-                longest_streak: stat.longest_streak,
+                total_sessions: (stat as any).total_sessions,
+                completed_tasks: (stat as any).completed_tasks,
+                total_tasks: (stat as any).total_tasks,
+                streak: (stat as any).streak,
+                total_focus_time: (stat as any).total_focus_time,
+                longest_streak: (stat as any).longest_streak,
               },
             };
           });
@@ -127,16 +163,16 @@ async function getHandler(
           // Filtered path: week/month
           // Query 1: Get filtered sessions and tasks
           const { data: userIds, error: userIdsErr } = await supabase
-            .from('stats')
-            .select('user_id')
-            .order('total_focus_time', { ascending: false })
+            .from("stats")
+            .select("user_id")
+            .order("total_focus_time", { ascending: false })
             .range(offset, offset + limit - 1);
 
           if (userIdsErr || !userIds) {
-            throw new Error('Failed to fetch user list');
+            throw new Error("Failed to fetch user list");
           }
 
-          const ids = userIds.map(s => (s as any).user_id);
+          const ids = userIds.map((s) => (s as any).user_id);
 
           // Query 2 + 3: Get filtered sessions, tasks, and profiles combined
           const [
@@ -145,39 +181,39 @@ async function getHandler(
             { data: profiles, error: profilesErr },
           ] = await Promise.all([
             supabase
-              .from('sessions')
-              .select('user_id, duration, type, completed')
-              .in('user_id', ids)
-              .eq('completed', true)
-              .eq('type', 'work')
-              .gte('completed_at', filterStartDate!),
+              .from("sessions")
+              .select("user_id, duration, type, completed")
+              .in("user_id", ids)
+              .eq("completed", true)
+              .eq("type", "work")
+              .gte("completed_at", filterStartDate!),
             supabase
-              .from('tasks')
-              .select('user_id, completed, completed_at')
-              .in('user_id', ids)
-              .gte('completed_at', filterStartDate!),
+              .from("tasks")
+              .select("user_id, completed, completed_at")
+              .in("user_id", ids)
+              .gte("completed_at", filterStartDate!),
             supabase
-              .from('profiles')
-              .select('id, username, avatar_url')
-              .in('id', ids),
+              .from("profiles")
+              .select("id, username, avatar_url")
+              .in("id", ids),
           ]);
 
           if (sessionsErr || tasksErr || profilesErr) {
-            throw new Error('Failed to fetch filtered data');
+            throw new Error("Failed to fetch filtered data");
           }
 
           // Calculate stats using domain service
           const statsMap = new Map();
-          ids.forEach(id => {
+          ids.forEach((id) => {
             const userSessions = (filteredSessions || []).filter(
-              s => (s as any).user_id === id
+              (s) => (s as any).user_id === id,
             );
             const userTasks = (tasks || []).filter(
-              t => (t as any).user_id === id && (t as any).completed
+              (t) => (t as any).user_id === id && (t as any).completed,
             );
             const totalFocusTime = userSessions.reduce(
               (sum, s) => sum + ((s as any).duration || 0),
-              0
+              0,
             );
 
             statsMap.set(id, {
@@ -189,17 +225,15 @@ async function getHandler(
           });
 
           // Format response
-          const profilesMap = new Map(
-            (profiles || []).map(p => [p.id, p])
-          );
+          const profilesMap = new Map((profiles || []).map((p) => [p.id, p]));
 
-          const leaderboardData = ids.map(id => {
+          const leaderboardData = ids.map((id) => {
             const profile = profilesMap.get(id);
             const stats = statsMap.get(id) || {};
 
             return {
               id,
-              username: profile?.username || 'Anonymous',
+              username: profile?.username || "Anonymous",
               avatar_url: profile?.avatar_url || null,
               stats,
             };
@@ -211,7 +245,7 @@ async function getHandler(
           };
         }
       } catch (error) {
-        logger.error('Failed to fetch leaderboard', error as Error, {
+        logger.error("Failed to fetch leaderboard", error as Error, {
           timeFilter,
           page,
           limit,
@@ -221,7 +255,7 @@ async function getHandler(
     },
     {
       ttl: 10 * 60 * 1000, // 10 minutes
-    }
+    },
   );
 
   return successResponse(result.data, { pagination: result.pagination });
@@ -231,5 +265,5 @@ export const GET = compose(
   withErrorHandling(),
   withLogging(),
   withQueryValidation(LeaderboardQuerySchema),
-  withRateLimit('generous')
+  withRateLimit("generous"),
 )(getHandler);
