@@ -273,6 +273,7 @@ export default function LeaderboardPage() {
           variant={timeFilter === "all" ? "primary" : "outline"}
           onClick={() => setTimeFilter("all")}
           size="sm"
+          disabled={loading}
         >
           All Time
         </Button>
@@ -280,6 +281,7 @@ export default function LeaderboardPage() {
           variant={timeFilter === "month" ? "primary" : "outline"}
           onClick={() => setTimeFilter("month")}
           size="sm"
+          disabled={loading}
         >
           This Month
         </Button>
@@ -287,6 +289,7 @@ export default function LeaderboardPage() {
           variant={timeFilter === "week" ? "primary" : "outline"}
           onClick={() => setTimeFilter("week")}
           size="sm"
+          disabled={loading}
         >
           This Week
         </Button>

@@ -1,11 +1,5 @@
 /**
  * @fileoverview Refactored Leaderboard API route for fetching user rankings.
- *
- * Optimized version that:
- * - Combines multiple queries into single request
- * - Uses domain services for calculations
- * - Reduces query count from 5-6 to 2-3
- * - Improves response time by 75%
  */
 
 import {
@@ -23,7 +17,6 @@ import {
   buildPaginationMeta,
 } from "@/lib/api/utils/pagination";
 import { LEADERBOARD_DEFAULTS } from "@/constants";
-import { StatsService } from "@/lib/domain/services/StatsService";
 import { Cache } from "@/lib/cache";
 import { logger } from "@/lib/logger";
 
@@ -49,6 +42,63 @@ function getFilterStartDate(timeFilter: LeaderboardTimeFilter): string | null {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   startOfMonth.setHours(0, 0, 0, 0);
   return startOfMonth.toISOString();
+}
+
+/**
+ * Calcule le streak à partir des sessions et tâches complétées pour une période donnée
+ * Compte le nombre de jours consécutifs depuis le dernier jour de la période
+ */
+function calculateStreakFromActivities(
+  sessions: any[],
+  tasks: any[],
+  filterStartDate: string | null,
+): number {
+  if (!filterStartDate) return 0; // Pas de calcul pour "All Time"
+
+  // Extraire les dates uniques où l'utilisateur a eu de l'activité
+  const activeDates = new Set<string>();
+
+  // Ajouter les dates des sessions complétées
+  sessions.forEach((session) => {
+    if (session.completed_at) {
+      const date = new Date(session.completed_at);
+      activeDates.add(date.toISOString().split("T")[0]); // YYYY-MM-DD
+    }
+  });
+
+  // Ajouter les dates des tâches complétées
+  tasks.forEach((task) => {
+    if (task.completed_at) {
+      const date = new Date(task.completed_at);
+      activeDates.add(date.toISOString().split("T")[0]); // YYYY-MM-DD
+    }
+  });
+
+  if (activeDates.size === 0) return 0;
+
+  // Trier les dates
+  const sortedDates = Array.from(activeDates).sort();
+
+  // Compter les jours consécutifs depuis aujourd'hui en remontant
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = today.toISOString().split("T")[0];
+
+  let streak = 0;
+  let currentDate = new Date(today);
+
+  // Chercher à partir d'aujourd'hui et remonter
+  while (true) {
+    const dateStr = currentDate.toISOString().split("T")[0];
+    if (activeDates.has(dateStr)) {
+      streak++;
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  return streak;
 }
 
 /**
@@ -182,7 +232,7 @@ async function getHandler(
           ] = await Promise.all([
             supabase
               .from("sessions")
-              .select("user_id, duration, type, completed")
+              .select("user_id, duration, type, completed, completed_at")
               .in("user_id", ids)
               .eq("completed", true)
               .eq("type", "work")
@@ -216,11 +266,18 @@ async function getHandler(
               0,
             );
 
+            // Calculer le streak basé sur l'activité pendant la période filtrée
+            const streak = calculateStreakFromActivities(
+              userSessions,
+              userTasks,
+              filterStartDate,
+            );
+
             statsMap.set(id, {
               total_sessions: userSessions.length,
               completed_tasks: userTasks.length,
               total_focus_time: totalFocusTime,
-              streak: 0, // Would need streak calculation for filtered period
+              streak,
             });
           });
 
