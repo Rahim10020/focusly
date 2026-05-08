@@ -17,7 +17,6 @@ import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { ArrowLeftLgIcon, ArrowRightLgIcon } from "@/components/shared/icons";
-const supabase = getSupabaseClient();
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
@@ -31,6 +30,7 @@ export default function SignUp() {
 
   useEffect(() => {
     // Écouter les changements d'authentification
+    const supabase = getSupabaseClient();
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -52,6 +52,7 @@ export default function SignUp() {
     setError("");
 
     try {
+      const supabase = getSupabaseClient();
       const { error } = await supabase.auth.signUp({
         email,
         password,

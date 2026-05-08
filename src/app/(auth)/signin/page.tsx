@@ -17,7 +17,6 @@ import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { ArrowRightLgIcon } from "@/components/shared/icons";
-const supabaseClient = getSupabaseClient();
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -32,6 +31,7 @@ export default function SignIn() {
     setError("");
 
     try {
+      const supabaseClient = getSupabaseClient();
       const { error: signInError } =
         await supabaseClient.auth.signInWithPassword({
           email,

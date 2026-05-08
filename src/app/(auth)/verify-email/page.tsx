@@ -123,7 +123,7 @@ function VerifyEmailContent() {
     <Card variant="none">
       <CardContent className="text-center">
         <div
-          className={`text-4xl mb-4 ${isVerified ? "text-green-500" : "text-yellow-500"}`}
+          className={`text-4xl flex justify-center mb-4 ${isVerified ? "text-green-500" : "text-yellow-500"}`}
         >
           {isVerified ? <WavyCheckIcon /> : <MyLoader label="" />}
         </div>
