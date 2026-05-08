@@ -10,3 +10,10 @@ QUI SERAIT COOL
 
 GET http://localhost:3000/sounds/notification.mp3 net::ERR_ABORTED 404 (Not Found)
 notificationSounds.ts:46 Error playing notification sound: NotSupportedError: Failed to load because no supported source was found.
+
+- je veux savoir quelle est le nombre maximal de taches qu'on affiche dans la home page ?
+
+- il y a un souci avec les notifications. quand j'ai finis de completer ma premiere tache, une notification 
+est venue et meme chose quand j'ai fini une session de pomodoro et tout est bon mais le probleme c'est que 
+les notifications (les deux ) viennent encore quand je vais dans la page des taches en quittant la home page. 
+comment regler ca ? fais moi un plan.
