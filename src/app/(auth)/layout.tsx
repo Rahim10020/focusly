@@ -20,7 +20,7 @@ export default function AuthLayout(props: AuthLayoutProps) {
         </div>
       </div>
 
-      <div className="hidden md:block bg-primary"></div>
+      <div className="hidden md:block bg-[#ef4444]"></div>
     </div>
   );
 }
