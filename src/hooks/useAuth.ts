@@ -33,12 +33,13 @@ export function useAuth() {
         mounted = false;
       };
     }
+    const supabase = supabaseClient;
 
     async function getInitialSession() {
       try {
         const {
           data: { session: supabaseSession },
-        } = await supabaseClient.auth.getSession();
+        } = await supabase.auth.getSession();
 
         if (!mounted) return;
 
@@ -67,7 +68,7 @@ export function useAuth() {
       } catch (error) {
         // If stored auth tokens are corrupted/expired, clear local auth state
         // to prevent repeated refresh-token errors on every render.
-        await supabaseClient.auth.signOut({ scope: "local" });
+        await supabase.auth.signOut({ scope: "local" });
         if (mounted) {
           setSession(null);
           setStatus("unauthenticated");
@@ -79,7 +80,7 @@ export function useAuth() {
 
     const {
       data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange((event, supabaseSession) => {
+    } = supabase.auth.onAuthStateChange((event, supabaseSession) => {
       if (supabaseSession) {
         setSession({
           user: {

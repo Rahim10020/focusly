@@ -14,7 +14,7 @@ import { ProfileHeader } from "@/app/(app)/profile/_components/ProfileHeader";
 import { ProfileStatsGrid } from "@/app/(app)/profile/_components/ProfileStatsGrid";
 import { ActivityOverview } from "@/app/(app)/profile/_components/ActivityOverview";
 import { DomainDistribution } from "@/app/(app)/profile/_components/DomainDistribution";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClientOrNull } from "@/lib/supabase/client";
 import { useTasks } from "@/hooks/useTasks";
 import { useStats } from "@/hooks/useStats";
 import {

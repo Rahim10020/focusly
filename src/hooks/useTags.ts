@@ -9,6 +9,7 @@ import { useSession } from "@/hooks/useAuth";
 import { useLocalStorage } from "./useLocalStorage";
 import { Tag } from "@/types";
 import { retryWithBackoff } from "@/lib/utils/retry";
+import { getSupabaseClientOrNull } from "@/lib/supabase/client";
 import { STORAGE_KEYS } from "@/constants";
 
 /**
@@ -67,6 +68,8 @@ export function useTags() {
   const loadTagsFromDB = useCallback(async () => {
     const userId = getUserId();
     if (!userId) return;
+    const supabaseClient = getSupabaseClientOrNull();
+    if (!supabaseClient) return;
 
     try {
       const { data, error } = await retryWithBackoff(async () => {
@@ -119,6 +122,9 @@ export function useTags() {
 
     const userId = getUserId();
     if (userId) {
+      const supabaseClient = getSupabaseClientOrNull();
+      if (!supabaseClient) return newTag;
+
       // Save to database
       try {
         const { error } = await retryWithBackoff(async () => {
@@ -157,6 +163,9 @@ export function useTags() {
   ) => {
     const userId = getUserId();
     if (userId) {
+      const supabaseClient = getSupabaseClientOrNull();
+      if (!supabaseClient) return;
+
       // Update in database
       try {
         const { error } = await retryWithBackoff(async () => {
@@ -195,6 +204,9 @@ export function useTags() {
   const deleteTag = async (id: string) => {
     const userId = getUserId();
     if (userId) {
+      const supabaseClient = getSupabaseClientOrNull();
+      if (!supabaseClient) return;
+
       // Delete from database
       try {
         const { error } = await retryWithBackoff(async () => {

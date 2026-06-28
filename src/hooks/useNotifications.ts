@@ -10,6 +10,7 @@ import {
   playNotificationSound,
   NotificationSoundType,
 } from "@/lib/utils/notificationSounds";
+import { getSupabaseClientOrNull } from "@/lib/supabase/client";
 import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/constants";
 
 // Simple in-memory cache to reduce duplicate fetches during dev/hot-reload or multiple mounts
@@ -355,6 +356,8 @@ export function useNotifications() {
   useEffect(() => {
     const userId = session?.user?.id;
     if (!userId) return;
+    const supabaseClient = getSupabaseClientOrNull();
+    if (!supabaseClient) return;
 
     const channel = supabaseClient
       .channel(`notifications:${userId}`)

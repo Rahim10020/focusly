@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'reac
 import { useSession } from '@/hooks/useAuth';
 import { Achievement } from '@/types';
 import { retryWithBackoff } from '@/lib/utils/retry';
+import { getSupabaseClientOrNull } from '@/lib/supabase/client';
 import { useLocalStorage } from './useLocalStorage';
 import { STORAGE_KEYS } from '@/constants';
 
@@ -331,6 +332,8 @@ export function useAchievements(): UseAchievementsReturn {
    */
   const loadAchievements = useCallback(async () => {
     if (!userId) return;
+    const supabaseClient = getSupabaseClientOrNull();
+    if (!supabaseClient) return;
 
     setLoading(true);
     try {
@@ -405,6 +408,8 @@ export function useAchievements(): UseAchievementsReturn {
    */
   const saveAchievementToDB = useCallback(async (achievementId: string) => {
     if (!userId) return;
+    const supabaseClient = getSupabaseClientOrNull();
+    if (!supabaseClient) return;
 
     try {
       await retryWithBackoff(async () => {
