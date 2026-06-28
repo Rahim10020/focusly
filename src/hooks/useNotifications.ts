@@ -6,13 +6,11 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "@/hooks/useAuth";
-import { getSupabaseClient } from "@/lib/supabase/client";
 import {
   playNotificationSound,
   NotificationSoundType,
 } from "@/lib/utils/notificationSounds";
 import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/constants";
-const supabaseClient = getSupabaseClient();
 
 // Simple in-memory cache to reduce duplicate fetches during dev/hot-reload or multiple mounts
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes - Supabase real-time handles updates

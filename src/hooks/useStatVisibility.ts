@@ -5,9 +5,8 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClientOrNull } from "@/lib/supabase/client";
 import { useSession } from "@/hooks/useAuth";
-const supabase = getSupabaseClient();
 
 /**
  * Represents a single stat visibility setting.
@@ -61,6 +60,8 @@ export function useStatVisibility() {
     try {
       const userId = session?.user?.id;
       if (!userId) return;
+      const supabase = getSupabaseClientOrNull();
+      if (!supabase) return;
 
       const { data, error } = await supabase
         .from("stat_visibility")
@@ -98,6 +99,8 @@ export function useStatVisibility() {
     try {
       const userId = session?.user?.id;
       if (!userId) return;
+      const supabase = getSupabaseClientOrNull();
+      if (!supabase) return;
 
       const { error } = await supabase.from("stat_visibility").upsert({
         user_id: userId,

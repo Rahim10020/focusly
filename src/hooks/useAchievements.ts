@@ -6,11 +6,9 @@
 import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react';
 import { useSession } from '@/hooks/useAuth';
 import { Achievement } from '@/types';
-import { getSupabaseClient } from '@/lib/supabase/client';
 import { retryWithBackoff } from '@/lib/utils/retry';
 import { useLocalStorage } from './useLocalStorage';
 import { STORAGE_KEYS } from '@/constants';
-const supabaseClient = getSupabaseClient();
 
 /**
  * Achievement stats input type

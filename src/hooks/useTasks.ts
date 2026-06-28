@@ -14,7 +14,7 @@ import {
   TaskStats,
 } from "@/lib/domain/services";
 import { CreateTaskInput } from "@/types/task-input";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClientOrNull } from "@/lib/supabase/client";
 import {
   mapTaskToDbInsert,
   mapDbTaskToTask,
@@ -22,7 +22,6 @@ import {
 } from "@/lib/supabase/mappers";
 import { retryWithBackoff } from "@/lib/utils/retry";
 import { useAppToast } from "./useAppToast";
-const supabaseClient = getSupabaseClient();
 
 interface UseTasksReturn {
   // Tasks state
@@ -104,6 +103,8 @@ export function useTasks(): UseTasksReturn {
    */
   const loadFromSupabase = useCallback(async () => {
     if (!session?.user?.id) return;
+    const supabaseClient = getSupabaseClientOrNull();
+    if (!supabaseClient) return;
 
     setLoading(true);
     setError(null);
@@ -163,6 +164,8 @@ export function useTasks(): UseTasksReturn {
       // Sync to Supabase if authenticated
       if (session?.user?.id) {
         try {
+          const supabaseClient = getSupabaseClientOrNull();
+          if (!supabaseClient) return;
           const dbData = mapTaskToDbInsert(newTask, session.user.id);
           await retryWithBackoff(async () => {
             return supabaseClient.from("tasks").insert(dbData as any);
@@ -189,6 +192,8 @@ export function useTasks(): UseTasksReturn {
 
       if (session?.user?.id) {
         try {
+          const supabaseClient = getSupabaseClientOrNull();
+          if (!supabaseClient) return;
           // Mapper les propriétés vers le format de la base de données
           const dbUpdates = mapTaskUpdateToDb(updates);
 
@@ -218,6 +223,8 @@ export function useTasks(): UseTasksReturn {
 
       if (session?.user?.id) {
         try {
+          const supabaseClient = getSupabaseClientOrNull();
+          if (!supabaseClient) return;
           await retryWithBackoff(async () => {
             return supabaseClient
               .from("tasks")
@@ -343,6 +350,8 @@ export function useTasks(): UseTasksReturn {
 
       if (session?.user?.id) {
         try {
+          const supabaseClient = getSupabaseClientOrNull();
+          if (!supabaseClient) return;
           // Batch update orders
           for (const task of reordered) {
             await retryWithBackoff(async () => {

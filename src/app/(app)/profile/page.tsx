@@ -30,7 +30,6 @@ import {
 import { MyLoader } from "@/components/shared/MyLoader";
 import { ROUTES } from "@/constants";
 import { useAppToast } from "@/hooks/useAppToast";
-const supabase = getSupabaseClient();
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -101,6 +100,12 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setIsLoading(true);
     try {
+      const supabase = getSupabaseClientOrNull();
+      if (!supabase) {
+        actionError("Supabase is not configured.");
+        return;
+      }
+
       let imageUrl = session.user?.image;
 
       if (imageFile) {

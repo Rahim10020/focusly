@@ -9,14 +9,13 @@ import { useSession } from "@/hooks/useAuth";
 import { Stats, PomodoroSession } from "@/types";
 import { StorageService } from "@/lib/domain/services/StorageService";
 import { StatsService, StreakData } from "@/lib/domain/services/StatsService";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClientOrNull } from "@/lib/supabase/client";
 import {
   mapSessionToDbInsert,
   mapDbSessionToSession,
 } from "@/lib/supabase/mappers";
 import { retryWithBackoff } from "@/lib/utils/retry";
 import { useAppToast } from "./useAppToast";
-const supabaseClient = getSupabaseClient();
 
 interface UseStatsReturn {
   // State
@@ -97,6 +96,8 @@ export function useStats(): UseStatsReturn {
    */
   const syncFromSupabase = useCallback(async () => {
     if (!session?.user?.id) return;
+    const supabaseClient = getSupabaseClientOrNull();
+    if (!supabaseClient) return;
 
     setLoading(true);
     setError(null);
@@ -154,6 +155,8 @@ export function useStats(): UseStatsReturn {
       // Sync to Supabase if authenticated
       if (session?.user?.id) {
         try {
+          const supabaseClient = getSupabaseClientOrNull();
+          if (!supabaseClient) return;
           const dbData = mapSessionToDbInsert(newSession, session.user.id);
           await retryWithBackoff(async () => {
             return supabaseClient.from("sessions").insert(dbData as any);

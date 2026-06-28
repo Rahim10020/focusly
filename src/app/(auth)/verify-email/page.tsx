@@ -8,14 +8,13 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClientOrNull } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { WavyCheckIcon } from "@/components/shared/icons";
-const supabase = getSupabaseClient();
 
 function VerifyEmailContent() {
   const [message, setMessage] = useState("Verification in progress...");
@@ -30,6 +29,13 @@ function VerifyEmailContent() {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
+        const supabase = getSupabaseClientOrNull();
+        if (!supabase) {
+          setMessage("Supabase is not configured.");
+          setIsLoading(false);
+          return;
+        }
+
         // Si pas de token, vérifier si l'utilisateur est déjà connecté
         if (!token_hash || !type) {
           const {
@@ -100,6 +106,12 @@ function VerifyEmailContent() {
 
     setIsLoading(true);
     try {
+      const supabase = getSupabaseClientOrNull();
+      if (!supabase) {
+        setMessage("Supabase is not configured.");
+        return;
+      }
+
       const baseUrl = window.location.origin;
       const emailRedirectTo = new URL(ROUTES.VERIFY_EMAIL, baseUrl).toString();
       const { error } = await supabase.auth.resend({

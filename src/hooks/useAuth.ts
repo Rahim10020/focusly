@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClientOrNull } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants";
-const supabaseClient = getSupabaseClient();
 
 export interface AuthSession {
   user: {
@@ -25,6 +24,15 @@ export function useAuth() {
 
   useEffect(() => {
     let mounted = true;
+    const supabaseClient = getSupabaseClientOrNull();
+
+    if (!supabaseClient) {
+      setSession(null);
+      setStatus("unauthenticated");
+      return () => {
+        mounted = false;
+      };
+    }
 
     async function getInitialSession() {
       try {
@@ -113,7 +121,10 @@ export function useAuth() {
 export const useSession = useAuth;
 
 export const signOut = async (options?: { callbackUrl?: string }) => {
-  await supabaseClient.auth.signOut();
+  const supabaseClient = getSupabaseClientOrNull();
+  if (supabaseClient) {
+    await supabaseClient.auth.signOut();
+  }
   if (options?.callbackUrl) {
     window.location.href = options.callbackUrl;
   } else {

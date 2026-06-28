@@ -17,6 +17,17 @@ import { Database } from "./database.types";
 /** Singleton Supabase client instance for browser usage */
 let supabaseClientInstance: SupabaseClient<Database> | null = null;
 
+const getSupabaseConfig = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  return { supabaseUrl, supabaseAnonKey };
+};
+
 /**
  * Gets or creates a lazy-initialized client-side Supabase instance.
  * Safe for browser usage with RLS enabled.
@@ -37,19 +48,35 @@ let supabaseClientInstance: SupabaseClient<Database> | null = null;
  * const { data, error } = await supabaseClient.from('tasks').select('*');
  */
 export const getSupabaseClient = (): SupabaseClient<Database> => {
+  const config = getSupabaseConfig();
+
+  if (!config) {
+    throw new Error(
+      "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set",
+    );
+  }
+
   if (!supabaseClientInstance) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error(
-        "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set",
-      );
-    }
-
     supabaseClientInstance = createBrowserClient<Database>(
-      supabaseUrl,
-      supabaseAnonKey,
+      config.supabaseUrl,
+      config.supabaseAnonKey,
+    );
+  }
+
+  return supabaseClientInstance;
+};
+
+export const getSupabaseClientOrNull = (): SupabaseClient<Database> | null => {
+  const config = getSupabaseConfig();
+
+  if (!config) {
+    return null;
+  }
+
+  if (!supabaseClientInstance) {
+    supabaseClientInstance = createBrowserClient<Database>(
+      config.supabaseUrl,
+      config.supabaseAnonKey,
     );
   }
 
