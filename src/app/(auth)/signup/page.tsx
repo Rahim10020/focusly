@@ -102,6 +102,7 @@ export default function SignUp() {
                 onClick={async () => {
                   try {
                     setLoading(true);
+                    const supabase = getSupabaseClient();
                     const baseUrl = window.location.origin;
                     const emailRedirectTo = new URL(
                       ROUTES.VERIFY_EMAIL,
