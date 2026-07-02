@@ -88,15 +88,15 @@ export default function SignUp() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-black-60 text-base">
+          <p className="text-text-subtle text-base">
             {successMessage ||
               "A verification email has been sent to your email address."}
           </p>
-          <p className="text-base text-black-60 mb-12">
+          <p className="text-base text-text-subtle mb-12">
             Check your inbox and click the link to activate your account.
           </p>
           <div className="mt-4">
-            <p className="text-sm text-black-50">
+            <p className="text-sm text-text-muted">
               Didn&apos;t receive the email?{" "}
               <button
                 onClick={async () => {
@@ -226,7 +226,7 @@ export default function SignUp() {
           </Button>
         </form>
         <div className="mt-4 text-center">
-          <p className="text-sm text-black-40">
+          <p className="text-sm text-text-subtle">
             Already have an account?{" "}
             <Link
               href={ROUTES.SIGN_IN}

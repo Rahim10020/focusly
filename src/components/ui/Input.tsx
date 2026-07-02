@@ -54,12 +54,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ? "border-[var(--error)] focus:ring-[var(--error)]"
       : success
         ? "border-[var(--success)] focus:ring-[var(--success)]"
-        : "border-border focus:ring-black-10 focus:bg-transparent";
+        : "border-border focus:ring-surface-hover focus:bg-transparent";
 
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-normal text-black-40 mb-2">
+          <label className="block text-sm font-normal text-text-subtle mb-2">
             {label}
           </label>
         )}
@@ -67,7 +67,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             type={inputType}
-            className={`w-full px-4 bg-black-5 h-9 text-sm text-foreground
+            className={`w-full px-4 bg-surface-subtle h-9 text-sm text-foreground
                         ${noBorder ? "border-0" : "rounded-sm"}
                         ${shouldShowPasswordToggle ? "pr-10" : ""}
                         focus:outline-none focus:ring-2 focus:ring-offset-0
@@ -81,7 +81,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             <button
               type="button"
               onClick={() => setIsPasswordVisible((prev) => !prev)}
-              className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 text-black-40 hover:text-foreground transition-colors"
+              className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 text-text-subtle hover:text-foreground transition-colors"
               aria-label={isPasswordVisible ? "Hide password" : "Show password"}
             >
               {isPasswordVisible ? <HideIcon /> : <ShowIcon />}
@@ -90,19 +90,19 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
           {success && !error && !shouldShowPasswordToggle && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <CheckIcon size={20} className="text-(--success)" />
+              <CheckIcon size={20} className="text-success" />
             </div>
           )}
 
           {error && !shouldShowPasswordToggle && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <InfoIcon size={20} className="text-(--error)" />
+              <InfoIcon size={20} className="text-error" />
             </div>
           )}
         </div>
 
         {error && (
-          <p className="mt-1.5 text-sm text-(--error) flex items-center gap-1">
+          <p className="mt-1.5 text-sm text-error flex items-center gap-1">
             {error}
           </p>
         )}

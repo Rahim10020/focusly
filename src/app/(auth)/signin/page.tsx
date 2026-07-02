@@ -39,7 +39,6 @@ export default function SignIn() {
         });
 
       if (signInError) {
-        // Check if error is due to unconfirmed email
         if (signInError.message.includes("Email not confirmed")) {
           setError("Please verify your email address before signing in.");
         } else if (signInError.message.includes("Invalid login credentials")) {
@@ -68,7 +67,7 @@ export default function SignIn() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-normal mb-1 text-black-80"
+              className="block text-sm font-normal mb-1 text-text-subtle"
             >
               Email Address
             </label>
@@ -79,13 +78,13 @@ export default function SignIn() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="your@email.com"
-              className="placeholder:text-sm placeholder:text-black-40"
+              className="placeholder:text-sm placeholder:text-text-subtle"
             />
           </div>
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-normal mb-1 text-black-80"
+              className="block text-sm font-normal mb-1 text-text-subtle"
             >
               Password
             </label>
@@ -97,11 +96,11 @@ export default function SignIn() {
               required
               placeholder="your password"
               showPasswordToggle
-              className="placeholder:text-sm placeholder:text-black-40"
+              className="placeholder:text-sm placeholder:text-text-subtle"
             />
           </div>
           {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
+            <div className="text-error text-sm text-center">{error}</div>
           )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? <MyLoader label="Signing in" /> : "Sign In"}
@@ -109,7 +108,7 @@ export default function SignIn() {
           </Button>
         </form>
         <div className="mt-4 text-center">
-          <p className="text-sm text-black-40">
+          <p className="text-sm text-text-subtle">
             Don&apos;t have an account?{" "}
             <Link
               href={ROUTES.SIGN_UP}

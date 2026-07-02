@@ -65,15 +65,15 @@ export default function DueDateBadge({
 
   const getStyles = () => {
     if (completed) {
-      return "bg-gray-300 text-gray-600 border-gray-300 dark:bg-gray-600 dark:text-gray-300 dark:border-gray-600";
+      return "bg-surface-muted text-text-muted border-border";
     }
     if (isOverdue) {
-      return "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white";
+      return "bg-error text-white border-error";
     }
     if (isDueToday) {
-      return "bg-gray-500 text-white border-gray-500 dark:bg-gray-400 dark:text-black dark:border-gray-400";
+      return "bg-warning text-white border-warning";
     }
-    return "bg-gray-300 text-black border-gray-300 dark:bg-gray-600 dark:text-white dark:border-gray-600";
+    return "bg-surface-subtle text-foreground border-border";
   };
 
   return (

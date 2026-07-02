@@ -64,14 +64,12 @@ export function FailTaskModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-overlay flex items-center justify-center z-50">
+      <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4 border border-border shadow-xl">
         <h2 className="text-xl font-semibold mb-2">
           What would you like to do with this task?
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          {task.title}
-        </p>
+        <p className="text-sm text-muted-foreground mb-4">{task.title}</p>
 
         <div className="space-y-4">
           <div className="space-y-2">
@@ -120,7 +118,7 @@ export function FailTaskModal({
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Ex: Lack of time, priorities changed..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground"
                 rows={3}
               />
             </div>
@@ -139,7 +137,7 @@ export function FailTaskModal({
                 type="date"
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground"
               />
             </div>
           )}
@@ -147,13 +145,13 @@ export function FailTaskModal({
           <div className="flex justify-end gap-2 mt-6">
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="px-4 py-2 border border-border rounded-md hover:bg-surface-hover"
             >
               Cancel
             </button>
             <button
               onClick={handleConfirm}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-4 py-2 bg-info text-white rounded-md hover:bg-info-light"
             >
               Confirm
             </button>

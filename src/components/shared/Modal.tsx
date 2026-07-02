@@ -112,7 +112,7 @@ export default function Modal({
     <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 animate-fade-in">
       {/* Overlay */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-overlay backdrop-blur-sm"
         onClick={closeOnOverlayClick ? onClose : undefined}
       />
 
@@ -152,7 +152,7 @@ export default function Modal({
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-border bg-muted/30">
+          <div className="px-6 py-4 border-t border-border bg-surface-muted/30">
             {footer}
           </div>
         )}

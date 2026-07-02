@@ -73,17 +73,17 @@ export default function NotificationsPage() {
   const getNotificationColor = (type: string) => {
     switch (type) {
       case "friend_request":
-        return "border-blue-500/20 bg-blue-500/5";
+        return "border-info/20 bg-info/5";
       case "friend_request_accepted":
-        return "border-green-500/20 bg-green-500/5";
+        return "border-success/20 bg-success/5";
       case "task_completed":
-        return "border-green-500/20 bg-green-500/5";
+        return "border-success/20 bg-success/5";
       case "task_overdue":
-        return "border-red-500/20 bg-red-500/5";
+        return "border-error/20 bg-error/5";
       case "achievement":
-        return "border-yellow-500/20 bg-yellow-500/5";
+        return "border-warning/20 bg-warning/5";
       case "info":
-        return "border-blue-500/20 bg-blue-500/5";
+        return "border-info/20 bg-info/5";
       default:
         return "border-border";
     }
@@ -108,10 +108,10 @@ export default function NotificationsPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+        <div className="mb-6 p-4 bg-error/10 border border-error/20 rounded-lg">
           <div className="flex items-center gap-2">
-            <span className="text-red-500 text-lg">⚠️</span>
-            <p className="text-red-500 text-sm">{error}</p>
+            <span className="text-error text-lg">⚠️</span>
+            <p className="text-error text-sm">{error}</p>
           </div>
         </div>
       )}
