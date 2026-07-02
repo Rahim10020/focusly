@@ -193,7 +193,7 @@ export default function NotificationsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => deleteNotification(notification.id)}
-                            className="text-xs text-red-500 hover:text-red-600"
+                            className="text-xs text-error hover:text-error-light"
                           >
                             Delete
                           </Button>

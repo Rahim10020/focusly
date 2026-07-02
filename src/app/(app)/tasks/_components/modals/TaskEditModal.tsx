@@ -139,7 +139,7 @@ function TaskModalContent({
 
   const modalClasses = isFullScreen
     ? "fixed inset-0 z-50 bg-background"
-    : "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm";
+    : "fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay backdrop-blur-sm";
 
   const contentClasses = isFullScreen
     ? "w-full h-full bg-card border-0 rounded-none shadow-none overflow-y-auto"

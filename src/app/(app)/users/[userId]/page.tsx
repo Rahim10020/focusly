@@ -133,7 +133,7 @@ export default function UserProfilePage() {
       <div className="max-w-6xl mx-auto px-6 py-8">
         <Card>
           <CardContent className="p-6 text-center">
-            <p className="text-red-500 mb-4">{error}</p>
+            <p className="text-error mb-4">{error}</p>
             <Button onClick={() => router.back()}>Go Back</Button>
           </CardContent>
         </Card>
