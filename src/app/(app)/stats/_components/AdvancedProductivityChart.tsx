@@ -5,7 +5,6 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
 import { PomodoroSession } from "@/types";
 import { TIME_MS } from "@/constants";
 import {
@@ -63,13 +62,13 @@ const CustomTooltip = ({ active, payload }: TooltipProps) => {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            <div className="w-3 h-3 rounded-full bg-brand-accent"></div>
             <span className="text-xs">
               Sessions: {payload[0].payload.sessions}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+            <div className="w-3 h-3 rounded-full bg-brand-secondary"></div>
             <span className="text-xs">
               Focus Score: {payload[0].payload.focusScore}%
             </span>
@@ -85,7 +84,7 @@ const CustomTooltip = ({ active, payload }: TooltipProps) => {
  * Displays advanced productivity analytics with multiple visualizations.
  * Includes a summary statistics section, area chart for daily focus time,
  * bar chart for completed sessions, and line chart for focus score trends.
- * Supports both light and dark themes with automatic detection.
+ * Uses shared CSS tokens so light and dark themes stay in sync automatically.
  *
  * @param {AdvancedProductivityChartProps} props - Component props
  * @param {PomodoroSession[]} props.sessions - Array of pomodoro sessions to analyze
@@ -113,24 +112,6 @@ export default function AdvancedProductivityChart({
   sessions,
   days = 7,
 }: AdvancedProductivityChartProps) {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-
-  useEffect(() => {
-    const updateTheme = () => {
-      const isDark = document.documentElement.classList.contains("dark");
-      setTheme(isDark ? "dark" : "light");
-    };
-
-    updateTheme();
-
-    const observer = new MutationObserver(updateTheme);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
   const getLast7Days = () => {
     const days = [];
     for (let i = 6; i >= 0; i--) {
@@ -237,32 +218,32 @@ export default function AdvancedProductivityChart({
               <linearGradient id="colorMinutes" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="hsl(var(--primary))"
+                  stopColor="var(--brand-primary)"
                   stopOpacity={0.3}
                 />
                 <stop
                   offset="95%"
-                  stopColor="hsl(var(--primary))"
+                  stopColor="var(--brand-primary)"
                   stopOpacity={0}
                 />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="date"
               className="text-xs"
-              tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
+              tick={{ fill: "var(--muted-foreground)" }}
               padding={{ left: 100, right: 20 }}
             />
             <YAxis
               className="text-xs"
-              tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
+              tick={{ fill: "var(--muted-foreground)" }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Area
               type="monotone"
               dataKey="minutes"
-              stroke="hsl(var(--primary))"
+              stroke="var(--brand-primary)"
               strokeWidth={2}
               fill="url(#colorMinutes)"
             />
@@ -275,23 +256,23 @@ export default function AdvancedProductivityChart({
         <h3 className="text-sm font-medium mb-4">Completed Sessions</h3>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="date"
               className="text-xs"
-              tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
+              tick={{ fill: "var(--muted-foreground)" }}
             />
             <YAxis
               className="text-xs"
-              tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
+              tick={{ fill: "var(--muted-foreground)" }}
             />
             <Tooltip
               content={<CustomTooltip />}
-              cursor={{ fill: theme === "dark" ? "#334155" : "#F3F4F6" }}
+              cursor={{ fill: "var(--muted)" }}
             />
             <Bar
               dataKey="sessions"
-              fill={theme === "dark" ? "#F87171" : "#EF4444"}
+              fill="var(--brand-primary)"
               radius={[8, 8, 0, 0]}
             />
           </BarChart>
@@ -306,25 +287,25 @@ export default function AdvancedProductivityChart({
             data={chartData}
             margin={{ top: 5, right: 10, left: 15, bottom: 5 }}
           >
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="date"
               className="text-xs"
-              tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
+              tick={{ fill: "var(--muted-foreground)" }}
               padding={{ left: 100, right: 20 }}
             />
             <YAxis
               className="text-xs"
               domain={[0, 100]}
-              tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
+              tick={{ fill: "var(--muted-foreground)" }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Line
               type="monotone"
               dataKey="focusScore"
-              stroke="hsl(var(--primary))"
+              stroke="var(--brand-primary)"
               strokeWidth={2}
-              dot={{ fill: "hsl(var(--primary))", r: 4 }}
+              dot={{ fill: "var(--brand-primary)", r: 4 }}
               activeDot={{ r: 6 }}
             />
           </LineChart>

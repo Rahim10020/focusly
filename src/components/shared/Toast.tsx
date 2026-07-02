@@ -38,10 +38,10 @@ const icons = {
 };
 
 const styles = {
-  success: "bg-[var(--success)] text-white",
-  error: "bg-[var(--error)] text-white",
-  warning: "bg-[var(--warning)] text-white",
-  info: "bg-[var(--info)] text-white",
+  success: "bg-success text-white",
+  error: "bg-error text-white",
+  warning: "bg-warning text-white",
+  info: "bg-info text-white",
 };
 
 /**

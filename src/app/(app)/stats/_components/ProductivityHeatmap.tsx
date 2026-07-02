@@ -58,15 +58,15 @@ export default function ProductivityHeatmap({
   );
 
   const getColor = (value: number) => {
-    if (value === 0) return "bg-gray-100 dark:bg-gray-800";
+    if (value === 0) return "bg-muted";
 
     const intensity = value / maxValue;
 
-    if (intensity > 0.8) return "bg-green-700";
-    if (intensity > 0.6) return "bg-green-600";
-    if (intensity > 0.4) return "bg-green-500";
-    if (intensity > 0.2) return "bg-green-400";
-    return "bg-green-200";
+    if (intensity > 0.8) return "bg-brand-primary";
+    if (intensity > 0.6) return "bg-brand-primary/80";
+    if (intensity > 0.4) return "bg-brand-primary/60";
+    if (intensity > 0.2) return "bg-brand-primary/40";
+    return "bg-brand-primary/20";
   };
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -126,12 +126,12 @@ export default function ProductivityHeatmap({
             <div className="flex items-center justify-end gap-2 mt-4 text-xs text-muted-foreground">
               <span>Less</span>
               <div className="flex gap-1">
-                <div className="w-3 h-3 rounded-sm bg-gray-100 dark:bg-gray-800" />
-                <div className="w-3 h-3 rounded-sm bg-green-200" />
-                <div className="w-3 h-3 rounded-sm bg-green-400" />
-                <div className="w-3 h-3 rounded-sm bg-green-500" />
-                <div className="w-3 h-3 rounded-sm bg-green-600" />
-                <div className="w-3 h-3 rounded-sm bg-green-700" />
+                <div className="w-3 h-3 rounded-sm bg-muted" />
+                <div className="w-3 h-3 rounded-sm bg-brand-primary/20" />
+                <div className="w-3 h-3 rounded-sm bg-brand-primary/40" />
+                <div className="w-3 h-3 rounded-sm bg-brand-primary/60" />
+                <div className="w-3 h-3 rounded-sm bg-brand-primary/80" />
+                <div className="w-3 h-3 rounded-sm bg-brand-primary" />
               </div>
               <span>More</span>
             </div>

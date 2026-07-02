@@ -5,7 +5,6 @@
 
 :root {
   /* Figma Tokens - Black palette */
-  --primary: oklch(0.205 0 0);
   --black: #161212;
   --black-90: rgb(22 18 18 / 0.9);
   --black-80: rgb(22 18 18 / 0.8);
@@ -71,11 +70,6 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -87,7 +81,6 @@
 }
 
 .dark {
-  --primary: oklch(0.922 0 0);
   --black: #161212;
   --black-90: rgb(22 18 18 / 0.9);
   --black-80: rgb(22 18 18 / 0.8);
@@ -144,11 +137,6 @@
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -176,7 +164,6 @@
   --color-ring: var(--ring);
 
   /* Figma Black Tokens */
-  --color-black-primary: var(--black-primary);
   --color-black: var(--black);
   --color-black-90: var(--black-90);
   --color-black-80: var(--black-80);
@@ -191,14 +178,20 @@
 
   /* Brand Colors */
   --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-light: var(--brand-primary-light);
+  --color-brand-primary-dark: var(--brand-primary-dark);
   --color-brand-secondary: var(--brand-secondary);
   --color-brand-accent: var(--brand-accent);
 
   /* Semantic Colors */
   --color-success: var(--success);
+  --color-success-light: var(--success-light);
   --color-warning: var(--warning);
+  --color-warning-light: var(--warning-light);
   --color-error: var(--error);
+  --color-error-light: var(--error-light);
   --color-info: var(--info);
+  --color-info-light: var(--info-light);
 
   /* Typography */
   --font-family-sans:
@@ -493,11 +486,6 @@ input[type="radio"] {
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);

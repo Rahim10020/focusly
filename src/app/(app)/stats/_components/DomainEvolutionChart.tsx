@@ -5,7 +5,6 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
 import { Task, DOMAINS, Domain, getDomainFromSubDomain } from "@/types";
 import {
   RadarChart,
@@ -73,29 +72,11 @@ const CustomTooltip = ({ active, payload }: DomainTooltipProps) => {
  * Displays domain-specific progress using multiple chart visualizations.
  * Includes a radar chart for life balance overview, bar charts for task
  * completion by domain, and summary cards with detailed statistics.
- * Supports both light and dark themes with automatic detection.
+ * Uses shared CSS tokens so light and dark themes stay in sync automatically.
  */
 export default function DomainEvolutionChart({
   tasks,
 }: DomainEvolutionChartProps) {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-
-  useEffect(() => {
-    const updateTheme = () => {
-      const isDark = document.documentElement.classList.contains("dark");
-      setTheme(isDark ? "dark" : "light");
-    };
-
-    updateTheme();
-
-    const observer = new MutationObserver(updateTheme);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
   // Calculate domain statistics
   const domainStats = Object.keys(DOMAINS).map((domainKey) => {
     const domain = domainKey as Domain;
@@ -142,7 +123,7 @@ export default function DomainEvolutionChart({
         </p>
         <ResponsiveContainer width="100%" height={400}>
           <RadarChart data={domainStats} outerRadius="75%">
-            <PolarGrid stroke={theme === "dark" ? "#94A3B8" : "#374151"} />
+            <PolarGrid stroke="var(--border)" />
             <PolarAngleAxis
               dataKey="domain"
               tick={(props: any) => {
@@ -156,7 +137,7 @@ export default function DomainEvolutionChart({
                     x={x}
                     y={y}
                     textAnchor={textAnchor}
-                    fill={theme === "dark" ? "#F1F5F9" : "#1F2937"}
+                    fill="var(--foreground)"
                     fontSize={16}
                     dy={isTop ? -12 : isBottom ? 12 : 4}
                   >
@@ -169,23 +150,23 @@ export default function DomainEvolutionChart({
               angle={90}
               domain={[0, 100]}
               tick={{
-                fill: theme === "dark" ? "#94A3B8" : "#6B7280",
+                fill: "var(--muted-foreground)",
                 fontSize: 13,
               }}
             />
             <Radar
               name="Score"
               dataKey="score"
-              stroke={theme === "dark" ? "#F87171" : "#EF4444"}
-              fill={theme === "dark" ? "#F87171" : "#EF4444"}
+              stroke="var(--brand-primary)"
+              fill="var(--brand-primary)"
               fillOpacity={0.3}
               strokeWidth={2}
             />
             <Radar
               name="Completion"
               dataKey="completionRate"
-              stroke="hsl(142, 76%, 36%)"
-              fill="hsl(142, 76%, 36%)"
+              stroke="var(--brand-accent)"
+              fill="var(--brand-accent)"
               fillOpacity={0.1}
               strokeWidth={2}
               strokeDasharray="5 5"
@@ -201,7 +182,7 @@ export default function DomainEvolutionChart({
             <span>Overall Score</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-600"></div>
+            <div className="w-3 h-3 rounded-full bg-brand-accent"></div>
             <span>Completion Rate</span>
           </div>
         </div>
@@ -212,14 +193,11 @@ export default function DomainEvolutionChart({
         <h3 className="text-xl font-medium mb-8">Tasks Completion by Domain</h3>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={domainStats}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="domain"
               className="text-xs"
-              tick={{
-                fill: theme === "dark" ? "#94A3B8" : "#6B7280",
-                fontSize: 16,
-              }}
+              tick={{ fill: "var(--muted-foreground)", fontSize: 16 }}
               angle={-8}
               textAnchor="end"
               height={100}
@@ -227,21 +205,21 @@ export default function DomainEvolutionChart({
             />
             <YAxis
               className="text-xs"
-              tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
+              tick={{ fill: "var(--muted-foreground)" }}
             />
             <Tooltip
               content={<CustomTooltip />}
-              cursor={{ fill: theme === "dark" ? "#334155" : "#F3F4F6" }}
+              cursor={{ fill: "var(--muted)" }}
             />
             <Bar
               dataKey="total"
-              fill={theme === "dark" ? "#334155" : "#F3F4F6"}
+              fill="var(--muted)"
               name="Total"
               radius={[4, 4, 0, 0]}
             />
             <Bar
               dataKey="completed"
-              fill={theme === "dark" ? "#F87171" : "#EF4444"}
+              fill="var(--brand-primary)"
               name="Completed"
               radius={[4, 4, 0, 0]}
             />
@@ -254,24 +232,21 @@ export default function DomainEvolutionChart({
         <h3 className="text-xl font-medium mb-8">Completion Rate Breakdown</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={domainStats} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               type="number"
               domain={[0, 100]}
-              tick={{ fill: theme === "dark" ? "#94A3B8" : "#6B7280" }}
+              tick={{ fill: "var(--muted-foreground)" }}
             />
             <YAxis
               type="category"
               dataKey="domain"
               width={120}
-              tick={{
-                fill: theme === "dark" ? "#94A3B8" : "#6B7280",
-                fontSize: 11,
-              }}
+              tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
             />
             <Tooltip
               content={<CustomTooltip />}
-              cursor={{ fill: theme === "dark" ? "#334155" : "#F3F4F6" }}
+              cursor={{ fill: "var(--muted)" }}
             />
             <Bar dataKey="completionRate" radius={[0, 8, 8, 0]}>
               {domainStats.map((entry, index) => (
@@ -279,14 +254,12 @@ export default function DomainEvolutionChart({
                   key={`cell-${index}`}
                   fill={
                     entry.completionRate >= 75
-                      ? "hsl(142, 76%, 36%)"
+                      ? "var(--brand-accent)"
                       : entry.completionRate >= 50
-                        ? theme === "dark"
-                          ? "#F87171"
-                          : "#EF4444"
+                        ? "var(--brand-primary)"
                         : entry.completionRate >= 25
-                          ? "hsl(45, 93%, 47%)"
-                          : "hsl(0, 72%, 51%)"
+                          ? "var(--brand-secondary)"
+                          : "var(--error)"
                   }
                 />
               ))}
@@ -295,7 +268,7 @@ export default function DomainEvolutionChart({
         </ResponsiveContainer>
         <div className="mt-4 flex items-center justify-center gap-4 text-xs flex-wrap">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-600"></div>
+            <div className="w-3 h-3 rounded-full bg-brand-accent"></div>
             <span>≥75%</span>
           </div>
           <div className="flex items-center gap-2">
@@ -303,11 +276,11 @@ export default function DomainEvolutionChart({
             <span>50-74%</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+            <div className="w-3 h-3 rounded-full bg-brand-secondary"></div>
             <span>25-49%</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
+            <div className="w-3 h-3 rounded-full bg-error"></div>
             <span>&lt;25%</span>
           </div>
         </div>

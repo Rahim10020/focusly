@@ -10,7 +10,7 @@ export default function AuthLayout(props: AuthLayoutProps) {
   const { children } = props;
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 transition-colors duration-200">
-      <div className="bg-white flex flex-col min-h-screen">
+      <div className="bg-background flex flex-col min-h-screen text-foreground">
         <header className="flex items-center justify-between py-6 px-4">
           <AppLogo iconSize={32} md={true} />
           <LanguageSwitcher />
@@ -20,7 +20,7 @@ export default function AuthLayout(props: AuthLayoutProps) {
         </div>
       </div>
 
-      <div className="hidden md:block bg-[#ef4444]"></div>
+      <div className="hidden md:block bg-brand-primary"></div>
     </div>
   );
 }
