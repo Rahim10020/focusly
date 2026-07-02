@@ -6,10 +6,6 @@ QUI SERAIT COOL
 - trouver les commentaires qui disent qu'il faut faire un truc apres dans 
     le projet ou qu'il faut changer un truc si on est dans un vrai projet (create-task, page)
 
-- explique :
-
-GET http://localhost:3000/sounds/notification.mp3 net::ERR_ABORTED 404 (Not Found)
-notificationSounds.ts:46 Error playing notification sound: NotSupportedError: Failed to load because no supported source was found.
 
 - je veux savoir quelle est le nombre maximal de taches qu'on affiche dans la home page ?
 
