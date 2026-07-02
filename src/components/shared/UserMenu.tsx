@@ -68,7 +68,7 @@ export default function UserMenu() {
           </Link>
           <button
             type="button"
-            className="block w-full text-left px-3 py-2 border-t border-black-10 text-sm text-red-500 hover:bg-accent cursor-pointer"
+            className="block w-full text-left px-3 py-2 border-t border-border text-sm text-error hover:bg-accent cursor-pointer"
             role="menuitem"
             onClick={async () => {
               setOpen(false);

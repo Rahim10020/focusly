@@ -218,10 +218,10 @@ export default function LeaderboardPage() {
     return (
       <Card>
         <CardContent className="p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-red-500/10 mx-auto mb-4 flex items-center justify-center">
-            <InfoIcon size={32} className="text-red-500" />
+          <div className="w-16 h-16 rounded-full bg-error/10 mx-auto mb-4 flex items-center justify-center">
+            <InfoIcon size={32} className="text-error" />
           </div>
-          <p className="text-red-500 mb-4 text-lg">Error: {error}</p>
+          <p className="text-error mb-4 text-lg">Error: {error}</p>
           <Button onClick={() => fetchLeaderboard()}>Try Again</Button>
         </CardContent>
       </Card>

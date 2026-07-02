@@ -46,7 +46,7 @@ export default function ProgressRing({
         {/* Définition du gradient */}
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="var(--primary)" />
+            <stop offset="0%" stopColor="var(--brand-primary)" />
             <stop offset="50%" stopColor="var(--brand-secondary)" />
             <stop offset="100%" stopColor="var(--brand-accent)" />
           </linearGradient>
@@ -113,7 +113,7 @@ export default function ProgressRing({
       {/* Pulse ring animation pour les jalons (25%, 50%, 75%) */}
       {isActive && (progress === 25 || progress === 50 || progress === 75) && (
         <div
-          className="absolute inset-0 rounded-full border-4 border-primary/30 animate-ping"
+          className="absolute inset-0 rounded-full border-4 border-brand-primary/30 animate-ping"
           style={{
             width: size,
             height: size,

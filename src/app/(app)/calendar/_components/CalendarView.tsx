@@ -121,13 +121,13 @@ export default function CalendarView({
   const getPriorityColor = (priority?: "low" | "medium" | "high") => {
     switch (priority) {
       case "high":
-        return "bg-red-500";
+        return "bg-error";
       case "medium":
-        return "bg-yellow-500";
+        return "bg-warning";
       case "low":
-        return "bg-green-500";
+        return "bg-success";
       default:
-        return "bg-blue-500";
+        return "bg-info";
     }
   };
 
@@ -262,7 +262,7 @@ export default function CalendarView({
                           </div>
                           {task.completed && (
                             <div>
-                              <CheckIcon size={20} className="text-green-500" />
+                              <CheckIcon size={20} className="text-success" />
                             </div>
                           )}
                         </div>
@@ -284,7 +284,7 @@ export default function CalendarView({
 
       {/* Quick Add Task Modal */}
       {showQuickAdd && quickAddDate && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-overlay flex items-center justify-center z-50">
           <Card className="w-full max-w-md mx-4 p-6">
             <h3 className="text-lg font-semibold mb-4">
               Add Task for {format(quickAddDate, "MMM d, yyyy")}

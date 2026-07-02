@@ -174,7 +174,7 @@ export default function SignUp() {
               onChange={(e) => setUsername(e.target.value)}
               required
               placeholder="your username"
-              className="placeholder:text-sm placeholder:text-black-40"
+              className="placeholder:text-sm placeholder:text-text-subtle"
             />
           </div>
           <div>
@@ -191,7 +191,7 @@ export default function SignUp() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="your@email.com"
-              className="placeholder:text-sm placeholder:text-black-40"
+              className="placeholder:text-sm placeholder:text-text-subtle"
             />
           </div>
           <div>
@@ -210,11 +210,11 @@ export default function SignUp() {
               minLength={6}
               placeholder="your password"
               showPasswordToggle
-              className="placeholder:text-sm placeholder:text-black-40"
+              className="placeholder:text-sm placeholder:text-text-subtle"
             />
           </div>
           {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
+            <div className="text-error text-sm text-center">{error}</div>
           )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (

@@ -121,7 +121,7 @@ export function FriendsList({
                       e.stopPropagation();
                       onRemoveFriend(friend.id);
                     }}
-                    className="text-red-500 hover:text-red-600"
+                    className="text-error hover:text-error-light"
                   >
                     Remove
                   </Button>

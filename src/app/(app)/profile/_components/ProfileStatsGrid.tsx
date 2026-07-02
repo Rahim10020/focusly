@@ -40,7 +40,7 @@ export function ProfileStatsGrid({
         <CardContent className="pt-6">
           <div className="text-center">
             <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
-              <CheckIcon className="text-green-500" />
+              <CheckIcon className="text-success" />
             </div>
             <p className="text-3xl font-bold mb-1">{completedTasks}</p>
             <p className="text-sm text-muted-foreground">Tasks Completed</p>
@@ -52,7 +52,7 @@ export function ProfileStatsGrid({
         <CardContent className="pt-6">
           <div className="text-center">
             <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
-              <ClockIcon className="text-amber-500" />
+              <ClockIcon className="text-warning" />
             </div>
             <p className="text-3xl font-bold mb-1">{totalFocusHours}h</p>
             <p className="text-sm text-muted-foreground">Total Focus Time</p>
@@ -75,7 +75,7 @@ export function ProfileStatsGrid({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="text-red-500"
+                className="text-error"
               >
                 <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
               </svg>
