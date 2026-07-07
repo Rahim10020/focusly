@@ -18,8 +18,7 @@
   --black-5: rgb(22 18 18 / 0.05);
 
   /* Brand Colors - Pomodoro Theme */
-  --brand-primary: #ef4444;
-  --brand-primary-dark: #dc2626;
+  --brand-primary: #dc2626;
   --brand-secondary: #f59e0b;
   /* Orange énergique */
   --brand-accent: #10b981;
@@ -47,7 +46,7 @@
   /* Base Colors */
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
-  --primary: #ef4444;
+  --primary: #dc2626;
   --primary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
@@ -101,8 +100,7 @@
   --black-5: rgb(22 18 18 / 0.05);
 
   /* Brand Colors - Adjusted for dark mode */
-  --brand-primary: #f87171;
-  --brand-primary-dark: #ef4444;
+  --brand-primary: #dc2626;
   --brand-secondary: #fbbf24;
   --brand-accent: #34d399;
   --purple: #a78bfa;
@@ -130,7 +128,7 @@
   --foreground: oklch(0.985 0 0);
   --card: #323437;
   --card-foreground: oklch(0.985 0 0);
-  --primary: #f87171;
+  --primary: #dc2626;
   --primary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
@@ -199,7 +197,7 @@
 
   /* Brand Colors */
   --color-brand-primary: var(--brand-primary);
-  --color-brand-primary-dark: var(--brand-primary-dark);
+  --color-brand-primary: var(--brand-primary);
   --color-brand-secondary: var(--brand-secondary);
   --color-brand-accent: var(--brand-accent);
   --color-purple: var(--purple);

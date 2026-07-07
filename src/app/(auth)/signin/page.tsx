@@ -1,10 +1,3 @@
-/**
- * @fileoverview Sign In page for the Focusly application.
- * Provides email/password authentication form with error handling
- * and navigation to sign up page.
- * @module app/signin/page
- */
-
 "use client";
 
 import { useState } from "react";
