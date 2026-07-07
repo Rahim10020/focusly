@@ -36,12 +36,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        "bg-primary text-primary-foreground hover:bg-brand-primary active:scale-[0.98]",
+        "bg-primary text-foreground hover:bg-brand-primary active:scale-[0.98]",
       secondary: "bg-muted text-foreground hover:bg-accent active:scale-[0.98]",
       ghost:
         "bg-transparent text-foreground hover:bg-muted active:scale-[0.98]",
       outline:
-        "bg-transparent border-2 !border-primary text-primary hover:bg-primary hover:text-primary-foreground active:scale-[0.98]",
+        "bg-transparent border-2 !border-primary text-primary hover:bg-primary hover:text-foreground active:scale-[0.98]",
       danger: "bg-error text-white hover:bg-error-light active:scale-[0.98]",
       success:
         "bg-success text-white hover:bg-success-light active:scale-[0.98]",

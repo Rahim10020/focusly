@@ -65,7 +65,7 @@ export function ProfileHeader({
                 {isEditing && (
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="absolute bottom-2 right-2 bg-primary text-primary-foreground rounded-full p-2 shadow-lg hover:scale-110 transition-transform cursor-pointer"
+                    className="absolute bottom-2 right-2 bg-primary text-foreground rounded-full p-2 shadow-lg hover:scale-110 transition-transform cursor-pointer"
                   >
                     <EditPencilIcon size={16} />
                   </button>

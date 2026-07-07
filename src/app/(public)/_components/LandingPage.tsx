@@ -14,9 +14,6 @@ export function LandingPage() {
     <div className="min-h-screen bg-background transition-colors duration-200">
       {/* Hero Section */}
       <main className="relative overflow-hidden min-h-screen flex items-center">
-        {/* Background Gradient */}
-        <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-brand-accent/5 dark:from-primary/10 dark:to-brand-accent/10 pointer-events-none" />
-
         <div className="max-w-4xl mx-auto px-6 py-16 md:py-24 relative z-10">
           {/* Hero Content */}
           <div className="text-center space-y-6">

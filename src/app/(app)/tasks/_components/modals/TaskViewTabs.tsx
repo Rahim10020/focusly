@@ -46,7 +46,7 @@ export default function TaskModalTabs({
           >
             <span>{tab.label}</span>
             {tab.badge && (
-              <span className="ml-1 px-1.5 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
+              <span className="ml-1 px-1.5 py-0.5 text-xs bg-primary text-foreground rounded-full">
                 {tab.badge}
               </span>
             )}

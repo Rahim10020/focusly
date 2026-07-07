@@ -75,7 +75,7 @@ export default function CategorySelector({
                     }
                     className={`p-3 text-left text-sm rounded-lg transition-all cursor-pointer ${
                       selectedSubDomain === subDomainKey
-                        ? "bg-primary text-primary-foreground font-medium"
+                        ? "bg-primary text-foreground font-medium"
                         : "bg-card hover:bg-accent text-foreground border border-border"
                     }`}
                   >

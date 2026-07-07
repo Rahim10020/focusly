@@ -127,7 +127,7 @@ export function LeaderboardList({
                   <p className="font-semibold truncate">
                     {user.username || "Player"}
                     {user.id === currentUserId && (
-                      <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                      <span className="ml-2 text-xs bg-primary text-foreground px-2 py-0.5 rounded-full">
                         You
                       </span>
                     )}

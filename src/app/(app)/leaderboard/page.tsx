@@ -301,7 +301,7 @@ export default function LeaderboardPage() {
           onClick={() => setSelectedTab("tasks")}
           className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
             selectedTab === "tasks"
-              ? "bg-primary text-primary-foreground shadow-lg"
+              ? "bg-primary text-foreground shadow-lg"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -311,7 +311,7 @@ export default function LeaderboardPage() {
           onClick={() => setSelectedTab("time")}
           className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
             selectedTab === "time"
-              ? "bg-primary text-primary-foreground shadow-lg"
+              ? "bg-primary text-foreground shadow-lg"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -321,7 +321,7 @@ export default function LeaderboardPage() {
           onClick={() => setSelectedTab("streak")}
           className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
             selectedTab === "streak"
-              ? "bg-primary text-primary-foreground shadow-lg"
+              ? "bg-primary text-foreground shadow-lg"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
