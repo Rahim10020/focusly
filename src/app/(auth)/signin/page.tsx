@@ -52,15 +52,15 @@ export default function SignIn() {
 
   return (
     <Card variant="none">
-      <CardHeader className="mb-8">
+      <CardHeader className="mb-12">
         <CardTitle className="text-start text-foreground">Sign In</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-normal mb-2 text-text-subtle"
+              className="block text-md font-normal mb-2 text-text-subtle"
             >
               Email Address
             </label>
@@ -77,7 +77,7 @@ export default function SignIn() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-normal mb-2 text-text-subtle"
+              className="block text-md font-normal mb-2 text-text-subtle"
             >
               Password
             </label>
@@ -95,21 +95,23 @@ export default function SignIn() {
           {error && (
             <div className="text-error text-sm text-center">{error}</div>
           )}
+        </form>
+        <div className="mt-12">
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? <MyLoader label="Signing in" /> : "Sign In"}
             <ArrowRightLgIcon className="w-5 h-5 animate-arrow-slide" />
           </Button>
-        </form>
-        <div className="mt-4 text-center">
-          <p className="text-sm text-text-subtle">
-            Don&apos;t have an account?{" "}
-            <Link
-              href={ROUTES.SIGN_UP}
-              className="text-primary hover:underline"
-            >
-              Sign Up
-            </Link>
-          </p>
+          <div className="mt-4 text-center">
+            <p className="text-sm text-text-subtle">
+              Don&apos;t have an account?{" "}
+              <Link
+                href={ROUTES.SIGN_UP}
+                className="text-primary hover:underline"
+              >
+                Sign Up
+              </Link>
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>

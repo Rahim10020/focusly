@@ -146,7 +146,7 @@ export default function SignUp() {
 
   return (
     <Card variant="none">
-      <CardHeader className="mb-8">
+      <CardHeader className="mb-12">
         <CardTitle className="text-start text-foreground">
           Create Account
         </CardTitle>
@@ -156,7 +156,7 @@ export default function SignUp() {
           <div>
             <label
               htmlFor="username"
-              className="block text-sm font-normal mb-1 text-black-80"
+              className="block text-md font-normal mb-1 text-text-subtle"
             >
               Username
             </label>
@@ -166,14 +166,14 @@ export default function SignUp() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="your username"
-              className="placeholder:text-sm placeholder:text-text-subtle"
+              // placeholder="your username"
+              // className="placeholder:text-sm placeholder:text-text-subtle"
             />
           </div>
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-normal mb-1 text-black-80"
+              className="block text-md font-normal mb-1 text-text-subtle"
             >
               Email
             </label>
@@ -183,14 +183,14 @@ export default function SignUp() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="your@email.com"
-              className="placeholder:text-sm placeholder:text-text-subtle"
+              // placeholder="your@email.com"
+              // className="placeholder:text-sm placeholder:text-text-subtle"
             />
           </div>
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-normal mb-1 text-black-80"
+              className="block text-md font-normal mb-1 text-text-subtle"
             >
               Password
             </label>
@@ -201,14 +201,16 @@ export default function SignUp() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              placeholder="your password"
+              // placeholder="your password"
               showPasswordToggle
-              className="placeholder:text-sm placeholder:text-text-subtle"
+              // className="placeholder:text-sm placeholder:text-text-subtle"
             />
           </div>
           {error && (
             <div className="text-error text-sm text-center">{error}</div>
           )}
+        </form>
+        <div className="mt-12">
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <MyLoader label="Creating account" />
@@ -217,17 +219,17 @@ export default function SignUp() {
             )}
             <ArrowRightLgIcon className="w-5 h-5 animate-arrow-slide" />
           </Button>
-        </form>
-        <div className="mt-4 text-center">
-          <p className="text-sm text-text-subtle">
-            Already have an account?{" "}
-            <Link
-              href={ROUTES.SIGN_IN}
-              className="text-primary hover:underline"
-            >
-              Sign In
-            </Link>
-          </p>
+          <div className="mt-4 text-center">
+            <p className="text-sm text-text-subtle">
+              Already have an account?{" "}
+              <Link
+                href={ROUTES.SIGN_IN}
+                className="text-primary hover:underline"
+              >
+                Sign In
+              </Link>
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
