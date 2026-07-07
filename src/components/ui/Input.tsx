@@ -2,9 +2,6 @@ import React, { useState } from "react";
 import { HideIcon, InfoIcon, ShowIcon } from "@/components/shared/icons";
 import CheckIcon from "@/components/shared/icons/CheckIcon";
 
-/**
- * Props for the Input component.
- */
 interface InputProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
   "ref"
