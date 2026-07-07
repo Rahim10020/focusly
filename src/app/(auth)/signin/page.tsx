@@ -56,11 +56,11 @@ export default function SignIn() {
         <CardTitle className="text-start text-foreground">Sign In</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-normal mb-1 text-text-subtle"
+              className="block text-sm font-normal mb-2 text-text-subtle"
             >
               Email Address
             </label>
@@ -77,7 +77,7 @@ export default function SignIn() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-normal mb-1 text-text-subtle"
+              className="block text-sm font-normal mb-2 text-text-subtle"
             >
               Password
             </label>
