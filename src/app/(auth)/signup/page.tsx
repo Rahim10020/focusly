@@ -1,10 +1,3 @@
-/**
- * @fileoverview Sign Up page for the Focusly application.
- * Provides user registration form with email verification flow
- * using Supabase authentication.
- * @module app/signup/page
- */
-
 "use client";
 
 import { useState, useEffect } from "react";

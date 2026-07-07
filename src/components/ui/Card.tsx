@@ -29,7 +29,7 @@ export default function Card({
     interactive:
       "shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer rounded-2xl border border-border bg-card",
     outline: "shadow-none border-2 rounded-2xl border border-border bg-card",
-    none: "bg-transparent",
+    none: "bg-transparent w-full max-w-sm",
   };
 
   return (
