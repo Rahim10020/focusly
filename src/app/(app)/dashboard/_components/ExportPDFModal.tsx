@@ -78,7 +78,7 @@ export default function ExportPDFModal({
               onChange={(e) =>
                 setOptions({ ...options, includeStats: e.target.checked })
               }
-              className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+              className="w-4 h-4 rounded border-border bg-background text-primary focus:ring-primary"
             />
             <label htmlFor="stats" className="text-sm cursor-pointer">
               General Statistics
@@ -93,7 +93,7 @@ export default function ExportPDFModal({
               onChange={(e) =>
                 setOptions({ ...options, includeCharts: e.target.checked })
               }
-              className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+              className="w-4 h-4 rounded border-border bg-background text-primary focus:ring-primary"
             />
             <label htmlFor="charts" className="text-sm cursor-pointer">
               Productivity Charts
@@ -108,7 +108,7 @@ export default function ExportPDFModal({
               onChange={(e) =>
                 setOptions({ ...options, includeInsights: e.target.checked })
               }
-              className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+              className="w-4 h-4 rounded border-border bg-background text-primary focus:ring-primary"
             />
             <label htmlFor="insights" className="text-sm cursor-pointer">
               Insights & Recommendations
@@ -123,7 +123,7 @@ export default function ExportPDFModal({
               onChange={(e) =>
                 setOptions({ ...options, includeTasks: e.target.checked })
               }
-              className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+              className="w-4 h-4 rounded border-border bg-background text-primary focus:ring-primary"
             />
             <label htmlFor="tasks" className="text-sm cursor-pointer">
               Recent Tasks List
@@ -164,7 +164,7 @@ export default function ExportPDFModal({
                 value="detailed"
                 checked={options.format === "detailed"}
                 onChange={() => setOptions({ ...options, format: "detailed" })}
-                className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
+                className="w-4 h-4 border-border bg-background text-primary focus:ring-primary"
               />
               <label htmlFor="detailed" className="text-sm cursor-pointer">
                 Detailed (all information)
@@ -178,7 +178,7 @@ export default function ExportPDFModal({
                 value="summary"
                 checked={options.format === "summary"}
                 onChange={() => setOptions({ ...options, format: "summary" })}
-                className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
+                className="w-4 h-4 border-border bg-background text-primary focus:ring-primary"
               />
               <label htmlFor="summary" className="text-sm cursor-pointer">
                 Summary (concise overview)
