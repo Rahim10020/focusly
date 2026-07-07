@@ -166,6 +166,7 @@ export default function SignUp() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
+              noBorder={true}
               placeholder="your username"
               className="placeholder:text-xs placeholder:text-text-subtle"
             />
@@ -183,6 +184,7 @@ export default function SignUp() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              noBorder={true}
               placeholder="your@email.com"
               className="placeholder:text-xs placeholder:text-text-subtle"
             />
@@ -200,7 +202,7 @@ export default function SignUp() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              noBorder={false}
+              noBorder={true}
               minLength={6}
               placeholder="your password"
               showPasswordToggle

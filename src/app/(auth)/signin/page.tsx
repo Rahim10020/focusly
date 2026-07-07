@@ -70,6 +70,7 @@ export default function SignIn() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              noBorder={true}
               placeholder="your@email.com"
               className="placeholder:text-sm placeholder:text-text-subtle"
             />
@@ -87,6 +88,7 @@ export default function SignIn() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              noBorder={true}
               placeholder="your password"
               showPasswordToggle
               className="placeholder:text-sm placeholder:text-text-subtle"

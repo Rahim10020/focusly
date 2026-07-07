@@ -47,7 +47,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ? "border-[var(--error)] focus:border-[var(--error)] focus:ring-[var(--error)]"
       : success
         ? "border-[var(--success)] focus:border-[var(--success)] focus:ring-[var(--success)]"
-        : "border-input-border focus:border-input-border focus:ring-surface-hover focus:bg-transparent";
+        : "border focus:border-input-border focus:ring-surface-hover focus:bg-transparent";
 
     return (
       <div className="w-full">
@@ -61,7 +61,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             type={inputType}
             className={`w-full px-4 bg-surface-subtle h-9 text-sm text-foreground
-                        ${noBorder ? "border-0" : "rounded-sm"}
+                        ${noBorder ? "border-0 rounded-sm" : "rounded-sm"}
                         ${shouldShowPasswordToggle ? "pr-10" : ""}
                         focus:outline-none focus:ring-2 focus:ring-offset-0
                         transition-all duration-300 ease-out
