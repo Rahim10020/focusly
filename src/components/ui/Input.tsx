@@ -1,7 +1,3 @@
-/**
- * @fileoverview Input component with label, validation states, and helper text.
- */
-
 import React, { useState } from "react";
 import { HideIcon, InfoIcon, ShowIcon } from "@/components/shared/icons";
 import CheckIcon from "@/components/shared/icons/CheckIcon";
@@ -54,7 +50,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ? "border-[var(--error)] focus:ring-[var(--error)]"
       : success
         ? "border-[var(--success)] focus:ring-[var(--success)]"
-        : "border-border focus:ring-surface-hover focus:bg-transparent";
+        : "border-input-border focus:ring-surface-hover focus:bg-transparent";
 
     return (
       <div className="w-full">
