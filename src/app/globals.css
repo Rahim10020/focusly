@@ -126,9 +126,9 @@
   --text-subtle: oklch(0.556 0 0);
 
   /* Base Colors - Deep slate theme */
-  --background: #323437;
+  --background: #121212;
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: #323437;
   --card-foreground: oklch(0.985 0 0);
   --primary: #f87171;
   --primary-foreground: oklch(0.205 0 0);
