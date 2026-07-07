@@ -44,10 +44,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       : type;
 
     const borderColor = error
-      ? "border-[var(--error)] focus:ring-[var(--error)]"
+      ? "border-[var(--error)] focus:border-[var(--error)] focus:ring-[var(--error)]"
       : success
-        ? "border-[var(--success)] focus:ring-[var(--success)]"
-        : "border-input-border focus:ring-surface-hover focus:bg-transparent";
+        ? "border-[var(--success)] focus:border-[var(--success)] focus:ring-[var(--success)]"
+        : "border-input-border focus:border-input-border focus:ring-surface-hover focus:bg-transparent";
 
     return (
       <div className="w-full">

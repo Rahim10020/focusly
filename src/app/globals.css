@@ -495,6 +495,7 @@ input[type="radio"] {
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --color-input-border: var(--input-border);
 }
 
 @layer base {
