@@ -220,28 +220,28 @@ export default function SignUp() {
           {error && (
             <div className="text-error text-sm text-center">{error}</div>
           )}
-        </form>
-        <div className="mt-12">
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? (
-              <MyLoader label="Creating account" />
-            ) : (
-              "Create My Account"
-            )}
-            <ArrowRightLgIcon className="w-5 h-5 animate-arrow-slide" />
-          </Button>
-          <div className="mt-4 text-center">
-            <p className="text-sm text-text-subtle">
-              Already have an account?{" "}
-              <Link
-                href={ROUTES.SIGN_IN}
-                className="text-primary hover:underline"
-              >
-                Sign In
-              </Link>
-            </p>
+          <div className="mt-12">
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <MyLoader label="Creating account" />
+              ) : (
+                "Create My Account"
+              )}
+              <ArrowRightLgIcon className="w-5 h-5 animate-arrow-slide" />
+            </Button>
+            <div className="mt-4 text-center">
+              <p className="text-sm text-text-subtle">
+                Already have an account?{" "}
+                <Link
+                  href={ROUTES.SIGN_IN}
+                  className="text-primary hover:underline"
+                >
+                  Sign In
+                </Link>
+              </p>
+            </div>
           </div>
-        </div>
+        </form>
       </CardContent>
     </Card>
   );
