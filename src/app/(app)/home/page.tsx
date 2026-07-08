@@ -5,7 +5,6 @@
 "use client";
 
 import { useRef, useEffect, useMemo, useCallback, useState } from "react";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -14,22 +13,11 @@ import QuickAddTask from "@/app/(app)/tasks/_components/forms/QuickAddTask";
 import PomodoroTimer from "@/app/(app)/home/_components/pomodoro/PomodoroTimer";
 import AchievementNotification from "@/app/(app)/home/_components/achievements/AchievementNotification";
 import { HomeNotifications } from "@/app/(app)/home/_components/HomeNotifications";
-import { KeyboardShortcutHint } from "@/app/(app)/home/_components/KeyboardShortcutHint";
 import { TimerSettingsButton } from "@/app/(app)/home/_components/TimerSettingsButton";
-
-// Lazy load heavy or conditional components
-const KeyboardShortcutsModal = dynamic(
-  () => import("@/components/shared/KeyboardShortcutsModal"),
-  { ssr: false },
-);
 import { useTasks } from "@/hooks/useTasks";
 import { useCachedStats } from "@/hooks/useCachedStats";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useTags } from "@/hooks/useTags";
-import {
-  useKeyboardShortcuts,
-  GLOBAL_SHORTCUTS,
-} from "@/hooks/useKeyboardShortcuts";
 import { useTaskNotifications } from "@/hooks/useTaskNotifications";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
 import { useSession } from "@/hooks/useAuth";
@@ -44,7 +32,6 @@ export default function HomePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const taskInputRef = useRef<HTMLInputElement>(null);
-  const [showShortcuts, setShowShortcuts] = useState(false);
   const [showAllUpcomingTasks, setShowAllUpcomingTasks] = useState(false);
   const [achievementCheckPending, setAchievementCheckPending] = useState(false);
   const [timerRef, setTimerRef] = useState<{
@@ -221,43 +208,48 @@ export default function HomePage() {
   );
   const hasMoreTasksThanDisplayed = allImminentTasks.length > 5;
 
-  // Keyboard shortcuts
-  useKeyboardShortcuts([
-    {
-      ...GLOBAL_SHORTCUTS.START_PAUSE_TIMER,
-      action: () => {
-        if (timerRef) {
-          if (timerRef.status === "running") {
-            timerRef.pause();
-          } else {
-            timerRef.start();
+  // Timer keyboard shortcuts (Space, R, S, N) — kept, but handled locally
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      switch (event.key.toLowerCase()) {
+        case " ":
+          event.preventDefault();
+          if (timerRef) {
+            if (timerRef.status === "running") {
+              timerRef.pause();
+            } else {
+              timerRef.start();
+            }
           }
-        }
-      },
-    },
-    {
-      ...GLOBAL_SHORTCUTS.RESET_TIMER,
-      action: () => {
-        if (timerRef) timerRef.reset();
-      },
-    },
-    {
-      ...GLOBAL_SHORTCUTS.SKIP_SESSION,
-      action: () => {
-        if (timerRef) timerRef.skip();
-      },
-    },
-    {
-      ...GLOBAL_SHORTCUTS.NEW_TASK,
-      action: () => {
-        taskInputRef.current?.focus();
-      },
-    },
-    {
-      ...GLOBAL_SHORTCUTS.SHOW_SHORTCUTS,
-      action: () => setShowShortcuts(true),
-    },
-  ]);
+          break;
+        case "r":
+          if (timerRef) timerRef.reset();
+          break;
+        case "s":
+          if (timerRef) timerRef.skip();
+          break;
+        case "n":
+          taskInputRef.current?.focus();
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [timerRef]);
 
   const pomodoroCardContent = (
     <>
@@ -372,14 +364,6 @@ export default function HomePage() {
           }}
         />
       ))}
-
-      {/* Keyboard Shortcuts Modal */}
-      {showShortcuts && (
-        <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
-      )}
-
-      {/* Keyboard shortcut hint */}
-      <KeyboardShortcutHint onClick={() => setShowShortcuts(true)} />
     </div>
   );
 }

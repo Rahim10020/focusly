@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import KeyboardShortcutsProvider from "@/components/providers/KeyboardShortcutsProvider";
 import "./globals.css";
 import { NotificationsProvider } from "@/components/providers/NotificationsProvider";
 import { STORAGE_KEYS } from "@/constants";
@@ -99,9 +98,7 @@ export default function RootLayout({
       <body className="antialiased font-sans">
         <ThemeProvider>
           <ToastProvider>
-            <KeyboardShortcutsProvider>
-              <NotificationsProvider>{children}</NotificationsProvider>
-            </KeyboardShortcutsProvider>
+            <NotificationsProvider>{children}</NotificationsProvider>
           </ToastProvider>
         </ThemeProvider>
         <Analytics />

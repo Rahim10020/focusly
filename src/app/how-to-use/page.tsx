@@ -1,10 +1,3 @@
-/**
- * @fileoverview How to Use documentation page for the Focusly application.
- * Comprehensive guide covering all features including Pomodoro technique,
- * task management, calendar, analytics, achievements, and keyboard shortcuts.
- * @module app/how-to-use/page
- */
-
 "use client";
 
 import Link from "next/link";
@@ -260,8 +253,7 @@ export default function HowToUsePage() {
                   <ul className="list-disc list-inside space-y-2">
                     <li>
                       <strong>Simple controls:</strong> Play/Pause, Skip, and
-                      Reset buttons are always visible (and mapped to keyboard
-                      shortcuts).
+                      Reset buttons are always visible.
                     </li>
                     <li>
                       <strong>Auto-start:</strong> Turn on automatic work/break
@@ -439,9 +431,8 @@ export default function HowToUsePage() {
                       highlight, while everyone else can scroll or paginate.
                     </li>
                     <li>
-                      <strong>Navigation shortcuts:</strong> Use keyboard
-                      shortcuts or header links to hop between Friends,
-                      Leaderboard, and user profiles.
+                      <strong>Navigation:</strong> Use the header links to hop
+                      between Friends, Leaderboard, and user profiles.
                     </li>
                   </ul>
                 </CardContent>
@@ -569,66 +560,6 @@ export default function HowToUsePage() {
               </Card>
             </section>
 
-            {/* Keyboard Shortcuts */}
-            <section id="shortcuts" className="mb-12">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <span>⌨️</span> Keyboard Shortcuts
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Speed up your workflow with these keyboard shortcuts. Press{" "}
-                    <kbd className="px-2 py-1 bg-muted rounded text-sm">?</kbd>{" "}
-                    anywhere in the app to see the full list.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h3 className="font-semibold mb-2">Timer Controls</h3>
-                      <ul className="space-y-1 text-sm text-muted-foreground">
-                        <li>
-                          <kbd className="px-2 py-1 bg-muted rounded">
-                            Space
-                          </kbd>{" "}
-                          - Start/Pause timer
-                        </li>
-                        <li>
-                          <kbd className="px-2 py-1 bg-muted rounded">S</kbd> -
-                          Skip to next phase
-                        </li>
-                        <li>
-                          <kbd className="px-2 py-1 bg-muted rounded">R</kbd> -
-                          Reset timer
-                        </li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-2">Tasks</h3>
-                      <ul className="space-y-1 text-sm text-muted-foreground">
-                        <li>
-                          <kbd className="px-2 py-1 bg-muted rounded">N</kbd> -
-                          New task
-                        </li>
-                        <li>
-                          <kbd className="px-2 py-1 bg-muted rounded">
-                            Enter
-                          </kbd>{" "}
-                          - Select task
-                        </li>
-                        <li>
-                          <kbd className="px-2 py-1 bg-muted rounded">
-                            Delete
-                          </kbd>{" "}
-                          - Delete task
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-
             {/* Back to Home */}
             <div className="text-center mt-12">
               <Link href={ROUTES.HOME}>
@@ -714,12 +645,6 @@ export default function HowToUsePage() {
                     className="block text-sm text-primary hover:underline transition-all duration-200 hover:text-primary/80"
                   >
                     💡 Tips & Best Practices
-                  </a>
-                  <a
-                    href="#shortcuts"
-                    className="block text-sm text-primary hover:underline transition-all duration-200 hover:text-primary/80"
-                  >
-                    ⌨️ Keyboard Shortcuts
                   </a>
                 </nav>
               </Card>
