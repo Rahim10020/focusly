@@ -18,5 +18,4 @@ comment regler ca ? fais moi un plan.
 - corriger le probleme de rechargement de la page quand on change de theme.
 - changer la couleur noir quand on est en dark mode. c'est trop fort
 - tester les fonctionnalites pour voir si tout fonctionne.
-- enable les border des inputs
 
