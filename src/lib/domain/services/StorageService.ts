@@ -73,7 +73,7 @@ export class StorageService {
   static clearAll(): void {
     if (typeof window === "undefined") return;
 
-    const keysToKeep = ["theme", "settings"]; // Settings to preserve
+    const keysToKeep = ["settings"]; // Settings to preserve
 
     Object.values(STORAGE_KEYS).forEach((key) => {
       if (!keysToKeep.some((k) => key.includes(k))) {

@@ -1,7 +1,7 @@
 /**
  * @fileoverview User preferences API route.
  *
- * Provides endpoints for managing user preferences such as theme settings.
+ * Provides endpoints for managing user preferences.
  * Uses upsert to create or update preferences as needed.
  *
  * Route: /api/users/preferences
@@ -24,28 +24,6 @@ import type { AuthContext } from "@/lib/api/middleware/auth";
 
 /**
  * Retrieves the authenticated user's preferences.
- *
- * @param {NextRequest} request - The incoming request object
- * @param {unknown} context - Route context
- * @param {unknown} validatedData - Validated request data
- * @param {AuthContext} auth - Authenticated user context
- * @returns {Promise<NextResponse>} JSON response containing user preferences
- *
- * @example
- * // Successful response
- * // GET /api/users/preferences
- * // Response: 200 OK
- * {
- *   "user_id": "user-uuid",
- *   "theme": "dark",
- *   "created_at": "2024-01-15T10:30:00Z",
- *   "updated_at": "2024-01-15T10:30:00Z"
- * }
- *
- * @example
- * // Error responses
- * // 401: { "error": "Unauthorized" }
- * // 404: { "error": "Preferences not found" }
  */
 async function getHandler(
   _request: any,
@@ -75,7 +53,6 @@ async function getHandler(
   if (!data) {
     return successResponse({
       user_id: auth.userId,
-      theme: "light", // Default theme
     });
   }
 
@@ -87,32 +64,6 @@ async function getHandler(
  *
  * Creates a new preference record if one doesn't exist, or updates the
  * existing record. Requires authentication.
- *
- * @param {NextRequest} request - The incoming request object
- * @param {unknown} context - Route context
- * @param {unknown} validatedData - Validated preferences schema
- * @param {AuthContext} auth - Authenticated user context
- * @returns {Promise<NextResponse>} JSON response indicating success or failure
- *
- * @example
- * // Set theme to dark mode
- * // POST /api/users/preferences
- * // Request body:
- * {
- *   "theme": "dark"
- * }
- *
- * @example
- * // Successful response (200 OK)
- * {
- *   "success": true
- * }
- *
- * @example
- * // Error responses
- * // 400: { "error": "Invalid theme value. Must be \"light\" or \"dark\"." }
- * // 401: { "error": "Unauthorized" }
- * // 500: { "error": "Failed to update preferences" }
  */
 async function postHandler(
   _request: any,
@@ -165,7 +116,6 @@ async function postHandler(
     }
 
     // Invalidate cache for this user's preferences
-    await Cache.invalidate(`theme-preference:${auth.userId}`);
     await Cache.invalidate(`user-preferences:${auth.userId}`);
 
     return successResponse({ success: true });

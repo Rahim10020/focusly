@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import ThemeToggle from "../shared/ThemeToggle";
 import UserMenu from "../shared/UserMenu";
 import { useNotificationsContext } from "@/components/providers/NotificationsProvider";
 import { ROUTES } from "@/constants";
@@ -59,7 +58,6 @@ export default function Header() {
           </Link>
 
           <div className="ml-25 flex items-center gap-2">
-            <ThemeToggle />
             <Link
               href={ROUTES.NOTIFICATIONS}
               className={`p-2 rounded-full transition-colors relative ${pathname === ROUTES.NOTIFICATIONS ? "bg-accent" : "hover:bg-accent"}`}
@@ -79,7 +77,6 @@ export default function Header() {
 
         {/* Mobile Navigation */}
         <div className="md:hidden flex items-center gap-3">
-          <ThemeToggle />
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="flex flex-col justify-center items-center w-10 h-10 rounded-lg hover:bg-accent transition-all focus-ring cursor-pointer"

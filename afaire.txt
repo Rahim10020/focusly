@@ -14,8 +14,9 @@ est venue et meme chose quand j'ai fini une session de pomodoro et tout est bon 
 les notifications (les deux ) viennent encore quand je vais dans la page des taches en quittant la home page. 
 comment regler ca ? fais moi un plan.
 
-- verifier que les couleurs sont correctement corrigees light comme dark mode.
 - corriger le probleme de rechargement de la page quand on change de theme.
-- changer la couleur noir quand on est en dark mode. c'est trop fort
 - tester les fonctionnalites pour voir si tout fonctionne.
+- enlever tous les any de tout le projet.
+- quel est l'utilite du fichier storageService.ts ? ci pas necessaire, on peut le supprimer.
+- le fichier user.ts est vide. est ce qu'il nessaire ? si c'est pas le cas on va le supprimer.
 

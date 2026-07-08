@@ -18,7 +18,6 @@ export const STORAGE_KEYS = {
 
   // User preferences
   SETTINGS: "focusly_settings",
-  THEME: "focusly_theme",
   SOUND_ENABLED: "focusly_sound_enabled",
 
   // Gamification

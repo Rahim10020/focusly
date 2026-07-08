@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { ToastProvider } from "@/components/providers/ToastProvider";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
 import { NotificationsProvider } from "@/components/providers/NotificationsProvider";
-import { STORAGE_KEYS } from "@/constants";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 
@@ -75,20 +73,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <head>
         <title>Focusly – Focus & Productivity</title>
-        {/* Inline script to apply saved theme before React hydration to avoid flash */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try {
-  var t = localStorage.getItem('${STORAGE_KEYS.THEME}');
-  if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
-} catch (e) {}`,
-          }}
-        />
-
         <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -96,11 +80,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Focusly" />
       </head>
       <body className="antialiased font-sans">
-        <ThemeProvider>
-          <ToastProvider>
-            <NotificationsProvider>{children}</NotificationsProvider>
-          </ToastProvider>
-        </ThemeProvider>
+        <ToastProvider>
+          <NotificationsProvider>{children}</NotificationsProvider>
+        </ToastProvider>
         <Analytics />
       </body>
     </html>

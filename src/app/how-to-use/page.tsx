@@ -3,17 +3,12 @@
 import Link from "next/link";
 import Card, { CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import ThemeToggle from "@/components/shared/ThemeToggle";
 import { ROUTES } from "@/constants";
 
 export default function HowToUsePage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="sticky top-8 float-right z-50 bg-background/80 backdrop-blur-sm">
-          <ThemeToggle />
-        </div>
-
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-4">
@@ -177,8 +172,8 @@ export default function HowToUsePage() {
                       see personal totals.
                     </li>
                     <li>
-                      <strong>Settings:</strong> Tune timers, auto-start, focus
-                      sounds, and theme.
+                      <strong>Settings:</strong> Tune timers, auto-start, and focus
+                      sounds.
                     </li>
                   </ul>
                 </CardContent>
@@ -504,10 +499,6 @@ export default function HowToUsePage() {
                       <strong>Auto-start & sounds:</strong> Decide whether the
                       next session starts on its own and toggle Focusly’s
                       built-in chimes.
-                    </li>
-                    <li>
-                      <strong>Theme switch:</strong> Use the header toggle for
-                      Light/Dark or let Focusly follow your system preference.
                     </li>
                     <li>
                       <strong>Reset button:</strong> One click resets all

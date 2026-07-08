@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
 :root {
   /* Figma Tokens - Black palette */
   --black: #161212;
@@ -75,72 +73,8 @@
   --destructive: oklch(0.577 0.245 27.325);
 }
 
-.dark {
-  --black: #161212;
-  --black-90: rgb(22 18 18 / 0.9);
-  --black-80: rgb(22 18 18 / 0.8);
-  --black-70: rgb(22 18 18 / 0.7);
-  --black-60: rgb(22 18 18 / 0.6);
-  --black-50: rgb(22 18 18 / 0.5);
-  --black-40: rgb(22 18 18 / 0.4);
-  --black-30: rgb(22 18 18 / 0.3);
-  --black-20: rgb(22 18 18 / 0.2);
-  --black-10: rgb(22 18 18 / 0.1);
-  --black-5: rgb(22 18 18 / 0.05);
-
-  /* Brand Colors - Adjusted for dark mode */
-  --brand-primary: #dc2626;
-  --brand-secondary: #fbbf24;
-  --brand-accent: #34d399;
-  --purple: #a78bfa;
-
-  /* Semantic Colors */
-  --success: #34d399;
-  --success-light: #6ee7b7;
-  --warning: #fbbf24;
-  --error: #f87171;
-  --error-light: #fca5a5;
-  --info: #60a5fa;
-
-  /* Surface Colors */
-  --surface-subtle: oklch(0.205 0 0);
-  --surface-muted: oklch(0.269 0 0);
-  --surface-hover: oklch(0.269 0 0);
-  --overlay: rgb(15 23 42 / 0.6);
-
-  /* Text Colors */
-  --text-muted: oklch(0.708 0 0);
-  --text-subtle: oklch(0.556 0 0);
-
-  /* Base Colors - Deep slate theme */
-  --background: #121212;
-  --foreground: oklch(0.985 0 0);
-  --card: #323437;
-  --card-foreground: oklch(0.985 0 0);
-  --primary: #dc2626;
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --input-border: #d6ccc2;
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-
-  /* Shadows - Adjusted for dark mode */
-  --shadow-sm: 0 1px 2px 0 var(--black-30);
-  --shadow: 0 1px 3px 0 var(--black-40), 0 1px 2px -1px var(--black-40);
-  --shadow-md: 0 4px 6px -1px var(--black-40), 0 2px 4px -2px var(--black-40);
-  --shadow-lg: 0 10px 15px -3px var(--black-50), 0 4px 6px -4px var(--black-50);
-  --shadow-xl:
-    0 20px 25px -5px var(--black-50), 0 8px 10px -6px var(--black-50);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-}
-
 @theme {
   /* Colors */
-  --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -486,7 +420,6 @@ input[type="radio"] {
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-foreground: var(--foreground);
-  --color-background: var(--background);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);

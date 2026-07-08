@@ -8,7 +8,6 @@ import { z } from "zod";
  * PUT /api/users/preferences
  */
 export const UpdateUserPreferencesSchema = z.object({
-  theme: z.enum(["light", "dark", "system"]).optional(),
   language: z.string().length(2).optional(), // e.g., 'en', 'fr'
   notifications_enabled: z.boolean().optional(),
   email_notifications: z.boolean().optional(),
