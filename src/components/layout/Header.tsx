@@ -1,8 +1,3 @@
-/**
- * @fileoverview Main header component with navigation and user controls.
- * Provides responsive navigation for both desktop and mobile devices.
- */
-
 "use client";
 
 import { useState } from "react";
@@ -21,7 +16,7 @@ export default function Header() {
   const { unreadCount } = useNotificationsContext();
 
   return (
-    <header className="w-full bg-background/95 backdrop-blur-md sticky top-0 z-50 border-b border-border/50 shadow-sm">
+    <header className="w-full bg-background/95 backdrop-blur-md sticky top-0 z-50 shadow-sm">
       <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
         <AppLogo iconSize={32} md={true} />
         {/* Desktop Navigation */}
