@@ -1,10 +1,3 @@
-/**
- * @fileoverview Email Verification page for the Focusly application.
- * Handles email verification tokens from Supabase and provides
- * feedback on verification status with resend functionality.
- * @module app/verify-email/page
- */
-
 "use client";
 
 import { useEffect, useState, Suspense } from "react";

@@ -6,7 +6,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import Card, {
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "@/components/ui/Card";
 import { ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { ArrowLeftLgIcon, ArrowRightLgIcon } from "@/components/shared/icons";
@@ -147,9 +152,12 @@ export default function SignUp() {
   return (
     <Card variant="none">
       <CardHeader className="mb-12">
-        <CardTitle className="text-start text-foreground">
-          Create Account
-        </CardTitle>
+          <CardTitle className="text-start text-foreground">
+            Create Account
+          </CardTitle>
+          <CardDescription className="mt-2 text-start">
+            Join Focusly and start building better focus habits today.
+          </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">

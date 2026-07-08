@@ -90,7 +90,9 @@ export function CardDescription({
   className = "",
 }: CardSubComponentProps) {
   return (
-    <p className={`text-sm text-muted-foreground ${className}`}>{children}</p>
+    <p className={`text-lg text-foreground font-normal ${className}`}>
+      {children}
+    </p>
   );
 }
 
