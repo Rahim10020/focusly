@@ -69,7 +69,6 @@
   --shadow-lg: 0 10px 15px -3px var(--black-10), 0 4px 6px -4px var(--black-10);
   --shadow-xl:
     0 20px 25px -5px var(--black-10), 0 8px 10px -6px var(--black-10);
-  --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);

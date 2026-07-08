@@ -1,8 +1,3 @@
-/**
- * @fileoverview Main Pomodoro timer orchestrator component that coordinates all timer functionality.
- * Manages timer state, sound effects, notifications, and integrates with task management.
- */
-
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
