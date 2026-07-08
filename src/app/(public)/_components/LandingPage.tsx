@@ -14,29 +14,31 @@ export function LandingPage() {
     <div className="min-h-screen bg-background transition-colors duration-200">
       {/* Hero Section */}
       <main className="relative overflow-hidden min-h-screen flex items-center">
-        <div className="max-w-4xl mx-auto px-6 py-16 md:py-24 relative z-10">
+        <div className="max-w-8xl mx-auto px-6 py-16 md:py-24 relative z-10">
           {/* Hero Content */}
-          <div className="text-center space-y-6">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight animate-slide-up">
-              Master Your Focus,
-              <br />
-              <span className="bg-linear-to-r from-primary via-brand-secondary to-brand-accent bg-clip-text text-transparent">
-                Achieve Your Goals
-              </span>
-            </h1>
+          <div className="text-center">
+            <div className="space-y-4">
+              <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold text-foreground leading-tight animate-slide-up">
+                Master Your Focus,
+                <br />
+                <span className="bg-linear-to-r from-primary via-brand-secondary to-brand-accent bg-clip-text text-transparent">
+                  Achieve Your Goals
+                </span>
+              </h1>
 
-            <p
-              className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-slide-up"
-              style={{ animationDelay: "0.1s" }}
-            >
-              Focusly combines the power of the Pomodoro Technique with smart
-              task management to help you stay productive and build lasting
-              habits.
-            </p>
+              <p
+                className="text-lg md:text-3xl text-muted-foreground max-w-5xl mx-auto animate-slide-up"
+                style={{ animationDelay: "0.1s" }}
+              >
+                Focusly combines the power of the Pomodoro Technique with smart
+                task management to help you stay productive and build lasting
+                habits.
+              </p>
+            </div>
 
             {/* CTA Buttons */}
             <div
-              className="flex flex-col sm:flex-row gap-3 justify-center items-center animate-slide-up"
+              className="flex flex-col sm:flex-row gap-3 justify-center items-center animate-slide-up mt-12"
               style={{ animationDelay: "0.2s" }}
             >
               <Button
