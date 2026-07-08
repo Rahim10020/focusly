@@ -74,8 +74,8 @@ function TaskItem({
       <div
         className={`flex items-start gap-4 p-4 rounded-xl transition-all duration-300 group ${
           isActive
-            ? "border-2 border-primary shadow-md"
-            : "bg-card hover:bg-accent/50 border-2 border-border hover:border-primary/20 hover:shadow-sm"
+            ? "border-2 border-brand-primary shadow-md"
+            : "bg-card hover:bg-accent/50 border border-border hover:border-primary/20 hover:shadow-sm"
         } ${isDragging ? "opacity-50 scale-95 rotate-1" : ""}`}
       >
         {/* Drag Handle */}
