@@ -10,15 +10,6 @@
  */
 
 import { STORAGE_KEYS, StorageKey } from "@/constants";
-import type { Json } from "@/lib/supabase/database.types";
-
-export interface StorageOptions {
-  /** Should sync with Supabase (default: true) */
-  syncWithDb?: boolean;
-  /** TTL in milliseconds for cache (default: none) */
-  ttl?: number;
-}
-
 /**
  * Centralized Storage Service
  * Handles localStorage with optional Supabase sync
@@ -66,63 +57,4 @@ export class StorageService {
     }
   }
 
-  /**
-   * Clear all application data from localStorage
-   * WARNING: This is destructive and removes all stored data
-   */
-  static clearAll(): void {
-    if (typeof window === "undefined") return;
-
-    const keysToKeep = ["settings"]; // Settings to preserve
-
-    Object.values(STORAGE_KEYS).forEach((key) => {
-      if (!keysToKeep.some((k) => key.includes(k))) {
-        try {
-          localStorage.removeItem(key);
-        } catch (error) {
-          console.error(`Failed to remove localStorage key ${key}:`, error);
-        }
-      }
-    });
-  }
-
-  /**
-   * Check if a key exists in localStorage
-   */
-  static hasLocal(key: StorageKey): boolean {
-    if (typeof window === "undefined") return false;
-    return localStorage.getItem(STORAGE_KEYS[key]) !== null;
-  }
-
-  /**
-   * Get all localStorage items for debugging
-   */
-  static getAllLocal(): Record<string, any> {
-    if (typeof window === "undefined") return {};
-
-    const items: Record<string, any> = {};
-    Object.entries(STORAGE_KEYS).forEach(([key, storageKey]) => {
-      const value = this.getLocal(key as StorageKey);
-      if (value !== null) {
-        items[storageKey] = value;
-      }
-    });
-    return items;
-  }
-
-  /**
-   * Get storage size in KB
-   */
-  static getStorageSize(): number {
-    if (typeof window === "undefined") return 0;
-
-    let size = 0;
-    Object.values(STORAGE_KEYS).forEach((key) => {
-      const item = localStorage.getItem(key);
-      if (item) {
-        size += item.length + key.length;
-      }
-    });
-    return Math.round(size / 1024); // Convert to KB
-  }
 }
