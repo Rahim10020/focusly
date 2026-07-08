@@ -1,7 +1,3 @@
-/**
- * @fileoverview Card component and sub-components for content containers.
- */
-
 import { ReactNode } from "react";
 
 /**
@@ -9,11 +5,8 @@ import { ReactNode } from "react";
  * @interface CardProps
  */
 interface CardProps {
-  /** The content to display inside the card */
   children: ReactNode;
-  /** Additional CSS classes */
   className?: string;
-  /** The visual style variant of the card */
   variant?: "default" | "elevated" | "interactive" | "outline" | "none";
 }
 
@@ -23,12 +16,11 @@ export default function Card({
   variant = "default",
 }: CardProps) {
   const variants = {
-    default: "shadow-sm rounded-2xl border border-border bg-card",
-    elevated:
-      "shadow-md transition-shadow duration-300 border border-border bg-card",
+    default: "shadow-sm rounded-2xl bg-card",
+    elevated: "shadow-md transition-shadow duration-300 bg-card",
     interactive:
-      "shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer rounded-2xl border border-border bg-card",
-    outline: "shadow-none border-2 rounded-2xl border border-border bg-card",
+      "shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer rounded-2xl bg-card",
+    outline: "shadow-none rounded-2xl border border-border bg-card",
     none: "bg-transparent w-full max-w-sm",
   };
 
@@ -45,9 +37,7 @@ export default function Card({
  * Props for Card sub-components.
  */
 interface CardSubComponentProps {
-  /** The content to display */
   children: ReactNode;
-  /** Additional CSS classes */
   className?: string;
 }
 
