@@ -148,14 +148,6 @@ export default function UserProfilePage() {
   return (
     <div>
       <div className="mb-8">
-        <Button
-          onClick={() => router.back()}
-          variant="secondary"
-          className="mb-4"
-        >
-          ← Back to Leaderboard
-        </Button>
-
         <div className="flex items-center gap-4 mb-4">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
             {userStats.avatar_url ? (
