@@ -26,7 +26,6 @@ export function LeaderboardList({
   leaderboard,
   selectedTab,
   currentUserId,
-  formatTime,
   onSendFriendRequest,
   friendRequestStatuses,
 }: LeaderboardListProps) {

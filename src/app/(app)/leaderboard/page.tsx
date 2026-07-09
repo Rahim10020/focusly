@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { LeaderboardUser, LeaderboardResponse } from "@/types/leaderboard";
-import { DYNAMIC_ROUTES, ROUTES } from "@/constants";
+import { ROUTES } from "@/constants";
 import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { formatHoursMinutesFromSeconds } from "@/lib/domain/services/StatsCalculationService";

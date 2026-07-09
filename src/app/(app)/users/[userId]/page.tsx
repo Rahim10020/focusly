@@ -17,7 +17,6 @@ import Button from "@/components/ui/Button";
 import { ROUTES } from "@/constants";
 import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
-import { formatHoursMinutesFromSeconds } from "@/lib/domain/services/StatsCalculationService";
 import { useAppToast } from "@/hooks/useAppToast";
 
 interface UserStats {
@@ -116,9 +115,6 @@ export default function UserProfilePage() {
       setSendingRequest(false);
     }
   };
-
-  const formatTime = (seconds: number) =>
-    formatHoursMinutesFromSeconds(seconds);
 
   if (status === "loading" || loading) {
     return (
