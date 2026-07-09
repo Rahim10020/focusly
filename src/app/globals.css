@@ -38,7 +38,7 @@
   --overlay: rgb(15 23 42 / 0.6);
 
   /* Text Colors */
-  --text-muted: oklch(0.556 0 0);
+  --text-muted: #737373;
   --text-subtle: oklch(0.708 0 0);
 
   /* Base Colors */

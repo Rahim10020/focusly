@@ -47,7 +47,7 @@ export default function UserMenu() {
 
       {open && (
         <div
-          className="absolute right-0 mt-3 w-48 rounded-br-lg rounded-bl-lg border border-border bg-card shadow-md p-2 z-50"
+          className="absolute right-0 mt-3 w-48 rounded-br-lg rounded-bl-lg bg-card shadow-lg pt-2 z-50"
           role="menu"
         >
           <Link
@@ -68,7 +68,7 @@ export default function UserMenu() {
           </Link>
           <button
             type="button"
-            className="block w-full text-left px-3 py-2 border-t border-border text-sm text-error hover:bg-accent cursor-pointer"
+            className="block w-full text-left px-3 py-2 text-sm text-error hover:bg-accent cursor-pointer"
             role="menuitem"
             onClick={async () => {
               setOpen(false);
