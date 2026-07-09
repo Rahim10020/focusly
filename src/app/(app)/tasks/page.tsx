@@ -127,7 +127,7 @@ export default function TasksPage() {
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">My Tasks</h1>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-lg font-normal">
           Manage and track all your tasks in one place.
         </p>
       </div>
@@ -148,7 +148,7 @@ export default function TasksPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-12 mt-4">
             <QuickAddTask onAdd={handleQuickAddTask} />
 
             <TasksView

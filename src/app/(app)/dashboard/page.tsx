@@ -155,7 +155,7 @@ export default function DashboardPage() {
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-lg font-normal">
             Comprehensive overview of your productivity and progress
           </p>
         </div>

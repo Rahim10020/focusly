@@ -7,13 +7,11 @@ QUI SERAIT COOL
     le projet ou qu'il faut changer un truc si on est dans un vrai projet (create-task, page)
 
 
-- je veux savoir quelle est le nombre maximal de taches qu'on affiche dans la home page ?
 
 - il y a un souci avec les notifications. quand j'ai finis de completer ma premiere tache, une notification 
 est venue et meme chose quand j'ai fini une session de pomodoro et tout est bon mais le probleme c'est que 
 les notifications (les deux ) viennent encore quand je vais dans la page des taches en quittant la home page. 
 comment regler ca ? fais moi un plan.
 
-- corriger le probleme de rechargement de la page quand on change de theme.
 - tester les fonctionnalites pour voir si tout fonctionne.
 - enlever tous les any de tout le projet.
