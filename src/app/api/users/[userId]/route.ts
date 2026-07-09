@@ -24,19 +24,6 @@ import type { AuthContext } from "@/lib/api/middleware/auth";
 
 /**
  * User profile with statistics.
- * @typedef {Object} UserProfile
- * @property {string} id - User ID
- * @property {string} username - User's display name
- * @property {string|null} avatar_url - User's avatar URL
- * @property {boolean} isFriend - Whether the viewer is a friend
- * @property {Object|null} stats - User's statistics (may be filtered based on visibility)
- * @property {number} [stats.total_sessions] - Total number of focus sessions
- * @property {number} [stats.completed_tasks] - Number of completed tasks
- * @property {number} [stats.total_tasks] - Total number of tasks
- * @property {number} [stats.streak] - Current streak count
- * @property {number} [stats.total_focus_time] - Total focus time in minutes
- * @property {number} [stats.longest_streak] - Longest streak achieved
- * @property {number} [stats.tasks_completed_today] - Tasks completed today
  */
 
 // Validation schema for userId parameter
@@ -56,29 +43,18 @@ type PublicStats = Pick<
 >;
 
 /**
+ * Derives a default username for a newly created profile.
+ */
+function deriveUsername(email?: string, userId?: string): string {
+  if (email) {
+    const local = email.split("@")[0]?.trim();
+    if (local) return local;
+  }
+  return userId ? `user-${userId.slice(0, 8)}` : "user";
+}
+
+/**
  * Fetches a user's public or private profile based on authentication and friendship.
- *
- * @param {NextRequest} request - The incoming request object
- * @param {Object} context - Route context
- * @param {Promise<{userId: string}>} context.params - Route parameters containing the user ID
- * @param {unknown} validatedData - Validated request data
- * @param {AuthContext|undefined} auth - Authenticated user context (optional)
- * @returns {Promise<NextResponse>} JSON response containing user profile and stats
- *
- * @example
- * // Fetch own profile (authenticated)
- * // GET /api/users/user-uuid
- * // Response: 200 OK with full stats
- *
- * @example
- * // Fetch friend's profile
- * // GET /api/users/different-user-uuid
- * // Response: 200 OK with full stats if friends
- *
- * @example
- * // Fetch public profile (unauthenticated or non-friend)
- * // GET /api/users/different-user-uuid
- * // Response: 200 OK with limited stats based on visibility settings
  */
 async function getHandler(
   _request: any,
@@ -105,11 +81,32 @@ async function getHandler(
 
   // If viewing own profile, show all stats
   if (viewerId === userId) {
-    const { data: profileData, error: profileError } = await supabase
+    let { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select("id, username, avatar_url")
       .eq("id", userId)
       .single();
+
+    // Auto-create the profile if it is missing for the authenticated user.
+    // The insert trigger then initializes the matching stats row.
+    if ((profileError || !profileData) && auth?.userId) {
+      const { data: created, error: createError } = await supabase
+        .from("profiles")
+        .insert({ id: userId, username: deriveUsername(auth.userEmail, userId) })
+        .select("id, username, avatar_url")
+        .single();
+
+      if (createError || !created) {
+        logger.error("Error creating user profile", createError as Error, {
+          action: "createUserProfileOwn",
+          userId,
+        });
+        return Errors.notFound("User not found");
+      }
+
+      profileData = created;
+      profileError = null;
+    }
 
     const { data: statsData, error: statsError } = await supabase
       .from("stats")
@@ -127,7 +124,8 @@ async function getHandler(
       return Errors.notFound("User not found");
     }
 
-    if (statsError) {
+    // Stats may not exist yet (e.g. trigger hasn't run); treat as null.
+    if (statsError && statsError.code !== "PGRST116") {
       logger.error("Error fetching user stats", statsError as Error, {
         action: "getUserStatsOwn",
         userId,
