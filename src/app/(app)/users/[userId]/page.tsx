@@ -122,7 +122,7 @@ export default function UserProfilePage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <MyLoader label="Loading user profile" />
       </div>
     );

@@ -6,7 +6,7 @@ export function FriendsHeader() {
   return (
     <div className="mb-8">
       <h1 className="text-4xl font-bold mb-2">Friends</h1>
-      <p className="text-muted-foreground">
+      <p className="text-muted-foreground text-lg font-normal">
         Manage your friends and friend requests
       </p>
     </div>
