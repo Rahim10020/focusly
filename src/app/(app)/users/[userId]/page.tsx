@@ -8,9 +8,16 @@ import { DateTimeService } from "@/lib/domain/services/DateTimeService";
  * @module app/(app)/users/[userId]/page
  */
 
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import { useSession } from "@/hooks/useAuth";
 import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -18,6 +25,15 @@ import { ROUTES } from "@/constants";
 import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { useAppToast } from "@/hooks/useAppToast";
+import {
+  ClockIcon,
+  TimerIcon,
+  CheckIcon,
+  FlameIcon,
+  CalendarIcon,
+  UsersIcon,
+  EditPencilIcon,
+} from "@/components/shared/icons";
 
 interface UserStats {
   /** Unique user identifier */
@@ -40,6 +56,16 @@ interface UserStats {
   } | null;
 }
 
+type FriendStatus = "none" | "pending" | "sent" | "friends";
+
+interface StatCardConfig {
+  label: string;
+  value: number | null;
+  icon: ComponentType<{ size?: number; className?: string }>;
+  iconWrapClass: string;
+  format: (value: number | null) => string;
+}
+
 export default function UserProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -51,7 +77,7 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sendingRequest, setSendingRequest] = useState(false);
-  const [hasPendingRequest, setHasPendingRequest] = useState(false);
+  const [friendStatus, setFriendStatus] = useState<FriendStatus>("none");
 
   const fetchUserStats = useCallback(async () => {
     try {
@@ -74,6 +100,40 @@ export default function UserProfilePage() {
     }
   }, [userId]);
 
+  const fetchFriendStatus = useCallback(async () => {
+    try {
+      const response = await fetch(API_ROUTES.FRIENDS);
+      if (!response.ok) return;
+
+      const responseData = await response.json();
+      const friends = (responseData.data || []) as Array<{
+        sender_id: string;
+        receiver_id: string;
+        status: "pending" | "accepted";
+      }>;
+      const currentUserId = session?.user?.id;
+
+      const relation = friends.find(
+        (f) => f.sender_id === userId || f.receiver_id === userId,
+      );
+
+      if (!relation) {
+        setFriendStatus("none");
+        return;
+      }
+
+      if (relation.status === "accepted") {
+        setFriendStatus("friends");
+      } else if (relation.sender_id === currentUserId) {
+        setFriendStatus("sent");
+      } else {
+        setFriendStatus("pending");
+      }
+    } catch {
+      // Keep default "none" status on failure
+    }
+  }, [session?.user?.id, userId]);
+
   useEffect(() => {
     if (status === "loading") return;
 
@@ -83,7 +143,8 @@ export default function UserProfilePage() {
     }
 
     fetchUserStats();
-  }, [session, status, router, fetchUserStats]);
+    fetchFriendStatus();
+  }, [session, status, router, fetchUserStats, fetchFriendStatus]);
 
   const handleSendFriendRequest = async () => {
     if (!userStats) return;
@@ -107,7 +168,7 @@ export default function UserProfilePage() {
         );
       }
 
-      setHasPendingRequest(true);
+      setFriendStatus("sent");
       actionSuccess("Friend request sent successfully.");
     } catch (err) {
       actionError(err, "Failed to send friend request.");
@@ -127,9 +188,12 @@ export default function UserProfilePage() {
   if (error) {
     return (
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-error mb-4">{error}</p>
+        <Card variant="outline">
+          <CardContent className="p-8 text-center">
+            <div className="w-16 h-16 rounded-full bg-error/10 mx-auto mb-4 flex items-center justify-center">
+              <UsersIcon size={32} className="text-error" />
+            </div>
+            <p className="text-error mb-4 text-lg">{error}</p>
             <Button onClick={() => router.back()}>Go Back</Button>
           </CardContent>
         </Card>
@@ -141,148 +205,184 @@ export default function UserProfilePage() {
 
   const isOwnProfile = session?.user?.id === userStats?.id;
 
+  const getSubtitle = () => {
+    if (isOwnProfile) return "This is your profile";
+    if (userStats.isFriend) return "Your friend";
+    if (friendStatus === "pending") return "Wants to be your friend";
+    return "Focusly member";
+  };
+
+  const statCards: StatCardConfig[] = userStats.stats
+    ? [
+        {
+          label: "Total Focus Time",
+          value: userStats.stats.total_focus_time,
+          icon: ClockIcon,
+          iconWrapClass: "bg-brand-primary/10 text-brand-primary",
+          format: (v) =>
+            v !== null ? DateTimeService.formatTime(v) : "Hidden",
+        },
+        {
+          label: "Total Sessions",
+          value: userStats.stats.total_sessions,
+          icon: TimerIcon,
+          iconWrapClass: "bg-brand-secondary/10 text-brand-secondary",
+          format: (v) => (v !== null ? String(v) : "Hidden"),
+        },
+        {
+          label: "Tasks Completed",
+          value: userStats.stats.completed_tasks,
+          icon: CheckIcon,
+          iconWrapClass: "bg-brand-accent/10 text-brand-accent",
+          format: (v) => (v !== null ? String(v) : "Hidden"),
+        },
+        {
+          label: "Current Streak",
+          value: userStats.stats.streak,
+          icon: FlameIcon,
+          iconWrapClass: "bg-purple/10 text-purple",
+          format: (v) => (v !== null ? `${v} days` : "Hidden"),
+        },
+        {
+          label: "Longest Streak",
+          value: userStats.stats.longest_streak,
+          icon: FlameIcon,
+          iconWrapClass: "bg-info/10 text-info",
+          format: (v) => (v !== null ? `${v} days` : "Hidden"),
+        },
+        {
+          label: "Today's Tasks",
+          value: userStats.stats.tasks_completed_today,
+          icon: CalendarIcon,
+          iconWrapClass: "bg-warning/10 text-warning",
+          format: (v) => (v !== null ? String(v) : "Hidden"),
+        },
+      ]
+    : [];
+
   return (
-    <div>
-      <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+    <div className="max-w-6xl mx-auto px-6 py-8">
+      {/* Profile header */}
+      <Card className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
             {userStats.avatar_url ? (
               <Image
                 src={userStats.avatar_url}
                 alt={userStats.username || "User"}
-                width={64}
-                height={64}
-                className="w-16 h-16 rounded-full"
+                width={80}
+                height={80}
+                className="w-20 h-20 rounded-full object-cover"
               />
             ) : (
-              <span className="text-2xl">
+              <span className="text-3xl font-semibold">
                 {(userStats.username || "Player").charAt(0).toUpperCase()}
               </span>
             )}
           </div>
-          <div>
-            <h1 className="text-3xl font-bold">
+
+          <div className="flex-1 min-w-0">
+            <h1 className="text-3xl font-bold truncate">
               {userStats.username || "Player"}
             </h1>
-            {!isOwnProfile && (
-              <div className="mt-2">
-                {hasPendingRequest ? (
-                  <Button disabled>Friend Request Sent</Button>
-                ) : userStats.isFriend ? (
-                  <Button disabled>Friends</Button>
-                ) : (
-                  <Button
-                    onClick={handleSendFriendRequest}
-                    disabled={sendingRequest}
-                  >
-                    {sendingRequest ? "Sending..." : "Send Friend Request"}
-                  </Button>
-                )}
-              </div>
+            <p className="text-muted-foreground mt-1">{getSubtitle()}</p>
+          </div>
+
+          <div className="shrink-0">
+            {isOwnProfile ? (
+              <LinkButton href={ROUTES.PROFILE} icon={EditPencilIcon}>
+                Edit Profile
+              </LinkButton>
+            ) : friendStatus === "friends" ? (
+              <Button disabled>Friends</Button>
+            ) : friendStatus === "sent" ? (
+              <Button disabled>Friend Request Sent</Button>
+            ) : friendStatus === "pending" ? (
+              <Button disabled>Request Pending</Button>
+            ) : (
+              <Button
+                onClick={handleSendFriendRequest}
+                disabled={sendingRequest}
+              >
+                {sendingRequest ? "Sending..." : "Send Friend Request"}
+              </Button>
             )}
           </div>
         </div>
-      </div>
+      </Card>
 
       {!isOwnProfile && !userStats.isFriend ? (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground text-lg">
-            You must be friends with this person to see their stats.
-          </p>
-        </div>
-      ) : userStats.stats ? (
+        <Card variant="outline">
+          <CardContent className="p-10 text-center">
+            <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+              <UsersIcon size={32} className="text-muted-foreground" />
+            </div>
+            <p className="text-muted-foreground text-lg">
+              You must be friends with this person to see their stats.
+            </p>
+          </CardContent>
+        </Card>
+      ) : statCards.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Focus Time</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-primary">
-                {userStats.stats.total_focus_time !== null
-                  ? DateTimeService.formatTime(userStats.stats.total_focus_time)
-                  : "Hidden"}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Sessions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-primary">
-                {userStats.stats.total_sessions !== null
-                  ? userStats.stats.total_sessions
-                  : "Hidden"}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Tasks Completed</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-primary">
-                {userStats.stats.completed_tasks !== null
-                  ? userStats.stats.completed_tasks
-                  : "Hidden"}
-              </p>
-              {userStats.stats.total_tasks !== null && (
-                <p className="text-sm text-muted-foreground">
-                  of {userStats.stats.total_tasks} total
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Current Streak</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-primary">
-                {userStats.stats.streak !== null
-                  ? `${userStats.stats.streak} days`
-                  : "Hidden"}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Longest Streak</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-primary">
-                {userStats.stats.longest_streak !== null
-                  ? `${userStats.stats.longest_streak} days`
-                  : "Hidden"}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Today&apos;s Tasks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-primary">
-                {userStats.stats.tasks_completed_today !== null
-                  ? userStats.stats.tasks_completed_today
-                  : "Hidden"}
-              </p>
-              {userStats.stats.tasks_completed_today !== null && (
-                <p className="text-sm text-muted-foreground">completed today</p>
-              )}
-            </CardContent>
-          </Card>
+          {statCards.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <Card
+                key={stat.label}
+                className="animate-slide-up"
+                style={{ animationDelay: `${index * 0.06}s` }}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${stat.iconWrapClass}`}
+                  >
+                    <Icon size={24} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm text-muted-foreground">
+                      {stat.label}
+                    </p>
+                    <p className="text-2xl font-bold text-primary truncate">
+                      {stat.format(stat.value)}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
         </div>
       ) : (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">No stats available</p>
-        </div>
+        <Card variant="outline">
+          <CardContent className="p-10 text-center">
+            <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+              <CalendarIcon size={32} className="text-muted-foreground" />
+            </div>
+            <p className="text-muted-foreground text-lg">
+              No stats available yet.
+            </p>
+          </CardContent>
+        </Card>
       )}
     </div>
+  );
+}
+
+function LinkButton({
+  href,
+  icon: Icon,
+  children,
+}: {
+  href: string;
+  icon: ComponentType<{ size?: number; className?: string }>;
+  children: ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-primary text-white hover:bg-primary/90 transition-colors cursor-pointer"
+    >
+      <Icon size={16} />
+      {children}
+    </Link>
   );
 }

@@ -49,6 +49,7 @@ export { default as WarningIcon } from "./WarningIcon";
 export { default as WavyCheckIcon } from "./WavyCheckIcon";
 export { default as GlobeIcon } from "./GlobeIcon";
 export { default as FileDocumentIcon } from "./FileDocumentIcon";
+export { default as FlameIcon } from "./FlameIcon";
 export { default as DownloadIcon } from "./DownloadIcon";
 export { default as ArrowUndoIcon } from "./ArrowUndoIcon";
 export { default as RedoIcon } from "./RedoIcon";

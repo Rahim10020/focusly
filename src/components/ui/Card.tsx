@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, type CSSProperties } from "react";
 
 /**
  * Props for the Card component.
@@ -8,12 +8,14 @@ interface CardProps {
   children: ReactNode;
   className?: string;
   variant?: "default" | "elevated" | "interactive" | "outline" | "none";
+  style?: CSSProperties;
 }
 
 export default function Card({
   children,
   className = "",
   variant = "default",
+  style,
 }: CardProps) {
   const variants = {
     default: "shadow-sm rounded-2xl bg-card",
@@ -27,6 +29,7 @@ export default function Card({
   return (
     <div
       className={`text-card-foreground  p-6 smooth-transition ${variants[variant]} ${className}`}
+      style={style}
     >
       {children}
     </div>
