@@ -242,7 +242,7 @@ export default function DashboardPage() {
 
       {/* Time Range Selector */}
       <div className="flex justify-end mb-6">
-        <div className="flex gap-2 bg-muted p-1 rounded-lg">
+        <div className="flex gap-2 bg-muted p-1 rounded-2xl">
           <Button
             variant={timeRange === 7 ? "primary" : "ghost"}
             onClick={() => setTimeRange(7)}
