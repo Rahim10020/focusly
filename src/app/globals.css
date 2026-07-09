@@ -372,6 +372,23 @@ body {
   animation: menu-drop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@keyframes menu-unfold {
+  from {
+    opacity: 0;
+    transform: scaleY(0.85) translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+.animate-menu-unfold {
+  animation: menu-unfold 0.18s ease-out;
+  transform-origin: top;
+}
+
 /* Scrollbar Styles */
 ::-webkit-scrollbar {
   width: 8px;

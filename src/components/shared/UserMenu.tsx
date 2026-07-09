@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "@/hooks/useAuth";
@@ -11,11 +11,34 @@ export default function UserMenu() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const initial = useMemo(() => {
     const name = session?.user?.name || session?.user?.email || "U";
     return name.charAt(0).toUpperCase();
   }, [session?.user?.name, session?.user?.email]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
 
   if (status === "loading") {
     return <MyLoader label="" />;
@@ -33,7 +56,7 @@ export default function UserMenu() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
@@ -47,7 +70,7 @@ export default function UserMenu() {
 
       {open && (
         <div
-          className="absolute right-0 mt-3 w-48 rounded-br-lg rounded-bl-lg bg-card shadow-lg pt-2 z-50"
+          className="absolute right-0 mt-3 w-48 rounded-br-lg rounded-bl-lg bg-card shadow-lg pt-2 z-50 animate-menu-unfold"
           role="menu"
         >
           <Link
