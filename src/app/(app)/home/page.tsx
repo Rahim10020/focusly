@@ -303,7 +303,7 @@ export default function HomePage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-12">
                 <QuickAddTask onAdd={handleQuickAddTask} />
 
                 <TasksView

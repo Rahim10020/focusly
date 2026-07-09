@@ -32,7 +32,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const baseStyles =
-      "rounded-full cursor-pointer font-normal transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale focus-ring inline-flex items-center justify-center gap-2";
+      "rounded-full cursor-pointer font-medium transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale focus-ring inline-flex justify-center gap-2";
 
     const variants = {
       primary:
@@ -49,9 +49,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizes = {
-      sm: "px-3 py-1.5 text-xs md:text-sm h-8",
-      md: "px-5 py-2.5 text-sm md:text-base h-10",
-      lg: "px-6 py-3 text-base md:text-lg h-12",
+      sm: "px-3 py-2 text-sm h-8",
+      md: "px-5 py-2.5 text-md h-10",
+      lg: "px-6 py-3 text-lg h-12",
     };
 
     const isDisabled = disabled || loading;
