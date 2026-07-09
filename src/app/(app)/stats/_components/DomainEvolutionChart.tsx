@@ -123,7 +123,7 @@ export default function DomainEvolutionChart({
         </p>
         <ResponsiveContainer width="100%" height={400}>
           <RadarChart data={domainStats} outerRadius="75%">
-            <PolarGrid stroke="var(--border)" />
+            <PolarGrid stroke="var(--input-border)" />
             <PolarAngleAxis
               dataKey="domain"
               tick={(props: any) => {

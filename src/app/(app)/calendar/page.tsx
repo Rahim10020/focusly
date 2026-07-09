@@ -61,7 +61,7 @@ export default function CalendarPage() {
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Calendar</h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-lg font-normal">
           Visualize your tasks and schedule across the month
         </p>
       </div>
