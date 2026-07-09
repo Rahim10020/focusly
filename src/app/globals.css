@@ -42,6 +42,7 @@
   --text-subtle: oklch(0.708 0 0);
 
   /* Base Colors */
+  --background: oklch(1 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --primary: #dc2626;
@@ -75,6 +76,7 @@
 
 @theme {
   /* Colors */
+  --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -416,6 +418,7 @@ input[type="radio"] {
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
   --color-foreground: var(--foreground);
+  --color-background: var(--background);
   --color-primary: var(--primary);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
