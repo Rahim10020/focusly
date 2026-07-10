@@ -16,5 +16,3 @@ comment regler ca ? fais moi un plan.
 - tester les fonctionnalites pour voir si tout fonctionne.
 - enlever tous les any de tout le projet.
 - je veux modifier le style de mon bouton sign in et sign up lors du loading. je dois agir sur quels styles ?
-- les bouton "All time" , "This Month", et "This Week" ne sont pas cliquables. c'est fait expres ou c'est un probleme ? 
-meme chose pour " Tasks" , "Focus time" et "Streak".

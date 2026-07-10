@@ -236,8 +236,8 @@ export default function LeaderboardPage() {
 
       {/* Your Rank Card */}
       {currentUserRank >= 0 && (
-        <Card variant="default" className="mb-8 overflow-hidden">
-          <div className="absolute inset-0 bg-linear-to-r from-primary/10 to-transparent opacity-50"></div>
+        <Card variant="default" className="relative mb-8 overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-primary/10 to-transparent opacity-50"></div>
           <CardContent className="relative py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
