@@ -87,10 +87,10 @@ export function LeaderboardList({
           {leaderboard.map((user, index) => (
             <div
               key={user.id}
-              className={`flex items-center justify-between p-4 rounded-lg transition-all cursor-pointer ${
+              className={`flex items-center justify-between p-4 rounded-2xl transition-all cursor-pointer ${
                 user.id === currentUserId
-                  ? "bg-primary/10 border-2 border-primary"
-                  : "border border-border hover:bg-muted/50 hover:scale-[1.02]"
+                  ? "bg-primary/10"
+                  : "hover:bg-muted/50 hover:scale-[1.02]"
               }`}
               onClick={() => router.push(DYNAMIC_ROUTES.USER_PROFILE(user.id))}
               style={{
@@ -126,7 +126,7 @@ export function LeaderboardList({
                   <p className="font-semibold truncate">
                     {user.username || "Player"}
                     {user.id === currentUserId && (
-                      <span className="ml-2 text-xs bg-primary text-foreground px-2 py-0.5 rounded-full">
+                      <span className="ml-2 text-xs bg-primary text-white px-2 py-0.5 rounded-full">
                         You
                       </span>
                     )}
