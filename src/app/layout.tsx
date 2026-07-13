@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { ToastProvider } from "@/components/providers/ToastProvider";
-import "./globals.css";
 import { NotificationsProvider } from "@/components/providers/NotificationsProvider";
+import { SentryProvider } from "@/components/providers/SentryProvider";
+import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 
@@ -80,9 +81,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Focusly" />
       </head>
       <body className="antialiased font-sans">
-        <ToastProvider>
-          <NotificationsProvider>{children}</NotificationsProvider>
-        </ToastProvider>
+        <SentryProvider>
+          <ToastProvider>
+            <NotificationsProvider>{children}</NotificationsProvider>
+          </ToastProvider>
+        </SentryProvider>
         <Analytics />
       </body>
     </html>

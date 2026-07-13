@@ -11,6 +11,9 @@
     "db:migrate:bash": "./migrate-db.sh",
     "validate": "npm run lint && npm run type-check && npm run test:security && npm run check:env",
     "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:security": "node scripts/security-check.js",
     "check:env": "node scripts/check-env.js",
     "supabase:types": "npx supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > src/lib/supabase/database.types.ts",
@@ -38,14 +41,20 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@sentry/nextjs": "^10.65.0",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
+    "happy-dom": "^20.10.6",
     "supabase": "^2.63.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

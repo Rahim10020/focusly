@@ -42,8 +42,12 @@ interface LogContext {
  * const userLogger = logger.child({ userId: '123', sessionId: 'abc' });
  * userLogger.info('Action completed'); // Automatically includes userId and sessionId
  */
+import * as Sentry from "@sentry/nextjs";
+
 class Logger {
-  private isDevelopment = process.env.NODE_ENV === "development";
+  private isDevelopment =
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === "test";
   private baseContext: LogContext = {};
 
   constructor(baseContext: LogContext = {}) {
@@ -109,10 +113,18 @@ class Logger {
       }
     }
 
-    // TODO: In production, send to monitoring service (Sentry, LogRocket, etc.)
-    // if (!this.isDevelopment) {
-    //     this.sendToMonitoring(level, message, context, error);
-    // }
+    if (!this.isDevelopment && typeof window !== "undefined") {
+      try {
+        Sentry.captureException(error, {
+          level: "error",
+          tags: { action: context?.action },
+          user: { id: context?.userId },
+          extra: context,
+        });
+      } catch {
+        // Sentry not available
+      }
+    }
   }
 
   /**
@@ -170,4 +182,5 @@ class Logger {
   }
 }
 
+export { Logger };
 export const logger = new Logger();
