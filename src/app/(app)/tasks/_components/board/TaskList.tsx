@@ -28,6 +28,13 @@ interface TaskListProps {
   onToggleSubTask: (taskId: string, subTaskId: string) => void;
   onDeleteSubTask: (taskId: string, subTaskId: string) => void;
   onReorder: (startIndex: number, endIndex: number) => void;
+  searchQuery?: string;
+  selectedTaskIds?: Set<string>;
+  onToggleSelection?: (taskId: string) => void;
+  onSelectAll?: () => void;
+  onClearSelection?: () => void;
+  onBulkComplete?: () => void;
+  onBulkDelete?: () => void;
 }
 
 /** Available tab types for task categorization */
@@ -85,6 +92,13 @@ function TaskList({
   onToggleSubTask,
   onDeleteSubTask,
   onReorder,
+  searchQuery: _searchQuery,
+  selectedTaskIds,
+  onToggleSelection,
+  onSelectAll: _onSelectAll,
+  onClearSelection,
+  onBulkComplete,
+  onBulkDelete,
 }: TaskListProps) {
   const [activeTab, setActiveTab] = useState<TabType>("today");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -194,6 +208,43 @@ function TaskList({
         ))}
       </div>
 
+      {/* Bulk Actions */}
+      {selectedTaskIds && selectedTaskIds.size > 0 && (
+        <div className="flex items-center justify-between bg-muted/50 p-3 rounded-xl">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-foreground">
+              {selectedTaskIds.size} selected
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClearSelection}
+              className="text-xs"
+            >
+              Cancel
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onBulkComplete}
+              className="text-xs"
+            >
+              Complete selected
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onBulkDelete}
+              className="text-xs text-error hover:text-error"
+            >
+              Delete selected
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Task List */}
       {currentTasks.length > 0 ? (
         <div className="space-y-2">
@@ -228,6 +279,8 @@ function TaskList({
                 dragHandleProps={{
                   draggable: activeTab !== "completed",
                 }}
+                isSelected={selectedTaskIds?.has(task.id)}
+                onToggleSelection={onToggleSelection}
               />
             </div>
           ))}

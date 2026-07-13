@@ -15,6 +15,7 @@ import DueDateBadge from "@/components/shared/badges/DueDateBadge";
 import { DeleteConfirmationModal } from "@/components/shared/DeleteConfirmationModal";
 import TaskViewModal from "@/app/(app)/tasks/_components/modals/TaskViewModal";
 import { useSound } from "@/hooks/useSound";
+import { CheckIcon } from "@/components/shared/icons";
 import { RecurrenceService } from "@/lib/domain/services/RecurrenceService";
 import { DragHorizontalIcon, TrashEmptyIcon } from "@/components/shared/icons";
 import EditPencilIcon from "@/components/shared/icons/EditPencilIcon";
@@ -34,10 +35,10 @@ interface TaskItemProps {
   onAddSubTask: (taskId: string, title: string) => void;
   onToggleSubTask: (taskId: string, subTaskId: string) => void;
   onDeleteSubTask: (taskId: string, subTaskId: string) => void;
-  /** Whether the task is currently being dragged */
   isDragging?: boolean;
-  /** Props for the drag handle element */
   dragHandleProps?: HTMLAttributes<HTMLDivElement>;
+  isSelected?: boolean;
+  onToggleSelection?: (taskId: string) => void;
 }
 
 /**
@@ -58,6 +59,8 @@ function TaskItem({
   onDeleteSubTask,
   isDragging,
   dragHandleProps,
+  isSelected,
+  onToggleSelection,
 }: TaskItemProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -78,6 +81,22 @@ function TaskItem({
             : "bg-card hover:bg-accent/50 border border-border hover:border-primary/20 hover:shadow-sm"
         } ${isDragging ? "opacity-50 scale-95 rotate-1" : ""}`}
       >
+        {/* Selection Checkbox */}
+        {onToggleSelection && (
+          <button
+            onClick={() => onToggleSelection(task.id)}
+            className={`shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all mt-1 ${
+              isSelected
+                ? "bg-primary border-primary"
+                : "border-muted-foreground hover:border-primary"
+            }`}
+          >
+            {isSelected && (
+              <CheckIcon size={12} className="text-white" />
+            )}
+          </button>
+        )}
+
         {/* Drag Handle */}
         <div
           {...dragHandleProps}
@@ -90,7 +109,6 @@ function TaskItem({
         <TaskCheckbox
           completed={task.completed}
           onToggle={() => {
-            // Play completion sound only when toggling from incomplete to complete.
             if (!task.completed) {
               playWorkComplete();
             }

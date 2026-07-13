@@ -23,6 +23,8 @@ interface TaskBoardCardProps {
   onSelect: (taskId: string) => void;
   onUnselect: () => void;
   onDelete: (taskId: string) => void;
+  isSelected?: boolean;
+  onToggleSelection?: (taskId: string) => void;
 }
 
 export function TaskBoardCard({
@@ -35,6 +37,8 @@ export function TaskBoardCard({
   onSelect,
   onUnselect,
   onDelete,
+  isSelected,
+  onToggleSelection,
 }: TaskBoardCardProps) {
   const isDone = task.status === "done" || task.completed;
   const isOverdue = !isDone && Boolean(task.failedAt);
@@ -47,10 +51,26 @@ export function TaskBoardCard({
         isActive
           ? "border-primary/40 shadow-md ring-2 ring-primary/20"
           : "border-border hover:border-primary/30"
-      }`}
+      } ${isSelected ? "ring-2 ring-primary/40" : ""}`}
     >
       {/* Task Header */}
       <div className="flex items-start gap-3 mb-3">
+        {/* Selection Checkbox */}
+        {onToggleSelection && (
+          <button
+            onClick={() => onToggleSelection(task.id)}
+            className={`shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+              isSelected
+                ? "bg-primary border-primary"
+                : "border-muted-foreground hover:border-primary"
+            }`}
+          >
+            {isSelected && (
+              <CheckIcon size={12} className="text-white" />
+            )}
+          </button>
+        )}
+
         <button
           onClick={() => {
             if (isDone) {

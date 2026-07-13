@@ -6,11 +6,13 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Task, Tag, TaskStatus } from "@/types";
 import { MyLoader } from "@/components/shared/MyLoader";
 import { ListUnorderedIcon, TableIcon } from "@/components/shared/icons";
+import Button from "@/components/ui/Button";
+import { SearchMagnifyingGlassIcon } from "@/components/shared/icons";
 
 // Lazy load view components as they are heavy and conditional
 const TaskList = dynamic(() => import("../board/TaskList"), {
@@ -61,47 +63,109 @@ export default function TasksView(props: TasksViewProps) {
       ? savedSort
       : "default";
   });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
   const showSortOptions = props.showSortOptions ?? true;
+
+   const filteredTasks = useMemo(() => {
+     if (!searchQuery.trim()) return props.tasks;
+     const query = searchQuery.toLowerCase().trim();
+     return props.tasks.filter((task) => {
+       const searchableText = [
+         task.title,
+         task.notes,
+         ...(task.tags || []),
+         task.priority,
+         task.subDomain,
+       ]
+         .filter(Boolean)
+         .join(" ")
+         .toLowerCase();
+       return searchableText.includes(query);
+     });
+   }, [props.tasks, searchQuery]);
+
+   // Sorting function
+   const sortTasks = (taskList: Task[]): Task[] => {
+     return [...taskList].sort((a, b) => {
+       switch (sortType) {
+         case "alphabetical":
+           return a.title.localeCompare(b.title);
+
+         case "createdAt":
+           return a.createdAt - b.createdAt;
+
+         case "priority":
+           const priorityOrder = { high: 3, medium: 2, low: 1 };
+           const aPriority = priorityOrder[a.priority || "low"];
+           const bPriority = priorityOrder[b.priority || "low"];
+           return bPriority - aPriority; // High priority first
+
+         case "default":
+         default:
+           // Sort by dueDate first (null dates go to end), then by priority
+           const aDate = a.dueDate || Infinity;
+           const bDate = b.dueDate || Infinity;
+
+           if (aDate !== bDate) {
+             return aDate - bDate;
+           }
+
+           // Same date or both null, sort by priority
+           const priorityOrderDefault = { high: 3, medium: 2, low: 1 };
+           const aPriorityDefault = priorityOrderDefault[a.priority || "low"];
+           const bPriorityDefault = priorityOrderDefault[b.priority || "low"];
+           return bPriorityDefault - aPriorityDefault; // High priority first
+       }
+     });
+   };
+
+   const sortedAndFilteredTasks = sortTasks(filteredTasks);
+
+  const toggleTaskSelection = (taskId: string) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
+
+  const selectAllVisible = () => {
+    setSelectedTaskIds(new Set(sortedAndFilteredTasks.map((t) => t.id)));
+  };
+
+  const clearSelection = () => {
+    setSelectedTaskIds(new Set());
+  };
+
+  const handleBulkComplete = async () => {
+    const selectedArray = Array.from(selectedTaskIds);
+    await Promise.all(
+      selectedArray.map((id) =>
+        props.onUpdate(id, {
+          completed: true,
+          completedAt: Date.now(),
+          status: "done",
+        })
+      )
+    );
+    clearSelection();
+  };
+
+  const handleBulkDelete = async () => {
+    const selectedArray = Array.from(selectedTaskIds);
+    await Promise.all(selectedArray.map((id) => props.onDelete(id)));
+    clearSelection();
+  };
 
   // Save sort preference to localStorage
   useEffect(() => {
     localStorage.setItem("taskSortType", sortType);
   }, [sortType]);
-
-  // Sorting function
-  const sortTasks = (taskList: Task[]): Task[] => {
-    return [...taskList].sort((a, b) => {
-      switch (sortType) {
-        case "alphabetical":
-          return a.title.localeCompare(b.title);
-
-        case "createdAt":
-          return a.createdAt - b.createdAt;
-
-        case "priority":
-          const priorityOrder = { high: 3, medium: 2, low: 1 };
-          const aPriority = priorityOrder[a.priority || "low"];
-          const bPriority = priorityOrder[b.priority || "low"];
-          return bPriority - aPriority; // High priority first
-
-        case "default":
-        default:
-          // Sort by dueDate first (null dates go to end), then by priority
-          const aDate = a.dueDate || Infinity;
-          const bDate = b.dueDate || Infinity;
-
-          if (aDate !== bDate) {
-            return aDate - bDate;
-          }
-
-          // Same date or both null, sort by priority
-          const priorityOrderDefault = { high: 3, medium: 2, low: 1 };
-          const aPriorityDefault = priorityOrderDefault[a.priority || "low"];
-          const bPriorityDefault = priorityOrderDefault[b.priority || "low"];
-          return bPriorityDefault - aPriorityDefault; // High priority first
-      }
-    });
-  };
 
   const handleStatusChange = (taskId: string, status: TaskStatus) => {
     props.onUpdate(taskId, {
@@ -122,7 +186,7 @@ export default function TasksView(props: TasksViewProps) {
     <div className="space-y-4">
       {/* Sorting Options */}
       {showSortOptions && (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-muted-foreground">
               Sort by:
@@ -144,6 +208,55 @@ export default function TasksView(props: TasksViewProps) {
               ))}
             </div>
           </div>
+
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <SearchMagnifyingGlassIcon
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
+              <input
+                type="text"
+                placeholder="Search tasks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-4 py-2 text-sm rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary w-64"
+              />
+            </div>
+
+            {selectedTaskIds.size > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {selectedTaskIds.size} selected
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBulkComplete}
+                  className="text-xs"
+                >
+                  Complete
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  className="text-xs text-error hover:text-error"
+                >
+                  Delete
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearSelection}
+                  className="text-xs"
+                >
+                  Cancel
+                </Button>
+              </div>
+            )}
+          </div>
+
           <div className="text-sm text-muted-foreground">
             {
               props.tasks.filter((t) => !t.completed && t.status !== "done")
@@ -202,12 +315,32 @@ export default function TasksView(props: TasksViewProps) {
       {!props.loading && !props.error && (
         <>
           {view === "list" ? (
-            <TaskList {...props} sortType={sortType} sortTasks={sortTasks} />
+            <TaskList
+              {...props}
+              tasks={sortedAndFilteredTasks}
+              sortType={sortType}
+              sortTasks={sortTasks}
+              searchQuery={searchQuery}
+              selectedTaskIds={selectedTaskIds}
+              onToggleSelection={toggleTaskSelection}
+              onSelectAll={selectAllVisible}
+              onClearSelection={clearSelection}
+              onBulkComplete={handleBulkComplete}
+              onBulkDelete={handleBulkDelete}
+            />
           ) : (
             <TaskBoardView
               {...props}
+              tasks={sortedAndFilteredTasks}
               sortType={sortType}
               sortTasks={sortTasks}
+              searchQuery={searchQuery}
+              selectedTaskIds={selectedTaskIds}
+              onToggleSelection={toggleTaskSelection}
+              onSelectAll={selectAllVisible}
+              onClearSelection={clearSelection}
+              onBulkComplete={handleBulkComplete}
+              onBulkDelete={handleBulkDelete}
               onStatusChange={handleStatusChange}
             />
           )}
