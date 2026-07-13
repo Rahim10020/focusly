@@ -15,6 +15,11 @@ interface TaskModalFullscreenProps {
   startTime: string;
   endTime: string;
   estimatedDuration: string;
+  isRecurring: boolean;
+  recurrencePattern: 'daily' | 'weekly' | 'monthly' | 'custom';
+  recurrenceInterval: string;
+  recurrenceDaysOfWeek: number[];
+  recurrenceEndDate: string;
   onTitleChange: (value: string) => void;
   onPriorityChange: (value: Priority | undefined) => void;
   onStartDateChange: (value: string) => void;
@@ -22,7 +27,14 @@ interface TaskModalFullscreenProps {
   onStartTimeChange: (value: string) => void;
   onEndTimeChange: (value: string) => void;
   onDurationChange: (value: string) => void;
+  onIsRecurringChange: (value: boolean) => void;
+  onRecurrencePatternChange: (value: 'daily' | 'weekly' | 'monthly' | 'custom') => void;
+  onRecurrenceIntervalChange: (value: string) => void;
+  onRecurrenceDaysOfWeekChange: (value: number[]) => void;
+  onRecurrenceEndDateChange: (value: string) => void;
 }
+
+const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function TaskModalFullscreen({
   title,
@@ -32,6 +44,11 @@ export default function TaskModalFullscreen({
   startTime,
   endTime,
   estimatedDuration,
+  isRecurring,
+  recurrencePattern,
+  recurrenceInterval,
+  recurrenceDaysOfWeek,
+  recurrenceEndDate,
   onTitleChange,
   onPriorityChange,
   onStartDateChange,
@@ -39,7 +56,20 @@ export default function TaskModalFullscreen({
   onStartTimeChange,
   onEndTimeChange,
   onDurationChange,
+  onIsRecurringChange,
+  onRecurrencePatternChange,
+  onRecurrenceIntervalChange,
+  onRecurrenceDaysOfWeekChange,
+  onRecurrenceEndDateChange,
 }: TaskModalFullscreenProps) {
+  const toggleDay = (day: number) => {
+    if (recurrenceDaysOfWeek.includes(day)) {
+      onRecurrenceDaysOfWeekChange(recurrenceDaysOfWeek.filter((d) => d !== day));
+    } else {
+      onRecurrenceDaysOfWeekChange([...recurrenceDaysOfWeek, day]);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <TaskTitleInput value={title} onChange={onTitleChange} autoFocus />
@@ -60,6 +90,88 @@ export default function TaskModalFullscreen({
         onEndTimeChange={onEndTimeChange}
         onDurationChange={onDurationChange}
       />
+
+      <div className="border-t border-border pt-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="isRecurringFullscreen"
+            checked={isRecurring}
+            onChange={(e) => onIsRecurringChange(e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+          />
+          <label htmlFor="isRecurringFullscreen" className="text-sm font-medium text-foreground cursor-pointer">
+            Recurring task
+          </label>
+        </div>
+
+        {isRecurring && (
+          <div className="space-y-4 pl-7">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-foreground">Repeat</label>
+              <select
+                value={recurrencePattern}
+                onChange={(e) => onRecurrencePatternChange(e.target.value as 'daily' | 'weekly' | 'monthly' | 'custom')}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-foreground">Every</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={recurrenceInterval}
+                  onChange={(e) => onRecurrenceIntervalChange(e.target.value)}
+                  className="w-20 rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <span className="text-sm text-muted-foreground">
+                  {recurrencePattern === 'daily' ? (parseInt(recurrenceInterval) === 1 ? 'day' : 'days') : recurrencePattern === 'weekly' ? (parseInt(recurrenceInterval) === 1 ? 'week' : 'weeks') : recurrencePattern === 'monthly' ? (parseInt(recurrenceInterval) === 1 ? 'month' : 'months') : ''}
+                </span>
+              </div>
+            </div>
+
+            {recurrencePattern === 'custom' && (
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-foreground">Days of week</label>
+                <div className="flex gap-2">
+                  {DAYS_OF_WEEK.map((day, index) => (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => toggleDay(index)}
+                      className={`h-8 w-8 rounded-full text-xs font-medium transition-colors ${
+                        recurrenceDaysOfWeek.includes(index)
+                          ? "bg-primary text-white"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {day}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-foreground">End date (optional)</label>
+              <input
+                type="date"
+                value={recurrenceEndDate}
+                onChange={(e) => onRecurrenceEndDateChange(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

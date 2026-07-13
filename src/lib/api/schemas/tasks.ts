@@ -17,13 +17,10 @@ export const CreateTaskSchema = z.object({
     tags: z.array(z.string()).optional(),
     parent_task_id: z.string().uuid().optional(),
     is_recurring: z.boolean().default(false),
-    recurrence_pattern: z
-        .object({
-            frequency: z.enum(['daily', 'weekly', 'monthly']),
-            interval: z.number().int().positive().default(1),
-            end_date: z.string().datetime().optional(),
-        })
-        .optional(),
+    recurrence_pattern: z.enum(['daily', 'weekly', 'monthly', 'custom']).optional(),
+    recurrence_interval: z.number().int().positive().default(1).optional(),
+    recurrence_days_of_week: z.array(z.number().int().min(0).max(6)).optional(),
+    recurrence_end_date: z.string().datetime().optional(),
 });
 
 /**

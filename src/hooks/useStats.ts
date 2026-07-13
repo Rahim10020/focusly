@@ -94,7 +94,7 @@ export function useStats(): UseStatsReturn {
   /**
    * Sync data from Supabase (for authenticated users)
    */
-  const syncFromSupabase = useCallback(async () => {
+   const syncFromSupabase = useCallback(async () => {
     if (!session?.user?.id) return;
     const supabaseClient = getSupabaseClientOrNull();
     if (!supabaseClient) return;
@@ -103,7 +103,6 @@ export function useStats(): UseStatsReturn {
     setError(null);
 
     try {
-      // Fetch sessions
       const { data: sessionsData, error: sessionsError } =
         await retryWithBackoff(async () => {
           return supabaseClient
@@ -119,6 +118,31 @@ export function useStats(): UseStatsReturn {
           mapDbSessionToSession(s),
         );
         setSessions(mappedSessions);
+
+        if (mappedSessions.length > 0) {
+          const latestSession = mappedSessions[0];
+          const lastActiveDate = new Date(latestSession.startedAt);
+          const today = new Date();
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+
+          const isToday =
+            lastActiveDate.getDate() === today.getDate() &&
+            lastActiveDate.getMonth() === today.getMonth() &&
+            lastActiveDate.getFullYear() === today.getFullYear();
+
+          const isYesterday =
+            lastActiveDate.getDate() === yesterday.getDate() &&
+            lastActiveDate.getMonth() === yesterday.getMonth() &&
+            lastActiveDate.getFullYear() === yesterday.getFullYear();
+
+          if (!isToday && !isYesterday) {
+            setStats((prev) => ({
+              ...prev,
+              streak: 0,
+            }));
+          }
+        }
       }
     } catch (err) {
       console.error("Failed to sync stats from Supabase:", err);

@@ -37,6 +37,13 @@ export interface CreateTaskInput {
         /** Estimated duration in minutes */
         estimatedDuration?: number;
     };
+
+    /** Recurrence settings */
+    isRecurring?: boolean;
+    recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom';
+    recurrenceInterval?: number;
+    recurrenceDaysOfWeek?: number[];
+    recurrenceEndDate?: string;
 }
 
 /**

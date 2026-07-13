@@ -51,13 +51,6 @@ export interface Task {
     depth?: number;
 }
 
-export interface TaskDependency {
-    id: string;
-    taskId: string;
-    dependsOnTaskId: string;
-    createdAt: number;
-}
-
 export interface Tag {
     id: string;
     name: string;

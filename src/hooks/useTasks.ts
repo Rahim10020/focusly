@@ -156,6 +156,11 @@ export function useTasks(): UseTasksReturn {
         subTasks: [],
         order: maxOrder + 1,
         subDomain: input.subDomain,
+        isRecurring: input.isRecurring,
+        recurrencePattern: input.recurrencePattern,
+        recurrenceInterval: input.recurrenceInterval,
+        recurrenceDaysOfWeek: input.recurrenceDaysOfWeek,
+        recurrenceEndDate: input.recurrenceEndDate,
       };
 
       // Optimistic update

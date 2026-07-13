@@ -66,7 +66,6 @@ export function mapTaskToDbInsert(
     user_id: userId,
     title: task.title,
     completed: task.completed,
-    // NOTE: 'status' n'existe pas dans la DB (propriété calculée), on l'exclut
     created_at: new Date(task.createdAt).toISOString(),
     completed_at: task.completedAt
       ? new Date(task.completedAt).toISOString()
@@ -84,6 +83,11 @@ export function mapTaskToDbInsert(
     order: task.order,
     sub_domain: task.subDomain,
     version: task.version,
+    is_recurring: task.isRecurring || false,
+    recurrence_pattern: task.recurrencePattern || null,
+    recurrence_interval: task.recurrenceInterval || 1,
+    recurrence_days_of_week: task.recurrenceDaysOfWeek || null,
+    recurrence_end_date: task.recurrenceEndDate || null,
   };
 }
 
@@ -132,6 +136,11 @@ export function mapTaskUpdateToDb(updates: Partial<Task>): Record<string, any> {
   if (updates.order !== undefined) dbUpdates.order = updates.order;
   if (updates.subDomain !== undefined) dbUpdates.sub_domain = updates.subDomain;
   if (updates.version !== undefined) dbUpdates.version = updates.version;
+  if (updates.isRecurring !== undefined) dbUpdates.is_recurring = updates.isRecurring;
+  if (updates.recurrencePattern !== undefined) dbUpdates.recurrence_pattern = updates.recurrencePattern;
+  if (updates.recurrenceInterval !== undefined) dbUpdates.recurrence_interval = updates.recurrenceInterval;
+  if (updates.recurrenceDaysOfWeek !== undefined) dbUpdates.recurrence_days_of_week = updates.recurrenceDaysOfWeek;
+  if (updates.recurrenceEndDate !== undefined) dbUpdates.recurrence_end_date = updates.recurrenceEndDate;
 
   return dbUpdates;
 }

@@ -66,6 +66,11 @@ export default function TaskDetailsModal({
   const [activeTab, setActiveTab] = useState<
     "details" | "categories" | "subtasks"
   >("details");
+  const [isRecurring, setIsRecurring] = useState(task.isRecurring || false);
+  const [recurrencePattern, setRecurrencePattern] = useState<'daily' | 'weekly' | 'monthly' | 'custom'>(task.recurrencePattern || 'daily');
+  const [recurrenceInterval, setRecurrenceInterval] = useState((task.recurrenceInterval || 1).toString());
+  const [recurrenceDaysOfWeek, setRecurrenceDaysOfWeek] = useState<number[]>(task.recurrenceDaysOfWeek || [1, 3, 5]);
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState(task.recurrenceEndDate || "");
 
   const handleStartTimeChange = (value: string) => {
     setStartTime(value);
@@ -93,6 +98,11 @@ export default function TaskDetailsModal({
         : undefined,
       notes: notes.trim() || undefined,
       subDomain: selectedSubDomain,
+      isRecurring: isRecurring || undefined,
+      recurrencePattern: isRecurring ? recurrencePattern : undefined,
+      recurrenceInterval: isRecurring ? parseInt(recurrenceInterval) || 1 : undefined,
+      recurrenceDaysOfWeek: isRecurring && recurrencePattern === 'custom' ? recurrenceDaysOfWeek : undefined,
+      recurrenceEndDate: isRecurring && recurrenceEndDate ? recurrenceEndDate : undefined,
     });
   };
 
@@ -130,7 +140,7 @@ export default function TaskDetailsModal({
           <div className={`${isFullScreen ? "p-6 space-y-8" : ""}`}>
             {!isFullScreen && (
               <div className="h-[calc(90vh-200px)] overflow-y-auto">
-                {activeTab === "details" && (
+                 {activeTab === "details" && (
                   <div className="p-6 space-y-8">
                     <TaskFormContent
                       title={title}
@@ -140,6 +150,11 @@ export default function TaskDetailsModal({
                       startTime={startTime}
                       endTime={endTime}
                       estimatedDuration={estimatedDuration}
+                      isRecurring={isRecurring}
+                      recurrencePattern={recurrencePattern}
+                      recurrenceInterval={recurrenceInterval}
+                      recurrenceDaysOfWeek={recurrenceDaysOfWeek}
+                      recurrenceEndDate={recurrenceEndDate}
                       onTitleChange={setTitle}
                       onPriorityChange={setPriority}
                       onStartDateChange={setStartDate}
@@ -147,6 +162,11 @@ export default function TaskDetailsModal({
                       onStartTimeChange={handleStartTimeChange}
                       onEndTimeChange={handleEndTimeChange}
                       onDurationChange={setEstimatedDuration}
+                      onIsRecurringChange={setIsRecurring}
+                      onRecurrencePatternChange={setRecurrencePattern}
+                      onRecurrenceIntervalChange={setRecurrenceInterval}
+                      onRecurrenceDaysOfWeekChange={setRecurrenceDaysOfWeek}
+                      onRecurrenceEndDateChange={setRecurrenceEndDate}
                     />
                     <TaskMetaInfo
                       createdAt={task.createdAt}
@@ -175,31 +195,41 @@ export default function TaskDetailsModal({
                 )}
               </div>
             )}
-            {isFullScreen && (
-              <div className="p-6 space-y-8">
-                <TaskFormContentFullscreen
-                  title={title}
-                  priority={priority}
-                  startDate={startDate}
-                  dueDate={dueDate}
-                  startTime={startTime}
-                  endTime={endTime}
-                  estimatedDuration={estimatedDuration}
-                  onTitleChange={setTitle}
-                  onPriorityChange={setPriority}
-                  onStartDateChange={setStartDate}
-                  onDueDateChange={setDueDate}
-                  onStartTimeChange={handleStartTimeChange}
-                  onEndTimeChange={handleEndTimeChange}
-                  onDurationChange={setEstimatedDuration}
-                />
-                <TaskMetaInfo
-                  createdAt={task.createdAt}
-                  completedAt={task.completedAt}
-                  pomodoroCount={task.pomodoroCount}
-                />
-              </div>
-            )}
+             {isFullScreen && (
+               <div className="p-6 space-y-8">
+                 <TaskFormContentFullscreen
+                   title={title}
+                   priority={priority}
+                   startDate={startDate}
+                   dueDate={dueDate}
+                   startTime={startTime}
+                   endTime={endTime}
+                   estimatedDuration={estimatedDuration}
+                   isRecurring={isRecurring}
+                   recurrencePattern={recurrencePattern}
+                   recurrenceInterval={recurrenceInterval}
+                   recurrenceDaysOfWeek={recurrenceDaysOfWeek}
+                   recurrenceEndDate={recurrenceEndDate}
+                   onTitleChange={setTitle}
+                   onPriorityChange={setPriority}
+                   onStartDateChange={setStartDate}
+                   onDueDateChange={setDueDate}
+                   onStartTimeChange={handleStartTimeChange}
+                   onEndTimeChange={handleEndTimeChange}
+                   onDurationChange={setEstimatedDuration}
+                   onIsRecurringChange={setIsRecurring}
+                   onRecurrencePatternChange={setRecurrencePattern}
+                   onRecurrenceIntervalChange={setRecurrenceInterval}
+                   onRecurrenceDaysOfWeekChange={setRecurrenceDaysOfWeek}
+                   onRecurrenceEndDateChange={setRecurrenceEndDate}
+                 />
+                 <TaskMetaInfo
+                   createdAt={task.createdAt}
+                   completedAt={task.completedAt}
+                   pomodoroCount={task.pomodoroCount}
+                 />
+               </div>
+             )}
           </div>
 
           {isFullScreen && (
