@@ -11,14 +11,14 @@ export function LandingPage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-200">
+    <div className="h-screen bg-background">
       {/* Hero Section */}
-      <main className="relative overflow-hidden min-h-screen flex items-center">
-        <div className="max-w-8xl mx-auto px-6 py-16 md:py-24 relative z-10">
+      <main className="relative overflow-hidden h-full flex items-center">
+        <div className="max-w-8xl mx-auto px-6 py-4 md:py-24 relative z-10">
           {/* Hero Content */}
           <div className="text-center">
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold text-foreground leading-tight animate-slide-up">
+              <h1 className="text-5xl lg:text-8xl font-medium text-foreground leading-tight animate-slide-up">
                 Master Your Focus,
                 <br />
                 <span className="bg-linear-to-r from-primary via-brand-secondary to-brand-accent bg-clip-text text-transparent">
