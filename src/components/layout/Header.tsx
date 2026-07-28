@@ -183,7 +183,7 @@ export default function Header() {
             ) : (
               <Link
                 href={ROUTES.SIGN_IN}
-                className={`px-4 py-3 text-lg font-normal transition-all text-center ${pathname === ROUTES.SIGN_IN ? "text-primary font-medium" : "text-white"}`}
+                className={`px-4 py-3 text-lg font-normal transition-all text-center ${pathname === ROUTES.SIGN_IN ? "text-primary font-medium" : "text-primary"}`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Sign In
