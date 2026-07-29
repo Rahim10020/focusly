@@ -167,7 +167,10 @@ export default function StatsPage() {
       </div>
       <div className="space-y-8">
         {/* Mobile section selector */}
-        <div className="relative md:hidden" ref={mobileMenuRef}>
+        <div
+          className="sticky top-16 z-40 -mx-6 bg-background px-6 py-2 md:hidden"
+          ref={mobileMenuRef}
+        >
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
