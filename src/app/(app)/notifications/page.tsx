@@ -92,7 +92,7 @@ export default function NotificationsPage() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Page Header */}
-      <div className="mb-8">
+      <div className="mb-16">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-4xl font-bold">Notifications</h1>
           {unreadCount > 0 && (
@@ -101,7 +101,7 @@ export default function NotificationsPage() {
             </Button>
           )}
         </div>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-lg">
           Stay updated with friend requests, tasks, and achievements
         </p>
       </div>
@@ -139,9 +139,8 @@ export default function NotificationsPage() {
         </CardHeader>
         <CardContent>
           {filteredNotifications.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
+            <div className="text-center py-12 text-muted-foreground mt-8">
               <div className="text-6xl mb-4">🔔</div>
-              <p className="text-lg mb-2">No notifications</p>
               <p className="text-sm">
                 {filter === "unread"
                   ? "All caught up! No unread notifications."
