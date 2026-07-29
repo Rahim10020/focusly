@@ -168,7 +168,7 @@ export default function StatsPage() {
       <div className="space-y-8">
         {/* Mobile section selector */}
         <div
-          className="sticky top-16 z-40 -mx-6 bg-background px-6 py-2 md:hidden"
+          className="sticky top-16 z-40 bg-background py-2 md:hidden"
           ref={mobileMenuRef}
         >
           <button
