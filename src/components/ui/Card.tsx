@@ -59,7 +59,9 @@ export function CardHeader({
  */
 export function CardTitle({ children, className = "" }: CardSubComponentProps) {
   return (
-    <h3 className={`text-3xl font-medium text-foreground ${className}`}>
+    <h3
+      className={`text-4xl lg:text-3xl font-medium text-foreground ${className}`}
+    >
       {children}
     </h3>
   );

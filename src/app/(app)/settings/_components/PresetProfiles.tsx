@@ -28,7 +28,7 @@ export function PresetProfiles({
     <Card>
       <CardHeader>
         <CardTitle>Preset Profiles</CardTitle>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-lg text-muted-foreground mt-1">
           Quick setup with popular Pomodoro techniques
         </p>
       </CardHeader>
@@ -40,7 +40,7 @@ export function PresetProfiles({
               onClick={() => onApplyPreset(key)}
               className="p-4 text-left border border-border rounded-lg hover:bg-accent transition-colors cursor-pointer group"
             >
-              <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">
+              <h3 className="text-2xl font-medium mb-1 group-hover:text-primary transition-colors">
                 {profile.name}
               </h3>
               <p className="text-sm text-muted-foreground">
