@@ -261,13 +261,13 @@ export default function Settings({
               <MyLoader label="Loading" />
             </div>
           ) : (
-            <div className="space-y-4 mt-12">
+            <div className="space-y-6 mt-12">
               {visibilitySettings.map((setting) => (
                 <label
                   key={setting.stat_field}
                   className="flex items-center justify-between cursor-pointer"
                 >
-                  <span className="text-sm text-foreground">
+                  <span className="text-xl font-normal text-foreground">
                     {getStatLabel(setting.stat_field)}
                   </span>
                   <input
