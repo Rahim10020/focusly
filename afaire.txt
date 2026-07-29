@@ -1,1 +1,43 @@
+Focusly a déjà une bonne base : manifest, icônes, métadonnées Apple et affichage 
+`standalone`. Il faut surtout ajouter le comportement PWA, c’est-à-dire un service 
+worker et une stratégie hors connexion.
+
+Je ferais ça en deux étapes.
+
+1. PWA installable et fiable — recommandé en premier
+
+- Ajouter un service worker avec **Serwist**, qui est adapté à Next App Router actuel. 
+[Guide PWA Next.js](https://nextjs.org/docs/app/guides/progressive-web-apps), 
+[Serwist pour Next.js](https://serwist.pages.dev/docs/next/getting-started)
+- Prémettre en cache le shell de l’application et les ressources stables : icônes, 
+illustrations, sons, polices, pages publiques essentielles.
+- Ajouter une page offline propre, par exemple : « Focusly est hors ligne. Vos données 
+seront de nouveau accessibles à la reconnexion. »
+- Utiliser une stratégie prudente pour les pages dynamiques : réseau d’abord, puis cache en secours.
+- Ne pas mettre en cache aveuglément les réponses Supabase ni les données utilisateur : des 
+statistiques ou tâches périmées seraient plus gênantes qu’une page offline.
+- Ajouter un bouton discret « Installer Focusly » quand le navigateur propose l’installation.
+- Déployer en HTTPS : le service worker ne fonctionnera pas sur `http://192.168…` en mobile ; 
+seulement `localhost` est exempté.
+
+2. Vraie expérience offline — à faire ensuite si c’est un objectif produit
+
+- Stocker les tâches, statistiques et préférences dans IndexedDB.
+- Permettre de créer/modifier/cocher des tâches hors ligne.
+- Mettre les mutations dans une file de synchronisation, puis les envoyer à Supabase à la reconnexion.
+- Définir la gestion de conflit : je recommande « dernière modification gagne », avec un 
+indicateur si une synchronisation a échoué.
+- Afficher clairement l’état : `Hors ligne`, `Synchronisation…`, `Synchronisé`.
+
+Pour Focusly, je commencerais par l’étape 1. Elle donne l’installation sur écran d’accueil, 
+une ouverture plus rapide et une expérience propre sans réseau, sans prendre le risque de 
+désynchroniser les tâches. La vraie synchronisation offline est un projet plus conséquent.
+
+Enfin, je prévoirais une bannière « Mise à jour disponible » plutôt qu’un rechargement 
+forcé du service worker : interrompre une session Pomodoro en cours serait une mauvaise 
+expérience. Les notifications push peuvent venir après, puisque l’app a déjà un domaine 
+de notifications ; elles nécessitent toutefois un flux d’autorisation explicite et une 
+configuration VAPID côté serveur.
+
+
 -- continuer avec la page profile.
