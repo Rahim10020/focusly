@@ -9,9 +9,6 @@ import { useState } from "react";
 import { Achievement } from "@/types";
 import AchievementCard from "./components/AchievementCard";
 
-/**
- * Props for the AchievementsList component.
- */
 interface AchievementsListProps {
   unlockedAchievements: Achievement[];
   lockedAchievements: Achievement[];

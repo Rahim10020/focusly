@@ -12,8 +12,11 @@ import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useTasks } from "@/hooks/useTasks";
 import { StatsService } from "@/lib/domain/services/StatsService";
-import { useState, useMemo } from "react";
+import { ChevronDown } from "lucide-react";
+import { useState, useMemo, useEffect, useRef, useId } from "react";
 import { MyLoader } from "@/components/shared/MyLoader";
+
+type StatsTab = "achievements" | "tasks" | "domains";
 
 const AchievementsList = dynamic(
   () => import("@/app/(app)/home/_components/achievements/AchievementsList"),
@@ -45,9 +48,10 @@ const DomainStats = dynamic(
 export default function StatsPage() {
   const { unlockedAchievements, lockedAchievements } = useAchievements();
   const { tasks } = useTasks();
-  const [activeTab, setActiveTab] = useState<
-    "achievements" | "tasks" | "domains"
-  >("achievements");
+  const [activeTab, setActiveTab] = useState<StatsTab>("achievements");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuId = useId();
 
   // États de recherche pour chaque section de tâches
   const [completedSearch, setCompletedSearch] = useState("");
@@ -107,6 +111,51 @@ export default function StatsPage() {
   );
 
   const totalVisibleTasks = taskStats.totalVisible;
+  const tabs: { id: StatsTab; label: string; count?: number }[] = [
+    {
+      id: "achievements",
+      label: "Achievements",
+      count: unlockedAchievements.length,
+    },
+    { id: "tasks", label: "Tasks", count: totalVisibleTasks },
+    { id: "domains", label: "Domains" },
+  ];
+  const activeTabDetails = tabs.find((tab) => tab.id === activeTab)!;
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsMobileMenuOpen(false);
+    };
+
+    const mobileBreakpoint = window.matchMedia("(max-width: 767px)");
+    const closeOnDesktop = () => {
+      if (!mobileBreakpoint.matches) setIsMobileMenuOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    mobileBreakpoint.addEventListener("change", closeOnDesktop);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+      mobileBreakpoint.removeEventListener("change", closeOnDesktop);
+    };
+  }, []);
+
+  const selectTab = (tab: StatsTab) => {
+    setActiveTab(tab);
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <div className="space-y-12">
@@ -117,53 +166,84 @@ export default function StatsPage() {
         </p>
       </div>
       <div className="space-y-8">
-        {/* Tabs */}
-        <div className="flex gap-24">
+        {/* Mobile section selector */}
+        <div className="relative md:hidden" ref={mobileMenuRef}>
           <button
-            onClick={() => setActiveTab("achievements")}
-            className={`px-4 py-2 cursor-pointer font-medium transition-colors relative ${
-              activeTab === "achievements"
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            type="button"
+            onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls={mobileMenuId}
+            className="flex w-full items-center justify-between rounded-md border border-border bg-background px-4 py-3 font-medium text-foreground transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
-            Achievements
-            {activeTab === "achievements" && (
-              <div className="absolute bottom-0 left-0 right-8 md:right-0 h-0.5 bg-primary" />
-            )}
-            <span className="ml-1 px-1 md:ml-2 md:px-2 py-0.5 text-xs rounded-full bg-primary text-white">
-              {unlockedAchievements.length}
+            <span className="flex items-center gap-2">
+              {activeTabDetails.label}
+              {activeTabDetails.count !== undefined && (
+                <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-white">
+                  {activeTabDetails.count}
+                </span>
+              )}
             </span>
+            <ChevronDown
+              aria-hidden="true"
+              className={`h-5 w-5 transition-transform ${isMobileMenuOpen ? "rotate-180" : ""}`}
+            />
           </button>
-          <button
-            onClick={() => setActiveTab("tasks")}
-            className={`px-4 py-2 cursor-pointer font-medium transition-colors relative ${
-              activeTab === "tasks"
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Tasks
-            {activeTab === "tasks" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-            )}
-            <span className="ml-1 px-1 md:ml-2 md:px-2 py-0.5 text-xs rounded-full bg-primary text-white">
-              {totalVisibleTasks}
-            </span>
-          </button>
-          <button
-            onClick={() => setActiveTab("domains")}
-            className={`px-4 py-2 cursor-pointer font-medium transition-colors relative ${
-              activeTab === "domains"
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Domains
-            {activeTab === "domains" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-            )}
-          </button>
+          {isMobileMenuOpen && (
+            <div
+              id={mobileMenuId}
+              role="menu"
+              aria-label="Statistics sections"
+              className="absolute z-20 mt-2 w-full overflow-hidden rounded-md border border-border bg-background py-1 shadow-lg"
+            >
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={activeTab === tab.id}
+                  onClick={() => selectTab(tab.id)}
+                  className={`flex w-full items-center justify-between px-4 py-3 text-left font-medium transition-colors hover:bg-muted focus:bg-muted focus:outline-none ${
+                    activeTab === tab.id
+                      ? "bg-primary/10 text-primary"
+                      : "text-foreground"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  {tab.count !== undefined && (
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-white">
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop tabs */}
+        <div className="hidden gap-24 md:flex">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => selectTab(tab.id)}
+              className={`relative cursor-pointer px-4 py-2 font-medium transition-colors ${
+                activeTab === tab.id
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {tab.label}
+              {activeTab === tab.id && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+              )}
+              {tab.count !== undefined && (
+                <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-white">
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
 
         {activeTab === "achievements" && (
