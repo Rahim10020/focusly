@@ -159,21 +159,21 @@ export default function Header() {
             >
               <Link
                 href={ROUTES.DASHBOARD}
-                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.DASHBOARD ? "text-white font-medium" : "text-white"}`}
+                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.DASHBOARD ? "text-white font-medium underline" : "text-white"}`}
                 onClick={closeMenu}
               >
                 Dashboard
               </Link>
               <Link
                 href={ROUTES.TASKS}
-                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.TASKS ? "text-white font-medium" : "text-white"}`}
+                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.TASKS ? "text-white font-medium underline" : "text-white"}`}
                 onClick={closeMenu}
               >
                 Tasks
               </Link>
               <Link
                 href={ROUTES.CALENDAR}
-                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.CALENDAR ? "text-white font-medium" : "text-white"}`}
+                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.CALENDAR ? "text-white font-medium underline" : "text-white"}`}
                 onClick={closeMenu}
               >
                 Calendar
@@ -187,21 +187,21 @@ export default function Header() {
               </Link>
               <Link
                 href={ROUTES.FRIENDS}
-                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.FRIENDS ? "text-white font-medium" : "text-white"}`}
+                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.FRIENDS ? "text-white font-medium underline" : "text-white"}`}
                 onClick={closeMenu}
               >
                 Friends
               </Link>
               <Link
                 href={ROUTES.LEADERBOARD}
-                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.LEADERBOARD ? "text-white font-medium" : "text-white"}`}
+                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.LEADERBOARD ? "text-white font-medium underline" : "text-white"}`}
                 onClick={closeMenu}
               >
                 Leaderboard
               </Link>
               <Link
                 href={ROUTES.NOTIFICATIONS}
-                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.NOTIFICATIONS ? "text-white font-medium" : "text-white"}`}
+                className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.NOTIFICATIONS ? "text-white font-medium underline" : "text-white"}`}
                 onClick={closeMenu}
               >
                 Notifications
@@ -211,14 +211,14 @@ export default function Header() {
                 <>
                   <Link
                     href={ROUTES.PROFILE}
-                    className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.PROFILE ? "text-white" : "text-white"}`}
+                    className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.PROFILE ? "text-white font-medium underline" : "text-white"}`}
                     onClick={closeMenu}
                   >
                     Profile
                   </Link>
                   <Link
                     href={ROUTES.SETTINGS}
-                    className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.SETTINGS ? "text-white" : "text-white"}`}
+                    className={`px-4 py-3 text-2xl font-normal transition-all text-center ${pathname === ROUTES.SETTINGS ? "text-white font-medium underline" : "text-white"}`}
                     onClick={closeMenu}
                   >
                     Settings

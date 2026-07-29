@@ -279,7 +279,7 @@ export default function StatsPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 mt-12">
                 <input
                   type="text"
                   placeholder="Search in completed tasks..."
@@ -312,7 +312,7 @@ export default function StatsPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 mt-12">
                 <input
                   type="text"
                   placeholder="Search in ongoing tasks..."
@@ -345,7 +345,7 @@ export default function StatsPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 mt-12">
                 <input
                   type="text"
                   placeholder="Search in upcoming tasks..."
