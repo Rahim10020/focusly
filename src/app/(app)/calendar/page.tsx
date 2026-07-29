@@ -2,7 +2,6 @@
  * @fileoverview Calendar page for the Focusly application.
  * Displays tasks in a monthly calendar view with task details modal
  * for viewing and editing tasks.
- * @module app/calendar/page
  */
 
 "use client";
