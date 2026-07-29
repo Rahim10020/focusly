@@ -142,13 +142,13 @@ export default function CalendarView({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Calendar Grid */}
         <div className="lg:col-span-2">
-          <Card className="p-4">
+          <Card className="lg:p-4">
             {/* Day Headers */}
             <div className="grid grid-cols-7 gap-2 mb-2">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
                 <div
                   key={day}
-                  className="text-center text-sm font-semibold text-muted-foreground py-2"
+                  className="text-center text-lg font-semibold text-muted-foreground py-2"
                 >
                   {day}
                 </div>
@@ -168,7 +168,7 @@ export default function CalendarView({
                     key={index}
                     onClick={() => handleDateClick(day)}
                     className={`
-                                            min-h-[100px] p-2 rounded-lg border transition-all cursor-pointer
+                                            min-h-[50px] lg:min-h-[100px] p-2 rounded-lg border transition-all cursor-pointer
                                             ${isCurrentMonth ? "bg-card" : "bg-muted/30"}
                                             ${isSelected ? "border-primary border-2 bg-primary/10" : "border-border"}
                                             ${isDayToday ? "ring-2 ring-primary/50" : ""}
@@ -214,7 +214,7 @@ export default function CalendarView({
         {/* Selected Date Tasks */}
         <div className="lg:col-span-1">
           <Card className="p-4">
-            <h3 className="text-lg font-semibold mb-4">
+            <h3 className="text-xl font-semibold mb-4">
               {selectedDate
                 ? format(selectedDate, "MMM d, yyyy")
                 : "Select a date"}
@@ -223,7 +223,7 @@ export default function CalendarView({
             {selectedDate && (
               <>
                 {selectedDateTasks.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">
+                  <p className="text-lg text-muted-foreground text-center py-8">
                     No tasks scheduled for this day
                   </p>
                 ) : (
@@ -275,7 +275,7 @@ export default function CalendarView({
 
           {/* Legend */}
           <Card className="p-4 mt-4">
-            <h3 className="text-sm font-semibold mb-3">Priority Legend</h3>
+            <h3 className="text-xl font-semibold mb-8">Priority Legend</h3>
             <PriorityLegend />
           </Card>
         </div>
@@ -285,7 +285,7 @@ export default function CalendarView({
       {showQuickAdd && quickAddDate && (
         <div className="fixed inset-0 bg-overlay flex items-center justify-center z-50">
           <Card className="w-full max-w-md mx-4 p-6">
-            <h3 className="text-lg font-semibold mb-4">
+            <h3 className="text-xl font-semibold mb-4">
               Add Task for {format(quickAddDate, "MMM d, yyyy")}
             </h3>
             <Input
