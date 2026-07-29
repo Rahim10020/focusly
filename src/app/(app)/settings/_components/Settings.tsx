@@ -189,7 +189,7 @@ export default function Settings({
               />
             </div>
 
-            <div className="flex-column space-y-3 md:space-y-0 md:flex items-center md:justify-end gap-3">
+            <div className="flex-column space-y-3 md:space-y-0 md:flex items-center md:justify-end mt-12x gap-3">
               <Button onClick={handleSave}>Save Settings</Button>
               <Button onClick={onReset} variant="secondary">
                 Reset to Default
@@ -207,11 +207,14 @@ export default function Settings({
       <Card>
         <CardHeader>
           <CardTitle>Sound & Notifications</CardTitle>
+          <p className="text-lg text-muted-foreground mt-2">
+            Choose which sounds to enable.
+          </p>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4 mt-8">
+          <div className="space-y-4 mt-12">
             <label className="flex items-center justify-between cursor-pointer">
-              <span className="text-sm text-foreground">
+              <span className="text-xl font-normal text-foreground">
                 Enable sound notifications
               </span>
               <input
@@ -224,7 +227,7 @@ export default function Settings({
 
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium text-sm">Browser Notifications</h3>
+                <h3 className="font-normal text-xl">Browser Notifications</h3>
                 <p className="text-xs text-muted-foreground">
                   {permission === "granted" ? "Enabled" : "Not enabled"}
                 </p>
@@ -248,8 +251,8 @@ export default function Settings({
       <Card>
         <CardHeader>
           <CardTitle>Stat Visibility</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Choose which stats are visible to your friends
+          <p className="text-lg text-muted-foreground mt-2">
+            Choose which stats are visible to your friends.
           </p>
         </CardHeader>
         <CardContent>
