@@ -1,4 +1,3 @@
-
 import { Achievement } from "@/types";
 
 interface AchievementCardProps {
@@ -28,14 +27,16 @@ export default function AchievementCard({
           {achievement.icon}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-foreground mb-1">{achievement.title}</h3>
-          <p className="text-sm text-muted-foreground mb-2">
+          <h3 className="font-bold text-xl text-foreground mb-1">
+            {achievement.title}
+          </h3>
+          <p className="text-lg font-normal text-muted-foreground mb-2">
             {achievement.description}
           </p>
 
           {isLocked && achievement.target && (
             <div className="space-y-1">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
                 <span>Progress</span>
                 <span>
                   {progress} / {target}
