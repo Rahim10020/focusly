@@ -11,11 +11,9 @@ import dynamic from "next/dynamic";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useTasks } from "@/hooks/useTasks";
-import { useStats } from "@/hooks/useStats";
 import { StatsService } from "@/lib/domain/services/StatsService";
 import { useState, useMemo } from "react";
 import { MyLoader } from "@/components/shared/MyLoader";
-import StatsCard from "@/app/(app)/stats/_components/StatsCard";
 
 const AchievementsList = dynamic(
   () => import("@/app/(app)/home/_components/achievements/AchievementsList"),
@@ -47,7 +45,6 @@ const DomainStats = dynamic(
 export default function StatsPage() {
   const { unlockedAchievements, lockedAchievements } = useAchievements();
   const { tasks } = useTasks();
-  const { sessions } = useStats();
   const [activeTab, setActiveTab] = useState<
     "achievements" | "tasks" | "domains"
   >("achievements");
