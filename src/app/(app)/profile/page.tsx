@@ -2,7 +2,6 @@
  * @fileoverview User profile page for the Focusly application.
  * Displays user information, avatar, stats, activity overview,
  * and domain distribution with profile editing capabilities.
- * @module app/profile/page
  */
 
 "use client";

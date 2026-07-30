@@ -136,7 +136,7 @@ export default function Header() {
               className={`w-5 h-0.5 bg-foreground transition-all ${isMenuOpen ? "rotate-45 translate-y-1" : ""}`}
             ></span>
             <span
-              className={`w-5 h-0.5 bg-foreground transition-all my-1 ${isMenuOpen ? "opacity-0" : ""}`}
+              className={`w-5 h-0.5 bg-foreground transition-all my-1 ${isMenuOpen ? "opacity-1" : ""}`}
             ></span>
             <span
               className={`w-5 h-0.5 bg-foreground transition-all ${isMenuOpen ? "-rotate-45 -translate-y-1" : ""}`}
