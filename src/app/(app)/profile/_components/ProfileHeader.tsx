@@ -1,6 +1,5 @@
 /**
  * @fileoverview Profile header component displaying user avatar, name, email, and edit controls.
- * @module components/profile/ProfileHeader
  */
 
 "use client";
@@ -12,7 +11,6 @@ import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { MyLoader } from "@/components/shared/MyLoader";
-import { EditPencilIcon, EditPencilLineIcon } from "@/components/shared/icons";
 
 interface ProfileHeaderProps {
   isEditing: boolean;
@@ -42,48 +40,39 @@ export function ProfileHeader({
 
   return (
     <div className="mb-8">
-      <Card variant="none" className="relative overflow-hidden">
-        {/* Cover gradient */}
-        <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-primary/10 to-transparent h-32"></div>
-
-        <CardContent className="pt-20 pb-6 relative">
-          <div className="flex flex-col md:flex-row items-start md:items-end gap-6">
-            {/* Avatar */}
-            <div className="relative -mt-16">
-              <div className="relative">
-                <Image
-                  src={
-                    imagePreview ||
-                    session?.user?.image ||
-                    "/default-avatar.svg"
-                  }
-                  alt="Profile"
-                  width={128}
-                  height={128}
-                  className="w-32 h-32 rounded-full border-4 border-background shadow-lg object-cover"
-                />
-                {isEditing && (
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="absolute bottom-2 right-2 bg-primary text-foreground rounded-full p-2 shadow-lg hover:scale-110 transition-transform cursor-pointer"
-                  >
-                    <EditPencilIcon size={16} />
-                  </button>
-                )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={onImageChange}
-                  className="hidden"
-                />
-              </div>
+      <Card variant="outline">
+        <CardContent className="pt-6 pb-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+            <div className="relative mx-auto md:mx-0">
+              <Image
+                src={
+                  imagePreview || session?.user?.image || "/default-avatar.svg"
+                }
+                alt="Profile"
+                width={96}
+                height={96}
+                className="w-24 h-24 rounded-full border-2 border-border object-cover"
+              />
+              {isEditing && (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full text-white text-xs font-medium opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  Change
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={onImageChange}
+                className="hidden"
+              />
             </div>
 
-            {/* User Info */}
-            <div className="flex-1">
+            <div className="flex-1 text-center md:text-left">
               {isEditing ? (
-                <div className="space-y-3">
+                <div className="space-y-3 max-w-md">
                   <Input
                     value={name}
                     onChange={() => {}}
@@ -99,34 +88,32 @@ export function ProfileHeader({
                 </div>
               ) : (
                 <>
-                  <h1 className="text-3xl font-bold mb-1">
+                  <h1 className="text-2xl font-bold mb-1">
                     {session?.user?.name}
                   </h1>
-                  <p className="text-muted-foreground mb-4">
+                  <p className="text-muted-foreground text-sm">
                     {session?.user?.email}
                   </p>
                 </>
               )}
             </div>
 
-            {/* Edit Button */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 mx-auto md:mx-0">
               {isEditing ? (
                 <>
-                  <Button onClick={onSave} disabled={isLoading}>
+                  <Button onClick={onSave} disabled={isLoading} size="sm">
                     {isLoading ? (
                       <MyLoader label="Saving changes" />
                     ) : (
                       "Save Changes"
                     )}
                   </Button>
-                  <Button variant="secondary" onClick={onCancel}>
+                  <Button variant="secondary" onClick={onCancel} size="sm">
                     Cancel
                   </Button>
                 </>
               ) : (
-                <Button onClick={onEditToggle}>
-                  <EditPencilLineIcon size={16} />
+                <Button onClick={onEditToggle} variant="outline" size="sm">
                   Edit Profile
                 </Button>
               )}

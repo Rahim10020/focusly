@@ -172,7 +172,7 @@ export default function ProfilePage() {
     setImagePreview(null);
   };
 
-  const { completedTasks, totalTasks, completionRate, activeTasks } =
+  const { completedTasks, completionRate, activeTasks } =
     getTaskCompletionStats(tasks);
   const totalFocusHours = getFocusHours(stats?.totalFocusTime);
   const domainDistribution = getDomainDistribution(tasks);
