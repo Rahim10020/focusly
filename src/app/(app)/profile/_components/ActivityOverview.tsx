@@ -32,20 +32,20 @@ export function ActivityOverview({
   ];
 
   return (
-    <Card variant="outline">
+    <Card>
       <CardHeader>
         <CardTitle>Activity Overview</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-border mt-12">
           {items.map((item) => (
             <div
               key={item.label}
               className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
             >
               <div>
-                <p className="font-medium text-sm">{item.label}</p>
-                <p className="text-xs text-muted-foreground">{item.sublabel}</p>
+                <p className="font-normal text-xl">{item.label}</p>
+                <p className="text-sm text-muted-foreground">{item.sublabel}</p>
               </div>
               <p className="text-lg font-semibold">{item.value}</p>
             </div>

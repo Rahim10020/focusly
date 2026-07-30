@@ -37,8 +37,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const variants = {
       primary:
         "bg-primary text-white hover:bg-brand-primary active:scale-[0.98]",
-      secondary:
-        "bg-muted text-foreground hover:bg-accent hover:text-white active:scale-[0.98]",
+      secondary: "bg-muted text-foreground hover:bg-accent active:scale-[0.98]",
       ghost:
         "bg-transparent text-foreground hover:bg-muted active:scale-[0.98]",
       outline:

@@ -51,7 +51,7 @@ export function ProfileHeader({
                 alt="Profile"
                 width={96}
                 height={96}
-                className="w-24 h-24 rounded-full border-2 border-border object-cover"
+                className="w-24 h-24 rounded-full border-2 border-border object-contain"
               />
               {isEditing && (
                 <button
@@ -91,7 +91,7 @@ export function ProfileHeader({
                   <h1 className="text-2xl font-bold mb-1">
                     {session?.user?.name}
                   </h1>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-muted-foreground text-lg font-normal">
                     {session?.user?.email}
                   </p>
                 </>
