@@ -40,4 +40,4 @@ de notifications ; elles nécessitent toutefois un flux d’autorisation explici
 configuration VAPID côté serveur.
 
 
--- continuer avec la page profile.
+-- continuer avec les pages: Dashboard, friends et tasks.

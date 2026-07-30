@@ -42,8 +42,8 @@ export function ProfileHeader({
     <div className="mb-8">
       <Card variant="outline">
         <CardContent className="pt-6 pb-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="relative mx-auto md:mx-0">
+          <div className="flex flex-col items-center md:flex-row md:items-center gap-6">
+            <div className="relative">
               <Image
                 src={
                   imagePreview || session?.user?.image || "/default-avatar.svg"
@@ -70,9 +70,9 @@ export function ProfileHeader({
               />
             </div>
 
-            <div className="flex-1 text-center md:text-left">
+            <div className="flex-1 text-center">
               {isEditing ? (
-                <div className="space-y-3 max-w-md">
+                <div className="space-y-3 max-w-md mx-auto md:mx-0">
                   <Input
                     value={name}
                     onChange={() => {}}
@@ -98,7 +98,7 @@ export function ProfileHeader({
               )}
             </div>
 
-            <div className="flex gap-2 mx-auto md:mx-0">
+            <div className="flex gap-2">
               {isEditing ? (
                 <>
                   <Button onClick={onSave} disabled={isLoading} size="sm">
