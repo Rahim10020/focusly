@@ -42,7 +42,7 @@ export default function DynamicInsights({ insights }: DynamicInsightsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Insights et Recommandations</CardTitle>
+        <CardTitle>Insights and Recommandations</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

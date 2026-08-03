@@ -21,10 +21,6 @@ import {
   AreaChart,
 } from "recharts";
 
-/**
- * Props for the AdvancedProductivityChart component.
- * @interface AdvancedProductivityChartProps
- */
 interface AdvancedProductivityChartProps {
   /** Array of pomodoro sessions to analyze and visualize */
   sessions: PomodoroSession[];
@@ -85,28 +81,6 @@ const CustomTooltip = ({ active, payload }: TooltipProps) => {
  * Includes a summary statistics section, area chart for daily focus time,
  * bar chart for completed sessions, and line chart for focus score trends.
  * Uses shared CSS tokens so light and dark themes stay in sync automatically.
- *
- * @param {AdvancedProductivityChartProps} props - Component props
- * @param {PomodoroSession[]} props.sessions - Array of pomodoro sessions to analyze
- * @param {number} [props.days=7] - Number of days to display (7 or 30)
- * @returns {JSX.Element} Multiple chart visualizations with productivity analytics
- *
- * @example
- * ```tsx
- * import AdvancedProductivityChart from '@/app/(app)/stats/_components/AdvancedProductivityChart';
- *
- * function AnalyticsPage({ sessions }) {
- *   return (
- *     <div className="space-y-6">
- *       <h2>7-Day Analytics</h2>
- *       <AdvancedProductivityChart sessions={sessions} days={7} />
- *
- *       <h2>30-Day Analytics</h2>
- *       <AdvancedProductivityChart sessions={sessions} days={30} />
- *     </div>
- *   );
- * }
- * ```
  */
 export default function AdvancedProductivityChart({
   sessions,
@@ -191,15 +165,21 @@ export default function AdvancedProductivityChart({
       {/* Stats Summary */}
       <div className="grid grid-cols-3 gap-3">
         <div className="p-3 bg-muted rounded-lg">
-          <div className="text-xs text-muted-foreground mb-1">Avg Daily</div>
+          <div className="text-sm font-normal lg:text-xs text-muted-foreground mb-1">
+            Avg Daily
+          </div>
           <div className="text-lg font-bold">{avgMinutes} min</div>
         </div>
         <div className="p-3 bg-muted rounded-lg">
-          <div className="text-xs text-muted-foreground mb-1">Peak Day</div>
+          <div className="text-sm font-normal lg:text-xs text-muted-foreground mb-1">
+            Peak Day
+          </div>
           <div className="text-lg font-bold">{maxMinutes} min</div>
         </div>
         <div className="p-3 bg-muted rounded-lg">
-          <div className="text-xs text-muted-foreground mb-1">Total</div>
+          <div className="text-sm font-normal lg:text-xs text-muted-foreground mb-1">
+            Total
+          </div>
           <div className="text-lg font-bold">
             {chartData.reduce((sum, d) => sum + d.minutes, 0)} min
           </div>

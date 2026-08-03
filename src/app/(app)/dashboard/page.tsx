@@ -161,7 +161,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12 lg:mb-8">
         <Card variant="elevated">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -242,19 +242,19 @@ export default function DashboardPage() {
       </div>
 
       {/* Time Range Selector */}
-      <div className="flex justify-end mb-6">
+      <div className="flex justify-center lg:justify-end mb-12 lg:mb-6">
         <div className="flex gap-2 bg-muted p-1 rounded-2xl">
           <Button
             variant={timeRange === 7 ? "primary" : "ghost"}
             onClick={() => setTimeRange(7)}
-            className="text-sm"
+            className="text-lg lg:text-sm"
           >
             Last 7 Days
           </Button>
           <Button
             variant={timeRange === 30 ? "primary" : "ghost"}
             onClick={() => setTimeRange(30)}
-            className="text-sm"
+            className="text-lg lg:text-sm"
           >
             Last 30 Days
           </Button>
@@ -268,7 +268,9 @@ export default function DashboardPage() {
 
       {/* Productivity Charts */}
       <div className="mb-8" ref={chartRef}>
-        <h2 className="text-2xl font-bold mb-4">Productivity Trends</h2>
+        <h2 className="text-4xl font-medium mb-8 lg:mb-4">
+          Productivity Trends
+        </h2>
         <AdvancedProductivityChart sessions={sessions} days={timeRange} />
       </div>
 
