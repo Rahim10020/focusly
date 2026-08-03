@@ -23,13 +23,13 @@ interface ProductivityHeatmapProps {
 }
 
 const TIME_BLOCKS: { key: TimeBlock; label: string }[] = [
-  { key: "night", label: "Nuit" },
-  { key: "morning", label: "Matin" },
-  { key: "afternoon", label: "Apres-midi" },
-  { key: "evening", label: "Soir" },
+  { key: "night", label: "Night" },
+  { key: "morning", label: "Morning" },
+  { key: "afternoon", label: "Afternoon" },
+  { key: "evening", label: "Evening" },
 ];
 
-const DAYS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function getTimeBlock(hour: number): TimeBlock {
   if (hour >= 0 && hour < 6) return "night";
@@ -80,10 +80,10 @@ export default function ProductivityHeatmap({
 
     for (let day = 0; day < 7; day++) {
       data[day] = {
-        night: { label: "Nuit", value: 0, sessions: 0 },
-        morning: { label: "Matin", value: 0, sessions: 0 },
-        afternoon: { label: "Apres-midi", value: 0, sessions: 0 },
-        evening: { label: "Soir", value: 0, sessions: 0 },
+        night: { label: "Night", value: 0, sessions: 0 },
+        morning: { label: "Morning", value: 0, sessions: 0 },
+        afternoon: { label: "Afternoon", value: 0, sessions: 0 },
+        evening: { label: "Evening", value: 0, sessions: 0 },
       };
     }
 
@@ -153,17 +153,17 @@ export default function ProductivityHeatmap({
 
               {DAYS.map((day, dayIndex) => (
                 <div key={day} className="flex items-center mb-1">
-                  <div className="w-14 text-xs text-muted-foreground pr-2">
+                  <div className="w-12 text-xs text-muted-foreground pr-2">
                     {day}
                   </div>
-                  <div className="flex-1 grid grid-cols-4 gap-2">
+                  <div className="flex-1 grid grid-cols-4 gap-1">
                     {TIME_BLOCKS.map((block) => {
                       const cell = timeBlockData[dayIndex][block.key];
                       return (
                         <div
                           key={block.key}
                           className={`h-10 rounded ${getColor(cell.value, mobileMaxValue)} 
-                            transition-transform hover:scale-105 hover:border z-10 cursor-pointer`}
+                            transition-transform hover:scale-102 hover:border z-10 cursor-pointer`}
                           title={`${day} ${block.label}: ${DateTimeService.formatTime(cell.value)} (${cell.sessions} sessions)`}
                         />
                       );
