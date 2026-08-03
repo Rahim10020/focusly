@@ -6,7 +6,7 @@ import { ReactNode, type CSSProperties } from "react";
 interface CardProps {
   children: ReactNode;
   className?: string;
-  variant?: "default" | "elevated" | "interactive" | "outline" | "none";
+  variant?: "default" | "elevated" | "interactive" | "outline" | "none" | "special";
   style?: CSSProperties;
 }
 
