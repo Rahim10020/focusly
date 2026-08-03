@@ -73,7 +73,7 @@ export default function ProductivityHeatmap({
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <Card>
+    <Card variant="special">
       <CardHeader>
         <CardTitle>Productivity Heatmap</CardTitle>
       </CardHeader>
@@ -89,7 +89,7 @@ export default function ProductivityHeatmap({
                     hour % 3 === 0 && (
                       <div
                         key={hour}
-                        className="col-span-3 text-xs font-medium text-center text-muted-foreground"
+                        className="col-span-3 text-sm lg:text-lg font-normal text-center text-muted-foreground"
                       >
                         {hour}h
                       </div>
@@ -101,7 +101,7 @@ export default function ProductivityHeatmap({
             {/* Grille heatmap */}
             {days.map((day, dayIndex) => (
               <div key={day} className="flex items-center mb-1">
-                <div className="w-12 text-xs text-muted-foreground pr-2">
+                <div className="w-12 text-sm lg:text-lg text-muted-foreground pr-2">
                   {day}
                 </div>
                 <div className="flex-1 grid grid-cols-24 gap-1">

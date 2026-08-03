@@ -2,7 +2,6 @@ import { ReactNode, type CSSProperties } from "react";
 
 /**
  * Props for the Card component.
- * @interface CardProps
  */
 interface CardProps {
   children: ReactNode;
@@ -18,17 +17,18 @@ export default function Card({
   style,
 }: CardProps) {
   const variants = {
-    default: "shadow-sm rounded-2xl bg-card",
-    elevated: "shadow-md transition-shadow duration-300 bg-card",
+    default: "shadow-sm rounded-2xl bg-card p-6",
+    elevated: "shadow-md transition-shadow duration-300 bg-card p-6",
     interactive:
-      "shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer rounded-2xl bg-card",
-    outline: "shadow-none rounded-2xl border border-border bg-card",
-    none: "bg-transparent w-full max-w-sm",
+      "shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer rounded-2xl bg-card p-6",
+    outline: "shadow-none rounded-2xl border border-border bg-card p-6",
+    none: "bg-transparent w-full max-w-sm p-6",
+    special: "",
   };
 
   return (
     <div
-      className={`text-card-foreground  p-6 smooth-transition ${variants[variant]} ${className}`}
+      className={`text-card-foreground smooth-transition ${variants[variant]} ${className}`}
       style={style}
     >
       {children}

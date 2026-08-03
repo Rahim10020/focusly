@@ -242,7 +242,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Time Range Selector */}
-      <div className="flex justify-center lg:justify-end mb-12 lg:mb-6">
+      <div className="flex justify-start lg:justify-end mb-12 lg:mb-6">
         <div className="flex gap-2 bg-muted p-1 rounded-2xl">
           <Button
             variant={timeRange === 7 ? "primary" : "ghost"}
