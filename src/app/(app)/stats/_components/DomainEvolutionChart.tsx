@@ -295,12 +295,12 @@ export default function DomainEvolutionChart({
             className="bg-card p-4 rounded-xl border border-border hover:shadow-sm transition-shadow"
           >
             <div className="flex items-start justify-between mb-3">
-              <h4 className="text-sm font-medium">{stat.fullDomain}</h4>
+              <h4 className="text-xl font-medium">{stat.fullDomain}</h4>
               <div className="text-xs font-bold px-2 py-1 rounded-full bg-primary/10 text-primary">
                 {stat.completionRate}%
               </div>
             </div>
-            <div className="space-y-2 text-xs text-muted-foreground">
+            <div className="space-y-2 text-lg text-muted-foreground">
               <div className="flex justify-between">
                 <span>Tasks Completed</span>
                 <span className="font-medium text-foreground">
