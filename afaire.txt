@@ -40,4 +40,5 @@ de notifications ; elles nécessitent toutefois un flux d’autorisation explici
 configuration VAPID côté serveur.
 
 
--- continuer avec les pages: Dashboard, friends et tasks.
+-- finir avec le responsive de Dashboard, continuer avec la page tasks et finir avec la page
+friends
