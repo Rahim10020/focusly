@@ -286,9 +286,7 @@ export default function DashboardPage() {
 
       {/* Domain Evolution */}
       <div className="mb-10 mt-12">
-        <h2 className="text-2xl tracking-wide font-bold mb-8">
-          Life Domains Progress
-        </h2>
+        <h2 className="text-4xl font-medium mb-8">Life Domains Progress</h2>
         <DomainEvolutionChart tasks={tasks} />
       </div>
 

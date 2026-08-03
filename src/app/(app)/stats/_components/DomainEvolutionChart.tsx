@@ -24,7 +24,6 @@ import {
 
 /**
  * Props for the DomainEvolutionChart component.
- * @interface DomainEvolutionChartProps
  */
 interface DomainEvolutionChartProps {
   /** Array of tasks to analyze by domain */
@@ -117,8 +116,8 @@ export default function DomainEvolutionChart({
     <div className="space-y-6">
       {/* Radar Chart - Overall Balance */}
       <div className="bg-card p-6 rounded-xl border border-border">
-        <h3 className="text-xl font-medium mb-1">Life Balance Radar</h3>
-        <p className="text-sm max-w-100 text-muted-foreground mb-4">
+        <h3 className="text-2xl font-medium mb-1">Life Balance Radar</h3>
+        <p className="text-lg max-w-100 text-muted-foreground mb-4">
           Visual representation of your progress across all life domains
         </p>
         <ResponsiveContainer width="100%" height={400}>
@@ -190,7 +189,9 @@ export default function DomainEvolutionChart({
 
       {/* Bar Chart - Tasks by Domain */}
       <div className="bg-card p-6 rounded-xl border border-border">
-        <h3 className="text-xl font-medium mb-8">Tasks Completion by Domain</h3>
+        <h3 className="text-2xl font-medium mb-8">
+          Tasks Completion by Domain
+        </h3>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={domainStats}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -229,7 +230,7 @@ export default function DomainEvolutionChart({
 
       {/* Completion Rate Breakdown */}
       <div className="bg-card p-6 rounded-xl border border-border">
-        <h3 className="text-xl font-medium mb-8">Completion Rate Breakdown</h3>
+        <h3 className="text-2xl font-medium mb-8">Completion Rate Breakdown</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={domainStats} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
