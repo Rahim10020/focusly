@@ -2,7 +2,6 @@
  * @fileoverview Analytics Dashboard page for the Focusly application.
  * Displays comprehensive productivity analytics, charts, and export functionality
  * for tasks, sessions, and domain progress data.
- * @module app/dashboard/page
  */
 
 "use client";
@@ -154,8 +153,8 @@ export default function DashboardPage() {
       {/* Page Header */}
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
-          <p className="text-muted-foreground text-lg font-normal">
+          <h1 className="text-4xl font-bold mb-2">Dashboard Analytics</h1>
+          <p className="text-muted-foreground text-xl font-normal">
             Comprehensive overview of your productivity and progress
           </p>
         </div>
@@ -167,7 +166,7 @@ export default function DashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">
+                <p className="text-xl lg:text-lg font-normal text-muted-foreground mb-1">
                   Total Tasks
                 </p>
                 <p className="text-3xl font-bold">{totalTasks}</p>
@@ -183,7 +182,9 @@ export default function DashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Completed</p>
+                <p className="text-xl lg:text-lg font-normal text-muted-foreground mb-1">
+                  Completed
+                </p>
                 <p className="text-3xl font-bold">{completedTasks}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center">
@@ -197,7 +198,7 @@ export default function DashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">
+                <p className="text-xl lg:text-lg font-normal text-muted-foreground mb-1">
                   Completion Rate
                 </p>
                 <p className="text-3xl font-bold">{completionRate}%</p>
@@ -213,7 +214,7 @@ export default function DashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">
+                <p className="text-xl lg:text-lg font-normal text-muted-foreground mb-1">
                   Current Streak
                 </p>
                 <p className="text-3xl font-bold">{stats?.streak || 0}</p>
