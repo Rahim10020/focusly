@@ -1,8 +1,3 @@
-/**
- * @fileoverview TaskList component for displaying and managing tasks organized by time periods.
- * Provides tabbed navigation for today, tomorrow, other, and completed tasks with drag-and-drop reordering.
- */
-
 "use client";
 
 import { useState, memo } from "react";
@@ -43,42 +38,6 @@ type TabType = "today" | "tomorrow" | "others" | "completed";
 /** Available sort types for task ordering */
 type SortType = "default" | "alphabetical" | "createdAt" | "priority";
 
-/**
- * TaskList component displays tasks organized into tabs by time period.
- * Supports drag-and-drop reordering, task completion, deletion, and subtask management.
- *
- * @param {TaskListProps} props - Component props
- * @param {Task[]} props.tasks - Array of all tasks to display
- * @param {string | null} props.activeTaskId - ID of the currently active task for timer
- * @param {Tag[]} props.tags - Available tags for task categorization
- * @param {SortType} props.sortType - Current sort method for tasks
- * @param {function} props.sortTasks - Function to sort task arrays
- * @param {function} props.onToggle - Callback when task completion is toggled
- * @param {function} props.onDelete - Callback when task is deleted
- * @param {function} props.onSelectTask - Callback when task is selected as active
- * @param {function} props.onUpdate - Callback when task is updated
- * @param {function} props.onAddSubTask - Callback when subtask is added
- * @param {function} props.onToggleSubTask - Callback when subtask completion is toggled
- * @param {function} props.onDeleteSubTask - Callback when subtask is deleted
- * @param {function} props.onReorder - Callback when tasks are reordered via drag-and-drop
- *
- * @example
- * <TaskList
- *   tasks={tasks}
- *   activeTaskId={currentTaskId}
- *   tags={availableTags}
- *   sortType="default"
- *   sortTasks={sortFunction}
- *   onToggle={handleToggle}
- *   onDelete={handleDelete}
- *   onSelectTask={handleSelect}
- *   onUpdate={handleUpdate}
- *   onAddSubTask={handleAddSubTask}
- *   onToggleSubTask={handleToggleSubTask}
- *   onDeleteSubTask={handleDeleteSubTask}
- *   onReorder={handleReorder}
- * />
- */
 function TaskList({
   tasks,
   activeTaskId,
@@ -107,17 +66,23 @@ function TaskList({
   const activeTasks = tasks.filter((task) => !task.completed);
 
   const todayTasks = sortTasks(
-    activeTasks.filter((task) => task.dueDate && DateTimeService.isToday(task.dueDate)),
+    activeTasks.filter(
+      (task) => task.dueDate && DateTimeService.isToday(task.dueDate),
+    ),
   );
 
   const tomorrowTasks = sortTasks(
-    activeTasks.filter((task) => task.dueDate && DateTimeService.isTomorrow(task.dueDate)),
+    activeTasks.filter(
+      (task) => task.dueDate && DateTimeService.isTomorrow(task.dueDate),
+    ),
   );
 
   const otherTasks = sortTasks(
     activeTasks.filter(
       (task) =>
-        !task.dueDate || (!DateTimeService.isToday(task.dueDate) && !DateTimeService.isTomorrow(task.dueDate)),
+        !task.dueDate ||
+        (!DateTimeService.isToday(task.dueDate) &&
+          !DateTimeService.isTomorrow(task.dueDate)),
     ),
   );
 

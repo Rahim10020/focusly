@@ -1,9 +1,3 @@
-/**
- * @fileoverview TaskItem component for displaying individual task cards.
- * Shows task details including title, priority, tags, due date, subtasks, and pomodoro count.
- * Supports completion toggling, deletion, and opening task details modal.
- */
-
 "use client";
 
 import { useState, memo, type HTMLAttributes } from "react";
@@ -91,9 +85,7 @@ function TaskItem({
                 : "border-muted-foreground hover:border-primary"
             }`}
           >
-            {isSelected && (
-              <CheckIcon size={12} className="text-white" />
-            )}
+            {isSelected && <CheckIcon size={12} className="text-white" />}
           </button>
         )}
 
