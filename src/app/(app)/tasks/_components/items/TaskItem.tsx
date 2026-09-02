@@ -69,7 +69,7 @@ function TaskItem({
   return (
     <>
       <div
-        className={`flex items-start gap-4 p-4 rounded-xl transition-all duration-300 group ${
+        className={`flex flex-col lg:flex-row items-start gap-4 p-4 rounded-xl transition-all duration-300 group ${
           isActive
             ? "border-2 border-brand-primary shadow-md"
             : "bg-card hover:bg-accent/50 border border-border hover:border-primary/20 hover:shadow-sm"
@@ -94,7 +94,7 @@ function TaskItem({
           {...dragHandleProps}
           className="shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/60 hover:text-primary transition-all mt-1"
         >
-          <DragHorizontalIcon size={16} />
+          <DragHorizontalIcon size={24} />
         </div>
 
         {/* Checkbox */}
