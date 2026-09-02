@@ -55,9 +55,9 @@ function TaskList({
   selectedTaskIds,
   onToggleSelection,
   onSelectAll: _onSelectAll,
-  onClearSelection,
-  onBulkComplete,
-  onBulkDelete,
+  onClearSelection: _onClearSelection,
+  onBulkComplete: _onBulkComplete,
+  onBulkDelete: _onBulkDelete,
 }: TaskListProps) {
   const [activeTab, setActiveTab] = useState<TabType>("today");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -172,43 +172,6 @@ function TaskList({
           </Button>
         ))}
       </div>
-
-      {/* Bulk Actions */}
-      {selectedTaskIds && selectedTaskIds.size > 0 && (
-        <div className="flex items-center justify-between bg-muted/50 p-3 rounded-xl">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground">
-              {selectedTaskIds.size} selected
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClearSelection}
-              className="text-xs"
-            >
-              Cancel
-            </Button>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onBulkComplete}
-              className="text-xs"
-            >
-              Complete selected
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onBulkDelete}
-              className="text-xs text-error hover:text-error"
-            >
-              Delete selected
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Task List */}
       {currentTasks.length > 0 ? (

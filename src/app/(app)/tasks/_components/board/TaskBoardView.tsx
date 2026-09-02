@@ -1,15 +1,9 @@
-/**
- * @fileoverview TaskBoardView component for displaying tasks in a Kanban-style board.
- * Organizes tasks into columns by status (To Do, In Progress, Done) with drag-and-drop support.
- */
-
 "use client";
 
 import { Task, Tag, TaskStatus } from "@/types";
 import React from "react";
 import { TaskBoardCard } from "./TaskBoardCard";
 import { CircleIcon } from "@/components/shared/icons";
-import Button from "@/components/ui/Button";
 
 /** Available sort types for task ordering */
 type SortType = "default" | "alphabetical" | "createdAt" | "priority";
@@ -56,9 +50,9 @@ export default function TaskBoardView({
   selectedTaskIds,
   onToggleSelection,
   onSelectAll: _onSelectAll,
-  onClearSelection,
-  onBulkComplete,
-  onBulkDelete,
+  onClearSelection: _onClearSelection,
+  onBulkComplete: _onBulkComplete,
+  onBulkDelete: _onBulkDelete,
 }: TaskBoardViewProps) {
   const columns: { id: TaskStatus; title: string; color: string }[] = [
     {
@@ -106,43 +100,6 @@ export default function TaskBoardView({
 
   return (
     <div className="h-full">
-      {/* Bulk Actions */}
-      {selectedTaskIds && selectedTaskIds.size > 0 && (
-        <div className="flex items-center justify-between bg-muted/50 p-3 rounded-xl mb-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground">
-              {selectedTaskIds.size} selected
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClearSelection}
-              className="text-xs"
-            >
-              Cancel
-            </Button>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onBulkComplete}
-              className="text-xs"
-            >
-              Complete selected
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onBulkDelete}
-              className="text-xs text-error hover:text-error"
-            >
-              Delete selected
-            </Button>
-          </div>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
         {columns.map((column) => {
           const columnTasks = getTasksByStatus(column.id);
@@ -182,24 +139,24 @@ export default function TaskBoardView({
                     const taskTags = getTaskTags(task);
                     const isActive = activeTaskId === task.id;
 
-                     return (
-                       <TaskBoardCard
-                         key={task.id}
-                         task={task}
-                         taskTags={taskTags}
-                         isActive={isActive}
-                         onDragStart={handleDragStart}
-                         onStatusChange={(taskId, status) =>
-                           onStatusChange(taskId, status as TaskStatus)
-                         }
-                         onEdit={onEditTask}
-                         onSelect={onSelectTask}
-                         onUnselect={() => onSelectTask(null)}
-                         onDelete={onDelete}
-                         isSelected={selectedTaskIds?.has(task.id)}
-                         onToggleSelection={onToggleSelection}
-                       />
-                     );
+                    return (
+                      <TaskBoardCard
+                        key={task.id}
+                        task={task}
+                        taskTags={taskTags}
+                        isActive={isActive}
+                        onDragStart={handleDragStart}
+                        onStatusChange={(taskId, status) =>
+                          onStatusChange(taskId, status as TaskStatus)
+                        }
+                        onEdit={onEditTask}
+                        onSelect={onSelectTask}
+                        onUnselect={() => onSelectTask(null)}
+                        onDelete={onDelete}
+                        isSelected={selectedTaskIds?.has(task.id)}
+                        onToggleSelection={onToggleSelection}
+                      />
+                    );
                   })
                 )}
               </div>
