@@ -44,7 +44,7 @@ export interface TaskFormData {
   /** Array of subtasks with title and completion status */
   subTasks?: { title: string; completed: boolean }[];
   isRecurring?: boolean;
-  recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'custom';
+  recurrencePattern?: "daily" | "weekly" | "monthly" | "custom";
   recurrenceInterval?: number;
   recurrenceDaysOfWeek?: number[];
   recurrenceEndDate?: string;
@@ -114,11 +114,21 @@ function TaskModalContent({
   const [searchQuery, setSearchQuery] = useState("");
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isSubTasksOpen, setIsSubTasksOpen] = useState(false);
-  const [isRecurring, setIsRecurring] = useState(() => initialData?.isRecurring || false);
-  const [recurrencePattern, setRecurrencePattern] = useState<'daily' | 'weekly' | 'monthly' | 'custom'>(() => initialData?.recurrencePattern || 'daily');
-  const [recurrenceInterval, setRecurrenceInterval] = useState(() => initialData?.recurrenceInterval?.toString() || '1');
-  const [recurrenceDaysOfWeek, setRecurrenceDaysOfWeek] = useState<number[]>(() => initialData?.recurrenceDaysOfWeek || [1, 3, 5]);
-  const [recurrenceEndDate, setRecurrenceEndDate] = useState(() => initialData?.recurrenceEndDate || "");
+  const [isRecurring, setIsRecurring] = useState(
+    () => initialData?.isRecurring || false,
+  );
+  const [recurrencePattern, setRecurrencePattern] = useState<
+    "daily" | "weekly" | "monthly" | "custom"
+  >(() => initialData?.recurrencePattern || "daily");
+  const [recurrenceInterval, setRecurrenceInterval] = useState(
+    () => initialData?.recurrenceInterval?.toString() || "1",
+  );
+  const [recurrenceDaysOfWeek, setRecurrenceDaysOfWeek] = useState<number[]>(
+    () => initialData?.recurrenceDaysOfWeek || [1, 3, 5],
+  );
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState(
+    () => initialData?.recurrenceEndDate || "",
+  );
 
   // Tab state for compact mode
   const [activeTab, setActiveTab] = useState<
@@ -144,9 +154,15 @@ function TaskModalContent({
       subTasks: subTasks.length > 0 ? subTasks : undefined,
       isRecurring: isRecurring || undefined,
       recurrencePattern: isRecurring ? recurrencePattern : undefined,
-      recurrenceInterval: isRecurring ? parseInt(recurrenceInterval) || 1 : undefined,
-      recurrenceDaysOfWeek: isRecurring && recurrencePattern === 'custom' ? recurrenceDaysOfWeek : undefined,
-      recurrenceEndDate: isRecurring && recurrenceEndDate ? recurrenceEndDate : undefined,
+      recurrenceInterval: isRecurring
+        ? parseInt(recurrenceInterval) || 1
+        : undefined,
+      recurrenceDaysOfWeek:
+        isRecurring && recurrencePattern === "custom"
+          ? recurrenceDaysOfWeek
+          : undefined,
+      recurrenceEndDate:
+        isRecurring && recurrenceEndDate ? recurrenceEndDate : undefined,
     });
 
     onClose();
@@ -189,7 +205,7 @@ function TaskModalContent({
             {/* Tab Panels for Compact Mode */}
             {!isFullScreen && (
               <div className="h-[calc(90vh-200px)] overflow-y-auto">
-                 {activeTab === "details" && (
+                {activeTab === "details" && (
                   <TaskFormContent
                     title={title}
                     priority={priority}
@@ -241,36 +257,36 @@ function TaskModalContent({
             )}
 
             {/* Fullscreen Content */}
-             {isFullScreen && (
-               <div className="p-6 space-y-8">
-                 <TaskFormContentFullscreen
-                   title={title}
-                   priority={priority}
-                   startDate={startDate}
-                   dueDate={dueDate}
-                   startTime={startTime}
-                   endTime={endTime}
-                   estimatedDuration={estimatedDuration}
-                   isRecurring={isRecurring}
-                   recurrencePattern={recurrencePattern}
-                   recurrenceInterval={recurrenceInterval}
-                   recurrenceDaysOfWeek={recurrenceDaysOfWeek}
-                   recurrenceEndDate={recurrenceEndDate}
-                   onTitleChange={setTitle}
-                   onPriorityChange={setPriority}
-                   onStartDateChange={setStartDate}
-                   onDueDateChange={setDueDate}
-                   onStartTimeChange={setStartTime}
-                   onEndTimeChange={setEndTime}
-                   onDurationChange={setEstimatedDuration}
-                   onIsRecurringChange={setIsRecurring}
-                   onRecurrencePatternChange={setRecurrencePattern}
-                   onRecurrenceIntervalChange={setRecurrenceInterval}
-                   onRecurrenceDaysOfWeekChange={setRecurrenceDaysOfWeek}
-                   onRecurrenceEndDateChange={setRecurrenceEndDate}
-                 />
-               </div>
-             )}
+            {isFullScreen && (
+              <div className="p-6 space-y-8">
+                <TaskFormContentFullscreen
+                  title={title}
+                  priority={priority}
+                  startDate={startDate}
+                  dueDate={dueDate}
+                  startTime={startTime}
+                  endTime={endTime}
+                  estimatedDuration={estimatedDuration}
+                  isRecurring={isRecurring}
+                  recurrencePattern={recurrencePattern}
+                  recurrenceInterval={recurrenceInterval}
+                  recurrenceDaysOfWeek={recurrenceDaysOfWeek}
+                  recurrenceEndDate={recurrenceEndDate}
+                  onTitleChange={setTitle}
+                  onPriorityChange={setPriority}
+                  onStartDateChange={setStartDate}
+                  onDueDateChange={setDueDate}
+                  onStartTimeChange={setStartTime}
+                  onEndTimeChange={setEndTime}
+                  onDurationChange={setEstimatedDuration}
+                  onIsRecurringChange={setIsRecurring}
+                  onRecurrencePatternChange={setRecurrencePattern}
+                  onRecurrenceIntervalChange={setRecurrenceInterval}
+                  onRecurrenceDaysOfWeekChange={setRecurrenceDaysOfWeek}
+                  onRecurrenceEndDateChange={setRecurrenceEndDate}
+                />
+              </div>
+            )}
           </div>
 
           {isFullScreen && (
