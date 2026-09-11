@@ -189,43 +189,40 @@ export default function TasksView(props: TasksViewProps) {
       {/* Sorting Options */}
       {showSortOptions && (
         <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-muted-foreground">
-              Sort by:
-            </span>
-            <div className="flex gap-1 bg-muted p-1 rounded-xl">
-              {sortOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setSortType(option.value)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer flex items-center gap-1 ${
-                    sortType === option.value
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <span>{option.icon}</span>
-                  <span>{option.label}</span>
-                </button>
-              ))}
-            </div>
+          <div className="relative">
+            <SearchMagnifyingGlassIcon
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 pr-4 py-2 text-sm rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary w-64"
+            />
+          </div>
+          <span className="text-sm font-semibold text-muted-foreground">
+            Sort by:
+          </span>
+          <div className="flex gap-1 bg-muted p-1 rounded-xl">
+            {sortOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setSortType(option.value)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer flex items-center gap-1 ${
+                  sortType === option.value
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>{option.icon}</span>
+                <span>{option.label}</span>
+              </button>
+            ))}
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="relative">
-              <SearchMagnifyingGlassIcon
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              />
-              <input
-                type="text"
-                placeholder="Search tasks..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 text-sm rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary w-64"
-              />
-            </div>
-
             {selectedTaskIds.size > 0 && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
