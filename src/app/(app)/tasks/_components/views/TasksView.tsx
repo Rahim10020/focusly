@@ -64,63 +64,65 @@ export default function TasksView(props: TasksViewProps) {
       : "default";
   });
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(
+    new Set(),
+  );
   const showSortOptions = props.showSortOptions ?? true;
 
-   const filteredTasks = useMemo(() => {
-     if (!searchQuery.trim()) return props.tasks;
-     const query = searchQuery.toLowerCase().trim();
-     return props.tasks.filter((task) => {
-       const searchableText = [
-         task.title,
-         task.notes,
-         ...(task.tags || []),
-         task.priority,
-         task.subDomain,
-       ]
-         .filter(Boolean)
-         .join(" ")
-         .toLowerCase();
-       return searchableText.includes(query);
-     });
-   }, [props.tasks, searchQuery]);
+  const filteredTasks = useMemo(() => {
+    if (!searchQuery.trim()) return props.tasks;
+    const query = searchQuery.toLowerCase().trim();
+    return props.tasks.filter((task) => {
+      const searchableText = [
+        task.title,
+        task.notes,
+        ...(task.tags || []),
+        task.priority,
+        task.subDomain,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return searchableText.includes(query);
+    });
+  }, [props.tasks, searchQuery]);
 
-   // Sorting function
-   const sortTasks = (taskList: Task[]): Task[] => {
-     return [...taskList].sort((a, b) => {
-       switch (sortType) {
-         case "alphabetical":
-           return a.title.localeCompare(b.title);
+  // Sorting function
+  const sortTasks = (taskList: Task[]): Task[] => {
+    return [...taskList].sort((a, b) => {
+      switch (sortType) {
+        case "alphabetical":
+          return a.title.localeCompare(b.title);
 
-         case "createdAt":
-           return a.createdAt - b.createdAt;
+        case "createdAt":
+          return a.createdAt - b.createdAt;
 
-         case "priority":
-           const priorityOrder = { high: 3, medium: 2, low: 1 };
-           const aPriority = priorityOrder[a.priority || "low"];
-           const bPriority = priorityOrder[b.priority || "low"];
-           return bPriority - aPriority; // High priority first
+        case "priority":
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          const aPriority = priorityOrder[a.priority || "low"];
+          const bPriority = priorityOrder[b.priority || "low"];
+          return bPriority - aPriority; // High priority first
 
-         case "default":
-         default:
-           // Sort by dueDate first (null dates go to end), then by priority
-           const aDate = a.dueDate || Infinity;
-           const bDate = b.dueDate || Infinity;
+        case "default":
+        default:
+          // Sort by dueDate first (null dates go to end), then by priority
+          const aDate = a.dueDate || Infinity;
+          const bDate = b.dueDate || Infinity;
 
-           if (aDate !== bDate) {
-             return aDate - bDate;
-           }
+          if (aDate !== bDate) {
+            return aDate - bDate;
+          }
 
-           // Same date or both null, sort by priority
-           const priorityOrderDefault = { high: 3, medium: 2, low: 1 };
-           const aPriorityDefault = priorityOrderDefault[a.priority || "low"];
-           const bPriorityDefault = priorityOrderDefault[b.priority || "low"];
-           return bPriorityDefault - aPriorityDefault; // High priority first
-       }
-     });
-   };
+          // Same date or both null, sort by priority
+          const priorityOrderDefault = { high: 3, medium: 2, low: 1 };
+          const aPriorityDefault = priorityOrderDefault[a.priority || "low"];
+          const bPriorityDefault = priorityOrderDefault[b.priority || "low"];
+          return bPriorityDefault - aPriorityDefault; // High priority first
+      }
+    });
+  };
 
-   const sortedAndFilteredTasks = sortTasks(filteredTasks);
+  const sortedAndFilteredTasks = sortTasks(filteredTasks);
 
   const toggleTaskSelection = (taskId: string) => {
     setSelectedTaskIds((prev) => {
@@ -150,8 +152,8 @@ export default function TasksView(props: TasksViewProps) {
           completed: true,
           completedAt: Date.now(),
           status: "done",
-        })
-      )
+        }),
+      ),
     );
     clearSelection();
   };
