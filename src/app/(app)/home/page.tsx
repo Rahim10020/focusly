@@ -294,7 +294,7 @@ export default function HomePage() {
                 <CardTitle>Tasks</CardTitle>
                 <Button
                   onClick={handleCreateTask}
-                  size="sm"
+                  size="md"
                   className="flex items-center"
                 >
                   <AddPlusIcon />
