@@ -26,7 +26,7 @@ interface QuickAddTaskProps {
  */
 export default function QuickAddTask({
   onAdd,
-  placeholder = "Add a task... Press Enter to save, Esc to cancel",
+  placeholder = "Add a task...",
 }: QuickAddTaskProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [value, setValue] = useState("");
@@ -74,7 +74,7 @@ export default function QuickAddTask({
   }
 
   return (
-    <div className="p-4 rounded-xl border-2 border-primary/30 bg-card shadow-md space-y-3 animate-scale-in">
+    <div className="px-6 py-3 rounded-xl border-2 border-primary/30 bg-card shadow-md space-y-3 animate-scale-in">
       <input
         type="text"
         value={value}
@@ -82,11 +82,11 @@ export default function QuickAddTask({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         autoFocus
-        className="w-full px-0 py-2 bg-transparent text-foreground text-base font-medium placeholder:text-muted-foreground focus:outline-none"
+        className="w-full px-0 py-6 lg:py-2 bg-transparent text-foreground text-xl font-normal placeholder:text-muted-foreground focus:outline-none"
       />
 
       <div className="flex flex-col lg:flex-row items-start justify-between gap-6 lg:gap-3">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground">
           <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">
             Enter
           </kbd>
