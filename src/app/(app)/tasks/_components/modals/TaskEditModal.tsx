@@ -8,14 +8,10 @@
 
 import { useState } from "react";
 import TaskModalHeader from "./TaskModalHeader";
-import TaskViewTabs from "./TaskViewTabs";
 import TaskFormContent from "./TaskFormContent";
 import TaskFormContentFullscreen from "./TaskFormContentFullscreen";
 import TaskModalFooter from "./TaskModalFooter";
-import CategorySelector from "../forms/CategorySelector";
-import SubTaskManager from "../items/SubTaskManager";
-import { CaretDownMdIcon } from "@/components/shared/icons";
-import { Priority, SubDomain, DOMAINS, getDomainFromSubDomain } from "@/types";
+import { Priority, SubDomain } from "@/types";
 
 /**
  * Props for the TaskModal component.
@@ -111,9 +107,6 @@ function TaskModalContent({
   const [subTasks, setSubTasks] = useState<
     { title: string; completed: boolean }[]
   >(() => initialData?.subTasks || []);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
-  const [isSubTasksOpen, setIsSubTasksOpen] = useState(false);
   const [isRecurring, setIsRecurring] = useState(
     () => initialData?.isRecurring || false,
   );
@@ -129,11 +122,6 @@ function TaskModalContent({
   const [recurrenceEndDate, setRecurrenceEndDate] = useState(
     () => initialData?.recurrenceEndDate || "",
   );
-
-  // Tab state for compact mode
-  const [activeTab, setActiveTab] = useState<
-    "details" | "categories" | "subtasks"
-  >("details");
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -184,181 +172,72 @@ function TaskModalContent({
           isFullScreen={isFullScreen}
           onFullScreenToggle={() => setIsFullScreen(!isFullScreen)}
           onClose={onClose}
+          selectedSubDomain={selectedSubDomain}
+          onSubDomainChange={setSelectedSubDomain}
+          subTasks={subTasks}
+          onSubTasksChange={setSubTasks}
         />
-
-        {/* Tab Navigation (Compact Mode Only) */}
-        {!isFullScreen && (
-          <TaskViewTabs
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            selectedSubDomain={selectedSubDomain}
-            subTasksCount={subTasks.length}
-          />
-        )}
 
         {/* Content */}
         <div
-          className={`${isFullScreen ? "grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-8" : ""}`}
+          className={`${isFullScreen ? "p-6 space-y-8" : "p-6"}`}
         >
-          {/* Main Content */}
-          <div className={`${isFullScreen ? "p-6 space-y-8" : ""}`}>
-            {/* Tab Panels for Compact Mode */}
-            {!isFullScreen && (
-              <div className="h-[calc(90vh-200px)] overflow-y-auto">
-                {activeTab === "details" && (
-                  <TaskFormContent
-                    title={title}
-                    priority={priority}
-                    startDate={startDate}
-                    dueDate={dueDate}
-                    startTime={startTime}
-                    endTime={endTime}
-                    estimatedDuration={estimatedDuration}
-                    isRecurring={isRecurring}
-                    recurrencePattern={recurrencePattern}
-                    recurrenceInterval={recurrenceInterval}
-                    recurrenceDaysOfWeek={recurrenceDaysOfWeek}
-                    recurrenceEndDate={recurrenceEndDate}
-                    onTitleChange={setTitle}
-                    onPriorityChange={setPriority}
-                    onStartDateChange={setStartDate}
-                    onDueDateChange={setDueDate}
-                    onStartTimeChange={setStartTime}
-                    onEndTimeChange={setEndTime}
-                    onDurationChange={setEstimatedDuration}
-                    onIsRecurringChange={setIsRecurring}
-                    onRecurrencePatternChange={setRecurrencePattern}
-                    onRecurrenceIntervalChange={setRecurrenceInterval}
-                    onRecurrenceDaysOfWeekChange={setRecurrenceDaysOfWeek}
-                    onRecurrenceEndDateChange={setRecurrenceEndDate}
-                  />
-                )}
-
-                {activeTab === "categories" && (
-                  <div className="p-6 space-y-4">
-                    <CategorySelector
-                      selectedSubDomain={selectedSubDomain}
-                      onChange={setSelectedSubDomain}
-                      searchQuery={searchQuery}
-                      onSearchChange={setSearchQuery}
-                    />
-                  </div>
-                )}
-
-                {activeTab === "subtasks" && (
-                  <div className="p-6 space-y-4 mb-18">
-                    <SubTaskManager
-                      subTasks={subTasks}
-                      onSubTasksChange={setSubTasks}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Fullscreen Content */}
-            {isFullScreen && (
-              <div className="p-6 space-y-8">
-                <TaskFormContentFullscreen
-                  title={title}
-                  priority={priority}
-                  startDate={startDate}
-                  dueDate={dueDate}
-                  startTime={startTime}
-                  endTime={endTime}
-                  estimatedDuration={estimatedDuration}
-                  isRecurring={isRecurring}
-                  recurrencePattern={recurrencePattern}
-                  recurrenceInterval={recurrenceInterval}
-                  recurrenceDaysOfWeek={recurrenceDaysOfWeek}
-                  recurrenceEndDate={recurrenceEndDate}
-                  onTitleChange={setTitle}
-                  onPriorityChange={setPriority}
-                  onStartDateChange={setStartDate}
-                  onDueDateChange={setDueDate}
-                  onStartTimeChange={setStartTime}
-                  onEndTimeChange={setEndTime}
-                  onDurationChange={setEstimatedDuration}
-                  onIsRecurringChange={setIsRecurring}
-                  onRecurrencePatternChange={setRecurrencePattern}
-                  onRecurrenceIntervalChange={setRecurrenceInterval}
-                  onRecurrenceDaysOfWeekChange={setRecurrenceDaysOfWeek}
-                  onRecurrenceEndDateChange={setRecurrenceEndDate}
-                />
-              </div>
-            )}
-          </div>
+          {!isFullScreen && (
+            <TaskFormContent
+              title={title}
+              priority={priority}
+              startDate={startDate}
+              dueDate={dueDate}
+              startTime={startTime}
+              endTime={endTime}
+              estimatedDuration={estimatedDuration}
+              isRecurring={isRecurring}
+              recurrencePattern={recurrencePattern}
+              recurrenceInterval={recurrenceInterval}
+              recurrenceDaysOfWeek={recurrenceDaysOfWeek}
+              recurrenceEndDate={recurrenceEndDate}
+              onTitleChange={setTitle}
+              onPriorityChange={setPriority}
+              onStartDateChange={setStartDate}
+              onDueDateChange={setDueDate}
+              onStartTimeChange={setStartTime}
+              onEndTimeChange={setEndTime}
+              onDurationChange={setEstimatedDuration}
+              onIsRecurringChange={setIsRecurring}
+              onRecurrencePatternChange={setRecurrencePattern}
+              onRecurrenceIntervalChange={setRecurrenceInterval}
+              onRecurrenceDaysOfWeekChange={setRecurrenceDaysOfWeek}
+              onRecurrenceEndDateChange={setRecurrenceEndDate}
+            />
+          )}
 
           {isFullScreen && (
-            <div className="p-6 space-y-6 md:border-l md:border-border md:pl-8 w-full">
-              <div className="space-y-4">
-                <button
-                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                  className="w-full flex items-center justify-between p-2 cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <CaretDownMdIcon
-                      size={32}
-                      className={`text-muted-foreground transition-transform ${isCategoriesOpen ? "rotate-180" : ""}`}
-                    />
-                    <span className="text-lg font-medium text-foreground">
-                      Categories
-                    </span>
-                    {selectedSubDomain && (
-                      <span className="text-sm text-muted-foreground">
-                        {
-                          DOMAINS[getDomainFromSubDomain(selectedSubDomain)]
-                            ?.subDomains[selectedSubDomain].name
-                        }
-                      </span>
-                    )}
-                  </div>
-                </button>
-
-                {isCategoriesOpen && (
-                  <div className="space-y-4 animate-slide-down">
-                    <CategorySelector
-                      selectedSubDomain={selectedSubDomain}
-                      onChange={setSelectedSubDomain}
-                      searchQuery={searchQuery}
-                      onSearchChange={setSearchQuery}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <button
-                  onClick={() => setIsSubTasksOpen(!isSubTasksOpen)}
-                  className="w-full flex items-center justify-between p-2 cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <CaretDownMdIcon
-                      size={32}
-                      className={`text-muted-foreground transition-transform ${isSubTasksOpen ? "rotate-180" : ""}`}
-                    />
-                    <span className="text-lg font-medium text-foreground">
-                      Subtasks
-                    </span>
-                    {subTasks.length > 0 && (
-                      <span className="text-sm text-muted-foreground">
-                        {subTasks.filter((t) => t.completed).length}/
-                        {subTasks.length}
-                      </span>
-                    )}
-                  </div>
-                </button>
-
-                {isSubTasksOpen && (
-                  <div className="space-y-4 animate-slide-down">
-                    <SubTaskManager
-                      subTasks={subTasks}
-                      onSubTasksChange={setSubTasks}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
+            <TaskFormContentFullscreen
+              title={title}
+              priority={priority}
+              startDate={startDate}
+              dueDate={dueDate}
+              startTime={startTime}
+              endTime={endTime}
+              estimatedDuration={estimatedDuration}
+              isRecurring={isRecurring}
+              recurrencePattern={recurrencePattern}
+              recurrenceInterval={recurrenceInterval}
+              recurrenceDaysOfWeek={recurrenceDaysOfWeek}
+              recurrenceEndDate={recurrenceEndDate}
+              onTitleChange={setTitle}
+              onPriorityChange={setPriority}
+              onStartDateChange={setStartDate}
+              onDueDateChange={setDueDate}
+              onStartTimeChange={setStartTime}
+              onEndTimeChange={setEndTime}
+              onDurationChange={setEstimatedDuration}
+              onIsRecurringChange={setIsRecurring}
+              onRecurrencePatternChange={setRecurrencePattern}
+              onRecurrenceIntervalChange={setRecurrenceInterval}
+              onRecurrenceDaysOfWeekChange={setRecurrenceDaysOfWeek}
+              onRecurrenceEndDateChange={setRecurrenceEndDate}
+            />
           )}
         </div>
 

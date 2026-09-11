@@ -256,13 +256,6 @@ export default function TasksView(props: TasksViewProps) {
             )}
           </div>
 
-          <div className="text-sm text-muted-foreground">
-            {
-              props.tasks.filter((t) => !t.completed && t.status !== "done")
-                .length
-            }{" "}
-            active tasks
-          </div>
           {/* View Toggle */}
           <div className="flex items-center gap-2 bg-muted p-1 rounded-xl">
             <button
