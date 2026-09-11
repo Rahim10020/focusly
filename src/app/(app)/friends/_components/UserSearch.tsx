@@ -40,9 +40,10 @@ export function UserSearch({
         <CardTitle>Find your friends</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="max-w-lg">
+        <div className="max-w-lg mt-8">
           <Input
             placeholder="Search users by username..."
+            noBorder={true}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />

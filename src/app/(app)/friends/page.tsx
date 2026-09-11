@@ -281,7 +281,7 @@ export default function FriendsPage() {
   }
 
   return (
-    <div>
+    <div className="max-w-4xl mx-auto">
       <FriendsHeader />
 
       <div className="space-y-6">

@@ -6,7 +6,13 @@ import { ReactNode, type CSSProperties } from "react";
 interface CardProps {
   children: ReactNode;
   className?: string;
-  variant?: "default" | "elevated" | "interactive" | "outline" | "none" | "special";
+  variant?:
+    | "default"
+    | "elevated"
+    | "interactive"
+    | "outline"
+    | "none"
+    | "special";
   style?: CSSProperties;
 }
 
@@ -59,9 +65,7 @@ export function CardHeader({
  */
 export function CardTitle({ children, className = "" }: CardSubComponentProps) {
   return (
-    <h3
-      className={`text-4xl lg:text-3xl font-medium text-foreground ${className}`}
-    >
+    <h3 className={`text-3xl font-medium text-foreground ${className}`}>
       {children}
     </h3>
   );
