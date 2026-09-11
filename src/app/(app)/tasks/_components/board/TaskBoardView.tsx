@@ -46,13 +46,8 @@ export default function TaskBoardView({
   onSelectTask,
   onStatusChange,
   onEditTask,
-  searchQuery: _searchQuery,
   selectedTaskIds,
   onToggleSelection,
-  onSelectAll: _onSelectAll,
-  onClearSelection: _onClearSelection,
-  onBulkComplete: _onBulkComplete,
-  onBulkDelete: _onBulkDelete,
 }: TaskBoardViewProps) {
   const columns: { id: TaskStatus; title: string; color: string }[] = [
     {
