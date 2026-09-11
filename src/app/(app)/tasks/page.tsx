@@ -139,10 +139,10 @@ export default function TasksPage() {
             <CardTitle>Tasks</CardTitle>
             <Button
               onClick={handleCreateTask}
-              size="sm"
-              className="flex items-center text-sm font-medium gap-1"
+              size="md"
+              className="flex items-center"
             >
-              <AddPlusIcon size={20} />
+              <AddPlusIcon />
               New Task
             </Button>
           </div>
