@@ -85,7 +85,7 @@ export default function QuickAddTask({
         className="w-full px-0 py-2 bg-transparent text-foreground text-base font-medium placeholder:text-muted-foreground focus:outline-none"
       />
 
-      <div className="flex flex-col lg:flex-row items-start justify-between gap-3">
+      <div className="flex flex-col lg:flex-row items-start justify-between gap-6 lg:gap-3">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">
             Enter
@@ -97,7 +97,7 @@ export default function QuickAddTask({
           <span>to cancel</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-6 lg:gap-2">
           <Button variant="ghost" size="sm" onClick={handleCancel}>
             Cancel
           </Button>
