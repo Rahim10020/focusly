@@ -42,5 +42,6 @@ configuration VAPID côté serveur.
 
 -- finir avec le responsive de Dashboard, continuer avec la page tasks et finir avec la page
 friends
+-- commencer et finir le responsive de task modal
 -- reduire la taille par defaut des card du style board. c'est trop 
 grand alors qu'il n'ya pas encore de tasks dedans
