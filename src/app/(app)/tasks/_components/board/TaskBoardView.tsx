@@ -100,12 +100,12 @@ export default function TaskBoardView({
           const columnTasks = getTasksByStatus(column.id);
 
           return (
-            <div
-              key={column.id}
-              className="flex flex-col min-h-[500px]"
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, column.id)}
-            >
+             <div
+               key={column.id}
+               className={`flex flex-col ${columnTasks.length === 0 ? "min-h-[200px]" : "min-h-[350px]"}`}
+               onDragOver={handleDragOver}
+               onDrop={(e) => handleDrop(e, column.id)}
+             >
               {/* Column Header */}
               <div
                 className={`flex items-center justify-between p-4 rounded-t-xl border-2 ${column.color}`}
