@@ -84,7 +84,7 @@ export default function AchievementsList({
         )}
 
         {lockedFiltered.length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-3 my-6">
             <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
               To Unlock ({lockedFiltered.length})
             </h3>
