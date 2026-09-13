@@ -16,7 +16,7 @@ interface TaskModalFullscreenProps {
   endTime: string;
   estimatedDuration: string;
   isRecurring: boolean;
-  recurrencePattern: 'daily' | 'weekly' | 'monthly' | 'custom';
+  recurrencePattern: "daily" | "weekly" | "monthly" | "custom";
   recurrenceInterval: string;
   recurrenceDaysOfWeek: number[];
   recurrenceEndDate: string;
@@ -28,13 +28,15 @@ interface TaskModalFullscreenProps {
   onEndTimeChange: (value: string) => void;
   onDurationChange: (value: string) => void;
   onIsRecurringChange: (value: boolean) => void;
-  onRecurrencePatternChange: (value: 'daily' | 'weekly' | 'monthly' | 'custom') => void;
+  onRecurrencePatternChange: (
+    value: "daily" | "weekly" | "monthly" | "custom",
+  ) => void;
   onRecurrenceIntervalChange: (value: string) => void;
   onRecurrenceDaysOfWeekChange: (value: number[]) => void;
   onRecurrenceEndDateChange: (value: string) => void;
 }
 
-const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function TaskModalFullscreen({
   title,
@@ -64,14 +66,16 @@ export default function TaskModalFullscreen({
 }: TaskModalFullscreenProps) {
   const toggleDay = (day: number) => {
     if (recurrenceDaysOfWeek.includes(day)) {
-      onRecurrenceDaysOfWeekChange(recurrenceDaysOfWeek.filter((d) => d !== day));
+      onRecurrenceDaysOfWeekChange(
+        recurrenceDaysOfWeek.filter((d) => d !== day),
+      );
     } else {
       onRecurrenceDaysOfWeekChange([...recurrenceDaysOfWeek, day]);
     }
   };
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-4xl mx-auto py-12 space-y-12">
       <TaskTitleInput value={title} onChange={onTitleChange} autoFocus />
 
       <PrioritySelector value={priority} onChange={onPriorityChange} />
@@ -100,18 +104,27 @@ export default function TaskModalFullscreen({
             onChange={(e) => onIsRecurringChange(e.target.checked)}
             className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
           />
-          <label htmlFor="isRecurringFullscreen" className="text-sm font-medium text-foreground cursor-pointer">
+          <label
+            htmlFor="isRecurringFullscreen"
+            className="text-sm font-medium text-foreground cursor-pointer"
+          >
             Recurring task
           </label>
         </div>
 
         {isRecurring && (
-          <div className="space-y-4 pl-7">
+          <div className="space-y-4 pl-7 max-w-xs">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-foreground">Repeat</label>
+              <label className="text-sm font-medium text-foreground">
+                Repeat
+              </label>
               <select
                 value={recurrencePattern}
-                onChange={(e) => onRecurrencePatternChange(e.target.value as 'daily' | 'weekly' | 'monthly' | 'custom')}
+                onChange={(e) =>
+                  onRecurrencePatternChange(
+                    e.target.value as "daily" | "weekly" | "monthly" | "custom",
+                  )
+                }
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="daily">Daily</option>
@@ -122,7 +135,9 @@ export default function TaskModalFullscreen({
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-foreground">Every</label>
+              <label className="text-sm font-medium text-foreground">
+                Every
+              </label>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -133,14 +148,28 @@ export default function TaskModalFullscreen({
                   className="w-20 rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <span className="text-sm text-muted-foreground">
-                  {recurrencePattern === 'daily' ? (parseInt(recurrenceInterval) === 1 ? 'day' : 'days') : recurrencePattern === 'weekly' ? (parseInt(recurrenceInterval) === 1 ? 'week' : 'weeks') : recurrencePattern === 'monthly' ? (parseInt(recurrenceInterval) === 1 ? 'month' : 'months') : ''}
+                  {recurrencePattern === "daily"
+                    ? parseInt(recurrenceInterval) === 1
+                      ? "day"
+                      : "days"
+                    : recurrencePattern === "weekly"
+                      ? parseInt(recurrenceInterval) === 1
+                        ? "week"
+                        : "weeks"
+                      : recurrencePattern === "monthly"
+                        ? parseInt(recurrenceInterval) === 1
+                          ? "month"
+                          : "months"
+                        : ""}
                 </span>
               </div>
             </div>
 
-            {recurrencePattern === 'custom' && (
+            {recurrencePattern === "custom" && (
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-foreground">Days of week</label>
+                <label className="text-sm font-medium text-foreground">
+                  Days of week
+                </label>
                 <div className="flex gap-2">
                   {DAYS_OF_WEEK.map((day, index) => (
                     <button
@@ -161,7 +190,9 @@ export default function TaskModalFullscreen({
             )}
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-foreground">End date (optional)</label>
+              <label className="text-sm font-medium text-foreground">
+                End date (optional)
+              </label>
               <input
                 type="date"
                 value={recurrenceEndDate}
