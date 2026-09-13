@@ -38,7 +38,9 @@ export default function CategorySelector({
   }, [searchQuery]);
 
   return (
-    <div className={`${compact ? "p-2 space-y-2 max-h-[50vh] overflow-y-auto" : "space-y-8 pb-10"}`}>
+    <div
+      className={`${compact ? "p-2 space-y-4 max-h-[50vh] overflow-y-auto" : "space-y-8 pb-10"}`}
+    >
       <Input
         type="text"
         placeholder="Search categories..."
@@ -49,13 +51,20 @@ export default function CategorySelector({
 
       <div className={`space-y-3 ${compact ? "" : "space-y-4"}`}>
         {filteredDomains.map(([domainKey, domainInfo]) => (
-          <div key={domainKey} className={`space-y-1 ${compact ? "" : "space-y-2"}`}>
+          <div
+            key={domainKey}
+            className={`space-y-1 ${compact ? "" : "space-y-2"}`}
+          >
             <div className="flex items-center gap-2">
-              <div className={`rounded-lg bg-primary/10 flex items-center justify-center ${compact ? "w-6 h-6" : "w-8 h-8 rounded-lg"}`}>
+              <div
+                className={`rounded-lg bg-primary/10 flex items-center justify-center ${compact ? "w-6 h-6" : "w-8 h-8 rounded-lg"}`}
+              >
                 <TableIcon size={compact ? 16 : 20} className="text-primary" />
               </div>
               <div>
-                <div className={`font-semibold text-foreground ${compact ? "text-xs" : "text-sm"}`}>
+                <div
+                  className={`font-semibold text-foreground ${compact ? "text-xs" : "text-sm"}`}
+                >
                   {domainInfo.name}
                 </div>
                 {!compact && (
@@ -65,7 +74,9 @@ export default function CategorySelector({
                 )}
               </div>
             </div>
-            <div className={`grid grid-cols-1 gap-1 ${compact ? "ml-8" : "ml-10 gap-2"}`}>
+            <div
+              className={`grid grid-cols-2 gap-1 ${compact ? "ml-8" : "ml-10 gap-2"}`}
+            >
               {Object.entries(domainInfo.subDomains).map(
                 ([subDomainKey, subDomainInfo]) => (
                   <button
@@ -79,12 +90,10 @@ export default function CategorySelector({
                       )
                     }
                     className={`text-left rounded-lg transition-all cursor-pointer ${
-                      compact
-                        ? "p-2 text-xs"
-                        : "p-3 text-sm"
+                      compact ? "p-2 text-xs" : "p-3 text-sm"
                     } ${
                       selectedSubDomain === subDomainKey
-                        ? "bg-primary text-foreground font-medium"
+                        ? "bg-primary text-white font-medium"
                         : "bg-card hover:bg-accent text-foreground border border-border"
                     }`}
                   >

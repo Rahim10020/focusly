@@ -43,3 +43,6 @@ configuration VAPID côté serveur.
 -- finir avec le responsive de Dashboard, continuer avec la page tasks et finir avec la page
 friends
 -- commencer et finir le responsive de task modal
+
+-- je n'arrive pas a faire la recherche des categories dans categoryselector dans 
+le modal header. c'est quoi le souci et comment le resoudre proprement ?
