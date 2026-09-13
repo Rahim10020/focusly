@@ -188,7 +188,7 @@ export default function TasksView(props: TasksViewProps) {
     <div className="space-y-4">
       {/* Sorting Options */}
       {showSortOptions && (
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center justify-between gap-4 flex-wrap mb-12">
           <div className="relative">
             <SearchMagnifyingGlassIcon
               size={16}
