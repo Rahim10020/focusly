@@ -21,7 +21,10 @@ export default function Popover({
   className = "",
 }: PopoverProps) {
   const triggerRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
+  const [position, setPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
 
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
@@ -44,7 +47,7 @@ export default function Popover({
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       if (triggerRef.current?.contains(target)) return;
-      const popover = document.querySelector('[data-popover]');
+      const popover = document.querySelector("[data-popover]");
       if (popover?.contains(target)) return;
       onOpenChange(false);
     };
@@ -88,7 +91,7 @@ export default function Popover({
         createPortal(
           <div
             data-popover
-            className={`fixed z-[60] w-80 max-h-[60vh] overflow-y-auto rounded-lg border border-border bg-card shadow-lg ${className}`}
+            className={`fixed z-60 w-80 max-h-[60vh] py-8 px-4 overflow-y-auto border border-border bg-card shadow-lg ${className}`}
             style={{ top: position.top, left: position.left }}
           >
             {content}
