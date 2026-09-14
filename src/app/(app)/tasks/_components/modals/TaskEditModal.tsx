@@ -162,7 +162,7 @@ function TaskModalContent({
 
   const contentClasses = isFullScreen
     ? "w-full h-full bg-card border-0 rounded-none shadow-none overflow-y-auto"
-    : "w-full max-w-2xl max-h-[90vh] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden";
+    : "w-full max-w-2xl max-h-[90vh] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col";
 
   return (
     <div className={modalClasses}>
@@ -180,7 +180,7 @@ function TaskModalContent({
 
         {/* Content */}
         <div
-          className={`${isFullScreen ? "p-6 space-y-8" : "p-6"}`}
+          className={`${isFullScreen ? "p-6 space-y-8" : "p-6"} overflow-y-auto flex-1 min-h-0`}
         >
           {!isFullScreen && (
             <TaskFormContent

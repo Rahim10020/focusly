@@ -44,7 +44,5 @@ configuration VAPID côté serveur.
 friends
 -- avancer dans le responsive de task modal
 
--- je n'arrive pas a faire la recherche des categories dans categoryselector dans 
-le modal header. c'est quoi le souci et comment le resoudre proprement ?
 -- quand recurring task est selctionne, ce qui viens en bas (se deroule) n'est 
 plus visible dans le modal et le milieu n'est pas scollable. Comment resoudre ca ?

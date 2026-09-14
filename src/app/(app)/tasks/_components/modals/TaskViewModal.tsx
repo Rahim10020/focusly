@@ -101,7 +101,7 @@ export default function TaskDetailsModal(props: TaskDetailsModalProps) {
     : "fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay backdrop-blur-sm";
   const contentClasses = isFullScreen
     ? "w-full h-full bg-card border-0 rounded-none shadow-none overflow-y-auto"
-    : "w-full max-w-2xl max-h-[90vh] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden";
+    : "w-full max-w-2xl max-h-[90vh] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col";
 
   return (
     <div className={modalClasses}>
@@ -114,7 +114,7 @@ export default function TaskDetailsModal(props: TaskDetailsModalProps) {
         />
 
         <div
-          className={`${isFullScreen ? "p-6 space-y-8" : "p-6 space-y-8"}`}
+          className={`${isFullScreen ? "p-6 space-y-8" : "p-6 space-y-8"} overflow-y-auto flex-1 min-h-0`}
         >
           <TaskFormContent
             title={title}
