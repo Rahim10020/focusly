@@ -32,6 +32,7 @@ export default function TaskModalHeader({
 }: TaskModalHeaderProps) {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isSubTasksOpen, setIsSubTasksOpen] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
 
   const selectedCategoryName = selectedSubDomain
     ? DOMAINS[getDomainFromSubDomain(selectedSubDomain)]?.subDomains[selectedSubDomain]?.name
@@ -68,8 +69,8 @@ export default function TaskModalHeader({
               <CategorySelector
                 selectedSubDomain={selectedSubDomain}
                 onChange={onSubDomainChange}
-                searchQuery=""
-                onSearchChange={() => {}}
+                searchQuery={categorySearch}
+                onSearchChange={setCategorySearch}
                 compact
               />
             }
