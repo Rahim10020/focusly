@@ -176,8 +176,8 @@ export default function ScheduleDuration({
             Period
           </SectionLabel>
 
-          <div className="flex items-end gap-3">
-            <div className="flex-1">
+          <div className="flex flex-col items-stretch gap-3 md:flex-row md:items-end">
+            <div className="w-full md:flex-1">
               <FieldLabel>Start</FieldLabel>
               <Input
                 type="date"
@@ -188,14 +188,14 @@ export default function ScheduleDuration({
               />
             </div>
 
-            <div className="pb-2.5 shrink-0">
+            <div className="hidden shrink-0 pb-2.5 md:block">
               <CaretDownMdIcon
                 size={16}
                 className="text-muted-foreground rotate-90"
               />
             </div>
 
-            <div className="flex-1">
+            <div className="w-full md:flex-1">
               <FieldLabel>End</FieldLabel>
               <Input
                 type="date"
@@ -218,9 +218,9 @@ export default function ScheduleDuration({
             Time Slot
           </SectionLabel>
 
-          <div className="flex items-end gap-3">
+          <div className="flex flex-col items-stretch gap-3 md:flex-row md:items-end">
             {/* Start time */}
-            <div className="flex-1">
+            <div className="w-full md:flex-1">
               <FieldLabel>Start</FieldLabel>
               <Input
                 type="time"
@@ -231,12 +231,12 @@ export default function ScheduleDuration({
             </div>
 
             {/* Duration badge */}
-            <div className="shrink-0 pb-1.5">
+            <div className="w-full pb-1.5 md:w-auto md:shrink-0">
               <span
                 className={`
                   inline-flex items-center justify-center
                   px-3.5 py-1.5 rounded-full text-sm font-medium
-                  border transition-all duration-200 min-w-20
+                  w-full border transition-all duration-200 md:min-w-20 md:w-auto
                   ${
                     showDurationInput
                       ? "bg-primary/10 border-primary/20 text-primary"
@@ -249,7 +249,7 @@ export default function ScheduleDuration({
             </div>
 
             {/* End time */}
-            <div className="flex-1">
+            <div className="w-full md:flex-1">
               <FieldLabel>End</FieldLabel>
               <Input
                 type="time"
@@ -262,7 +262,7 @@ export default function ScheduleDuration({
 
           {/* Editable minutes field — shown only when duration is set */}
           {showDurationInput && (
-            <div className="flex items-center gap-2 mt-3">
+            <div className="flex flex-col items-start gap-2 mt-3 md:flex-row md:items-center">
               <span className="text-xs text-muted-foreground">
                 Duration (min)
               </span>
@@ -272,7 +272,7 @@ export default function ScheduleDuration({
                 onChange={(e) => onDurationChange(e.target.value)}
                 min="0"
                 placeholder="60"
-                className="w-20 bg-muted/40 border-border text-sm"
+                className="w-full bg-muted/40 border-border text-sm md:w-20"
               />
               <span className="text-xs text-muted-foreground">
                 {estimatedDuration &&

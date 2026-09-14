@@ -54,7 +54,7 @@ export default function MobileTaskFormPage({ onClose, onSave }: MobileTaskFormPa
           <ArrowLeftLgIcon size={20} /> <span className="font-semibold">New Task</span>
         </button>
       </div>
-      <TaskModalHeader isEditing={false} isFullScreen={false} onFullScreenToggle={() => {}} showFullScreenToggle={false} onClose={onClose} selectedSubDomain={selectedSubDomain} onSubDomainChange={setSelectedSubDomain} subTasks={subTasks} onSubTasksChange={setSubTasks} />
+      <TaskModalHeader isEditing={false} isFullScreen={false} onFullScreenToggle={() => {}} showFullScreenToggle={false} showCloseButton={false} onClose={onClose} selectedSubDomain={selectedSubDomain} onSubDomainChange={setSelectedSubDomain} subTasks={subTasks} onSubTasksChange={setSubTasks} />
       <div className="flex-1 p-4 overflow-y-auto">
         <TaskFormContent title={title} priority={priority} startDate={startDate} dueDate={dueDate} startTime={startTime} endTime={endTime} estimatedDuration={estimatedDuration} isRecurring={isRecurring} recurrencePattern={recurrencePattern} recurrenceInterval={recurrenceInterval} recurrenceDaysOfWeek={recurrenceDaysOfWeek} recurrenceEndDate={recurrenceEndDate} onTitleChange={setTitle} onPriorityChange={setPriority} onStartDateChange={setStartDate} onDueDateChange={setDueDate} onStartTimeChange={setStartTime} onEndTimeChange={setEndTime} onDurationChange={setEstimatedDuration} onIsRecurringChange={setIsRecurring} onRecurrencePatternChange={setRecurrencePattern} onRecurrenceIntervalChange={setRecurrenceInterval} onRecurrenceDaysOfWeekChange={setRecurrenceDaysOfWeek} onRecurrenceEndDateChange={setRecurrenceEndDate} />
       </div>

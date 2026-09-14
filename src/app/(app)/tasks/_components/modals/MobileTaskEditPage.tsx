@@ -69,7 +69,7 @@ export default function MobileTaskEditPage({ task, onClose, onUpdate }: MobileTa
           <ArrowLeftLgIcon size={20} /> <span className="font-semibold">Edit Task</span>
         </button>
       </div>
-      <TaskModalHeader isEditing isFullScreen={false} onFullScreenToggle={() => {}} showFullScreenToggle={false} onClose={onClose} />
+      <TaskModalHeader isEditing isFullScreen={false} onFullScreenToggle={() => {}} showFullScreenToggle={false} showCloseButton={false} onClose={onClose} />
       <div className="flex-1 p-4 space-y-8 overflow-y-auto">
         <TaskFormContent title={title} priority={priority} startDate={startDate} dueDate={dueDate} startTime={startTime} endTime={endTime} estimatedDuration={estimatedDuration} isRecurring={isRecurring} recurrencePattern={recurrencePattern} recurrenceInterval={recurrenceInterval} recurrenceDaysOfWeek={recurrenceDaysOfWeek} recurrenceEndDate={recurrenceEndDate} onTitleChange={setTitle} onPriorityChange={setPriority} onStartDateChange={setStartDate} onDueDateChange={setDueDate} onStartTimeChange={handleStartTimeChange} onEndTimeChange={handleEndTimeChange} onDurationChange={setEstimatedDuration} onIsRecurringChange={setIsRecurring} onRecurrencePatternChange={setRecurrencePattern} onRecurrenceIntervalChange={setRecurrenceInterval} onRecurrenceDaysOfWeekChange={setRecurrenceDaysOfWeek} onRecurrenceEndDateChange={setRecurrenceEndDate} />
         <TaskMetaInfo createdAt={task.createdAt} completedAt={task.completedAt} pomodoroCount={task.pomodoroCount} />
