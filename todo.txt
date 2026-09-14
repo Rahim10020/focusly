@@ -43,6 +43,3 @@ configuration VAPID côté serveur.
 -- continuer avec la page tasks et finir avec la page
 friends
 -- avancer dans le responsive de task modal
-
--- quand recurring task est selctionne, ce qui viens en bas (se deroule) n'est 
-plus visible dans le modal et le milieu n'est pas scollable. Comment resoudre ca ?
