@@ -13,6 +13,7 @@ interface TaskModalHeaderProps {
   isEditing: boolean;
   isFullScreen: boolean;
   onFullScreenToggle: () => void;
+  showFullScreenToggle?: boolean;
   onClose: () => void;
   selectedSubDomain?: SubDomain;
   onSubDomainChange?: (value: SubDomain | undefined) => void;
@@ -24,6 +25,7 @@ export default function TaskModalHeader({
   isEditing,
   isFullScreen,
   onFullScreenToggle,
+  showFullScreenToggle = true,
   onClose,
   selectedSubDomain,
   onSubDomainChange,
@@ -111,17 +113,19 @@ export default function TaskModalHeader({
           />
         )}
 
-        <button
-          onClick={onFullScreenToggle}
-          className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all cursor-pointer"
-          title={
-            isFullScreen
-              ? "Switch to compact mode"
-              : "Switch to full screen mode"
-          }
-        >
-          {isFullScreen ? <ShrinkIcon size={24} /> : <ExpandIcon size={24} />}
-        </button>
+        {showFullScreenToggle && (
+          <button
+            onClick={onFullScreenToggle}
+            className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all cursor-pointer"
+            title={
+              isFullScreen
+                ? "Switch to compact mode"
+                : "Switch to full screen mode"
+            }
+          >
+            {isFullScreen ? <ShrinkIcon size={24} /> : <ExpandIcon size={24} />}
+          </button>
+        )}
         <button
           onClick={onClose}
           className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all cursor-pointer"

@@ -16,12 +16,15 @@ import TaskEditModal, {
 import { useTasks } from "@/hooks/useTasks";
 import { ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import MobileTaskFormPage from "./_components/MobileTaskFormPage";
 
 export default function CreateTaskPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const { addTask } = useTasks();
   const [isModalOpen] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -78,11 +81,15 @@ export default function CreateTaskPage() {
 
   return (
     <div>
-      <TaskEditModal
-        isOpen={isModalOpen}
-        onClose={handleClose}
-        onSave={handleSave}
-      />
+      {isMobile ? (
+        <MobileTaskFormPage onClose={handleClose} onSave={handleSave} />
+      ) : (
+        <TaskEditModal
+          isOpen={isModalOpen}
+          onClose={handleClose}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }

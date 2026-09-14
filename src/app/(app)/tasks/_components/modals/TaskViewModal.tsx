@@ -20,6 +20,8 @@ import { TaskMetaInfo } from "../items/TaskMetaInfo";
 import SubTaskManager from "../items/SubTaskManager";
 import { DateTimeService } from "@/lib/domain/services/DateTimeService";
 import TaskViewFooter from "./details/TaskViewFooter";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import MobileTaskEditPage from "./MobileTaskEditPage";
 
 interface TaskDetailsModalProps {
   task: Task;
@@ -32,6 +34,7 @@ interface TaskDetailsModalProps {
 
 export default function TaskDetailsModal(props: TaskDetailsModalProps) {
   const { task, onClose, onUpdate } = props;
+  const isMobile = useIsMobile();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [title, setTitle] = useState(task.title || "");
   const [notes] = useState(task.notes || "");
@@ -95,6 +98,10 @@ export default function TaskDetailsModal(props: TaskDetailsModalProps) {
   };
 
   if (!task) return null;
+
+  if (isMobile) {
+    return <MobileTaskEditPage {...props} />;
+  }
 
   const modalClasses = isFullScreen
     ? "fixed inset-0 z-50 bg-background"
