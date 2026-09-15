@@ -234,14 +234,14 @@ export default function LeaderboardPage() {
     <div>
       <LeaderboardHeader />
 
-      <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-12">
         {/* Left Column: Time Filter (desktop only) */}
         <div className="md:sticky md:top-24 md:self-start">
-          <div className="flex md:flex-col gap-2 flex-wrap md:flex-nowrap">
+          <div className="flex md:flex-col gap-2 md:gap-4 flex-wrap md:flex-nowrap">
             <Button
               variant={timeFilter === "all" ? "primary" : "outline"}
               onClick={() => setTimeFilter("all")}
-              size="sm"
+              size="md"
               disabled={loading}
             >
               All Time
@@ -249,7 +249,7 @@ export default function LeaderboardPage() {
             <Button
               variant={timeFilter === "month" ? "primary" : "outline"}
               onClick={() => setTimeFilter("month")}
-              size="sm"
+              size="md"
               disabled={loading}
             >
               This Month
@@ -257,7 +257,7 @@ export default function LeaderboardPage() {
             <Button
               variant={timeFilter === "week" ? "primary" : "outline"}
               onClick={() => setTimeFilter("week")}
-              size="sm"
+              size="md"
               disabled={loading}
             >
               This Week
@@ -291,7 +291,8 @@ export default function LeaderboardPage() {
                       Keep going!
                     </p>
                     <p className="text-base sm:text-lg font-semibold">
-                      {leaderboard[currentUserRank]?.stats?.completed_tasks || 0}{" "}
+                      {leaderboard[currentUserRank]?.stats?.completed_tasks ||
+                        0}{" "}
                       tasks completed
                     </p>
                   </div>
