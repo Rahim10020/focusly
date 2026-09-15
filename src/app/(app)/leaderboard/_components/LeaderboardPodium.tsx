@@ -78,85 +78,108 @@ export function LeaderboardPodium({
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
       {/* First Place - naturally first on mobile */}
       <div className="flex flex-col items-center col-span-1">
-        <Link href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[0].id)} aria-label={`View ${leaderboard[0].username || "Player"}'s profile`} className="w-full">
-        <Card variant="elevated" className="w-full overflow-hidden sm:transform sm:scale-110 transition-transform hover:scale-[1.02]">
-          <div className={`h-2 bg-linear-to-r ${getRankColor(0)}`}></div>
-          <CardContent className="pt-6 pb-4 text-center">
-            <div className="text-4xl sm:text-5xl mb-2">{getRankIcon(0)}</div>
-            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-linear-to-r from-yellow-400 to-yellow-600 p-1">
-              <Image
-                src={leaderboard[0].avatar_url || "/default-avatar.svg"}
-                alt={leaderboard[0].username || "Player"}
-                width={80}
-                height={80}
-                className="w-full h-full rounded-full object-cover"
-              />
-            </div>
-            <p className="font-bold mb-1 text-sm sm:text-base">
-              {leaderboard[0].username || "Player"}
-            </p>
-            <p className="text-2xl sm:text-3xl font-bold text-primary mb-1">
-              {getDisplayValue(leaderboard[0])}
-            </p>
-            <p className="text-xs sm:text-sm text-muted-foreground">{getLabel()}</p>
-          </CardContent>
-        </Card>
+        <Link
+          href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[0].id)}
+          aria-label={`View ${leaderboard[0].username || "Player"}'s profile`}
+          className="w-full"
+        >
+          <Card
+            variant="elevated"
+            className="w-full overflow-hidden sm:transform sm:scale-110 transition-transform hover:scale-[1.02]"
+          >
+            <div className={`h-2 bg-linear-to-r ${getRankColor(0)}`}></div>
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="text-4xl sm:text-5xl mb-2">{getRankIcon(0)}</div>
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-linear-to-r from-yellow-400 to-yellow-600 p-1">
+                <Image
+                  src={leaderboard[0].avatar_url || "/default-avatar.svg"}
+                  alt={leaderboard[0].username || "Player"}
+                  width={80}
+                  height={80}
+                  className="w-full h-full rounded-full object-cover"
+                />
+              </div>
+              <p className="font-bold mb-1 text-sm sm:text-base">
+                {leaderboard[0].username || "Player"}
+              </p>
+              <p className="text-2xl sm:text-3xl font-bold text-primary mb-1">
+                {getDisplayValue(leaderboard[0])}
+              </p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {getLabel()}
+              </p>
+            </CardContent>
+          </Card>
         </Link>
       </div>
 
       {/* Second Place - second on mobile, left on desktop */}
       <div className="flex flex-col items-center md:order-1 md:mt-8 col-span-1">
-        <Link href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[1].id)} aria-label={`View ${leaderboard[1].username || "Player"}'s profile`} className="w-full">
-        <Card variant="elevated" className="w-full overflow-hidden transition-transform hover:scale-[1.02]">
-          <div className={`h-2 bg-linear-to-r ${getRankColor(1)}`}></div>
-          <CardContent className="pt-6 pb-4 text-center">
-            <div className="text-3xl sm:text-4xl mb-2">{getRankIcon(1)}</div>
-            <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 rounded-full bg-linear-to-r from-gray-300 to-gray-500 p-1">
-              <Image
-                src={leaderboard[1].avatar_url || "/default-avatar.svg"}
-                alt={leaderboard[1].username || "Player"}
-                width={64}
-                height={64}
-                className="w-full h-full rounded-full object-cover"
-              />
-            </div>
-            <p className="font-bold text-sm mb-1">
-              {leaderboard[1].username || "Player"}
-            </p>
-            <p className="text-xl sm:text-2xl font-bold text-primary mb-1">
-              {getDisplayValue(leaderboard[1])}
-            </p>
-            <p className="text-xs text-muted-foreground">{getLabel()}</p>
-          </CardContent>
-        </Card>
+        <Link
+          href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[1].id)}
+          aria-label={`View ${leaderboard[1].username || "Player"}'s profile`}
+          className="w-full"
+        >
+          <Card
+            variant="elevated"
+            className="w-full overflow-hidden transition-transform hover:scale-[1.02]"
+          >
+            <div className={`h-2 bg-linear-to-r ${getRankColor(1)}`}></div>
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="text-3xl sm:text-4xl mb-2">{getRankIcon(1)}</div>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 rounded-full bg-linear-to-r from-gray-300 to-gray-500 p-1">
+                <Image
+                  src={leaderboard[1].avatar_url || "/default-avatar.svg"}
+                  alt={leaderboard[1].username || "Player"}
+                  width={64}
+                  height={64}
+                  className="w-full h-full rounded-full object-cover"
+                />
+              </div>
+              <p className="font-bold text-sm mb-1">
+                {leaderboard[1].username || "Player"}
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-primary mb-1">
+                {getDisplayValue(leaderboard[1])}
+              </p>
+              <p className="text-xs text-muted-foreground">{getLabel()}</p>
+            </CardContent>
+          </Card>
         </Link>
       </div>
 
       {/* Third Place - third on mobile, right on desktop */}
       <div className="flex flex-col items-center md:order-2 md:mt-12 col-span-1">
-        <Link href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[2].id)} aria-label={`View ${leaderboard[2].username || "Player"}'s profile`} className="w-full">
-        <Card variant="elevated" className="w-full overflow-hidden transition-transform hover:scale-[1.02]">
-          <div className={`h-2 bg-linear-to-r ${getRankColor(2)}`}></div>
-          <CardContent className="pt-6 pb-4 text-center">
-            <div className="text-3xl sm:text-4xl mb-2">{getRankIcon(2)}</div>
-            <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 rounded-full bg-linear-to-r from-amber-600 to-amber-800 p-1">
-              <Image
-                src={leaderboard[2].avatar_url || "/default-avatar.svg"}
-                alt={leaderboard[2].username || "Player"}
-                width={64}
-                height={64}
-                className="w-full h-full rounded-full object-cover"
-              />
-            </div>
-            <p className="font-bold text-sm mb-1">
-              {leaderboard[2].username || "Player"}
-            </p>
-            <p className="text-xl sm:text-2xl font-bold text-primary mb-1">
-              {getDisplayValue(leaderboard[2])}
-            </p>
-            <p className="text-xs text-muted-foreground">{getLabel()}</p>
-          </CardContent>
-        </Card>
+        <Link
+          href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[2].id)}
+          aria-label={`View ${leaderboard[2].username || "Player"}'s profile`}
+          className="w-full"
+        >
+          <Card
+            variant="elevated"
+            className="w-full overflow-hidden transition-transform hover:scale-[1.02]"
+          >
+            <div className={`h-2 bg-linear-to-r ${getRankColor(2)}`}></div>
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="text-3xl sm:text-4xl mb-2">{getRankIcon(2)}</div>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 rounded-full bg-linear-to-r from-amber-600 to-amber-800 p-1">
+                <Image
+                  src={leaderboard[2].avatar_url || "/default-avatar.svg"}
+                  alt={leaderboard[2].username || "Player"}
+                  width={64}
+                  height={64}
+                  className="w-full h-full rounded-full object-cover"
+                />
+              </div>
+              <p className="font-bold text-sm mb-1">
+                {leaderboard[2].username || "Player"}
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-primary mb-1">
+                {getDisplayValue(leaderboard[2])}
+              </p>
+              <p className="text-xs text-muted-foreground">{getLabel()}</p>
+            </CardContent>
+          </Card>
         </Link>
       </div>
     </div>
