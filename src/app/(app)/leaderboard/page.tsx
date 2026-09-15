@@ -127,6 +127,8 @@ export default function LeaderboardPage() {
   const currentUserRank = leaderboard.findIndex(
     (user) => user.id === session?.user?.id,
   );
+  const currentPageRankOffset =
+    (currentPage - 1) * (pagination?.limit || LEADERBOARD_DEFAULTS.PAGE_SIZE);
 
   if (status === "loading" || loading) {
     return (
@@ -197,7 +199,7 @@ export default function LeaderboardPage() {
                 <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="text-3xl sm:text-4xl font-bold text-primary">
-                      #{currentUserRank + 1}
+                      #{currentPageRankOffset + currentUserRank + 1}
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">
@@ -258,14 +260,22 @@ export default function LeaderboardPage() {
           </div>
 
           <LeaderboardPodium
-            leaderboard={sortedLeaderboard}
+            leaderboard={currentPage === 1 ? sortedLeaderboard : []}
             selectedTab={selectedTab}
           />
 
           <LeaderboardList
-            leaderboard={sortedLeaderboard}
+            leaderboard={
+              currentPage === 1 ? sortedLeaderboard.slice(3) : sortedLeaderboard
+            }
             selectedTab={selectedTab}
             currentUserId={session?.user?.id}
+            rankOffset={
+              currentPage === 1
+                ? 3
+                : (currentPage - 1) *
+                  (pagination?.limit || LEADERBOARD_DEFAULTS.PAGE_SIZE)
+            }
           />
 
           <LeaderboardPagination

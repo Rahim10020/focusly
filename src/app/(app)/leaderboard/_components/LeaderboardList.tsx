@@ -16,12 +16,14 @@ interface LeaderboardListProps {
   leaderboard: LeaderboardUser[];
   selectedTab: "tasks" | "time" | "streak";
   currentUserId?: string;
+  rankOffset?: number;
 }
 
 export function LeaderboardList({
   leaderboard,
   selectedTab,
   currentUserId,
+  rankOffset = 0,
 }: LeaderboardListProps) {
   const getRankIcon = (index: number) => {
     switch (index) {
@@ -92,13 +94,13 @@ export function LeaderboardList({
             >
               <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                 <div className="w-10 sm:w-12 text-center shrink-0">
-                  {getRankIcon(index) ? (
+                  {getRankIcon(index + rankOffset) ? (
                     <span className="text-2xl sm:text-3xl">
-                      {getRankIcon(index)}
+                      {getRankIcon(index + rankOffset)}
                     </span>
                   ) : (
                     <span className="text-lg sm:text-xl font-bold text-muted-foreground">
-                      #{index + 1}
+                      #{index + rankOffset + 1}
                     </span>
                   )}
                 </div>
