@@ -234,131 +234,138 @@ export default function LeaderboardPage() {
     <div>
       <LeaderboardHeader />
 
-      {/* Your Rank Card */}
-      {currentUserRank >= 0 && (
-        <Card variant="default" className="relative mb-8 overflow-hidden">
-          <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-primary/10 to-transparent opacity-50"></div>
-          <CardContent className="relative py-6">
-            <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="text-3xl sm:text-4xl font-bold text-primary">
-                  #{currentUserRank + 1}
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Your Rank
-                  </p>
-                  <p className="text-lg sm:text-xl font-semibold">
-                    {session?.user?.name || "You"}
-                  </p>
-                </div>
-              </div>
-              <div className="text-center sm:text-right">
-                <p className="text-sm text-muted-foreground mb-1">
-                  Keep going!
-                </p>
-                <p className="text-base sm:text-lg font-semibold">
-                  {leaderboard[currentUserRank]?.stats?.completed_tasks || 0}{" "}
-                  tasks completed
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Time Filter */}
-      <div className="flex gap-2 mb-4 flex-wrap">
-        <Button
-          variant={timeFilter === "all" ? "primary" : "outline"}
-          onClick={() => setTimeFilter("all")}
-          size="sm"
-          disabled={loading}
-        >
-          All Time
-        </Button>
-        <Button
-          variant={timeFilter === "month" ? "primary" : "outline"}
-          onClick={() => setTimeFilter("month")}
-          size="sm"
-          disabled={loading}
-        >
-          This Month
-        </Button>
-        <Button
-          variant={timeFilter === "week" ? "primary" : "outline"}
-          onClick={() => setTimeFilter("week")}
-          size="sm"
-          disabled={loading}
-        >
-          This Week
-        </Button>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-2 mb-6 bg-muted p-1 rounded-2xl max-w-md mx-auto">
-        <button
-          onClick={() => setSelectedTab("tasks")}
-          className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
-            selectedTab === "tasks"
-              ? "bg-primary text-white shadow-lg"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Tasks
-        </button>
-        <button
-          onClick={() => setSelectedTab("time")}
-          className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
-            selectedTab === "time"
-              ? "bg-primary text-white shadow-lg"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Focus Time
-        </button>
-        <button
-          onClick={() => setSelectedTab("streak")}
-          className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
-            selectedTab === "streak"
-              ? "bg-primary text-white shadow-lg"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Streak
-        </button>
-      </div>
-
-      <LeaderboardPodium
-        leaderboard={sortedLeaderboard}
-        selectedTab={selectedTab}
-        formatTime={formatTime}
-      />
-
-      <LeaderboardList
-        leaderboard={sortedLeaderboard}
-        selectedTab={selectedTab}
-        currentUserId={session?.user?.id}
-        formatTime={formatTime}
-        onSendFriendRequest={handleSendFriendRequest}
-        friendRequestStatuses={friendRequestStatuses}
-      />
-
-      <LeaderboardPagination
-        currentPage={currentPage}
-        totalPages={pagination?.totalPages || 1}
-        loading={loading}
-        onPageChange={setCurrentPage}
-      />
-
-      {/* Pagination Info */}
-      {pagination && (
-        <div className="text-center text-sm text-muted-foreground mt-4">
-          Showing {(currentPage - 1) * pagination.limit + 1} to{" "}
-          {Math.min(currentPage * pagination.limit, pagination.total)} of{" "}
-          {pagination.total} users
+      <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-8">
+        {/* Left Column: Time Filter (desktop only) */}
+        <div className="md:sticky md:top-24 md:self-start">
+          <div className="flex md:flex-col gap-2 flex-wrap md:flex-nowrap">
+            <Button
+              variant={timeFilter === "all" ? "primary" : "outline"}
+              onClick={() => setTimeFilter("all")}
+              size="sm"
+              disabled={loading}
+            >
+              All Time
+            </Button>
+            <Button
+              variant={timeFilter === "month" ? "primary" : "outline"}
+              onClick={() => setTimeFilter("month")}
+              size="sm"
+              disabled={loading}
+            >
+              This Month
+            </Button>
+            <Button
+              variant={timeFilter === "week" ? "primary" : "outline"}
+              onClick={() => setTimeFilter("week")}
+              size="sm"
+              disabled={loading}
+            >
+              This Week
+            </Button>
+          </div>
         </div>
-      )}
+
+        {/* Right Column: Main Content */}
+        <div className="space-y-6">
+          {/* Your Rank Card */}
+          {currentUserRank >= 0 && (
+            <Card variant="default" className="relative overflow-hidden">
+              <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-primary/10 to-transparent opacity-50"></div>
+              <CardContent className="relative py-6">
+                <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="text-3xl sm:text-4xl font-bold text-primary">
+                      #{currentUserRank + 1}
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Your Rank
+                      </p>
+                      <p className="text-lg sm:text-xl font-semibold">
+                        {session?.user?.name || "You"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-center sm:text-right">
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Keep going!
+                    </p>
+                    <p className="text-base sm:text-lg font-semibold">
+                      {leaderboard[currentUserRank]?.stats?.completed_tasks || 0}{" "}
+                      tasks completed
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Tabs */}
+          <div className="flex gap-2 bg-muted p-1 rounded-2xl">
+            <button
+              onClick={() => setSelectedTab("tasks")}
+              className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
+                selectedTab === "tasks"
+                  ? "bg-primary text-white shadow-lg"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Tasks
+            </button>
+            <button
+              onClick={() => setSelectedTab("time")}
+              className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
+                selectedTab === "time"
+                  ? "bg-primary text-white shadow-lg"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Focus Time
+            </button>
+            <button
+              onClick={() => setSelectedTab("streak")}
+              className={`flex-1 py-2 px-4 cursor-pointer rounded-2xl transition-all font-medium ${
+                selectedTab === "streak"
+                  ? "bg-primary text-white shadow-lg"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Streak
+            </button>
+          </div>
+
+          <LeaderboardPodium
+            leaderboard={sortedLeaderboard}
+            selectedTab={selectedTab}
+            formatTime={formatTime}
+          />
+
+          <LeaderboardList
+            leaderboard={sortedLeaderboard}
+            selectedTab={selectedTab}
+            currentUserId={session?.user?.id}
+            formatTime={formatTime}
+            onSendFriendRequest={handleSendFriendRequest}
+            friendRequestStatuses={friendRequestStatuses}
+          />
+
+          <LeaderboardPagination
+            currentPage={currentPage}
+            totalPages={pagination?.totalPages || 1}
+            loading={loading}
+            onPageChange={setCurrentPage}
+          />
+
+          {/* Pagination Info */}
+          {pagination && (
+            <div className="text-center text-sm text-muted-foreground">
+              Showing {(currentPage - 1) * pagination.limit + 1} to{" "}
+              {Math.min(currentPage * pagination.limit, pagination.total)} of{" "}
+              {pagination.total} users
+            </div>
+          )}
+        </div>
+      </div>
 
       <style>{`
         @keyframes fadeInUp {
