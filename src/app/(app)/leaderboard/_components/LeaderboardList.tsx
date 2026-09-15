@@ -87,7 +87,7 @@ export function LeaderboardList({
           {leaderboard.map((user, index) => (
             <div
               key={user.id}
-              className={`flex items-center justify-between p-4 rounded-2xl transition-all cursor-pointer ${
+              className={`flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 rounded-2xl transition-all cursor-pointer gap-3 sm:gap-0 ${
                 user.id === currentUserId
                   ? "bg-primary/10"
                   : "hover:bg-muted/50 hover:scale-[1.02]"
@@ -97,17 +97,17 @@ export function LeaderboardList({
                 animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`,
               }}
             >
-              <div className="flex items-center gap-4 flex-1">
-                <div className="w-12 text-center">
+              <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                <div className="w-10 sm:w-12 text-center shrink-0">
                   {getRankIcon(index) ? (
-                    <span className="text-3xl">{getRankIcon(index)}</span>
+                    <span className="text-2xl sm:text-3xl">{getRankIcon(index)}</span>
                   ) : (
-                    <span className="text-xl font-bold text-muted-foreground">
+                    <span className="text-lg sm:text-xl font-bold text-muted-foreground">
                       #{index + 1}
                     </span>
                   )}
                 </div>
-                <div className="w-12 h-12 rounded-full bg-primary/10 overflow-hidden shrink-0">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 overflow-hidden shrink-0">
                   {user.avatar_url ? (
                     <Image
                       src={user.avatar_url}
@@ -117,38 +117,38 @@ export function LeaderboardList({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-lg font-semibold">
+                    <div className="w-full h-full flex items-center justify-center text-sm sm:text-lg font-semibold">
                       {(user.username || "A").charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold truncate">
+                  <p className="font-semibold truncate text-sm sm:text-base">
                     {user.username || "Player"}
                     {user.id === currentUserId && (
-                      <span className="ml-2 text-xs bg-primary text-white px-2 py-0.5 rounded-full">
+                      <span className="ml-1 sm:ml-2 text-xs bg-primary text-white px-1.5 sm:px-2 py-0.5 rounded-full">
                         You
                       </span>
                     )}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {user.stats?.total_sessions || 0} sessions
                   </p>
                   {user.id !== currentUserId &&
                     onSendFriendRequest &&
                     friendRequestStatuses && (
-                      <div className="mt-1">
+                      <div className="mt-1 sm:hidden">
                         {friendRequestStatuses.get(user.id) === "friends" ? (
-                          <Button size="sm" disabled variant="secondary">
+                          <Button size="sm" disabled variant="secondary" className="text-xs">
                             Friends
                           </Button>
                         ) : friendRequestStatuses.get(user.id) === "sent" ? (
-                          <Button size="sm" disabled>
-                            Friend Request Sent
+                          <Button size="sm" disabled className="text-xs">
+                            Sent
                           </Button>
                         ) : friendRequestStatuses.get(user.id) === "pending" ? (
-                          <Button size="sm" disabled>
-                            Request Pending
+                          <Button size="sm" disabled className="text-xs">
+                            Pending
                           </Button>
                         ) : (
                           <Button
@@ -157,21 +157,51 @@ export function LeaderboardList({
                               e.stopPropagation();
                               onSendFriendRequest(user.id);
                             }}
+                            className="text-xs"
                           >
-                            Send Friend Request
+                            Add Friend
                           </Button>
                         )}
                       </div>
                     )}
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-xl font-bold">{getDisplayValue(user)}</p>
+              <div className="flex items-center justify-between sm:block text-right">
+                <p className="text-lg sm:text-xl font-bold">{getDisplayValue(user)}</p>
                 <p className="text-xs text-muted-foreground">
                   {selectedTab === "tasks" && "tasks completed"}
                   {selectedTab === "time" && "total focus"}
                   {selectedTab === "streak" && "day streak"}
                 </p>
+                {user.id !== currentUserId &&
+                  onSendFriendRequest &&
+                  friendRequestStatuses && (
+                    <div className="hidden sm:block mt-1">
+                      {friendRequestStatuses.get(user.id) === "friends" ? (
+                        <Button size="sm" disabled variant="secondary">
+                          Friends
+                        </Button>
+                      ) : friendRequestStatuses.get(user.id) === "sent" ? (
+                        <Button size="sm" disabled>
+                          Friend Request Sent
+                        </Button>
+                      ) : friendRequestStatuses.get(user.id) === "pending" ? (
+                        <Button size="sm" disabled>
+                          Request Pending
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSendFriendRequest(user.id);
+                          }}
+                        >
+                          Send Friend Request
+                        </Button>
+                      )}
+                    </div>
+                  )}
               </div>
             </div>
           ))}

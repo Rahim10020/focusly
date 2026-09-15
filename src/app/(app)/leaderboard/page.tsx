@@ -239,25 +239,25 @@ export default function LeaderboardPage() {
         <Card variant="default" className="relative mb-8 overflow-hidden">
           <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-primary/10 to-transparent opacity-50"></div>
           <CardContent className="relative py-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="text-3xl font-bold text-primary">
+                <div className="text-3xl sm:text-4xl font-bold text-primary">
                   #{currentUserRank + 1}
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">
                     Your Rank
                   </p>
-                  <p className="text-xl font-semibold">
+                  <p className="text-lg sm:text-xl font-semibold">
                     {session?.user?.name || "You"}
                   </p>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-center sm:text-right">
                 <p className="text-sm text-muted-foreground mb-1">
                   Keep going!
                 </p>
-                <p className="text-lg font-semibold">
+                <p className="text-base sm:text-lg font-semibold">
                   {leaderboard[currentUserRank]?.stats?.completed_tasks || 0}{" "}
                   tasks completed
                 </p>
