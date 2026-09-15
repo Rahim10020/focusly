@@ -46,7 +46,7 @@ export default function CategorySelector({
         placeholder="Search categories..."
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
-        className={compact ? "h-8 text-xs" : ""}
+        className={compact ? "h-8 text-xs max-w-md" : ""}
       />
 
       <div className={`space-y-3 ${compact ? "" : "space-y-4"}`}>
@@ -75,7 +75,7 @@ export default function CategorySelector({
               </div>
             </div>
             <div
-              className={`grid grid-cols-2 gap-1 ${compact ? "ml-8" : "ml-10 gap-2"}`}
+              className={`grid grid-cols-3 gap-1 ${compact ? "ml-8" : "ml-10 gap-2"}`}
             >
               {Object.entries(domainInfo.subDomains).map(
                 ([subDomainKey, subDomainInfo]) => (

@@ -80,6 +80,7 @@ export function mapTaskToDbInsert(
     end_time: task.endTime,
     estimated_duration: task.estimatedDuration,
     notes: task.notes,
+    subtasks: task.subTasks || [],
     order: task.order,
     sub_domain: task.subDomain,
     version: task.version,

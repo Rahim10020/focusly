@@ -136,14 +136,15 @@ export function useTasks(): UseTasksReturn {
    */
   const addTask = useCallback(
     async (input: CreateTaskInput) => {
+      const createdAt = Date.now();
       const maxOrder =
         tasks.length > 0 ? Math.max(...tasks.map((t) => t.order || 0)) : 0;
 
       const newTask: Task = {
-        id: Date.now().toString(),
+        id: createdAt.toString(),
         title: input.title,
         completed: false,
-        createdAt: Date.now(),
+        createdAt,
         pomodoroCount: 0,
         priority: input.priority,
         tags: input.tags || [],
@@ -153,7 +154,12 @@ export function useTasks(): UseTasksReturn {
         endTime: input.scheduling?.endTime,
         estimatedDuration: input.scheduling?.estimatedDuration,
         notes: input.notes,
-        subTasks: [],
+        subTasks: (input.subTasks || []).map((subTask, index) => ({
+          id: `${createdAt}-${index}`,
+          title: subTask.title,
+          completed: subTask.completed,
+          createdAt,
+        })),
         order: maxOrder + 1,
         subDomain: input.subDomain,
         isRecurring: input.isRecurring,

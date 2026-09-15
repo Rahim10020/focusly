@@ -41,6 +41,7 @@ export default function CreateTaskPage() {
         dueDate: taskData.dueDate,
         notes: taskData.notes,
         subDomain: taskData.subDomain,
+        subTasks: taskData.subTasks,
         scheduling: {
           startDate: taskData.startDate,
           startTime: taskData.startTime,
@@ -48,13 +49,6 @@ export default function CreateTaskPage() {
           estimatedDuration: taskData.estimatedDuration,
         },
       });
-
-      // Handle subtasks if any
-      if (taskData.subTasks && taskData.subTasks.length > 0) {
-        // Note: This would need to be handled after the task is created
-        // For now, we'll skip subtasks in the initial creation
-        // They can be added later via the task details modal
-      }
 
       router.push(ROUTES.TASKS);
     } catch (error) {

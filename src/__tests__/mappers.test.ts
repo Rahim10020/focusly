@@ -54,7 +54,7 @@ describe("mappers", () => {
       endTime: "10:00",
       estimatedDuration: 60,
       notes: "notes",
-      subTasks: [],
+      subTasks: [{ id: "subtask-1", title: "First step", completed: false, createdAt: new Date("2026-01-01T00:00:00Z").getTime() }],
       order: 1,
       subDomain: "professional",
       version: 1,
@@ -64,6 +64,7 @@ describe("mappers", () => {
     expect(db.user_id).toBe("user-1");
     expect(db.title).toBe("Test");
     expect(db.due_date).toBe("2026-01-02T00:00:00.000Z");
+    expect(db.subtasks).toEqual(task.subTasks);
   });
 
   it("should map app task updates to db updates", () => {

@@ -23,6 +23,9 @@ export interface CreateTaskInput {
     /** Sub-domain category */
     subDomain?: SubDomain;
 
+    /** Subtasks to create with the task. */
+    subTasks?: { title: string; completed: boolean }[];
+
     /** Scheduling information */
     scheduling?: {
         /** Start date timestamp */

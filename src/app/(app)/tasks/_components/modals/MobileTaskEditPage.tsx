@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeftLgIcon, CaretDownMdIcon } from "@/components/shared/icons";
-import { DOMAINS, getDomainFromSubDomain, Priority, SubDomain, Task } from "@/types";
+import { ArrowLeftLgIcon } from "@/components/shared/icons";
+import { Priority, SubDomain, Task } from "@/types";
 import { DateTimeService } from "@/lib/domain/services/DateTimeService";
 import TaskModalHeader from "./TaskModalHeader";
 import TaskFormContent from "./TaskFormContent";
 import TaskViewFooter from "./details/TaskViewFooter";
-import CategorySelector from "../forms/CategorySelector";
 import { TaskMetaInfo } from "../items/TaskMetaInfo";
-import SubTaskManager from "../items/SubTaskManager";
+import MobileTaskOptions from "./MobileTaskOptions";
 
 interface MobileTaskEditPageProps {
   task: Task;
@@ -20,7 +19,7 @@ interface MobileTaskEditPageProps {
   onDeleteSubTask: (subTaskId: string) => void;
 }
 
-export default function MobileTaskEditPage({ task, onClose, onUpdate }: MobileTaskEditPageProps) {
+export default function MobileTaskEditPage({ task, onClose, onUpdate, onAddSubTask, onToggleSubTask, onDeleteSubTask }: MobileTaskEditPageProps) {
   const [title, setTitle] = useState(task.title || "");
   const [priority, setPriority] = useState<Priority | undefined>(task.priority);
   const [dueDate, setDueDate] = useState(task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "");
@@ -29,9 +28,7 @@ export default function MobileTaskEditPage({ task, onClose, onUpdate }: MobileTa
   const [endTime, setEndTime] = useState(task.endTime || "");
   const [estimatedDuration, setEstimatedDuration] = useState(task.estimatedDuration?.toString() || "");
   const [selectedSubDomain, setSelectedSubDomain] = useState<SubDomain | undefined>(task.subDomain);
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
-  const [isSubTasksOpen, setIsSubTasksOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [subTasks, setSubTasks] = useState(task.subTasks || []);
   const [isRecurring, setIsRecurring] = useState(task.isRecurring || false);
   const [recurrencePattern, setRecurrencePattern] = useState<"daily" | "weekly" | "monthly" | "custom">(task.recurrencePattern || "daily");
   const [recurrenceInterval, setRecurrenceInterval] = useState((task.recurrenceInterval || 1).toString());
@@ -62,6 +59,34 @@ export default function MobileTaskEditPage({ task, onClose, onUpdate }: MobileTa
     if (duration !== null) setEstimatedDuration(duration);
   };
 
+  const handleSubTasksChange = (nextSubTasks: { id?: string; title: string; completed: boolean }[]) => {
+    const previousSubTasks = subTasks;
+    const changedAt = Date.now();
+    setSubTasks(nextSubTasks.map((subTask, index) => {
+      const previous = subTask.id
+        ? previousSubTasks.find((candidate) => candidate.id === subTask.id)
+        : previousSubTasks[index];
+      return {
+        id: subTask.id || previous?.id || `${changedAt}-${index}`,
+        title: subTask.title,
+        completed: subTask.completed,
+        createdAt: previous?.createdAt || changedAt,
+        completedAt: subTask.completed ? previous?.completedAt : undefined,
+      };
+    }));
+
+    const previousIds = new Set(previousSubTasks.map((subTask) => subTask.id));
+    const nextIds = new Set(nextSubTasks.map((subTask) => subTask.id).filter(Boolean));
+
+    nextSubTasks.filter((subTask) => !subTask.id).forEach((subTask) => onAddSubTask(subTask.title));
+    previousSubTasks.filter((subTask) => !nextIds.has(subTask.id)).forEach((subTask) => onDeleteSubTask(subTask.id));
+    nextSubTasks.forEach((subTask) => {
+      if (!subTask.id || !previousIds.has(subTask.id)) return;
+      const previous = previousSubTasks.find((candidate) => candidate.id === subTask.id);
+      if (previous && previous.completed !== subTask.completed) onToggleSubTask(subTask.id);
+    });
+  };
+
   return (
     <div className="-mx-6 -my-8 min-h-[calc(100vh-4rem)] bg-card flex flex-col">
       <div className="border-b border-border px-4 py-3">
@@ -72,22 +97,8 @@ export default function MobileTaskEditPage({ task, onClose, onUpdate }: MobileTa
       <TaskModalHeader isEditing isFullScreen={false} onFullScreenToggle={() => {}} showFullScreenToggle={false} showCloseButton={false} onClose={onClose} />
       <div className="flex-1 p-4 space-y-8 overflow-y-auto">
         <TaskFormContent title={title} priority={priority} startDate={startDate} dueDate={dueDate} startTime={startTime} endTime={endTime} estimatedDuration={estimatedDuration} isRecurring={isRecurring} recurrencePattern={recurrencePattern} recurrenceInterval={recurrenceInterval} recurrenceDaysOfWeek={recurrenceDaysOfWeek} recurrenceEndDate={recurrenceEndDate} onTitleChange={setTitle} onPriorityChange={setPriority} onStartDateChange={setStartDate} onDueDateChange={setDueDate} onStartTimeChange={handleStartTimeChange} onEndTimeChange={handleEndTimeChange} onDurationChange={setEstimatedDuration} onIsRecurringChange={setIsRecurring} onRecurrencePatternChange={setRecurrencePattern} onRecurrenceIntervalChange={setRecurrenceInterval} onRecurrenceDaysOfWeekChange={setRecurrenceDaysOfWeek} onRecurrenceEndDateChange={setRecurrenceEndDate} />
+        <MobileTaskOptions selectedSubDomain={selectedSubDomain} onSubDomainChange={setSelectedSubDomain} subTasks={subTasks} onSubTasksChange={handleSubTasksChange} />
         <TaskMetaInfo createdAt={task.createdAt} completedAt={task.completedAt} pomodoroCount={task.pomodoroCount} />
-        <section className="space-y-4">
-          <button type="button" onClick={() => setIsCategoriesOpen(!isCategoriesOpen)} className="w-full flex items-center gap-3 p-2 text-left">
-            <CaretDownMdIcon size={32} className={`text-muted-foreground transition-transform ${isCategoriesOpen ? "rotate-180" : ""}`} />
-            <span className="text-lg font-medium">Categories</span>
-            {selectedSubDomain && <span className="text-sm text-muted-foreground">{DOMAINS[getDomainFromSubDomain(selectedSubDomain)]?.subDomains[selectedSubDomain].name}</span>}
-          </button>
-          {isCategoriesOpen && <CategorySelector selectedSubDomain={selectedSubDomain} onChange={setSelectedSubDomain} searchQuery={searchQuery} onSearchChange={setSearchQuery} />}
-        </section>
-        <section className="space-y-4">
-          <button type="button" onClick={() => setIsSubTasksOpen(!isSubTasksOpen)} className="w-full flex items-center gap-3 p-2 text-left">
-            <CaretDownMdIcon size={32} className={`text-muted-foreground transition-transform ${isSubTasksOpen ? "rotate-180" : ""}`} />
-            <span className="text-lg font-medium">Subtasks</span>
-          </button>
-          {isSubTasksOpen && <SubTaskManager subTasks={task.subTasks || []} onSubTasksChange={() => {}} />}
-        </section>
       </div>
       <TaskViewFooter task={task} onClose={onClose} onSave={handleSave} onUpdate={onUpdate} />
     </div>
