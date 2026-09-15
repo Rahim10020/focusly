@@ -6,9 +6,8 @@ import { DateTimeService } from "@/lib/domain/services/DateTimeService";
  */
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import Button from "@/components/ui/Button";
 import { LeaderboardUser } from "@/types/leaderboard";
 import { DYNAMIC_ROUTES } from "@/constants";
 import UsersIcon from "@/components/shared/icons/UsersIcon";
@@ -17,20 +16,13 @@ interface LeaderboardListProps {
   leaderboard: LeaderboardUser[];
   selectedTab: "tasks" | "time" | "streak";
   currentUserId?: string;
-  formatTime: (seconds: number) => string;
-  onSendFriendRequest?: (userId: string) => void;
-  friendRequestStatuses?: Map<string, "none" | "pending" | "sent" | "friends">;
 }
 
 export function LeaderboardList({
   leaderboard,
   selectedTab,
   currentUserId,
-  onSendFriendRequest,
-  friendRequestStatuses,
 }: LeaderboardListProps) {
-  const router = useRouter();
-
   const getRankIcon = (index: number) => {
     switch (index) {
       case 0:
@@ -85,14 +77,15 @@ export function LeaderboardList({
       <CardContent>
         <div className="space-y-2">
           {leaderboard.map((user, index) => (
-            <div
+            <Link
               key={user.id}
+              href={DYNAMIC_ROUTES.USER_PROFILE(user.id)}
+              aria-label={`View ${user.username || "Player"}'s profile`}
               className={`flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 rounded-2xl transition-all cursor-pointer gap-3 sm:gap-0 ${
                 user.id === currentUserId
                   ? "bg-primary/10"
                   : "hover:bg-muted/50 hover:scale-[1.02]"
               }`}
-              onClick={() => router.push(DYNAMIC_ROUTES.USER_PROFILE(user.id))}
               style={{
                 animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`,
               }}
@@ -134,36 +127,6 @@ export function LeaderboardList({
                   <p className="text-xs sm:text-sm text-muted-foreground">
                     {user.stats?.total_sessions || 0} sessions
                   </p>
-                  {user.id !== currentUserId &&
-                    onSendFriendRequest &&
-                    friendRequestStatuses && (
-                      <div className="mt-1 sm:hidden">
-                        {friendRequestStatuses.get(user.id) === "friends" ? (
-                          <Button size="sm" disabled variant="secondary" className="text-xs">
-                            Friends
-                          </Button>
-                        ) : friendRequestStatuses.get(user.id) === "sent" ? (
-                          <Button size="sm" disabled className="text-xs">
-                            Sent
-                          </Button>
-                        ) : friendRequestStatuses.get(user.id) === "pending" ? (
-                          <Button size="sm" disabled className="text-xs">
-                            Pending
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onSendFriendRequest(user.id);
-                            }}
-                            className="text-xs"
-                          >
-                            Add Friend
-                          </Button>
-                        )}
-                      </div>
-                    )}
                 </div>
               </div>
               <div className="flex items-center justify-between sm:block text-right">
@@ -173,37 +136,8 @@ export function LeaderboardList({
                   {selectedTab === "time" && "total focus"}
                   {selectedTab === "streak" && "day streak"}
                 </p>
-                {user.id !== currentUserId &&
-                  onSendFriendRequest &&
-                  friendRequestStatuses && (
-                    <div className="hidden sm:block mt-1">
-                      {friendRequestStatuses.get(user.id) === "friends" ? (
-                        <Button size="sm" disabled variant="secondary">
-                          Friends
-                        </Button>
-                      ) : friendRequestStatuses.get(user.id) === "sent" ? (
-                        <Button size="sm" disabled>
-                          Friend Request Sent
-                        </Button>
-                      ) : friendRequestStatuses.get(user.id) === "pending" ? (
-                        <Button size="sm" disabled>
-                          Request Pending
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onSendFriendRequest(user.id);
-                          }}
-                        >
-                          Send Friend Request
-                        </Button>
-                      )}
-                    </div>
-                  )}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </CardContent>

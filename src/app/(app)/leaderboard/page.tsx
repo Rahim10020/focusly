@@ -14,11 +14,9 @@ import Card, { CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { LeaderboardUser, LeaderboardResponse } from "@/types/leaderboard";
 import { ROUTES } from "@/constants";
-import { API_DYNAMIC_ROUTES, API_ROUTES } from "@/constants";
+import { API_DYNAMIC_ROUTES } from "@/constants";
 import { MyLoader } from "@/components/shared/MyLoader";
-import { formatHoursMinutesFromSeconds } from "@/lib/domain/services/StatsCalculationService";
 import { InfoIcon } from "@/components/shared/icons";
-import { useAppToast } from "@/hooks/useAppToast";
 import { CacheService } from "@/lib/domain/services/CacheService";
 import { LeaderboardHeader } from "@/app/(app)/leaderboard/_components/LeaderboardHeader";
 import { LeaderboardPodium } from "@/app/(app)/leaderboard/_components/LeaderboardPodium";
@@ -26,17 +24,9 @@ import { LeaderboardList } from "@/app/(app)/leaderboard/_components/Leaderboard
 import { LeaderboardPagination } from "@/app/(app)/leaderboard/_components/LeaderboardPagination";
 import { LEADERBOARD_DEFAULTS } from "@/constants";
 
-interface FriendData {
-  id: string;
-  sender_id: string;
-  receiver_id: string;
-  status: "pending" | "accepted";
-}
-
 export default function LeaderboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { actionError } = useAppToast();
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [pagination, setPagination] = useState<
     LeaderboardResponse["pagination"] | null
@@ -48,9 +38,6 @@ export default function LeaderboardPage() {
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [timeFilter, setTimeFilter] = useState<"all" | "month" | "week">("all");
-  const [friendRequestStatuses, setFriendRequestStatuses] = useState<
-    Map<string, "none" | "pending" | "sent" | "friends">
-  >(new Map());
 
   const fetchLeaderboard = async (page: number = 1) => {
     try {
@@ -99,42 +86,6 @@ export default function LeaderboardPage() {
     }
   };
 
-  const fetchFriendsAndRequests = async () => {
-    try {
-      const response = await fetch(API_ROUTES.FRIENDS);
-      if (!response.ok) {
-        throw new Error("Failed to fetch friends");
-      }
-      const responseData = await response.json();
-      // Extract friends array from the API response
-      const data: FriendData[] = responseData.data || [];
-      const userId = session?.user?.id;
-
-      // Update friend request statuses
-      const statuses = new Map<
-        string,
-        "none" | "pending" | "sent" | "friends"
-      >();
-      data.forEach((friend: FriendData) => {
-        const otherUserId =
-          friend.sender_id === userId ? friend.receiver_id : friend.sender_id;
-        if (friend.status === "accepted") {
-          statuses.set(otherUserId, "friends");
-        } else if (friend.status === "pending" && friend.sender_id === userId) {
-          statuses.set(otherUserId, "sent");
-        } else if (
-          friend.status === "pending" &&
-          friend.receiver_id === userId
-        ) {
-          statuses.set(otherUserId, "pending");
-        }
-      });
-      setFriendRequestStatuses(statuses);
-    } catch (err) {
-      console.error("Error fetching friends:", err);
-    }
-  };
-
   useEffect(() => {
     if (status === "loading") return;
 
@@ -144,12 +95,8 @@ export default function LeaderboardPage() {
     }
 
     fetchLeaderboard(currentPage);
-    fetchFriendsAndRequests();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, status, router, currentPage, timeFilter]);
-
-  const formatTime = (seconds: number) =>
-    formatHoursMinutesFromSeconds(seconds);
 
   const getSortedLeaderboard = () => {
     return [...leaderboard].sort((a, b) => {
@@ -180,31 +127,6 @@ export default function LeaderboardPage() {
   const currentUserRank = leaderboard.findIndex(
     (user) => user.id === session?.user?.id,
   );
-
-  const handleSendFriendRequest = async (userId: string) => {
-    setFriendRequestStatuses((prev) => new Map(prev.set(userId, "pending")));
-    try {
-      const response = await fetch(API_ROUTES.FRIENDS, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ receiver_id: userId }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to send friend request");
-      }
-
-      setFriendRequestStatuses((prev) => new Map(prev.set(userId, "sent")));
-      // Refresh friends and requests after sending
-      fetchFriendsAndRequests();
-    } catch (err) {
-      actionError(err, "Failed to send friend request.");
-      setFriendRequestStatuses((prev) => new Map(prev.set(userId, "none")));
-    }
-  };
 
   if (status === "loading" || loading) {
     return (
@@ -338,16 +260,12 @@ export default function LeaderboardPage() {
           <LeaderboardPodium
             leaderboard={sortedLeaderboard}
             selectedTab={selectedTab}
-            formatTime={formatTime}
           />
 
           <LeaderboardList
             leaderboard={sortedLeaderboard}
             selectedTab={selectedTab}
             currentUserId={session?.user?.id}
-            formatTime={formatTime}
-            onSendFriendRequest={handleSendFriendRequest}
-            friendRequestStatuses={friendRequestStatuses}
           />
 
           <LeaderboardPagination

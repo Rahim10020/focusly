@@ -6,19 +6,19 @@ import { DateTimeService } from "@/lib/domain/services/DateTimeService";
  */
 
 import Image from "next/image";
+import Link from "next/link";
 import Card, { CardContent } from "@/components/ui/Card";
 import { LeaderboardUser } from "@/types/leaderboard";
+import { DYNAMIC_ROUTES } from "@/constants";
 
 interface LeaderboardPodiumProps {
   leaderboard: LeaderboardUser[];
   selectedTab: "tasks" | "time" | "streak";
-  formatTime: (seconds: number) => string;
 }
 
 export function LeaderboardPodium({
   leaderboard,
   selectedTab,
-  formatTime,
 }: LeaderboardPodiumProps) {
   const getRankIcon = (index: number) => {
     switch (index) {
@@ -78,10 +78,8 @@ export function LeaderboardPodium({
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
       {/* First Place - naturally first on mobile */}
       <div className="flex flex-col items-center col-span-1">
-        <Card
-          variant="elevated"
-          className="w-full overflow-hidden sm:transform sm:scale-110"
-        >
+        <Link href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[0].id)} aria-label={`View ${leaderboard[0].username || "Player"}'s profile`} className="w-full">
+        <Card variant="elevated" className="w-full overflow-hidden sm:transform sm:scale-110 transition-transform hover:scale-[1.02]">
           <div className={`h-2 bg-linear-to-r ${getRankColor(0)}`}></div>
           <CardContent className="pt-6 pb-4 text-center">
             <div className="text-4xl sm:text-5xl mb-2">{getRankIcon(0)}</div>
@@ -103,11 +101,13 @@ export function LeaderboardPodium({
             <p className="text-xs sm:text-sm text-muted-foreground">{getLabel()}</p>
           </CardContent>
         </Card>
+        </Link>
       </div>
 
       {/* Second Place - second on mobile, left on desktop */}
       <div className="flex flex-col items-center md:order-1 md:mt-8 col-span-1">
-        <Card variant="elevated" className="w-full overflow-hidden">
+        <Link href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[1].id)} aria-label={`View ${leaderboard[1].username || "Player"}'s profile`} className="w-full">
+        <Card variant="elevated" className="w-full overflow-hidden transition-transform hover:scale-[1.02]">
           <div className={`h-2 bg-linear-to-r ${getRankColor(1)}`}></div>
           <CardContent className="pt-6 pb-4 text-center">
             <div className="text-3xl sm:text-4xl mb-2">{getRankIcon(1)}</div>
@@ -129,11 +129,13 @@ export function LeaderboardPodium({
             <p className="text-xs text-muted-foreground">{getLabel()}</p>
           </CardContent>
         </Card>
+        </Link>
       </div>
 
       {/* Third Place - third on mobile, right on desktop */}
       <div className="flex flex-col items-center md:order-2 md:mt-12 col-span-1">
-        <Card variant="elevated" className="w-full overflow-hidden">
+        <Link href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[2].id)} aria-label={`View ${leaderboard[2].username || "Player"}'s profile`} className="w-full">
+        <Card variant="elevated" className="w-full overflow-hidden transition-transform hover:scale-[1.02]">
           <div className={`h-2 bg-linear-to-r ${getRankColor(2)}`}></div>
           <CardContent className="pt-6 pb-4 text-center">
             <div className="text-3xl sm:text-4xl mb-2">{getRankIcon(2)}</div>
@@ -155,6 +157,7 @@ export function LeaderboardPodium({
             <p className="text-xs text-muted-foreground">{getLabel()}</p>
           </CardContent>
         </Card>
+        </Link>
       </div>
     </div>
   );
