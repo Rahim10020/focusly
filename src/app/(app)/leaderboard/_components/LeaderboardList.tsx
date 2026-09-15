@@ -75,13 +75,13 @@ export function LeaderboardList({
         <CardTitle>All Rankings</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
+        <div className="space-y-2 mt-4 lg:mt-8">
           {leaderboard.map((user, index) => (
             <Link
               key={user.id}
               href={DYNAMIC_ROUTES.USER_PROFILE(user.id)}
               aria-label={`View ${user.username || "Player"}'s profile`}
-              className={`flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 rounded-2xl transition-all cursor-pointer gap-3 sm:gap-0 ${
+              className={`flex items-center justify-between p-4 rounded-2xl transition-all cursor-pointer gap-3 sm:gap-0 ${
                 user.id === currentUserId
                   ? "bg-primary/10"
                   : "hover:bg-muted/50 hover:scale-[1.02]"
@@ -93,7 +93,9 @@ export function LeaderboardList({
               <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                 <div className="w-10 sm:w-12 text-center shrink-0">
                   {getRankIcon(index) ? (
-                    <span className="text-2xl sm:text-3xl">{getRankIcon(index)}</span>
+                    <span className="text-2xl sm:text-3xl">
+                      {getRankIcon(index)}
+                    </span>
                   ) : (
                     <span className="text-lg sm:text-xl font-bold text-muted-foreground">
                       #{index + 1}
@@ -129,8 +131,10 @@ export function LeaderboardList({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center justify-between sm:block text-right">
-                <p className="text-lg sm:text-xl font-bold">{getDisplayValue(user)}</p>
+              <div className="flex flex-col text-right">
+                <p className="text-lg sm:text-xl font-bold">
+                  {getDisplayValue(user)}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {selectedTab === "tasks" && "tasks completed"}
                   {selectedTab === "time" && "total focus"}

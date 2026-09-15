@@ -52,8 +52,7 @@ const RANK_STYLES: readonly RankStyle[] = [
     iconClasses: "text-3xl sm:text-4xl",
     usernameClasses: "text-sm",
     valueClasses: "text-xl sm:text-2xl",
-    wrapperClasses:
-      "flex flex-col items-center md:order-1 md:mt-8 col-span-1",
+    wrapperClasses: "flex flex-col items-center md:order-1 md:mt-8 col-span-1",
     cardClasses: "",
   },
   {
@@ -64,8 +63,7 @@ const RANK_STYLES: readonly RankStyle[] = [
     iconClasses: "text-3xl sm:text-4xl",
     usernameClasses: "text-sm",
     valueClasses: "text-xl sm:text-2xl",
-    wrapperClasses:
-      "flex flex-col items-center md:order-2 md:mt-12 col-span-1",
+    wrapperClasses: "flex flex-col items-center md:order-2 md:mt-12 col-span-1",
     cardClasses: "",
   },
 ];
