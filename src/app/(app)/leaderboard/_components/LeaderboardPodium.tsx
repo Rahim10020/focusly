@@ -1,187 +1,168 @@
 "use client";
 
-import { DateTimeService } from "@/lib/domain/services/DateTimeService";
-/**
- * @fileoverview Leaderboard podium component for top 3 users
- */
-
+import { type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Card, { CardContent } from "@/components/ui/Card";
-import { LeaderboardUser } from "@/types/leaderboard";
 import { DYNAMIC_ROUTES } from "@/constants";
+import { DateTimeService } from "@/lib/domain/services/DateTimeService";
+import { type LeaderboardUser } from "@/types/leaderboard";
+
+type LeaderboardTab = "tasks" | "time" | "streak";
 
 interface LeaderboardPodiumProps {
   leaderboard: LeaderboardUser[];
-  selectedTab: "tasks" | "time" | "streak";
+  selectedTab: LeaderboardTab;
+}
+
+interface RankStyle {
+  icon: string;
+  gradient: string;
+  avatarClasses: string;
+  avatarSize: number;
+  iconClasses: string;
+  usernameClasses: string;
+  valueClasses: string;
+  wrapperClasses: string;
+  cardClasses: string;
+}
+
+interface TabStyle {
+  label: string;
+  getDisplayValue: (user: LeaderboardUser) => ReactNode;
+}
+
+const RANK_STYLES: readonly RankStyle[] = [
+  {
+    icon: "🥇",
+    gradient: "from-yellow-400 to-yellow-600",
+    avatarClasses: "w-16 h-16 sm:w-20 sm:h-20",
+    avatarSize: 80,
+    iconClasses: "text-4xl sm:text-5xl",
+    usernameClasses: "text-sm sm:text-base",
+    valueClasses: "text-2xl sm:text-3xl",
+    wrapperClasses: "flex flex-col items-center col-span-1",
+    cardClasses: "sm:transform sm:scale-110",
+  },
+  {
+    icon: "🥈",
+    gradient: "from-gray-300 to-gray-500",
+    avatarClasses: "w-14 h-14 sm:w-16 sm:h-16",
+    avatarSize: 64,
+    iconClasses: "text-3xl sm:text-4xl",
+    usernameClasses: "text-sm",
+    valueClasses: "text-xl sm:text-2xl",
+    wrapperClasses:
+      "flex flex-col items-center md:order-1 md:mt-8 col-span-1",
+    cardClasses: "",
+  },
+  {
+    icon: "🥉",
+    gradient: "from-amber-600 to-amber-800",
+    avatarClasses: "w-14 h-14 sm:w-16 sm:h-16",
+    avatarSize: 64,
+    iconClasses: "text-3xl sm:text-4xl",
+    usernameClasses: "text-sm",
+    valueClasses: "text-xl sm:text-2xl",
+    wrapperClasses:
+      "flex flex-col items-center md:order-2 md:mt-12 col-span-1",
+    cardClasses: "",
+  },
+];
+
+const TAB_STYLES: Record<LeaderboardTab, TabStyle> = {
+  tasks: {
+    label: "tasks",
+    getDisplayValue: (user) => user.stats?.completed_tasks ?? 0,
+  },
+  time: {
+    label: "focused",
+    getDisplayValue: (user) =>
+      DateTimeService.formatTime(user.stats?.total_focus_time ?? 0),
+  },
+  streak: {
+    label: "day streak",
+    getDisplayValue: (user) => `${user.stats?.streak ?? 0}`,
+  },
+};
+
+interface PodiumCardProps {
+  user: LeaderboardUser;
+  rank: number;
+  selectedTab: LeaderboardTab;
+}
+
+function PodiumCard({ user, rank, selectedTab }: PodiumCardProps) {
+  const rankStyle = RANK_STYLES[rank];
+  const tabStyle = TAB_STYLES[selectedTab];
+
+  if (!rankStyle) return null;
+
+  const displayName = user.username ?? "Player";
+
+  return (
+    <div className={rankStyle.wrapperClasses}>
+      <Link
+        href={DYNAMIC_ROUTES.USER_PROFILE(user.id)}
+        aria-label={`View ${displayName}'s profile`}
+        className="w-full"
+      >
+        <Card
+          variant="elevated"
+          className={`w-full overflow-hidden ${rankStyle.cardClasses} transition-transform hover:scale-[1.02]`}
+        >
+          <div className={`h-2 bg-linear-to-r ${rankStyle.gradient}`} />
+          <CardContent className="pt-6 pb-4 text-center">
+            <div className={`${rankStyle.iconClasses} mb-2`}>
+              {rankStyle.icon}
+            </div>
+            <div
+              className={`mx-auto mb-3 rounded-full bg-linear-to-r p-1 ${rankStyle.gradient} ${rankStyle.avatarClasses}`}
+            >
+              <Image
+                src={user.avatar_url ?? "/default-avatar.svg"}
+                alt={displayName}
+                width={rankStyle.avatarSize}
+                height={rankStyle.avatarSize}
+                className="w-full h-full rounded-full object-cover"
+              />
+            </div>
+            <p className={`font-bold mb-1 ${rankStyle.usernameClasses}`}>
+              {displayName}
+            </p>
+            <p
+              className={`font-bold text-primary mb-1 ${rankStyle.valueClasses}`}
+            >
+              {tabStyle.getDisplayValue(user)}
+            </p>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              {tabStyle.label}
+            </p>
+          </CardContent>
+        </Card>
+      </Link>
+    </div>
+  );
 }
 
 export function LeaderboardPodium({
   leaderboard,
   selectedTab,
 }: LeaderboardPodiumProps) {
-  const getRankIcon = (index: number) => {
-    switch (index) {
-      case 0:
-        return "🥇";
-      case 1:
-        return "🥈";
-      case 2:
-        return "🥉";
-      default:
-        return null;
-    }
-  };
+  const topThree = leaderboard.slice(0, RANK_STYLES.length);
 
-  const getRankColor = (index: number) => {
-    switch (index) {
-      case 0:
-        return "from-yellow-400 to-yellow-600";
-      case 1:
-        return "from-gray-300 to-gray-500";
-      case 2:
-        return "from-amber-600 to-amber-800";
-      default:
-        return "from-primary/20 to-primary/10";
-    }
-  };
-
-  const getDisplayValue = (user: LeaderboardUser) => {
-    switch (selectedTab) {
-      case "tasks":
-        return user.stats?.completed_tasks || 0;
-      case "time":
-        return DateTimeService.formatTime(user.stats?.total_focus_time || 0);
-      case "streak":
-        return `${user.stats?.streak || 0}`;
-      default:
-        return 0;
-    }
-  };
-
-  const getLabel = () => {
-    switch (selectedTab) {
-      case "tasks":
-        return "tasks";
-      case "time":
-        return "focused";
-      case "streak":
-        return "day streak";
-      default:
-        return "";
-    }
-  };
-
-  if (leaderboard.length < 3) return null;
+  if (topThree.length < RANK_STYLES.length) return null;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
-      {/* First Place - naturally first on mobile */}
-      <div className="flex flex-col items-center col-span-1">
-        <Link
-          href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[0].id)}
-          aria-label={`View ${leaderboard[0].username || "Player"}'s profile`}
-          className="w-full"
-        >
-          <Card
-            variant="elevated"
-            className="w-full overflow-hidden sm:transform sm:scale-110 transition-transform hover:scale-[1.02]"
-          >
-            <div className={`h-2 bg-linear-to-r ${getRankColor(0)}`}></div>
-            <CardContent className="pt-6 pb-4 text-center">
-              <div className="text-4xl sm:text-5xl mb-2">{getRankIcon(0)}</div>
-              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-linear-to-r from-yellow-400 to-yellow-600 p-1">
-                <Image
-                  src={leaderboard[0].avatar_url || "/default-avatar.svg"}
-                  alt={leaderboard[0].username || "Player"}
-                  width={80}
-                  height={80}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              </div>
-              <p className="font-bold mb-1 text-sm sm:text-base">
-                {leaderboard[0].username || "Player"}
-              </p>
-              <p className="text-2xl sm:text-3xl font-bold text-primary mb-1">
-                {getDisplayValue(leaderboard[0])}
-              </p>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                {getLabel()}
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-
-      {/* Second Place - second on mobile, left on desktop */}
-      <div className="flex flex-col items-center md:order-1 md:mt-8 col-span-1">
-        <Link
-          href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[1].id)}
-          aria-label={`View ${leaderboard[1].username || "Player"}'s profile`}
-          className="w-full"
-        >
-          <Card
-            variant="elevated"
-            className="w-full overflow-hidden transition-transform hover:scale-[1.02]"
-          >
-            <div className={`h-2 bg-linear-to-r ${getRankColor(1)}`}></div>
-            <CardContent className="pt-6 pb-4 text-center">
-              <div className="text-3xl sm:text-4xl mb-2">{getRankIcon(1)}</div>
-              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 rounded-full bg-linear-to-r from-gray-300 to-gray-500 p-1">
-                <Image
-                  src={leaderboard[1].avatar_url || "/default-avatar.svg"}
-                  alt={leaderboard[1].username || "Player"}
-                  width={64}
-                  height={64}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              </div>
-              <p className="font-bold text-sm mb-1">
-                {leaderboard[1].username || "Player"}
-              </p>
-              <p className="text-xl sm:text-2xl font-bold text-primary mb-1">
-                {getDisplayValue(leaderboard[1])}
-              </p>
-              <p className="text-xs text-muted-foreground">{getLabel()}</p>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-
-      {/* Third Place - third on mobile, right on desktop */}
-      <div className="flex flex-col items-center md:order-2 md:mt-12 col-span-1">
-        <Link
-          href={DYNAMIC_ROUTES.USER_PROFILE(leaderboard[2].id)}
-          aria-label={`View ${leaderboard[2].username || "Player"}'s profile`}
-          className="w-full"
-        >
-          <Card
-            variant="elevated"
-            className="w-full overflow-hidden transition-transform hover:scale-[1.02]"
-          >
-            <div className={`h-2 bg-linear-to-r ${getRankColor(2)}`}></div>
-            <CardContent className="pt-6 pb-4 text-center">
-              <div className="text-3xl sm:text-4xl mb-2">{getRankIcon(2)}</div>
-              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 rounded-full bg-linear-to-r from-amber-600 to-amber-800 p-1">
-                <Image
-                  src={leaderboard[2].avatar_url || "/default-avatar.svg"}
-                  alt={leaderboard[2].username || "Player"}
-                  width={64}
-                  height={64}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              </div>
-              <p className="font-bold text-sm mb-1">
-                {leaderboard[2].username || "Player"}
-              </p>
-              <p className="text-xl sm:text-2xl font-bold text-primary mb-1">
-                {getDisplayValue(leaderboard[2])}
-              </p>
-              <p className="text-xs text-muted-foreground">{getLabel()}</p>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
+      {topThree.map((user, rank) => (
+        <PodiumCard
+          key={user.id}
+          user={user}
+          rank={rank}
+          selectedTab={selectedTab}
+        />
+      ))}
     </div>
   );
 }
