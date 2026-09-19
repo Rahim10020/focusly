@@ -1,3 +1,1 @@
--- continuer avec la page tasks et finir avec la page
-friends, tester la page leaderboard avec les rankings
 -- tout tester
