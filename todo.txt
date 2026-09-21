@@ -1,1 +1,9 @@
 -- tout tester
+
+---------- A corriger:
+-- le modal d'edition de taches n'est pas a jour. je veux editer une tache et je ne vois pas les donnees preremplies.
+-- Revoir le responsive des taskitems : List comme board style.
+-- j'ai ajoute une nouvelle tache mais je ne l'a vois pas. as-t elle ete ajoutee ou bien non ? c'est quoi le probleme ? 
+    trouver et le resoudre.
+-- j'ai marque une tache comme termine et elle est alle immediatement dans les completed. mais quand j'ai recharge la page, 
+    je l'a vois encore dans les others. c'est quoi le probleme et comment resoudre ca correctement ?
