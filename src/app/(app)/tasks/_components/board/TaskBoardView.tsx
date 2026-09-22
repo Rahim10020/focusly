@@ -94,8 +94,8 @@ export default function TaskBoardView({
   };
 
   return (
-    <div className="h-full">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+    <div className="h-full overflow-x-auto pb-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full md:min-w-[720px] xl:min-w-0">
         {columns.map((column) => {
           const columnTasks = getTasksByStatus(column.id);
 

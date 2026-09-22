@@ -11,6 +11,12 @@ import { Task, PomodoroSession } from "@/types";
 export function mapDbTaskToTask(dbTask: Record<string, any>): Task {
   return {
     id: dbTask.id,
+    isRecurring: dbTask.is_recurring || undefined,
+    recurrencePattern: dbTask.recurrence_pattern || undefined,
+    recurrenceInterval: dbTask.recurrence_interval || undefined,
+    recurrenceDaysOfWeek: dbTask.recurrence_days_of_week || undefined,
+    recurrenceEndDate: dbTask.recurrence_end_date || undefined,
+    parentRecurringTaskId: dbTask.parent_recurring_task_id || undefined,
     title: dbTask.title,
     completed: dbTask.completed || false,
     status: dbTask.status || (dbTask.completed ? "done" : "todo"),
@@ -63,6 +69,7 @@ export function mapTaskToDbInsert(
   userId: string,
 ): Record<string, any> {
   return {
+    id: task.id,
     user_id: userId,
     title: task.title,
     completed: task.completed,
@@ -89,6 +96,7 @@ export function mapTaskToDbInsert(
     recurrence_interval: task.recurrenceInterval || 1,
     recurrence_days_of_week: task.recurrenceDaysOfWeek || null,
     recurrence_end_date: task.recurrenceEndDate || null,
+    parent_recurring_task_id: task.parentRecurringTaskId || null,
   };
 }
 

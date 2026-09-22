@@ -10,6 +10,7 @@ import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import TasksView from "@/app/(app)/tasks/_components/views/TasksView";
 import QuickAddTask from "@/app/(app)/tasks/_components/forms/QuickAddTask";
+import TaskViewModal from "@/app/(app)/tasks/_components/modals/TaskViewModal";
 import PomodoroTimer from "@/app/(app)/home/_components/pomodoro/PomodoroTimer";
 import AchievementNotification from "@/app/(app)/home/_components/achievements/AchievementNotification";
 import { HomeNotifications } from "@/app/(app)/home/_components/HomeNotifications";
@@ -34,6 +35,7 @@ export default function HomePage() {
   const taskInputRef = useRef<HTMLInputElement>(null);
   const [showAllUpcomingTasks, setShowAllUpcomingTasks] = useState(false);
   const [achievementCheckPending, setAchievementCheckPending] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [timerRef, setTimerRef] = useState<{
     start: () => void;
     pause: () => void;
@@ -47,6 +49,7 @@ export default function HomePage() {
     activeTaskId,
     loading,
     error,
+    lastAddedTaskId,
     addTask,
     updateTask,
     toggleTask,
@@ -175,9 +178,9 @@ export default function HomePage() {
 
   const handleEditTask = useCallback(
     (task: Task) => {
-      router.push(`/task/${task.id}`);
+      setEditingTask(task);
     },
-    [router],
+    [],
   );
 
   const handlePomodoroComplete = useCallback(
@@ -312,6 +315,7 @@ export default function HomePage() {
                   tags={tags}
                   loading={loading}
                   error={error}
+                  lastAddedTaskId={lastAddedTaskId}
                   onToggle={toggleTask}
                   onDelete={deleteTask}
                   onSelectTask={setActiveTask}
@@ -364,6 +368,23 @@ export default function HomePage() {
           }}
         />
       ))}
+
+      {/* Task Edit Modal */}
+      {editingTask && (
+        <TaskViewModal
+          key={editingTask.id}
+          task={editingTask}
+          onClose={() => setEditingTask(null)}
+          onUpdate={(updates) => updateTask(editingTask.id, updates)}
+          onAddSubTask={(title) => addSubTask(editingTask.id, title)}
+          onToggleSubTask={(subTaskId) =>
+            toggleSubTask(editingTask.id, subTaskId)
+          }
+          onDeleteSubTask={(subTaskId) =>
+            deleteSubTask(editingTask.id, subTaskId)
+          }
+        />
+      )}
     </div>
   );
 }

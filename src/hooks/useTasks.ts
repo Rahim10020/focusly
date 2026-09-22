@@ -4,7 +4,7 @@
  * Uses domain services for all business logic.
  */
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useSession } from "@/hooks/useAuth";
 import { Task, Priority } from "@/types";
 import { StorageService } from "@/lib/domain/services/StorageService";
@@ -29,6 +29,7 @@ interface UseTasksReturn {
   activeTaskId: string | null;
   loading: boolean;
   error: string | null;
+  lastAddedTaskId: string | null;
 
   // Task actions
   addTask: (input: CreateTaskInput) => Promise<void>;
@@ -53,7 +54,7 @@ interface UseTasksReturn {
   sortTasksByOrder: (tasksToSort: Task[]) => Task[];
 
   // Reorder & utilities
-  reorderTasks: (startIndex: number, endIndex: number) => Promise<void>;
+  reorderTasks: (sourceId: string, targetId: string) => Promise<void>;
   categorized: CategorizedTasks;
   stats: TaskStats;
   getTaskById: (id: string) => Task | undefined;
@@ -74,6 +75,13 @@ export function useTasks(): UseTasksReturn {
 
   const [loading, setLoading] = useState(!session);
   const [error, setError] = useState<string | null>(null);
+  const [lastAddedTaskId, setLastAddedTaskId] = useState<string | null>(null);
+
+  // Always-fresh mirror of tasks for rollback snapshots
+  const tasksRef = useRef<Task[]>(tasks);
+  useEffect(() => {
+    tasksRef.current = tasks;
+  }, [tasks]);
 
   // Initialize from localStorage on mount
   useEffect(() => {
@@ -137,11 +145,15 @@ export function useTasks(): UseTasksReturn {
   const addTask = useCallback(
     async (input: CreateTaskInput) => {
       const createdAt = Date.now();
+      const id =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${createdAt}-${Math.random().toString(36).slice(2, 10)}`;
       const maxOrder =
         tasks.length > 0 ? Math.max(...tasks.map((t) => t.order || 0)) : 0;
 
       const newTask: Task = {
-        id: createdAt.toString(),
+        id,
         title: input.title,
         completed: false,
         createdAt,
@@ -171,6 +183,7 @@ export function useTasks(): UseTasksReturn {
 
       // Optimistic update
       setTasks((prev) => [...prev, newTask]);
+      setLastAddedTaskId(newTask.id);
 
       // Sync to Supabase if authenticated
       if (session?.user?.id) {
@@ -178,11 +191,17 @@ export function useTasks(): UseTasksReturn {
           const supabaseClient = getSupabaseClientOrNull();
           if (!supabaseClient) return;
           const dbData = mapTaskToDbInsert(newTask, session.user.id);
-          await retryWithBackoff(async () => {
-            return supabaseClient.from("tasks").insert(dbData as any);
+          // Assign the db-generated id (or our client id when it is respected) back
+          const { error } = await retryWithBackoff(async () => {
+            return supabaseClient.from("tasks").insert(dbData as any).select();
           });
+          if (error) {
+            throw error;
+          }
         } catch (err) {
           console.error("Failed to save task:", err);
+          // Rollback the optimistic update
+          setTasks((prev) => prev.filter((t) => t.id !== newTask.id));
           actionError("Failed to save task");
         }
       }
@@ -196,6 +215,9 @@ export function useTasks(): UseTasksReturn {
    */
   const updateTask = useCallback(
     async (taskId: string, updates: Partial<Task>) => {
+      // Snapshot the previous state for rollback
+      const previousTasks = tasksRef.current;
+
       // Optimistic update
       setTasks((prev) =>
         prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t)),
@@ -208,15 +230,20 @@ export function useTasks(): UseTasksReturn {
           // Mapper les propriétés vers le format de la base de données
           const dbUpdates = mapTaskUpdateToDb(updates);
 
-          await retryWithBackoff(async () => {
+          const { error } = await retryWithBackoff(async () => {
             return supabaseClient
               .from("tasks")
               .update(dbUpdates)
               .eq("id", taskId)
               .eq("user_id", session.user.id);
           });
+          if (error) {
+            throw error;
+          }
         } catch (err) {
           console.error("Failed to update task:", err);
+          // Rollback the optimistic update
+          setTasks(previousTasks);
           actionError("Failed to update task");
         }
       }
@@ -229,6 +256,9 @@ export function useTasks(): UseTasksReturn {
    */
   const deleteTask = useCallback(
     async (taskId: string) => {
+      // Snapshot for rollback
+      const previousTasks = tasksRef.current;
+
       // Optimistic delete
       setTasks((prev) => prev.filter((t) => t.id !== taskId));
 
@@ -236,15 +266,20 @@ export function useTasks(): UseTasksReturn {
         try {
           const supabaseClient = getSupabaseClientOrNull();
           if (!supabaseClient) return;
-          await retryWithBackoff(async () => {
+          const { error } = await retryWithBackoff(async () => {
             return supabaseClient
               .from("tasks")
               .delete()
               .eq("id", taskId)
               .eq("user_id", session.user.id);
           });
+          if (error) {
+            throw error;
+          }
         } catch (err) {
           console.error("Failed to delete task:", err);
+          // Rollback the optimistic delete
+          setTasks(previousTasks);
           actionError("Failed to delete task");
         }
       }
@@ -347,16 +382,25 @@ export function useTasks(): UseTasksReturn {
    * Reorder tasks (drag & drop)
    */
   const reorderTasks = useCallback(
-    async (startIndex: number, endIndex: number) => {
+    async (sourceId: string, targetId: string) => {
+      if (sourceId === targetId) return;
+
       const sorted = TaskService.sortByOrder(tasks);
-      const [removed] = sorted.splice(startIndex, 1);
-      sorted.splice(endIndex, 0, removed);
+      const sourceIndex = sorted.findIndex((t) => t.id === sourceId);
+      const targetIndex = sorted.findIndex((t) => t.id === targetId);
+      if (sourceIndex < 0 || targetIndex < 0) return;
+
+      const [removed] = sorted.splice(sourceIndex, 1);
+      const insertIndex = Math.max(0, targetIndex);
+      sorted.splice(insertIndex, 0, removed);
 
       const reordered = sorted.map((task, index) => ({
         ...task,
         order: index,
       }));
 
+      // Snapshot for rollback
+      const previousTasks = tasks;
       setTasks(reordered);
 
       if (session?.user?.id) {
@@ -365,20 +409,25 @@ export function useTasks(): UseTasksReturn {
           if (!supabaseClient) return;
           // Batch update orders
           for (const task of reordered) {
-            await retryWithBackoff(async () => {
+            const { error } = await retryWithBackoff(async () => {
               return supabaseClient
                 .from("tasks")
                 .update({ order: task.order })
                 .eq("id", task.id)
                 .eq("user_id", session.user.id);
             });
+            if (error) {
+              throw error;
+            }
           }
         } catch (err) {
           console.error("Failed to reorder tasks:", err);
+          setTasks(previousTasks);
+          actionError("Failed to reorder tasks");
         }
       }
     },
-    [tasks, session?.user?.id],
+    [tasks, session?.user?.id, actionError],
   );
 
   /**
@@ -434,6 +483,7 @@ export function useTasks(): UseTasksReturn {
     activeTaskId,
     loading,
     error,
+    lastAddedTaskId,
     addTask,
     updateTask,
     deleteTask,

@@ -7,13 +7,14 @@
 
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/hooks/useAuth";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import TasksView from "@/app/(app)/tasks/_components/views/TasksView";
 import QuickAddTask from "@/app/(app)/tasks/_components/forms/QuickAddTask";
 import Button from "@/components/ui/Button";
+import TaskViewModal from "@/app/(app)/tasks/_components/modals/TaskViewModal";
 import { useTasks } from "@/hooks/useTasks";
 import { useTags } from "@/hooks/useTags";
 import { useStats } from "@/hooks/useStats";
@@ -27,12 +28,14 @@ import { AddPlusIcon } from "@/components/shared/icons";
 export default function TasksPage() {
   const router = useRouter();
   const { status } = useSession();
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const {
     tasks,
     activeTaskId,
     loading,
     error,
+    lastAddedTaskId,
     addTask,
     updateTask,
     toggleTask,
@@ -101,7 +104,7 @@ export default function TasksPage() {
   };
 
   const handleEditTask = (task: Task) => {
-    router.push(`/task/${task.id}`);
+    setEditingTask(task);
   };
 
   useEffect(() => {
@@ -157,6 +160,7 @@ export default function TasksPage() {
               tags={tags}
               loading={loading}
               error={error}
+              lastAddedTaskId={lastAddedTaskId}
               onToggle={toggleTask}
               onDelete={deleteTask}
               onSelectTask={setActiveTask}
@@ -170,6 +174,23 @@ export default function TasksPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Task Edit Modal */}
+      {editingTask && (
+        <TaskViewModal
+          key={editingTask.id}
+          task={editingTask}
+          onClose={() => setEditingTask(null)}
+          onUpdate={(updates) => updateTask(editingTask.id, updates)}
+          onAddSubTask={(title) => addSubTask(editingTask.id, title)}
+          onToggleSubTask={(subTaskId) =>
+            toggleSubTask(editingTask.id, subTaskId)
+          }
+          onDeleteSubTask={(subTaskId) =>
+            deleteSubTask(editingTask.id, subTaskId)
+          }
+        />
+      )}
 
       {/* Achievement Notifications */}
       {newlyUnlocked.map((achievement, index) => (

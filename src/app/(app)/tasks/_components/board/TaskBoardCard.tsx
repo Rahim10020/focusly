@@ -90,7 +90,7 @@ export function TaskBoardCard({
 
         <div className="flex-1 min-w-0">
           <p
-            className={`text-sm font-medium ${isDone ? "line-through text-muted-foreground" : "text-foreground"}`}
+            className={`text-sm font-medium break-words ${isDone ? "line-through text-muted-foreground" : "text-foreground"}`}
           >
             {task.title}
           </p>
@@ -170,7 +170,7 @@ export function TaskBoardCard({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 mt-3 pt-3 border-t border-border opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex flex-wrap items-center gap-1 mt-3 pt-3 border-t border-border md:opacity-0 md:group-hover:opacity-100 transition-opacity">
         <Button
           variant="ghost"
           size="sm"

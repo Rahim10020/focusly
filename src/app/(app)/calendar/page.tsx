@@ -75,6 +75,7 @@ export default function CalendarPage() {
 
       {selectedTask && (
         <TaskViewModal
+          key={selectedTask.id}
           task={selectedTask}
           onClose={() => setSelectedTask(null)}
           onUpdate={(updates) => updateTask(selectedTask.id, updates)}

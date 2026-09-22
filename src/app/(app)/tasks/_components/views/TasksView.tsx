@@ -37,6 +37,7 @@ interface TasksViewProps {
   tags: Tag[];
   loading?: boolean;
   error?: string | null;
+  lastAddedTaskId?: string | null;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onSelectTask: (id: string | null) => void;
@@ -44,7 +45,7 @@ interface TasksViewProps {
   onAddSubTask: (taskId: string, title: string) => void;
   onToggleSubTask: (taskId: string, subTaskId: string) => void;
   onDeleteSubTask: (taskId: string, subTaskId: string) => void;
-  onReorder: (startIndex: number, endIndex: number) => void;
+  onReorder: (sourceId: string, targetId: string) => void;
   onEditTask: (task: Task) => void;
   /** Whether to show sorting options UI */
   showSortOptions?: boolean;
@@ -199,18 +200,18 @@ export default function TasksView(props: TasksViewProps) {
               placeholder="Search tasks..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 text-sm rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary w-64"
+              className="pl-9 pr-4 py-2 text-sm rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary w-64 max-w-full"
             />
           </div>
           <span className="text-sm font-semibold text-muted-foreground">
             Sort by:
           </span>
-          <div className="flex gap-1 bg-muted p-1 rounded-xl">
+          <div className="flex gap-1 bg-muted p-1 rounded-xl overflow-x-auto max-w-full">
             {sortOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setSortType(option.value)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer flex items-center gap-1 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap ${
                   sortType === option.value
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -313,6 +314,7 @@ export default function TasksView(props: TasksViewProps) {
               sortType={sortType}
               sortTasks={sortTasks}
               searchQuery={searchQuery}
+              lastAddedTaskId={props.lastAddedTaskId}
               selectedTaskIds={selectedTaskIds}
               onToggleSelection={toggleTaskSelection}
               onSelectAll={selectAllVisible}

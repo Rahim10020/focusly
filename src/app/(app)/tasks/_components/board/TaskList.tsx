@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useState, memo, useEffect } from "react";
 import { Task, Tag } from "@/types";
 import { DateTimeService } from "@/lib/domain/services/DateTimeService";
 import Button from "@/components/ui/Button";
@@ -22,8 +22,9 @@ interface TaskListProps {
   onAddSubTask: (taskId: string, title: string) => void;
   onToggleSubTask: (taskId: string, subTaskId: string) => void;
   onDeleteSubTask: (taskId: string, subTaskId: string) => void;
-  onReorder: (startIndex: number, endIndex: number) => void;
+  onReorder: (sourceId: string, targetId: string) => void;
   searchQuery?: string;
+  lastAddedTaskId?: string | null;
   selectedTaskIds?: Set<string>;
   onToggleSelection?: (taskId: string) => void;
   onSelectAll?: () => void;
@@ -52,6 +53,7 @@ function TaskList({
   onDeleteSubTask,
   onReorder,
   searchQuery: _searchQuery,
+  lastAddedTaskId,
   selectedTaskIds,
   onToggleSelection,
   onSelectAll: _onSelectAll,
@@ -62,6 +64,21 @@ function TaskList({
   const [activeTab, setActiveTab] = useState<TabType>("today");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // Highlight a freshly created task and switch to the tab that contains it
+  useEffect(() => {
+    if (!lastAddedTaskId) return;
+    const added = tasks.find((task) => task.id === lastAddedTaskId);
+    if (!added || added.completed) return;
+
+    if (added.dueDate && DateTimeService.isToday(added.dueDate)) {
+      setActiveTab("today");
+    } else if (added.dueDate && DateTimeService.isTomorrow(added.dueDate)) {
+      setActiveTab("tomorrow");
+    } else {
+      setActiveTab("others");
+    }
+  }, [lastAddedTaskId, tasks]);
 
   const activeTasks = tasks.filter((task) => !task.completed);
 
@@ -105,7 +122,11 @@ function TaskList({
       dragOverIndex !== null &&
       draggedIndex !== dragOverIndex
     ) {
-      onReorder(draggedIndex, dragOverIndex);
+      const source = currentTasks[draggedIndex];
+      const target = currentTasks[dragOverIndex];
+      if (source && target) {
+        onReorder(source.id, target.id);
+      }
     }
     setDraggedIndex(null);
     setDragOverIndex(null);
@@ -185,6 +206,10 @@ function TaskList({
               onDragEnd={handleDragEnd}
               onDrop={handleDrop}
               className={`transition-all ${
+                task.id === lastAddedTaskId
+                  ? "rounded-xl ring-2 ring-primary/50 animate-pulse-soft"
+                  : ""
+              } ${
                 dragOverIndex === index &&
                 draggedIndex !== index &&
                 activeTab !== "completed"
