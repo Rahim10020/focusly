@@ -3,6 +3,7 @@ import {
   mapDbTaskToTask,
   mapTaskToDbInsert,
   mapTaskUpdateToDb,
+  mapSubTaskToDbInsert,
 } from "@/lib/supabase/mappers";
 import type { Task } from "@/types";
 
@@ -81,7 +82,23 @@ describe("mappers", () => {
     expect(db.id).toBe("task-1");
     expect(db.title).toBe("Test");
     expect(db.due_date).toBe("2026-01-02T00:00:00.000Z");
-    expect(db.subtasks).toEqual(task.subTasks);
+    expect(db.subtasks).toBeUndefined();
+  });
+
+  it("should not map subtasks into tasks updates", () => {
+    const db = mapTaskUpdateToDb({ subTasks: [{ id: "s1", title: "x", completed: false, createdAt: 0 }] });
+    expect(db.subtasks).toBeUndefined();
+  });
+
+  it("should map subtask to db insert", () => {
+    const db = mapSubTaskToDbInsert(
+      { id: "subtask-1", title: "First step", completed: true, createdAt: new Date("2026-01-01T00:00:00Z").getTime(), completedAt: new Date("2026-01-02T00:00:00Z").getTime() },
+      "task-1",
+    );
+    expect(db.task_id).toBe("task-1");
+    expect(db.title).toBe("First step");
+    expect(db.completed).toBe(true);
+    expect(db.completed_at).toBe("2026-01-02T00:00:00.000Z");
   });
 
   it("should map recurrence fields to db insert", () => {

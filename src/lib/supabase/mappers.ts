@@ -3,7 +3,25 @@
  * Convert between Supabase DB types and application TypeScript types
  */
 
-import { Task, PomodoroSession } from "@/types";
+import { Task, PomodoroSession, SubTask } from "@/types";
+
+/**
+ * Map a subtask row (from get_tasks_with_subtasks JSONB) to app SubTask type
+ */
+function mapDbSubTaskToSubTask(dbSub: Record<string, any>): SubTask {
+  return {
+    id: dbSub.id,
+    title: dbSub.title,
+    completed: dbSub.completed || false,
+    createdAt: dbSub.created_at
+      ? new Date(dbSub.created_at).getTime()
+      : Date.now(),
+    completedAt: dbSub.completed_at
+      ? new Date(dbSub.completed_at).getTime()
+      : undefined,
+    order: dbSub.order ?? undefined,
+  };
+}
 
 /**
  * Map database task row to application Task type
@@ -38,7 +56,11 @@ export function mapDbTaskToTask(dbTask: Record<string, any>): Task {
     endTime: dbTask.end_time,
     estimatedDuration: dbTask.estimated_duration,
     notes: dbTask.notes,
-    subTasks: dbTask.subtasks || [],
+    subTasks: Array.isArray(dbTask.subtasks)
+      ? dbTask.subtasks.map((s: Record<string, any>) =>
+          mapDbSubTaskToSubTask(s),
+        )
+      : [],
     order: dbTask.order,
     subDomain: dbTask.sub_domain,
     version: dbTask.version,
@@ -87,7 +109,6 @@ export function mapTaskToDbInsert(
     end_time: task.endTime,
     estimated_duration: task.estimatedDuration,
     notes: task.notes,
-    subtasks: task.subTasks || [],
     order: task.order,
     sub_domain: task.subDomain,
     version: task.version,
@@ -141,7 +162,6 @@ export function mapTaskUpdateToDb(updates: Partial<Task>): Record<string, any> {
   if (updates.estimatedDuration !== undefined)
     dbUpdates.estimated_duration = updates.estimatedDuration;
   if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
-  if (updates.subTasks !== undefined) dbUpdates.subtasks = updates.subTasks;
   if (updates.order !== undefined) dbUpdates.order = updates.order;
   if (updates.subDomain !== undefined) dbUpdates.sub_domain = updates.subDomain;
   if (updates.version !== undefined) dbUpdates.version = updates.version;
@@ -152,6 +172,23 @@ export function mapTaskUpdateToDb(updates: Partial<Task>): Record<string, any> {
   if (updates.recurrenceEndDate !== undefined) dbUpdates.recurrence_end_date = updates.recurrenceEndDate;
 
   return dbUpdates;
+}
+
+/**
+ * Map application SubTask to database insert object
+ */
+export function mapSubTaskToDbInsert(
+  subTask: SubTask,
+  taskId: string,
+): Record<string, any> {
+  return {
+    task_id: taskId,
+    title: subTask.title,
+    completed: subTask.completed || false,
+    completed_at: subTask.completedAt
+      ? new Date(subTask.completedAt).toISOString()
+      : null,
+  };
 }
 
 /**
@@ -168,6 +205,5 @@ export function mapSessionToDbInsert(
     type: session.type,
     completed: session.completed,
     started_at: new Date(session.startedAt).toISOString(),
-    created_at: new Date(session.startedAt).toISOString(),
   };
 }

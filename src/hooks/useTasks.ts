@@ -19,6 +19,7 @@ import {
   mapTaskToDbInsert,
   mapDbTaskToTask,
   mapTaskUpdateToDb,
+  mapSubTaskToDbInsert,
 } from "@/lib/supabase/mappers";
 import { retryWithBackoff } from "@/lib/utils/retry";
 import { useAppToast } from "./useAppToast";
@@ -119,11 +120,9 @@ export function useTasks(): UseTasksReturn {
 
     try {
       const { data, error: err } = await retryWithBackoff(async () => {
-        return supabaseClient
-          .from("tasks")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .order("created_at", { ascending: false });
+        return supabaseClient.rpc("get_tasks_with_subtasks", {
+          p_user_id: session.user.id,
+        });
       });
 
       if (err) throw err;
@@ -191,12 +190,26 @@ export function useTasks(): UseTasksReturn {
           const supabaseClient = getSupabaseClientOrNull();
           if (!supabaseClient) return;
           const dbData = mapTaskToDbInsert(newTask, session.user.id);
-          // Assign the db-generated id (or our client id when it is respected) back
           const { error } = await retryWithBackoff(async () => {
             return supabaseClient.from("tasks").insert(dbData as any).select();
           });
           if (error) {
+            console.error("Failed to save task (tasks insert):", error);
             throw error;
+          }
+
+          // Persist subtask rows in the dedicated subtasks table
+          if (newTask.subTasks && newTask.subTasks.length > 0) {
+            const dbSubtasks = newTask.subTasks.map((st) =>
+              mapSubTaskToDbInsert(st, newTask.id),
+            );
+            const { error: subError } = await retryWithBackoff(async () => {
+              return supabaseClient.from("subtasks").insert(dbSubtasks as any);
+            });
+            if (subError) {
+              console.error("Failed to save task (subtasks insert):", subError);
+              throw subError;
+            }
           }
         } catch (err) {
           console.error("Failed to save task:", err);
@@ -333,11 +346,33 @@ export function useTasks(): UseTasksReturn {
         createdAt: Date.now(),
       };
 
-      await updateTask(taskId, {
-        subTasks: [...(task.subTasks || []), newSubTask],
-      });
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? { ...t, subTasks: [...(t.subTasks || []), newSubTask] }
+            : t,
+        ),
+      );
+
+      if (session?.user?.id) {
+        try {
+          const supabaseClient = getSupabaseClientOrNull();
+          if (!supabaseClient) return;
+          const { error } = await retryWithBackoff(async () => {
+            return supabaseClient
+              .from("subtasks")
+              .insert(mapSubTaskToDbInsert(newSubTask, taskId) as any);
+          });
+          if (error) {
+            throw error;
+          }
+        } catch (err) {
+          console.error("Failed to add subtask:", err);
+          actionError("Failed to add subtask");
+        }
+      }
     },
-    [tasks, updateTask],
+    [tasks, session?.user?.id, actionError],
   );
 
   /**
@@ -345,22 +380,53 @@ export function useTasks(): UseTasksReturn {
    */
   const toggleSubTask = useCallback(
     async (taskId: string, subTaskId: string) => {
-      const task = tasks.find((t) => t.id === taskId);
-      if (!task) return;
+      const previousTasks = tasksRef.current;
 
-      const updatedSubTasks = (task.subTasks || []).map((st) =>
-        st.id === subTaskId
-          ? {
-              ...st,
-              completed: !st.completed,
-              completedAt: !st.completed ? Date.now() : undefined,
-            }
-          : st,
-      );
+      const updated = (task: Task) => ({
+        ...task,
+        subTasks: (task.subTasks || []).map((st) =>
+          st.id === subTaskId
+            ? {
+                ...st,
+                completed: !st.completed,
+                completedAt: !st.completed ? Date.now() : undefined,
+              }
+            : st,
+        ),
+      });
 
-      await updateTask(taskId, { subTasks: updatedSubTasks });
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? updated(t) : t)));
+
+      if (session?.user?.id) {
+        try {
+          const supabaseClient = getSupabaseClientOrNull();
+          if (!supabaseClient) return;
+          const task = updated(tasksRef.current.find((t) => t.id === taskId)!);
+          const subTask = (task.subTasks || []).find((st) => st.id === subTaskId);
+          if (!subTask) return;
+          const { error } = await retryWithBackoff(async () => {
+            return supabaseClient
+              .from("subtasks")
+              .update({
+                completed: subTask.completed,
+                completed_at: subTask.completedAt
+                  ? new Date(subTask.completedAt).toISOString()
+                  : null,
+              })
+              .eq("id", subTaskId)
+              .eq("task_id", taskId);
+          });
+          if (error) {
+            throw error;
+          }
+        } catch (err) {
+          console.error("Failed to toggle subtask:", err);
+          setTasks(previousTasks);
+          actionError("Failed to toggle subtask");
+        }
+      }
     },
-    [tasks, updateTask],
+    [session?.user?.id, actionError],
   );
 
   /**
@@ -368,14 +434,43 @@ export function useTasks(): UseTasksReturn {
    */
   const deleteSubTask = useCallback(
     async (taskId: string, subTaskId: string) => {
-      const task = tasks.find((t) => t.id === taskId);
-      if (!task) return;
+      const previousTasks = tasksRef.current;
 
-      await updateTask(taskId, {
-        subTasks: (task.subTasks || []).filter((st) => st.id !== subTaskId),
-      });
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? {
+                ...t,
+                subTasks: (t.subTasks || []).filter(
+                  (st) => st.id !== subTaskId,
+                ),
+              }
+            : t,
+        ),
+      );
+
+      if (session?.user?.id) {
+        try {
+          const supabaseClient = getSupabaseClientOrNull();
+          if (!supabaseClient) return;
+          const { error } = await retryWithBackoff(async () => {
+            return supabaseClient
+              .from("subtasks")
+              .delete()
+              .eq("id", subTaskId)
+              .eq("task_id", taskId);
+          });
+          if (error) {
+            throw error;
+          }
+        } catch (err) {
+          console.error("Failed to delete subtask:", err);
+          setTasks(previousTasks);
+          actionError("Failed to delete subtask");
+        }
+      }
     },
-    [tasks, updateTask],
+    [session?.user?.id, actionError],
   );
 
   /**

@@ -17,6 +17,7 @@ const NON_RETRYABLE_ERROR_CODES = [
   "403", // Forbidden
   "404", // Not Found
   "422", // Unprocessable Entity
+  "42501", // Postgres permission denied (e.g. missing GRANT/RLS) — retrying never helps
   "PGRST116", // No rows found (Supabase)
 ];
 
