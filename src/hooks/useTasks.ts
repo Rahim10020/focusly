@@ -155,6 +155,7 @@ export function useTasks(): UseTasksReturn {
         id,
         title: input.title,
         completed: false,
+        status: "todo",
         createdAt,
         pomodoroCount: 0,
         priority: input.priority,
@@ -231,9 +232,41 @@ export function useTasks(): UseTasksReturn {
       // Snapshot the previous state for rollback
       const previousTasks = tasksRef.current;
 
+      // Keep `completed` and `status` in sync so list view (which filters
+      // on `completed`) and board view (which groups by `status`) never diverge.
+      // The DB has no `status` column, so after a reload `status` is recomputed
+      // from `completed` — the in-memory state must match that.
+      const normalizedUpdates: Partial<Task> = { ...updates };
+      if (normalizedUpdates.completed !== undefined && normalizedUpdates.status === undefined) {
+        if (normalizedUpdates.completed) {
+          normalizedUpdates.status = "done";
+          if (normalizedUpdates.completedAt === undefined) {
+            normalizedUpdates.completedAt = Date.now();
+          }
+        } else {
+          const current = tasksRef.current.find((t) => t.id === taskId);
+          if (!current || current.status === "done" || current.status === undefined) {
+            normalizedUpdates.status = "todo";
+          }
+          if (normalizedUpdates.completedAt === undefined) {
+            normalizedUpdates.completedAt = undefined;
+          }
+        }
+      } else if (normalizedUpdates.status !== undefined && normalizedUpdates.completed === undefined) {
+        if (normalizedUpdates.status === "done") {
+          normalizedUpdates.completed = true;
+          if (normalizedUpdates.completedAt === undefined) {
+            normalizedUpdates.completedAt = Date.now();
+          }
+        } else {
+          normalizedUpdates.completed = false;
+          normalizedUpdates.completedAt = undefined;
+        }
+      }
+
       // Optimistic update
       setTasks((prev) =>
-        prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t)),
+        prev.map((t) => (t.id === taskId ? { ...t, ...normalizedUpdates } : t)),
       );
 
       if (session?.user?.id) {
@@ -241,7 +274,7 @@ export function useTasks(): UseTasksReturn {
           const supabaseClient = getSupabaseClientOrNull();
           if (!supabaseClient) return;
           // Mapper les propriétés vers le format de la base de données
-          const dbUpdates = mapTaskUpdateToDb(updates);
+          const dbUpdates = mapTaskUpdateToDb(normalizedUpdates);
 
           const { error } = await retryWithBackoff(async () => {
             return supabaseClient
@@ -308,9 +341,11 @@ export function useTasks(): UseTasksReturn {
       const task = tasks.find((t) => t.id === taskId);
       if (!task) return;
 
+      const completed = !task.completed;
       await updateTask(taskId, {
-        completed: !task.completed,
-        completedAt: !task.completed ? Date.now() : undefined,
+        completed,
+        completedAt: completed ? Date.now() : undefined,
+        status: completed ? "done" : task.status === "done" ? "todo" : task.status || "todo",
       });
     },
     [tasks, updateTask],

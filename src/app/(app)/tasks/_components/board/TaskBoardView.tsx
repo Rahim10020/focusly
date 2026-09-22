@@ -65,7 +65,12 @@ export default function TaskBoardView({
 
   const getTasksByStatus = (status: TaskStatus) => {
     const filteredTasks = tasks.filter((task) => {
-      const taskStatus = task.status || (task.completed ? "done" : "todo");
+      // `completed` is the source of truth (it's the only flag persisted in DB).
+      // A task can carry a stale in-memory `status` (e.g. "todo" with
+      // completed=true after a list-view toggle), so completed wins.
+      if (task.completed) return status === "done";
+      if (task.status === "done" && !task.completed) return status === "done";
+      const taskStatus = task.status || "todo";
       return taskStatus === status;
     });
     return sortTasks(filteredTasks);
