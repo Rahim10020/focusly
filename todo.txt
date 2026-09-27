@@ -1,4 +1,1 @@
 -- tout tester
-
----------- A corriger:
--- une tache qui est completed, ne peut pas avoir des options set active ou unset
