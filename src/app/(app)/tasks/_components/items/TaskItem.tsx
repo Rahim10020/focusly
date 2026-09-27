@@ -113,7 +113,7 @@ function TaskItem({
           {/* Title and Active badge */}
           <div className="flex items-center gap-2 flex-wrap">
             <p
-              className={`text-base font-medium break-words ${
+              className={`text-base font-medium wrap-break-word ${
                 task.completed
                   ? "line-through text-muted-foreground"
                   : "text-foreground"
