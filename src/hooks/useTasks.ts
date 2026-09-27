@@ -85,11 +85,28 @@ export function useTasks(): UseTasksReturn {
   }, [tasks]);
 
   // Initialize from localStorage on mount
+  // A completed task can never stay selectable as active: a stale
+  // ACTIVE_TASK id pointing to a completed (or missing) task is cleared.
   useEffect(() => {
     const localTasks = StorageService.getLocal<Task[]>("TASKS");
     const localActiveId = StorageService.getLocal<string>("ACTIVE_TASK");
     if (localTasks) setTasks(localTasks);
-    if (localActiveId) setActiveTaskId(localActiveId);
+    if (localActiveId) {
+      if (!localTasks && !session?.user?.id) {
+        StorageService.removeLocal("ACTIVE_TASK");
+        setActiveTaskId(null);
+      } else if (localTasks) {
+        const activeTask = localTasks.find((t) => t.id === localActiveId);
+        if (!activeTask || activeTask.completed) {
+          StorageService.removeLocal("ACTIVE_TASK");
+          setActiveTaskId(null);
+        } else {
+          setActiveTaskId(localActiveId);
+        }
+      } else {
+        setActiveTaskId(localActiveId);
+      }
+    }
 
     if (session?.user?.id) {
       loadFromSupabase();
@@ -104,6 +121,8 @@ export function useTasks(): UseTasksReturn {
   useEffect(() => {
     if (activeTaskId) {
       StorageService.setLocal("ACTIVE_TASK", activeTaskId);
+    } else {
+      StorageService.removeLocal("ACTIVE_TASK");
     }
   }, [activeTaskId]);
 
@@ -129,6 +148,17 @@ export function useTasks(): UseTasksReturn {
       if (data) {
         const mappedTasks = data.map((t) => mapDbTaskToTask(t));
         setTasks(mappedTasks);
+        const storedActiveId =
+          StorageService.getLocal<string>("ACTIVE_TASK");
+        if (storedActiveId) {
+          const activeTask = mappedTasks.find(
+            (t) => t.id === storedActiveId,
+          );
+          if (!activeTask || activeTask.completed) {
+            StorageService.removeLocal("ACTIVE_TASK");
+            setActiveTaskId(null);
+          }
+        }
       }
     } catch (err) {
       console.error("Failed to load tasks from Supabase:", err);

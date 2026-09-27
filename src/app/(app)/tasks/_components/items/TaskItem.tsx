@@ -121,7 +121,7 @@ function TaskItem({
             >
               {task.title}
             </p>
-            {isActive && (
+            {isActive && !task.completed && (
               <span className="inline-flex items-center gap-1 text-xs bg-primary text-foreground px-2.5 py-1 rounded-full font-semibold animate-pulse-soft">
                 {/* A changer apres quand j'aurai une meilleure icone */}
                 <svg
@@ -229,7 +229,7 @@ function TaskItem({
             </Button>
           )}
 
-          {isActive && (
+          {isActive && !task.completed && (
             <Button
               variant="secondary"
               size="sm"

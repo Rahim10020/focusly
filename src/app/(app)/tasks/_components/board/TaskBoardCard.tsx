@@ -158,7 +158,7 @@ export function TaskBoardCard({
           </div>
         )}
 
-        {isActive && (
+        {isActive && !task.completed && (
           <div className="flex items-center gap-1 text-xs text-primary font-medium">
             {/* A changer apres quand j'aurai une meilleure icone */}
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -179,7 +179,7 @@ export function TaskBoardCard({
         >
           Edit
         </Button>
-        {!isActive && !isDone && (
+        {!isActive && !task.completed && (
           <Button
             variant="ghost"
             size="sm"
@@ -189,7 +189,7 @@ export function TaskBoardCard({
             Set Active
           </Button>
         )}
-        {isActive && (
+        {isActive && !task.completed && (
           <Button
             variant="ghost"
             size="sm"
