@@ -105,3 +105,57 @@ describe("completed tasks never show Set Active / Unset / badge", () => {
     expect(screen.getByText("Set Active")).toBeInTheDocument();
   });
 });
+
+describe("TaskItem responsive layout (mobile < lg, desktop lg+)", () => {
+  it("renders the title twice: mobile row + desktop content row", () => {
+    render(
+      <TaskItem
+        {...itemBaseProps}
+        task={makeTask({ title: "Responsive title" })}
+        isActive={false}
+      />,
+    );
+    expect(screen.getAllByText("Responsive title")).toHaveLength(2);
+  });
+
+  it("mobile rows are lg:hidden and desktop title row is hidden below lg", () => {
+    const { container } = render(
+      <TaskItem
+        {...itemBaseProps}
+        onToggleSelection={vi.fn()}
+        task={makeTask({ title: "Breakpoints" })}
+        isActive={false}
+      />,
+    );
+    // Mobile top row: drag left + selection right
+    const topRow = container.querySelector(
+      ".flex.w-full.items-center.justify-between.lg\\:hidden",
+    );
+    expect(topRow).not.toBeNull();
+    // Mobile title row: checkbox + title with wide gap
+    const titleRow = container.querySelector(
+      ".flex.w-full.items-center.gap-4.lg\\:hidden",
+    );
+    expect(titleRow).not.toBeNull();
+    // Desktop title row hidden on mobile, flex on lg+
+    const desktopTitle = container.querySelector(
+      ".hidden.items-center.gap-2.lg\\:flex",
+    );
+    expect(desktopTitle).not.toBeNull();
+  });
+
+  it("mobile top row shows drag alone when no selection handler", () => {
+    const { container } = render(
+      <TaskItem
+        {...itemBaseProps}
+        task={makeTask({ title: "Drag only" })}
+        isActive={false}
+      />,
+    );
+    const topRow = container.querySelector(
+      ".flex.w-full.items-center.justify-between.lg\\:hidden",
+    );
+    expect(topRow).not.toBeNull();
+    expect(topRow?.querySelector("button")).toBeNull();
+  });
+});

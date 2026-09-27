@@ -66,6 +66,27 @@ function TaskItem({
   ).length;
   const totalSubTasks = (task.subTasks || []).length;
 
+  const handleToggle = () => {
+    if (!task.completed) {
+      playWorkComplete();
+    }
+    onToggle(task.id);
+  };
+
+  const titleClassName = `text-xl font-medium wrap-break-word ${
+    task.completed ? "line-through text-muted-foreground" : "text-foreground"
+  }`;
+
+  const activeBadge = isActive && !task.completed && (
+    <span className="inline-flex items-center gap-1 text-xs bg-primary text-foreground px-2.5 py-2 rounded-full font-semibold animate-pulse-soft">
+      {/* A changer apres quand j'aurai une meilleure icone */}
+      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+        <circle cx="10" cy="10" r="5" />
+      </svg>
+      Active
+    </span>
+  );
+
   return (
     <>
       <div
@@ -75,11 +96,42 @@ function TaskItem({
             : "bg-card hover:bg-accent/50 border border-border hover:border-primary/20 hover:shadow-sm"
         } ${isDragging ? "opacity-50 scale-95 rotate-1" : ""}`}
       >
-        {/* Selection Checkbox */}
+        {/* Mobile top row: drag handle left, selection checkbox far right */}
+        <div className="flex w-full items-center justify-between lg:hidden">
+          <div
+            {...dragHandleProps}
+            className="shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/60 hover:text-primary transition-all"
+          >
+            <DragHorizontalIcon size={32} />
+          </div>
+          {onToggleSelection && (
+            <button
+              onClick={() => onToggleSelection(task.id)}
+              className={`shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                isSelected
+                  ? "bg-primary border-primary"
+                  : "border-muted-foreground hover:border-primary"
+              }`}
+            >
+              {isSelected && <CheckIcon size={12} className="text-white" />}
+            </button>
+          )}
+        </div>
+
+        {/* Mobile title row: checkbox + title with a wide gap */}
+        <div className="flex w-full items-center gap-4 lg:hidden">
+          <TaskCheckbox completed={task.completed} onToggle={handleToggle} />
+          <div className="flex min-w-0 flex-1 items-center gap-2 flex-wrap">
+            <p className={titleClassName}>{task.title}</p>
+            {activeBadge}
+          </div>
+        </div>
+
+        {/* Selection Checkbox (desktop) */}
         {onToggleSelection && (
           <button
             onClick={() => onToggleSelection(task.id)}
-            className={`shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all mt-1 ${
+            className={`hidden shrink-0 w-5 h-5 rounded border-2 items-center justify-center transition-all lg:mt-1 lg:flex ${
               isSelected
                 ? "bg-primary border-primary"
                 : "border-muted-foreground hover:border-primary"
@@ -89,51 +141,25 @@ function TaskItem({
           </button>
         )}
 
-        {/* Drag Handle */}
+        {/* Drag Handle (desktop) */}
         <div
           {...dragHandleProps}
-          className="shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/60 hover:text-primary transition-all mt-1"
+          className="hidden shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/60 hover:text-primary transition-all lg:mt-1 lg:block"
         >
-          <DragHorizontalIcon size={24} />
+          <DragHorizontalIcon size={32} />
         </div>
 
-        {/* Checkbox */}
-        <TaskCheckbox
-          completed={task.completed}
-          onToggle={() => {
-            if (!task.completed) {
-              playWorkComplete();
-            }
-            onToggle(task.id);
-          }}
-        />
+        {/* Checkbox (desktop) */}
+        <div className="hidden lg:block">
+          <TaskCheckbox completed={task.completed} onToggle={handleToggle} />
+        </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0 space-y-3">
-          {/* Title and Active badge */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <p
-              className={`text-base font-medium wrap-break-word ${
-                task.completed
-                  ? "line-through text-muted-foreground"
-                  : "text-foreground"
-              }`}
-            >
-              {task.title}
-            </p>
-            {isActive && !task.completed && (
-              <span className="inline-flex items-center gap-1 text-xs bg-primary text-foreground px-2.5 py-1 rounded-full font-semibold animate-pulse-soft">
-                {/* A changer apres quand j'aurai une meilleure icone */}
-                <svg
-                  className="w-3 h-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <circle cx="10" cy="10" r="5" />
-                </svg>
-                Active
-              </span>
-            )}
+          {/* Title and Active badge (desktop — mobile uses its own title row above) */}
+          <div className="hidden items-center gap-2 flex-wrap lg:flex">
+            <p className={titleClassName}>{task.title}</p>
+            {activeBadge}
           </div>
 
           {/* Priority, Tags, Due Date, Subdomain */}
@@ -146,7 +172,7 @@ function TaskItem({
               <DueDateBadge dueDate={task.dueDate} completed={task.completed} />
             )}
             {task.subDomain && (
-              <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-accent text-accent-foreground px-2 py-2 rounded-full">
                 {
                   DOMAINS[getDomainFromSubDomain(task.subDomain)].subDomains[
                     task.subDomain
@@ -155,7 +181,7 @@ function TaskItem({
               </span>
             )}
             {task.isRecurring && (
-              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-primary/10 text-primary px-2 py-2 rounded-full">
                 {RecurrenceService.getRecurrenceLabel(task) || "Recurring"}
               </span>
             )}
